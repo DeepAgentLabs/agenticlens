@@ -63,13 +63,31 @@ with profile("Customer Support"):
     agent.run(question)
 ```
 
-The profiler automatically collects metrics during execution.
+The profiler establishes the workflow context (start/end time, id) but does **not** auto-capture LLM calls — see [Instrumentation Model](#instrumentation-model) below.
 
 ---
 
 ### 2. Step Profiling
 
-Every workflow consists of multiple steps. Each step should have independent metrics.
+Every workflow consists of multiple steps. Each step should have independent metrics, and is wrapped **explicitly** by the developer:
+
+```python
+from tokenlens import profile, step
+
+with profile("Customer Support"):
+    with step("Planner", type="planner") as s:
+        plan = planner_llm.invoke(prompt)
+        s.record(plan)  # attaches token usage from the provider response
+
+    with step("Retriever", type="retriever") as s:
+        chunks = retriever.search(query)
+
+    with step("Final Response", type="llm_call") as s:
+        answer = response_llm.invoke(context)
+        s.record(answer)
+```
+
+`step()` yields a handle whose `.record(response)` extracts token usage from a provider response (auto-detected via the provider registry) and attaches it to the step. Steps are recorded against the currently active workflow via a `contextvar`-based stack, so calling `step()` outside of a `profile()` block raises a clear error.
 
 **Example step types:**
 
@@ -79,6 +97,18 @@ Every workflow consists of multiple steps. Each step should have independent met
 - LLM Call
 - Memory
 - Final Response
+
+#### Instrumentation Model
+
+> **Decision:** TokenLens uses an **explicit step API**, not automatic SDK monkey-patching.
+
+Rationale:
+
+- Reliable across provider SDK versions — no breakage when OpenAI/Anthropic change internal client internals.
+- Testable without mocking global state.
+- Step boundaries (Planner vs. Retriever vs. Tool Call) are a workflow concept the library cannot infer reliably; the developer already knows them.
+
+Trade-off accepted: integrating TokenLens requires adding `with step(...):` around LLM/tool calls. This cost is acceptable for an MVP and can be revisited post-MVP with optional auto-instrumentation adapters (e.g. for LangChain callbacks) once the core model is stable.
 
 ---
 
@@ -102,7 +132,11 @@ Collected per step:
 | `output_cost` | Cost of completion tokens |
 | `total_cost` | Total spend for the step |
 
-> Model pricing is configurable.
+**Pricing source of truth:** a static pricing table bundled at `src/tokenlens/config/pricing.yaml`, keyed by `provider:model`, kept current via periodic manual updates (community PRs welcome). Resolution order:
+
+1. User-supplied pricing override (via `pyproject.toml` / YAML config / env var) — always wins.
+2. Bundled `pricing.yaml` entry for the exact `provider:model`.
+3. Unknown model → cost fields are `None` and a `UnknownModelPricingWarning` is emitted. **Never silently report `$0.00`** for an unpriced model — that's misleading, not a graceful fallback.
 
 ---
 
@@ -111,8 +145,8 @@ Collected per step:
 | Metric | Description |
 |---|---|
 | `latency` | Total step duration |
-| `ttft` | Time To First Token (when available) |
-| `tps` | Tokens Per Second |
+| `ttft` | Time To First Token. `float \| None` — only populated when the wrapped call is a streaming call; `None` for non-streaming calls (the common case). Not an error or missing-data condition. |
+| `tps` | Tokens Per Second (`completion_tokens / latency`) |
 
 ---
 
@@ -149,13 +183,28 @@ Repeated for every workflow step.
 
 TokenLens does not stop at reporting — it **analyzes** the workflow and generates actionable optimization suggestions.
 
-**Example recommendations:**
+> Initial recommendations use **simple heuristics**, not AI-generated analysis.
 
-- System prompt repeated multiple times
-- Retrieved too many documents
-- Conversation history is excessively long
-- Duplicate tool calls detected
-- Retrieved context larger than necessary
+### MVP Heuristic Rules
+
+Each rule below detects a pattern and estimates the tokens it would save (`tokens_saved`), which feeds the savings calculation.
+
+| Rule | Detection logic | `tokens_saved` estimate |
+|---|---|---|
+| **Repeated system prompt** | Hash the first N tokens (configurable, default 50) of each step's prompt. If the same hash appears in ≥2 steps, flag all occurrences after the first. | Sum of token counts of the repeated prefix across the duplicate occurrences. |
+| **Excessive retrieved chunks** | Retriever step returns more than `max_chunks` (configurable, default 8) chunks. | `(chunk_count - max_chunks) × avg_tokens_per_chunk`. |
+| **Long conversation history** | A step's `prompt_tokens` attributable to history/memory content exceeds `history_token_limit` (configurable, default 4000). | `prompt_tokens_from_history - history_token_limit`. |
+| **Duplicate tool calls** | Two or more Tool Call steps in the same workflow share an identical `(tool_name, arguments)` signature. | Sum of `prompt_tokens + completion_tokens` for every duplicate occurrence after the first. |
+
+All thresholds live in `RecommenderConfig` and are user-overridable; defaults above are starting points, not hard-coded constants.
+
+### Estimated Savings Formula
+
+```
+estimated_savings_pct = min(100, (sum(tokens_saved for all triggered rules) / workflow.total_tokens) * 100)
+```
+
+Each `Recommendation` carries its own `estimated_savings` (per-rule), and the workflow summary reports the aggregate using the formula above.
 
 **Example output:**
 
@@ -168,8 +217,6 @@ Optimization Suggestions
 
 Estimated Savings: 31%
 ```
-
-> Initial recommendations use **simple heuristics**, not AI-generated analysis.
 
 ---
 
@@ -312,7 +359,7 @@ Configuration is supported through any of:
 
 | Concern | Choice |
 |---|---|
-| Language | Python 3.12+ |
+| Language | Python 3.10+ |
 | Package Manager | `uv` |
 | Packaging | `pyproject.toml` |
 | Testing | `pytest` |

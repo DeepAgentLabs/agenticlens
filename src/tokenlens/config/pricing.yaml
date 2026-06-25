@@ -1,0 +1,24 @@
+# Bundled model pricing table (USD per 1,000 tokens).
+#
+# NOTE: prices drift frequently. Verify against each provider's current
+# pricing page before a release. Entries here are placeholders to be
+# confirmed, not guaranteed-current values.
+#
+# Keys are "<provider>:<model>". Resolution order is documented in
+# TokenLens_Spec.md under "Cost Metrics".
+
+openai:gpt-4o:
+  input_per_1k: 0.005
+  output_per_1k: 0.015
+
+openai:gpt-4o-mini:
+  input_per_1k: 0.00015
+  output_per_1k: 0.0006
+
+anthropic:claude-3-5-sonnet:
+  input_per_1k: 0.003
+  output_per_1k: 0.015
+
+anthropic:claude-3-5-haiku:
+  input_per_1k: 0.0008
+  output_per_1k: 0.004

@@ -1,0 +1,9 @@
+site_name: TokenLens
+site_description: Profile, analyze, and optimize token consumption in LLM-powered applications.
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+
+repo_url: https://github.com/tokenlens/tokenlens
