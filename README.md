@@ -65,7 +65,7 @@ That's it. Run your function and get this automatically:
 ╠══════════════════════════════════════╣
 ║  Tools Used   │  3                   ║
 ║  Retries      │  0                   ║
-║  Status       │  ✅ Success           ║
+║  Status       │  ✅ Success          ║
 ╚══════════════════════════════════════╝
 ```
 
