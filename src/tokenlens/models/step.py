@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -15,3 +16,10 @@ class Step(BaseModel):
     provider: str | None = None
     model: str | None = None
     metrics: Metrics = Field(default_factory=Metrics)
+    metadata: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Free-form signals supplied by the developer for recommender rules "
+            "(e.g. 'prompt', 'chunk_count', 'history_tokens', 'tool_name', 'tool_args')."
+        ),
+    )

@@ -47,3 +47,40 @@ def test_step_record_attaches_usage_from_openai_like_response() -> None:
         assert s.step.metrics.prompt_tokens == 10
         assert s.step.metrics.completion_tokens == 5
         assert s.step.metrics.total_tokens == 15
+
+
+def test_cost_is_applied_when_provider_and_model_known() -> None:
+    class Usage:
+        prompt_tokens = 1000
+        completion_tokens = 1000
+
+    class Response:
+        usage = Usage()
+
+    with (
+        profile("Test") as workflow,
+        step("LLM Call", type="llm_call", provider="openai", model="gpt-4o-mini") as s,
+    ):
+        s.record(Response())
+
+    assert workflow.steps[0].metrics.cost == pytest.approx(0.00015 + 0.0006)
+
+
+def test_cost_stays_none_when_provider_or_model_missing() -> None:
+    with profile("Test") as workflow, step("Planner", type="planner"):
+        pass
+
+    assert workflow.steps[0].metrics.cost is None
+
+
+def test_record_sets_ttft_when_provided() -> None:
+    class Usage:
+        prompt_tokens = 10
+        completion_tokens = 5
+
+    class Response:
+        usage = Usage()
+
+    with profile("Test"), step("LLM Call", type="llm_call") as s:
+        s.record(Response(), ttft=0.42)
+        assert s.step.metrics.ttft == 0.42

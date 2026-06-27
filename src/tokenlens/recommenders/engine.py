@@ -2,12 +2,17 @@ from tokenlens.config.settings import RecommenderConfig
 from tokenlens.models.recommendation import Recommendation
 from tokenlens.models.workflow import Workflow
 from tokenlens.recommenders.base import BaseRecommender
+from tokenlens.recommenders.duplicate_tool_calls import DuplicateToolCallsRecommender
+from tokenlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
+from tokenlens.recommenders.long_history import LongHistoryRecommender
+from tokenlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
 
-# MVP heuristic rules (repeated system prompt, excessive chunks, long history,
-# duplicate tool calls) are specified in TokenLens_Spec.md but intentionally
-# not implemented yet -- the scaffold-first plan defers optimization
-# algorithms until project structure is complete.
-DEFAULT_RECOMMENDERS: list[BaseRecommender] = []
+DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
+    RepeatedSystemPromptRecommender(),
+    ExcessiveChunksRecommender(),
+    LongHistoryRecommender(),
+    DuplicateToolCallsRecommender(),
+]
 
 
 class RecommendationEngine:

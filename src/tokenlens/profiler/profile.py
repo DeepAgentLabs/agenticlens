@@ -3,8 +3,10 @@ from datetime import datetime, timezone
 from types import TracebackType
 from typing import Literal
 
+from tokenlens.config.settings import TokenLensConfig, load_config
+from tokenlens.metrics.calculator import apply_cost
 from tokenlens.models.workflow import Workflow
-from tokenlens.profiler.context import current_workflow
+from tokenlens.profiler.context import completed_workflows, current_workflow
 
 
 class profile:  # noqa: N801 -- lowercase to read as a context manager, like contextlib.suppress
@@ -14,8 +16,9 @@ class profile:  # noqa: N801 -- lowercase to read as a context manager, like con
     top-level unit of work.
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, config: TokenLensConfig | None = None) -> None:
         self.name = name
+        self.config = config
         self.workflow: Workflow | None = None
         self._token: Token[Workflow | None] | None = None
 
@@ -35,5 +38,9 @@ class profile:  # noqa: N801 -- lowercase to read as a context manager, like con
         assert self.workflow is not None
         assert self._token is not None
         self.workflow.end_time = datetime.now(timezone.utc)
+        config = self.config or load_config()
+        for step_model in self.workflow.steps:
+            apply_cost(step_model, config)
+        completed_workflows.append(self.workflow)
         current_workflow.reset(self._token)
         return False

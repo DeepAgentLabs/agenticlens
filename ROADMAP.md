@@ -12,8 +12,8 @@
 - [x] CLI skeleton (Typer)
 - [x] Unit test setup (pytest)
 - [x] GitHub Actions CI pipeline
-- [ ] Recommendation engine heuristic rules (repeated system prompt, excessive chunks, long history, duplicate tool calls)
-- [ ] CLI `profile`/`report`/`analyze` business logic
+- [x] Recommendation engine heuristic rules (repeated system prompt, excessive chunks, long history, duplicate tool calls)
+- [x] CLI `profile`/`report`/`analyze` business logic
 - [ ] Documentation structure (MkDocs)
 
 ## Post-MVP

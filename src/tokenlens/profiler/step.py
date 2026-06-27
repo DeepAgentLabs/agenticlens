@@ -14,8 +14,13 @@ class StepHandle:
     def __init__(self, step: Step) -> None:
         self.step = step
 
-    def record(self, response: Any) -> None:
-        """Extract token usage from a provider response and attach it to this step."""
+    def record(self, response: Any, ttft: float | None = None) -> None:
+        """Extract token usage from a provider response and attach it to this step.
+
+        `ttft` is only meaningful for streaming calls; pass it explicitly when the
+        caller measured time-to-first-token itself (TokenLens cannot infer streaming
+        generically across provider SDKs).
+        """
         provider = detect_provider(response)
         if provider is None:
             return
@@ -23,6 +28,8 @@ class StepHandle:
         self.step.metrics.prompt_tokens = usage.prompt_tokens
         self.step.metrics.completion_tokens = usage.completion_tokens
         self.step.metrics.total_tokens = usage.prompt_tokens + usage.completion_tokens
+        if ttft is not None:
+            self.step.metrics.ttft = ttft
 
 
 class step:  # noqa: N801 -- lowercase to read as a context manager, like contextlib.suppress
@@ -34,11 +41,13 @@ class step:  # noqa: N801 -- lowercase to read as a context manager, like contex
         type: StepType | str,
         provider: str | None = None,
         model: str | None = None,
+        **metadata: Any,
     ) -> None:
         self.name = name
         self.type = StepType(type)
         self.provider = provider
         self.model = model
+        self.metadata = metadata
         self._handle: StepHandle | None = None
         self._start: float = 0.0
 
@@ -49,6 +58,7 @@ class step:  # noqa: N801 -- lowercase to read as a context manager, like contex
             type=self.type,
             provider=self.provider,
             model=self.model,
+            metadata=self.metadata,
         )
         self._handle = StepHandle(step_model)
         workflow.steps.append(step_model)
