@@ -1,4 +1,4 @@
-from tokenlens.providers import AnthropicProvider, OpenAIProvider, detect_provider, get_provider
+from agenticlens.providers import AnthropicProvider, OpenAIProvider, detect_provider, get_provider
 
 
 class FakeOpenAIUsage:

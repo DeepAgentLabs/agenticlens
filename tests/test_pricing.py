@@ -1,6 +1,6 @@
 import pytest
 
-from tokenlens.config.pricing import ModelPricing, UnknownModelPricingWarning, calculate_cost
+from agenticlens.config.pricing import ModelPricing, UnknownModelPricingWarning, calculate_cost
 
 
 def test_calculate_cost_known_model() -> None:

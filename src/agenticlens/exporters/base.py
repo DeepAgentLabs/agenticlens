@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from tokenlens.models.workflow import Workflow
+from agenticlens.models.workflow import Workflow
 
 
 class BaseExporter(ABC):

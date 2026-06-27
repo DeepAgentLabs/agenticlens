@@ -1,8 +1,8 @@
 import pytest
 
-from tokenlens import profile, step
-from tokenlens.models import StepType
-from tokenlens.profiler.context import current_workflow
+from agenticlens import profile, step
+from agenticlens.models import StepType
+from agenticlens.profiler.context import current_workflow
 
 
 def test_profile_creates_workflow_and_records_steps() -> None:

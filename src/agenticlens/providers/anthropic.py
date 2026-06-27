@@ -1,6 +1,6 @@
 from typing import Any
 
-from tokenlens.providers.base import BaseProvider, TokenUsage
+from agenticlens.providers.base import BaseProvider, TokenUsage
 
 
 class AnthropicProvider(BaseProvider):

@@ -1,11 +1,11 @@
-from tokenlens.config.settings import RecommenderConfig
-from tokenlens.models.recommendation import Recommendation
-from tokenlens.models.workflow import Workflow
-from tokenlens.recommenders.base import BaseRecommender
-from tokenlens.recommenders.duplicate_tool_calls import DuplicateToolCallsRecommender
-from tokenlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
-from tokenlens.recommenders.long_history import LongHistoryRecommender
-from tokenlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
+from agenticlens.config.settings import RecommenderConfig
+from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.workflow import Workflow
+from agenticlens.recommenders.base import BaseRecommender
+from agenticlens.recommenders.duplicate_tool_calls import DuplicateToolCallsRecommender
+from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
+from agenticlens.recommenders.long_history import LongHistoryRecommender
+from agenticlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
 
 DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
     RepeatedSystemPromptRecommender(),
@@ -34,7 +34,7 @@ class RecommendationEngine:
 
     @staticmethod
     def estimated_savings_pct(workflow: Workflow, recommendations: list[Recommendation]) -> float:
-        """Aggregate savings estimate. See 'Estimated Savings Formula' in TokenLens_Spec.md."""
+        """Aggregate savings estimate. See 'Estimated Savings Formula' in AgenticLens_Spec.md."""
         if workflow.total_tokens == 0:
             return 0.0
         total_saved = sum(r.tokens_saved for r in recommendations)

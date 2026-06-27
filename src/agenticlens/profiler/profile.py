@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from types import TracebackType
 from typing import Literal
 
-from tokenlens.config.settings import TokenLensConfig, load_config
-from tokenlens.metrics.calculator import apply_cost
-from tokenlens.models.workflow import Workflow
-from tokenlens.profiler.context import completed_workflows, current_workflow
+from agenticlens.config.settings import AgenticLensConfig, load_config
+from agenticlens.metrics.calculator import apply_cost
+from agenticlens.models.workflow import Workflow
+from agenticlens.profiler.context import completed_workflows, current_workflow
 
 
 class profile:  # noqa: N801 -- lowercase to read as a context manager, like contextlib.suppress
@@ -16,7 +16,7 @@ class profile:  # noqa: N801 -- lowercase to read as a context manager, like con
     top-level unit of work.
     """
 
-    def __init__(self, name: str, config: TokenLensConfig | None = None) -> None:
+    def __init__(self, name: str, config: AgenticLensConfig | None = None) -> None:
         self.name = name
         self.config = config
         self.workflow: Workflow | None = None

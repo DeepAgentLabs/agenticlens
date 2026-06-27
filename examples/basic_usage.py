@@ -1,6 +1,6 @@
-"""Minimal example of instrumenting a workflow with TokenLens."""
+"""Minimal example of instrumenting a workflow with AgenticLens."""
 
-from tokenlens import profile, step
+from agenticlens import profile, step
 
 
 class FakeUsage:

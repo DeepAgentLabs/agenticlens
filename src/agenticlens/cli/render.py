@@ -3,9 +3,9 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from tokenlens.models.enums import Severity
-from tokenlens.models.recommendation import Recommendation
-from tokenlens.models.workflow import Workflow
+from agenticlens.models.enums import Severity
+from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.workflow import Workflow
 
 _SEVERITY_STYLES = {
     Severity.INFO: "blue",

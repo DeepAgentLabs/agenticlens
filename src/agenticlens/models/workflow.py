@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from tokenlens.models.step import Step
+from agenticlens.models.step import Step
 
 
 class Workflow(BaseModel):

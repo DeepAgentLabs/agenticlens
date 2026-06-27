@@ -1,8 +1,8 @@
 import csv
 from pathlib import Path
 
-from tokenlens.exporters.base import BaseExporter
-from tokenlens.models.workflow import Workflow
+from agenticlens.exporters.base import BaseExporter
+from agenticlens.models.workflow import Workflow
 
 FIELDNAMES = [
     "step_id",

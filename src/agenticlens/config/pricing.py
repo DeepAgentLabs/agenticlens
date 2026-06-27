@@ -17,7 +17,7 @@ class ModelPricing(BaseModel):
 
 @lru_cache(maxsize=1)
 def _bundled_pricing() -> dict[str, ModelPricing]:
-    raw = resources.files("tokenlens.config").joinpath("pricing.yaml").read_text()
+    raw = resources.files("agenticlens.config").joinpath("pricing.yaml").read_text()
     data = yaml.safe_load(raw) or {}
     return {key: ModelPricing(**value) for key, value in data.items()}
 

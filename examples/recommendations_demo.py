@@ -1,12 +1,12 @@
 """Workflow that deliberately triggers all 4 MVP recommendation rules.
 
-Run with: `tokenlens analyze` against a saved report, e.g.:
+Run with: `agenticlens analyze` against a saved report, e.g.:
 
-    tokenlens profile examples/recommendations_demo.py --save /tmp/wf.json
-    tokenlens analyze /tmp/wf.json
+    agenticlens profile examples/recommendations_demo.py --save /tmp/wf.json
+    agenticlens analyze /tmp/wf.json
 """
 
-from tokenlens import profile, step
+from agenticlens import profile, step
 
 SYSTEM_PROMPT = "You are a helpful customer support assistant. " * 20
 

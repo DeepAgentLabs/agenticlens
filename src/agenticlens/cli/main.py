@@ -4,14 +4,14 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from tokenlens.cli.render import render_recommendations, render_steps, render_summary
-from tokenlens.exporters import CSVExporter, JSONExporter
-from tokenlens.models.workflow import Workflow
-from tokenlens.profiler.context import completed_workflows
-from tokenlens.recommenders import RecommendationEngine
+from agenticlens.cli.render import render_recommendations, render_steps, render_summary
+from agenticlens.exporters import CSVExporter, JSONExporter
+from agenticlens.models.workflow import Workflow
+from agenticlens.profiler.context import completed_workflows
+from agenticlens.recommenders import RecommendationEngine
 
 app = typer.Typer(
-    name="tokenlens",
+    name="agenticlens",
     help="Profile, analyze, and optimize token consumption in LLM-powered applications.",
     no_args_is_help=True,
 )
@@ -35,7 +35,7 @@ def profile(
         "json", "--format", help="Export format for --save: 'json' or 'csv'."
     ),
 ) -> None:
-    """Run a script that uses `tokenlens.profile()` / `tokenlens.step()` and report it."""
+    """Run a script that uses `agenticlens.profile()` / `agenticlens.step()` and report it."""
     if not script.exists():
         console.print(f"[red]Script not found:[/red] {script}")
         raise typer.Exit(code=1)
@@ -46,7 +46,8 @@ def profile(
 
     if not new_workflows:
         console.print(
-            "[yellow]No workflow was profiled.[/yellow] Did the script call `tokenlens.profile()`?"
+            "[yellow]No workflow was profiled.[/yellow] "
+            "Did the script call `agenticlens.profile()`?"
         )
         raise typer.Exit(code=1)
 

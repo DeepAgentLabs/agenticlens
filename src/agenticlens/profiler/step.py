@@ -2,10 +2,10 @@ import time
 from types import TracebackType
 from typing import Any, Literal
 
-from tokenlens.models.enums import StepType
-from tokenlens.models.step import Step
-from tokenlens.profiler.context import get_active_workflow
-from tokenlens.providers.registry import detect_provider
+from agenticlens.models.enums import StepType
+from agenticlens.models.step import Step
+from agenticlens.profiler.context import get_active_workflow
+from agenticlens.providers.registry import detect_provider
 
 
 class StepHandle:
@@ -18,7 +18,7 @@ class StepHandle:
         """Extract token usage from a provider response and attach it to this step.
 
         `ttft` is only meaningful for streaming calls; pass it explicitly when the
-        caller measured time-to-first-token itself (TokenLens cannot infer streaming
+        caller measured time-to-first-token itself (AgenticLens cannot infer streaming
         generically across provider SDKs).
         """
         provider = detect_provider(response)

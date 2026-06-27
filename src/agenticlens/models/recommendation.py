@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from tokenlens.models.enums import Severity
+from agenticlens.models.enums import Severity
 
 
 class Recommendation(BaseModel):

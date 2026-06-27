@@ -1,8 +1,8 @@
-from tokenlens.models.enums import Severity, StepType
-from tokenlens.models.metrics import Metrics
-from tokenlens.models.recommendation import Recommendation
-from tokenlens.models.step import Step
-from tokenlens.models.workflow import Workflow
+from agenticlens.models.enums import Severity, StepType
+from agenticlens.models.metrics import Metrics
+from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.step import Step
+from agenticlens.models.workflow import Workflow
 
 __all__ = [
     "Metrics",

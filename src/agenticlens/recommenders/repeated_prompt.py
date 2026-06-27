@@ -1,9 +1,9 @@
-from tokenlens.config.settings import RecommenderConfig
-from tokenlens.models.enums import Severity
-from tokenlens.models.recommendation import Recommendation
-from tokenlens.models.workflow import Workflow
-from tokenlens.recommenders.base import BaseRecommender
-from tokenlens.recommenders.utils import prefix_hash
+from agenticlens.config.settings import RecommenderConfig
+from agenticlens.models.enums import Severity
+from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.workflow import Workflow
+from agenticlens.recommenders.base import BaseRecommender
+from agenticlens.recommenders.utils import prefix_hash
 
 
 class RepeatedSystemPromptRecommender(BaseRecommender):

@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tokenlens"
+name = "agenticlens"
 version = "0.1.0"
 description = "Profile, analyze, and optimize token consumption in LLM-powered applications and agentic workflows."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
-authors = [{ name = "TokenLens Contributors" }]
+authors = [{ name = "AgenticLens Contributors" }]
 keywords = ["llm", "tokens", "profiling", "observability", "cost", "agents"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -41,14 +41,14 @@ docs = [
 ]
 
 [project.scripts]
-tokenlens = "tokenlens.cli.main:app"
+agenticlens = "agenticlens.cli.main:app"
 
 [project.urls]
-Homepage = "https://github.com/tokenlens/tokenlens"
-Issues = "https://github.com/tokenlens/tokenlens/issues"
+Homepage = "https://github.com/agenticlens/agenticlens"
+Issues = "https://github.com/agenticlens/agenticlens/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/tokenlens"]
+packages = ["src/agenticlens"]
 
 [tool.ruff]
 line-length = 100
@@ -62,7 +62,7 @@ select = ["E", "F", "I", "UP", "B", "SIM", "N"]
 ignore = ["B008"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["tokenlens"]
+known-first-party = ["agenticlens"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -70,13 +70,13 @@ quote-style = "double"
 [tool.mypy]
 python_version = "3.10"
 strict = true
-packages = ["tokenlens"]
+packages = ["agenticlens"]
 mypy_path = "src"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-ra --cov=tokenlens --cov-report=term-missing"
+addopts = "-ra --cov=agenticlens --cov-report=term-missing"
 
 [tool.coverage.run]
-source = ["src/tokenlens"]
+source = ["src/agenticlens"]

@@ -18,7 +18,7 @@
 
 ## Post-MVP
 
-See "Future Roadmap" in [TokenLens_Spec.md](TokenLens_Spec.md):
+See "Future Roadmap" in [AgenticLens_Spec.md](AgenticLens_Spec.md):
 
 - LangGraph / CrewAI / OpenAI Agents SDK integrations
 - MCP server-level token attribution

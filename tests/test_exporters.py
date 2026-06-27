@@ -3,8 +3,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from tokenlens.exporters import CSVExporter, JSONExporter
-from tokenlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.exporters import CSVExporter, JSONExporter
+from agenticlens.models import Metrics, Step, StepType, Workflow
 
 
 def _sample_workflow() -> Workflow:

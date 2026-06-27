@@ -1,10 +1,10 @@
 import json
 
-from tokenlens.config.settings import RecommenderConfig
-from tokenlens.models.enums import Severity, StepType
-from tokenlens.models.recommendation import Recommendation
-from tokenlens.models.workflow import Workflow
-from tokenlens.recommenders.base import BaseRecommender
+from agenticlens.config.settings import RecommenderConfig
+from agenticlens.models.enums import Severity, StepType
+from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.workflow import Workflow
+from agenticlens.recommenders.base import BaseRecommender
 
 
 class DuplicateToolCallsRecommender(BaseRecommender):

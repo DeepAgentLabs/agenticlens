@@ -3,8 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from tokenlens.models.enums import StepType
-from tokenlens.models.metrics import Metrics
+from agenticlens.models.enums import StepType
+from agenticlens.models.metrics import Metrics
 
 
 class Step(BaseModel):

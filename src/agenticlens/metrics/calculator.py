@@ -1,9 +1,9 @@
-from tokenlens.config.pricing import calculate_cost
-from tokenlens.config.settings import TokenLensConfig
-from tokenlens.models.step import Step
+from agenticlens.config.pricing import calculate_cost
+from agenticlens.config.settings import AgenticLensConfig
+from agenticlens.models.step import Step
 
 
-def apply_cost(step: Step, config: TokenLensConfig | None = None) -> None:
+def apply_cost(step: Step, config: AgenticLensConfig | None = None) -> None:
     """Compute and attach `step.metrics.cost` based on resolved pricing.
 
     No-op if the step has no provider/model set (cost stays None).

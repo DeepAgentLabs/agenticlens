@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from tokenlens.models.workflow import Workflow
+from agenticlens.models.workflow import Workflow
 
 
 class BaseAnalyzer(ABC):
@@ -9,7 +9,7 @@ class BaseAnalyzer(ABC):
 
     Concrete analyzers (duplicate-prompt detection, chunk-utility scoring, ...)
     are implemented after the project scaffold lands -- see the MVP Heuristic
-    Rules table in TokenLens_Spec.md.
+    Rules table in AgenticLens_Spec.md.
     """
 
     @abstractmethod

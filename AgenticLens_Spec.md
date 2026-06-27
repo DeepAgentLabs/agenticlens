@@ -1,12 +1,12 @@
-# TokenLens — Project Master Specification (MVP)
+# AgenticLens — Project Master Specification (MVP)
 
 ---
 
 ## Project Overview
 
-**TokenLens** is an open-source Python library that helps developers **profile, analyze, and optimize token consumption** in LLM-powered applications and agentic workflows.
+**AgenticLens** is an open-source Python library that helps developers **profile, analyze, and optimize token consumption** in LLM-powered applications and agentic workflows.
 
-Unlike traditional observability tools that only display token usage and cost, TokenLens explains:
+Unlike traditional observability tools that only display token usage and cost, AgenticLens explains:
 
 - **Where** tokens were consumed
 - **Why** they were consumed
@@ -24,7 +24,7 @@ Modern AI applications consist of multiple LLM calls, planning agents, memory sy
 
 Current observability tools show traces and token counts but provide **limited guidance on optimization**.
 
-TokenLens should become the **"performance profiler" for AI applications**, similar to:
+AgenticLens should become the **"performance profiler" for AI applications**, similar to:
 
 | Analogy | Domain |
 |---|---|
@@ -57,7 +57,7 @@ Keep the MVP lightweight and suitable for publishing as a PyPI package.
 Profile an entire workflow with a single context manager:
 
 ```python
-from tokenlens import profile
+from agenticlens import profile
 
 with profile("Customer Support"):
     agent.run(question)
@@ -72,7 +72,7 @@ The profiler establishes the workflow context (start/end time, id) but does **no
 Every workflow consists of multiple steps. Each step should have independent metrics, and is wrapped **explicitly** by the developer:
 
 ```python
-from tokenlens import profile, step
+from agenticlens import profile, step
 
 with profile("Customer Support"):
     with step("Planner", type="planner") as s:
@@ -100,7 +100,7 @@ with profile("Customer Support"):
 
 #### Instrumentation Model
 
-> **Decision:** TokenLens uses an **explicit step API**, not automatic SDK monkey-patching.
+> **Decision:** AgenticLens uses an **explicit step API**, not automatic SDK monkey-patching.
 
 Rationale:
 
@@ -108,7 +108,7 @@ Rationale:
 - Testable without mocking global state.
 - Step boundaries (Planner vs. Retriever vs. Tool Call) are a workflow concept the library cannot infer reliably; the developer already knows them.
 
-Trade-off accepted: integrating TokenLens requires adding `with step(...):` around LLM/tool calls. This cost is acceptable for an MVP and can be revisited post-MVP with optional auto-instrumentation adapters (e.g. for LangChain callbacks) once the core model is stable.
+Trade-off accepted: integrating AgenticLens requires adding `with step(...):` around LLM/tool calls. This cost is acceptable for an MVP and can be revisited post-MVP with optional auto-instrumentation adapters (e.g. for LangChain callbacks) once the core model is stable.
 
 ---
 
@@ -132,7 +132,7 @@ Collected per step:
 | `output_cost` | Cost of completion tokens |
 | `total_cost` | Total spend for the step |
 
-**Pricing source of truth:** a static pricing table bundled at `src/tokenlens/config/pricing.yaml`, keyed by `provider:model`, kept current via periodic manual updates (community PRs welcome). Resolution order:
+**Pricing source of truth:** a static pricing table bundled at `src/agenticlens/config/pricing.yaml`, keyed by `provider:model`, kept current via periodic manual updates (community PRs welcome). Resolution order:
 
 1. User-supplied pricing override (via `pyproject.toml` / YAML config / env var) — always wins.
 2. Bundled `pricing.yaml` entry for the exact `provider:model`.
@@ -181,7 +181,7 @@ Repeated for every workflow step.
 
 ## Recommendation Engine (Rule-Based)
 
-TokenLens does not stop at reporting — it **analyzes** the workflow and generates actionable optimization suggestions.
+AgenticLens does not stop at reporting — it **analyzes** the workflow and generates actionable optimization suggestions.
 
 > Initial recommendations use **simple heuristics**, not AI-generated analysis.
 
@@ -225,7 +225,7 @@ Estimated Savings: 31%
 The project is modular, with each package having a single responsibility.
 
 ```
-src/tokenlens/
+src/agenticlens/
 ├── profiler/       # Workflow and step profiling logic
 ├── metrics/        # Token, cost, and performance collection
 ├── providers/      # LLM provider integrations
@@ -325,13 +325,13 @@ Built with **Typer** and **Rich** for terminal output.
 
 ```bash
 # Profile a script
-tokenlens profile app.py
+agenticlens profile app.py
 
 # Display a saved report
-tokenlens report report.json
+agenticlens report report.json
 
 # Analyze a saved workflow
-tokenlens analyze workflow.json
+agenticlens analyze workflow.json
 ```
 
 ---
@@ -388,13 +388,13 @@ Configuration is supported through any of:
 ## Repository Structure
 
 ```
-tokenlens/
+agenticlens/
 ├── README.md
 ├── LICENSE
 ├── ROADMAP.md
 ├── pyproject.toml
 ├── src/
-│   └── tokenlens/
+│   └── agenticlens/
 ├── tests/
 ├── examples/
 ├── docs/

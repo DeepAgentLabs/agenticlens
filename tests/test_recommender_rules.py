@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
-from tokenlens.config.settings import RecommenderConfig
-from tokenlens.models import Metrics, Step, StepType, Workflow
-from tokenlens.recommenders import (
+from agenticlens.config.settings import RecommenderConfig
+from agenticlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.recommenders import (
     DuplicateToolCallsRecommender,
     ExcessiveChunksRecommender,
     LongHistoryRecommender,

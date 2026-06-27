@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from tokenlens.models import Metrics, Severity, Step, StepType, Workflow
-from tokenlens.models.recommendation import Recommendation
+from agenticlens.models import Metrics, Severity, Step, StepType, Workflow
+from agenticlens.models.recommendation import Recommendation
 
 
 def test_workflow_aggregates_step_metrics() -> None:

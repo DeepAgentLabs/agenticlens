@@ -1,6 +1,6 @@
-from tokenlens.providers.anthropic import AnthropicProvider
-from tokenlens.providers.base import BaseProvider
-from tokenlens.providers.openai import OpenAIProvider
+from agenticlens.providers.anthropic import AnthropicProvider
+from agenticlens.providers.base import BaseProvider
+from agenticlens.providers.openai import OpenAIProvider
 
 _PROVIDERS: dict[str, BaseProvider] = {
     "openai": OpenAIProvider(),

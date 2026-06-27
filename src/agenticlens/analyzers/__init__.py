@@ -1,3 +1,3 @@
-from tokenlens.analyzers.base import BaseAnalyzer
+from agenticlens.analyzers.base import BaseAnalyzer
 
 __all__ = ["BaseAnalyzer"]

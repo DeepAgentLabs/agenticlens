@@ -5,7 +5,7 @@
 # confirmed, not guaranteed-current values.
 #
 # Keys are "<provider>:<model>". Resolution order is documented in
-# TokenLens_Spec.md under "Cost Metrics".
+# AgenticLens_Spec.md under "Cost Metrics".
 
 openai:gpt-4o:
   input_per_1k: 0.005

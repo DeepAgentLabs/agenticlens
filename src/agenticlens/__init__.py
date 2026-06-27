@@ -1,4 +1,4 @@
-from tokenlens.profiler import StepHandle, profile, step
+from agenticlens.profiler import StepHandle, profile, step
 
 __version__ = "0.1.0"
 

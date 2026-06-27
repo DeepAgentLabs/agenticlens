@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from tokenlens.config.settings import RecommenderConfig
-from tokenlens.models.recommendation import Recommendation
-from tokenlens.models.workflow import Workflow
+from agenticlens.config.settings import RecommenderConfig
+from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.workflow import Workflow
 
 
 class BaseRecommender(ABC):

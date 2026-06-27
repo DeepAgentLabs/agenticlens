@@ -1,6 +1,6 @@
 from contextvars import ContextVar
 
-from tokenlens.models.workflow import Workflow
+from agenticlens.models.workflow import Workflow
 
 current_workflow: ContextVar[Workflow | None] = ContextVar("current_workflow", default=None)
 

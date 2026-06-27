@@ -3,14 +3,14 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from tokenlens.cli.main import app
-from tokenlens.exporters import JSONExporter
-from tokenlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.cli.main import app
+from agenticlens.exporters import JSONExporter
+from agenticlens.models import Metrics, Step, StepType, Workflow
 
 runner = CliRunner()
 
 _PROFILE_SCRIPT = """
-from tokenlens import profile, step
+from agenticlens import profile, step
 
 class Usage:
     prompt_tokens = 100
@@ -44,7 +44,7 @@ def _sample_workflow() -> Workflow:
 def test_cli_help() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "tokenlens" in result.output.lower() or "Usage" in result.output
+    assert "agenticlens" in result.output.lower() or "Usage" in result.output
 
 
 def test_cli_profile_runs_script_and_prints_summary(tmp_path: Path) -> None:
