@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/agenticlens/agenticlens/wiki
+    about: Check the wiki for guides and API reference

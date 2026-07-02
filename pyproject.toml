@@ -35,6 +35,8 @@ dev = [
   "ruff>=0.6",
   "mypy>=1.10",
   "types-PyYAML>=6.0",
+  "build>=1.2",
+  "twine>=5.1",
 ]
 docs = [
   "mkdocs-material>=9.5",
@@ -45,7 +47,11 @@ agenticlens = "agenticlens.cli.main:app"
 
 [project.urls]
 Homepage = "https://github.com/agenticlens/agenticlens"
+Repository = "https://github.com/agenticlens/agenticlens"
 Issues = "https://github.com/agenticlens/agenticlens/issues"
+Changelog = "https://github.com/agenticlens/agenticlens/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/agenticlens/agenticlens#readme"
+Security = "https://github.com/agenticlens/agenticlens/security/policy"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agenticlens"]
