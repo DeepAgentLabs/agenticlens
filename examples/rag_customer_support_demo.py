@@ -1,9 +1,9 @@
 import os
 import time
+
 from openai import OpenAI
 
 from agenticlens import profile, step
-
 
 client = OpenAI()
 
