@@ -29,7 +29,6 @@ jobs:
   publish-testpypi:
     runs-on: ubuntu-latest
     needs: build
-    environment: testpypi
     permissions:
       id-token: write
     steps:
@@ -42,4 +41,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          pypi_api_token: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
