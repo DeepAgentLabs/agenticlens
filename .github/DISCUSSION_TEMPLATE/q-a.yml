@@ -1,0 +1,37 @@
+title: "[Q&A]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for using AgenticLens. Use this category for usage questions, profiling help, provider setup, or API guidance.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do?
+      placeholder: I want to profile a multi-agent LangChain workflow and export cost data...
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Python script
+        - Jupyter notebook
+        - LangChain
+        - CrewAI
+        - AutoGen
+        - Custom framework
+        - Other
+    validations:
+      required: false
+  - type: textarea
+    id: code
+    attributes:
+      label: Code or example
+      description: Paste a minimal example if useful.
+      render: python
+    validations:
+      required: false
