@@ -33,8 +33,6 @@ jobs:
   publish-pypi:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write
     steps:
       - name: Download distributions
         uses: actions/download-artifact@v4
@@ -43,5 +41,8 @@ jobs:
           path: dist/
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
         with:
           pypi_api_token: ${{ secrets.PYPI_API_TOKEN }}
