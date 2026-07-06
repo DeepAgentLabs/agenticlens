@@ -104,6 +104,17 @@ def test_cli_report_missing_file() -> None:
     assert "not found" in result.output.lower()
 
 
+def test_cli_report_rejects_csv_exports(tmp_path: Path) -> None:
+    out = tmp_path / "report.csv"
+    out.write_text("step_name,total_tokens\nPlanner,15\n")
+
+    result = runner.invoke(app, ["report", str(out)])
+
+    assert result.exit_code == 1
+    assert "unsupported workflow file format" in result.output.lower()
+    assert "csv exports are step breakdowns only" in result.output.lower()
+
+
 def test_cli_analyze_flags_duplicate_tool_calls(tmp_path: Path) -> None:
     from datetime import datetime, timezone
 
