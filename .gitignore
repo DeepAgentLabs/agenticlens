@@ -12,5 +12,3 @@ dist/
 build/
 site/
 .env
-tests/
-
