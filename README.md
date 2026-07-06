@@ -2,7 +2,7 @@
 
 An open-source profiler for AI agents that analyzes token usage, cost, latency, and optimization opportunities across LLM workflows.
 
-> **Status:** early scaffold. Core data models, provider abstraction, and the explicit `profile()`/`step()` instrumentation API are in place. The recommendation engine's heuristic rules are not yet implemented — see [AgenticLens_Spec.md](AgenticLens_Spec.md).
+
 
 ## Install (development)
 
