@@ -250,6 +250,17 @@ Other examples:
 
 Some examples call real provider APIs and require provider API keys.
 
+## Notebooks
+
+Beginner-friendly notebooks are available in:
+
+- `notebooks/agenticlens_workflow_demo_beginner.ipynb`
+- `notebooks/agenticlens_multiagent_demo_beginner.ipynb`
+
+The notebooks walk through step-by-step RAG and multi-agent profiling, token
+usage tables, latency/cost charts, saved AgenticLens reports, and optimization
+analysis.
+
 ## Exporting Reports
 
 ### Markdown
