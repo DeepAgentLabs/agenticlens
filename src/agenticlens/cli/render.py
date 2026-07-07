@@ -57,16 +57,38 @@ def render_recommendations(
     console: Console,
     recommendations: list[Recommendation],
     estimated_savings_pct: float,
+    workflow: Workflow | None = None,
 ) -> None:
     """Render optimization suggestions and the aggregate estimated savings."""
     if not recommendations:
         console.print("[green]No optimization suggestions -- workflow looks efficient.[/green]")
         return
 
+    total_usd_savings = sum(rec.estimated_usd_savings or 0.0 for rec in recommendations)
+    total_monthly_savings = sum(rec.estimated_monthly_savings or 0.0 for rec in recommendations)
+    if workflow is not None and workflow.total_cost is not None:
+        console.print(
+            "[bold]Budget Optimization[/bold] "
+            f"Run cost: ${workflow.total_cost:.4f}; "
+            f"reducible: ~${total_usd_savings:.4f}/run "
+            f"({estimated_savings_pct:.0f}%), "
+            f"~${total_monthly_savings:.2f}/month."
+        )
+        console.print()
+
     console.print("[bold]Optimization Suggestions[/bold]")
     for rec in recommendations:
         style = _SEVERITY_STYLES.get(rec.severity, "white")
         console.print(f"  [{style}]*[/{style}] {rec.title}")
-        console.print(f"    -- {rec.description} (~{rec.tokens_saved} tokens)")
+        details = [f"~{rec.tokens_saved} tokens"]
+        if rec.estimated_usd_savings is not None:
+            details.append(f"~${rec.estimated_usd_savings:.4f}/run")
+        if rec.estimated_monthly_savings is not None:
+            details.append(f"~${rec.estimated_monthly_savings:.2f}/month")
+        if rec.confidence is not None:
+            details.append(f"{rec.confidence:.0%} confidence")
+        if rec.quality_risk:
+            details.append(f"{rec.quality_risk} quality risk")
+        console.print(f"    -- {rec.description} ({', '.join(details)})")
 
     console.print(f"\n[bold]Estimated Savings:[/bold] {estimated_savings_pct:.0f}%")

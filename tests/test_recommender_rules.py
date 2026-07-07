@@ -6,6 +6,7 @@ from agenticlens.recommenders import (
     DuplicateToolCallsRecommender,
     ExcessiveChunksRecommender,
     LongHistoryRecommender,
+    RAGChunkUtilityRecommender,
     RepeatedSystemPromptRecommender,
 )
 
@@ -153,3 +154,51 @@ def test_duplicate_tool_calls_no_flag_for_different_args() -> None:
     )
 
     assert DuplicateToolCallsRecommender().evaluate(workflow, CONFIG) == []
+
+
+def test_rag_chunk_utility_flags_chunks_not_used_in_answer() -> None:
+    workflow = _workflow(
+        Step(
+            name="Retriever",
+            type=StepType.RETRIEVER,
+            metadata={
+                "avg_tokens_per_chunk": 50,
+                "retrieved_chunks": [
+                    "Refunds are processed to the original payment method.",
+                    "Refunds may take 5 to 10 business days.",
+                    "Warehouse robots sort inventory by aisle number.",
+                    "Gift cards cannot be exchanged for cash.",
+                ],
+            },
+        ),
+        Step(
+            name="Final Response",
+            type=StepType.FINAL_RESPONSE,
+            metadata={
+                "final_answer": (
+                    "Refunds are processed to the original payment method and "
+                    "may take 5 to 10 business days."
+                )
+            },
+        ),
+    )
+
+    recs = RAGChunkUtilityRecommender().evaluate(workflow, CONFIG)
+
+    assert len(recs) == 1
+    assert recs[0].title == "Low-utility retrieved chunks"
+    assert recs[0].tokens_saved == 100
+    assert recs[0].confidence is not None
+    assert recs[0].quality_risk == "medium"
+
+
+def test_rag_chunk_utility_skips_when_no_answer_or_scores() -> None:
+    workflow = _workflow(
+        Step(
+            name="Retriever",
+            type=StepType.RETRIEVER,
+            metadata={"retrieved_chunks": ["A plain chunk", "Another plain chunk"]},
+        )
+    )
+
+    assert RAGChunkUtilityRecommender().evaluate(workflow, CONFIG) == []
