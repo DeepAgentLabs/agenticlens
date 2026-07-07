@@ -25,7 +25,11 @@ class AgenticLensConfig(BaseModel):
 
 
 def load_config(path: str | Path | None = None) -> AgenticLensConfig:
-    """Load configuration from an explicit YAML path, $AGENTICLENS_CONFIG, or defaults."""
+    """Load configuration from an explicit path, $AGENTICLENS_CONFIG, or defaults.
+
+    Supports a YAML file. `pyproject.toml`-based config ([tool.agenticlens]) is
+    planned but not yet implemented in this scaffold.
+    """
     config_path = path or os.environ.get(CONFIG_ENV_VAR)
     if config_path is None:
         return AgenticLensConfig()
