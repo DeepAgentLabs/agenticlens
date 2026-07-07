@@ -22,13 +22,6 @@ def _load_workflow(path: Path) -> Workflow:
     if not path.exists():
         console.print(f"[red]File not found:[/red] {path}")
         raise typer.Exit(code=1)
-    if path.suffix.lower() != ".json":
-        console.print(
-            f"[red]Unsupported workflow file format:[/red] {path.suffix or '<none>'}. "
-            "Use a JSON workflow export for report/analyze commands; CSV exports are "
-            "step breakdowns only."
-        )
-        raise typer.Exit(code=1)
     return Workflow.model_validate_json(path.read_text())
 
 

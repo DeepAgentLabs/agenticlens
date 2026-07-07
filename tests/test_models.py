@@ -32,26 +32,6 @@ def test_workflow_total_cost_none_when_unpriced() -> None:
     assert workflow.total_cost is None
 
 
-def test_workflow_total_cost_none_when_partially_unpriced() -> None:
-    workflow = Workflow(name="Test Workflow", start_time=datetime.now(timezone.utc))
-    workflow.steps.append(
-        Step(
-            name="Planner",
-            type=StepType.PLANNER,
-            metrics=Metrics(prompt_tokens=100, completion_tokens=50, total_tokens=150, cost=0.01),
-        )
-    )
-    workflow.steps.append(
-        Step(
-            name="Unknown model call",
-            type=StepType.LLM_CALL,
-            metrics=Metrics(prompt_tokens=20, completion_tokens=10, total_tokens=30),
-        )
-    )
-
-    assert workflow.total_cost is None
-
-
 def test_metrics_tps() -> None:
     metrics = Metrics(completion_tokens=100, latency=2.0)
     assert metrics.tps == 50.0

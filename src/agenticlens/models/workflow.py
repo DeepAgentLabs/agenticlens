@@ -21,13 +21,9 @@ class Workflow(BaseModel):
 
     @property
     def total_cost(self) -> float | None:
-        if not self.steps:
+        costs = [step.metrics.cost for step in self.steps if step.metrics.cost is not None]
+        if not costs:
             return None
-        costs = []
-        for step in self.steps:
-            if step.metrics.cost is None:
-                return None
-            costs.append(step.metrics.cost)
         return sum(costs)
 
     @property
