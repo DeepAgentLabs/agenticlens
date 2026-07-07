@@ -46,3 +46,7 @@ def test_recommendation_defaults() -> None:
     rec = Recommendation(title="Repeated system prompt", description="...")
     assert rec.severity == Severity.INFO
     assert rec.tokens_saved == 0
+    assert rec.estimated_usd_savings is None
+    assert rec.estimated_monthly_savings is None
+    assert rec.confidence is None
+    assert rec.quality_risk is None

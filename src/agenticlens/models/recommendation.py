@@ -11,3 +11,7 @@ class Recommendation(BaseModel):
     severity: Severity = Severity.INFO
     tokens_saved: int = 0
     estimated_savings: float | None = None
+    estimated_usd_savings: float | None = None
+    estimated_monthly_savings: float | None = None
+    confidence: float | None = None
+    quality_risk: str | None = None
