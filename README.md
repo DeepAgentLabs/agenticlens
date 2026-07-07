@@ -10,6 +10,9 @@ An open-source profiler for AI agents that analyzes token usage, cost, latency, 
 uv sync --extra dev
 ```
 
+Run the sync command once before development checks so tools such as `pytest-cov`,
+`ruff`, and `mypy` are available in the project environment.
+
 ## Usage
 
 ```python
@@ -24,6 +27,7 @@ with profile("Customer Support"):
 ## Development
 
 ```bash
+uv sync --extra dev      # install/update the dev environment
 uv run pytest          # tests
 uv run ruff check .    # lint
 uv run ruff format .   # format
