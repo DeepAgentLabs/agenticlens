@@ -79,10 +79,7 @@ class JiraExporter(BaseExporter):
 
     def _post_comment(self, body: str) -> Any:
         """Post a comment to the Jira issue via REST API v3."""
-        url = (
-            f"{self.base_url}/rest/api/3/issue/"
-            f"{quote(self.issue_key, safe='')}/comment"
-        )
+        url = f"{self.base_url}/rest/api/3/issue/{quote(self.issue_key, safe='')}/comment"
         payload = {
             "body": {
                 "type": "doc",
@@ -99,9 +96,7 @@ class JiraExporter(BaseExporter):
 
         import base64
 
-        credentials = base64.b64encode(
-            f"{self.user_email}:{self.api_token}".encode()
-        ).decode()
+        credentials = base64.b64encode(f"{self.user_email}:{self.api_token}".encode()).decode()
 
         req = Request(
             url,
