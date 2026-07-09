@@ -9,7 +9,8 @@ class MarkdownExporter(BaseExporter):
 
     def export(self, workflow: Workflow, path: str | Path) -> None:
         lines: list[str] = []
-        lines.append(f"# Workflow Report: {workflow.name}\n")
+        safe_name = workflow.name.replace("|", "\\|").replace("\r", "").replace("\n", " ")
+        lines.append(f"# Workflow Report: {safe_name}\n")
 
         # Summary section
         lines.append("## Summary\n")
@@ -28,10 +29,16 @@ class MarkdownExporter(BaseExporter):
             "| Prompt Tokens | Completion Tokens | Total Tokens | Latency | Cost |"
         )
         lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+
+        def _md_cell(value: str) -> str:
+            return value.replace("|", "\\|").replace("\r", "").replace("\n", "<br>")
+
         for i, s in enumerate(workflow.steps, 1):
+            provider = _md_cell(s.provider) if s.provider else "-"
+            model = _md_cell(s.model) if s.model else "-"
             lines.append(
-                f"| {i} | {s.name} | {s.type.value} | {s.provider or '-'} "
-                f"| {s.model or '-'} | {s.metrics.prompt_tokens:,} "
+                f"| {i} | {_md_cell(s.name)} | {s.type.value} | {provider} "
+                f"| {model} | {s.metrics.prompt_tokens:,} "
                 f"| {s.metrics.completion_tokens:,} | {s.metrics.total_tokens:,} "
                 f"| {s.metrics.latency:.2f}s | {self._fmt_cost(s.metrics.cost)} |"
             )

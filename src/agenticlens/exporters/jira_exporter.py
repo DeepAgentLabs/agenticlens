@@ -58,8 +58,18 @@ class JiraExporter(BaseExporter):
 
     def _build_comment(self, workflow: Workflow) -> str:
         """Build a plain-text summary suitable for a Jira comment."""
+
+        def _jira_text(value: str) -> str:
+            return (
+                value.replace("\\", "\\\\")
+                .replace("|", "\\|")
+                .replace("*", "\\*")
+                .replace("\r", "")
+                .replace("\n", " ")
+            )
+
         lines: list[str] = []
-        lines.append(f"*AgenticLens Workflow Report: {workflow.name}*")
+        lines.append(f"*AgenticLens Workflow Report: {_jira_text(workflow.name)}*")
         lines.append("")
         lines.append("||Metric||Value||")
         lines.append(f"|Total Tokens|{workflow.total_tokens:,}|")
@@ -74,9 +84,11 @@ class JiraExporter(BaseExporter):
             "||Completion Tokens||Total Tokens||Latency||Cost||"
         )
         for i, s in enumerate(workflow.steps, 1):
+            provider = _jira_text(s.provider) if s.provider else "-"
+            model = _jira_text(s.model) if s.model else "-"
             lines.append(
-                f"|{i}|{s.name}|{s.type.value}|{s.provider or '-'}"
-                f"|{s.model or '-'}|{s.metrics.prompt_tokens:,}"
+                f"|{i}|{_jira_text(s.name)}|{s.type.value}|{provider}"
+                f"|{model}|{s.metrics.prompt_tokens:,}"
                 f"|{s.metrics.completion_tokens:,}|{s.metrics.total_tokens:,}"
                 f"|{s.metrics.latency:.2f}s|{self._fmt_cost(s.metrics.cost)}|"
             )
