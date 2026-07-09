@@ -80,8 +80,8 @@ def test_jira_exporter_builds_comment() -> None:
 def test_jira_exporter_posts_comment(mock_urlopen: MagicMock, tmp_path: Path) -> None:
     mock_response = MagicMock()
     mock_response.read.return_value = b'{"id": "12345"}'
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
+    mock_response.__enter__.return_value = mock_response
+    mock_response.__exit__.return_value = False
     mock_urlopen.return_value = mock_response
 
     exporter = JiraExporter(

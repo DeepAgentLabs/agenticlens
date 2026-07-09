@@ -78,20 +78,9 @@ class JiraExporter(BaseExporter):
         return "\n".join(lines)
 
     def _post_comment(self, body: str) -> Any:
-        """Post a comment to the Jira issue via REST API v3."""
-        url = f"{self.base_url}/rest/api/3/issue/{quote(self.issue_key, safe='')}/comment"
-        payload = {
-            "body": {
-                "type": "doc",
-                "version": 1,
-                "content": [
-                    {
-                        "type": "paragraph",
-                        "content": [{"type": "text", "text": body}],
-                    }
-                ],
-            }
-        }
+        """Post a comment to the Jira issue via REST API v2 (wiki markup body)."""
+        url = f"{self.base_url}/rest/api/2/issue/{quote(self.issue_key, safe='')}/comment"
+        payload = {"body": body}
         data = json.dumps(payload).encode("utf-8")
 
         import base64
@@ -109,7 +98,7 @@ class JiraExporter(BaseExporter):
             method="POST",
         )
 
-        with urlopen(req) as resp:  # noqa: S310
+        with urlopen(req, timeout=10) as resp:  # noqa: S310
             return json.loads(resp.read())
 
     @staticmethod
