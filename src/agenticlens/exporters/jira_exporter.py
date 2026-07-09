@@ -32,6 +32,11 @@ class JiraExporter(BaseExporter):
         api_token: str,
         issue_key: str,
     ) -> None:
+        if not base_url.startswith("https://"):
+            raise ValueError(
+                "base_url must start with https:// to avoid sending"
+                " credentials over an insecure connection"
+            )
         self.base_url = base_url.rstrip("/")
         self.user_email = user_email
         self.api_token = api_token
