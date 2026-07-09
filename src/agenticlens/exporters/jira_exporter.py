@@ -96,13 +96,14 @@ class JiraExporter(BaseExporter):
 
     def _post_comment(self, body: str) -> Any:
         """Post a comment to the Jira issue via REST API v2 (wiki markup body)."""
+        from base64 import b64encode
+        from urllib.error import HTTPError, URLError
+
         url = f"{self.base_url}/rest/api/2/issue/{quote(self.issue_key, safe='')}/comment"
         payload = {"body": body}
         data = json.dumps(payload).encode("utf-8")
 
-        import base64
-
-        credentials = base64.b64encode(f"{self.user_email}:{self.api_token}".encode()).decode()
+        credentials = b64encode(f"{self.user_email}:{self.api_token}".encode()).decode("ascii")
 
         req = Request(
             url,
@@ -115,8 +116,14 @@ class JiraExporter(BaseExporter):
             method="POST",
         )
 
-        with urlopen(req, timeout=10) as resp:  # noqa: S310
-            return json.loads(resp.read())
+        try:
+            # noqa: S310 — controlled outbound request to user-configured Jira instance
+            with urlopen(req, timeout=10) as resp:  # noqa: S310
+                return json.loads(resp.read())
+        except HTTPError as e:
+            raise RuntimeError(f"Jira comment post failed ({e.code}): {e.reason}") from e
+        except URLError as e:
+            raise RuntimeError(f"Jira comment post failed: {e}") from e
 
     @staticmethod
     def _fmt_cost(cost: float | None) -> str:

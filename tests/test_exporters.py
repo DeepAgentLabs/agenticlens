@@ -94,5 +94,9 @@ def test_jira_exporter_posts_comment(mock_urlopen: MagicMock, tmp_path: Path) ->
     exporter.export(_sample_workflow(), out)
 
     mock_urlopen.assert_called_once()
+    req = mock_urlopen.call_args.args[0]
+    assert req.full_url == "https://test.atlassian.net/rest/api/2/issue/PROJ-123/comment"
+    assert req.get_header("Authorization").startswith("Basic ")
+    assert mock_urlopen.call_args.kwargs["timeout"] == 10
     assert out.exists()
     assert "AgenticLens" in out.read_text()
