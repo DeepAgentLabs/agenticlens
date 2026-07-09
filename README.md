@@ -160,7 +160,7 @@ RAG chunk utility.
 | Recommendations | Repeated prompts, excessive chunks, low-utility chunks, long history, duplicate tool calls |
 | Budget impact | Dollar-per-run and monthly savings projections |
 | CLI | `profile`, `report`, and `analyze` commands |
-| Export | JSON and CSV workflow export |
+| Export | JSON, CSV, Markdown, and Jira workflow export |
 | Tooling | pytest, Ruff, mypy, GitHub Actions |
 
 ## Cost Calculation
@@ -212,8 +212,39 @@ Other examples:
 - `examples/basic_usage.py`
 - `examples/rag_customer_support_demo.py`
 - `examples/multiagent_support_demo.py`
+- `examples/export_demo.py` — export to Markdown and Jira
 
 Some examples call real provider APIs and require provider API keys.
+
+## Exporting Reports
+
+### Markdown
+
+```python
+from agenticlens.exporters import MarkdownExporter
+
+MarkdownExporter().export(workflow, "report.md")
+```
+
+### Jira Integration
+
+Post profiling results directly as a comment on a Jira issue:
+
+```python
+from agenticlens.exporters import JiraExporter
+
+JiraExporter(
+    base_url="https://yourteam.atlassian.net",
+    user_email="you@example.com",
+    api_token="your-api-token",
+    issue_key="PROJ-123",
+).export(workflow)
+```
+
+Set credentials via environment variables for safety — see
+`examples/export_demo.py` for a complete example.
+
+For sample output previews of all formats, see [docs/export-formats.md](docs/export-formats.md).
 
 ## CLI Reference
 
@@ -278,7 +309,7 @@ src/agenticlens/
   metrics/        cost and performance calculation
   providers/      provider response usage extraction
   recommenders/   rule-based optimization suggestions
-  exporters/      JSON and CSV exports
+  exporters/      JSON, CSV, Markdown, and Jira exports
   cli/            Typer CLI and Rich rendering
   config/         pricing and settings
   models/         Pydantic data models
