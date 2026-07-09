@@ -5,7 +5,6 @@ to share profiling results as human-readable reports or Jira comments.
 """
 
 import os
-from datetime import datetime, timezone
 
 from agenticlens import profile, step
 from agenticlens.exporters import JiraExporter, MarkdownExporter

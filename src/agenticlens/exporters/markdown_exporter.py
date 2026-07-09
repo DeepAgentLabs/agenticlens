@@ -13,8 +13,8 @@ class MarkdownExporter(BaseExporter):
 
         # Summary section
         lines.append("## Summary\n")
-        lines.append(f"| Metric | Value |")
-        lines.append(f"| --- | --- |")
+        lines.append("| Metric | Value |")
+        lines.append("| --- | --- |")
         lines.append(f"| Total Tokens | {workflow.total_tokens:,} |")
         lines.append(f"| Total Cost | {self._fmt_cost(workflow.total_cost)} |")
         lines.append(f"| Latency | {workflow.latency:.2f}s |")

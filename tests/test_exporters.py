@@ -2,9 +2,9 @@ import csv
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from agenticlens.exporters import CSVExporter, JSONExporter, MarkdownExporter, JiraExporter
+from agenticlens.exporters import CSVExporter, JiraExporter, JSONExporter, MarkdownExporter
 from agenticlens.models import Metrics, Step, StepType, Workflow
 
 

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 from urllib.request import Request, urlopen
-
-import json
 
 from agenticlens.exporters.base import BaseExporter
 from agenticlens.models.workflow import Workflow
@@ -57,7 +56,7 @@ class JiraExporter(BaseExporter):
         lines: list[str] = []
         lines.append(f"*AgenticLens Workflow Report: {workflow.name}*")
         lines.append("")
-        lines.append(f"||Metric||Value||")
+        lines.append("||Metric||Value||")
         lines.append(f"|Total Tokens|{workflow.total_tokens:,}|")
         lines.append(f"|Total Cost|{self._fmt_cost(workflow.total_cost)}|")
         lines.append(f"|Latency|{workflow.latency:.2f}s|")
