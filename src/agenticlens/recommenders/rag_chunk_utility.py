@@ -57,19 +57,22 @@ class RAGChunkUtilityRecommender(BaseRecommender):
             low_utility_count = 0
             scored_count = 0
             has_rich_signals = False
+            has_any_explicit = False
 
-            # First pass: check if any chunk has rich signals
+            # First pass: check if any chunk has explicit signals
             for chunk in chunks:
-                _, is_rich = self._explicit_utility_score(chunk)
-                if is_rich:
-                    has_rich_signals = True
-                    break
+                score, is_rich = self._explicit_utility_score(chunk)
+                if score is not None:
+                    has_any_explicit = True
+                    if is_rich:
+                        has_rich_signals = True
+                        break
 
             # Second pass: score all chunks
             for chunk in chunks:
                 utility_score, _ = self._explicit_utility_score(chunk)
-                if utility_score is None and not has_rich_signals and final_answer:
-                    # Only use word-overlap fallback if NO chunk has rich signals
+                if utility_score is None and not has_any_explicit and final_answer:
+                    # Only use word-overlap fallback if NO chunk has explicit scores
                     utility_score = self._answer_overlap_score(
                         self._chunk_text(chunk),
                         final_answer,
@@ -128,7 +131,7 @@ class RAGChunkUtilityRecommender(BaseRecommender):
         if has_rich_signals:
             # Reranker/embedding/citation signals are more reliable
             return min(0.95, 0.65 + coverage * 0.3)
-        # Word-overlap fallback is less reliable
+        # Generic signals / word-overlap fallback are less reliable
         return min(0.95, 0.45 + coverage * 0.4)
 
     @staticmethod

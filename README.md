@@ -241,7 +241,7 @@ MarkdownExporter().export(workflow, "report.md")
 
 ### With Recommendations
 
-All exporters (except Jira) support an optional `recommendations` parameter:
+All exporters accept an optional `recommendations` parameter (Jira currently ignores it):
 
 ```python
 from agenticlens.exporters import MarkdownExporter, JSONExporter, CSVExporter
