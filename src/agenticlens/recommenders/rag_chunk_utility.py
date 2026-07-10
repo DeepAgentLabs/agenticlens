@@ -58,9 +58,10 @@ class RAGChunkUtilityRecommender(BaseRecommender):
             scored_count = 0
             has_rich_signals = False
             for chunk in chunks:
-                utility_score = self._explicit_utility_score(chunk)
+                utility_score, is_rich = self._explicit_utility_score(chunk)
                 if utility_score is not None:
-                    has_rich_signals = True
+                    if is_rich:
+                        has_rich_signals = True
                 elif final_answer:
                     utility_score = self._answer_overlap_score(
                         self._chunk_text(chunk),
@@ -124,35 +125,40 @@ class RAGChunkUtilityRecommender(BaseRecommender):
         return min(0.95, 0.45 + coverage * 0.4)
 
     @staticmethod
-    def _explicit_utility_score(chunk: Any) -> float | None:
+    def _explicit_utility_score(chunk: Any) -> tuple[float | None, bool]:
+        """Return (score, is_rich_signal) for a chunk.
+
+        Rich signals (citation, reranker, embedding) yield higher confidence.
+        Generic scores (utility_score, relevance_score) are not considered rich.
+        """
         if not isinstance(chunk, dict):
-            return None
+            return None, False
 
         # Citation signal: was this chunk cited in the final answer?
         for key in ("cited", "used", "referenced"):
             value = chunk.get(key)
             if isinstance(value, bool):
-                return 1.0 if value else 0.0
+                return (1.0 if value else 0.0), True
 
         # Reranker score: cross-encoder or reranker confidence (0-1)
         for key in ("reranker_score", "rerank_score", "cross_encoder_score"):
             value = chunk.get(key)
-            if isinstance(value, int | float):
-                return max(0.0, min(1.0, float(value)))
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0.0, min(1.0, float(value))), True
 
         # Embedding similarity: cosine similarity between chunk and query/answer
         for key in ("embedding_similarity", "cosine_similarity", "semantic_score"):
             value = chunk.get(key)
-            if isinstance(value, int | float):
-                return max(0.0, min(1.0, float(value)))
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0.0, min(1.0, float(value))), True
 
-        # Generic utility/relevance scores
+        # Generic utility/relevance scores (not considered "rich")
         for key in ("utility_score", "relevance_score", "answer_overlap"):
             value = chunk.get(key)
-            if isinstance(value, int | float):
-                return max(0.0, min(1.0, float(value)))
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0.0, min(1.0, float(value))), False
 
-        return None
+        return None, False
 
     @staticmethod
     def _chunk_text(chunk: Any) -> str:

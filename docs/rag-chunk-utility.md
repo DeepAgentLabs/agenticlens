@@ -118,7 +118,9 @@ with profile("RAG Pipeline") as workflow:
         model="gpt-4o-mini",
         final_answer="You can return within 30 days if unused.",
     ) as s:
-        s.record(response)
+        # Record your provider response to capture token usage.
+        # Must expose .usage.prompt_tokens and .usage.completion_tokens.
+        s.record(your_llm_response)
 ```
 
 ### Expected Output
