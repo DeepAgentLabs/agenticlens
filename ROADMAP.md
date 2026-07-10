@@ -14,7 +14,10 @@
 - [x] GitHub Actions CI pipeline
 - [x] Recommendation engine heuristic rules (repeated system prompt, excessive chunks, long history, duplicate tool calls)
 - [x] CLI `profile`/`report`/`analyze` business logic
-- [ ] Documentation structure (MkDocs)
+- [x] Documentation structure (MkDocs)
+- [x] Markdown and Jira exporters
+- [x] RAG chunk-utility scoring (citation, reranker, embedding signals)
+- [x] Recommendation output in exporters (JSON, CSV, Markdown)
 
 ## Post-MVP
 
@@ -22,7 +25,6 @@ See "Future Roadmap" in [AgenticLens_Spec.md](AgenticLens_Spec.md):
 
 - LangGraph / CrewAI / OpenAI Agents SDK integrations
 - MCP server-level token attribution
-- RAG chunk-utility scoring
 - Automated prompt compression
 - Context utilization metrics
 - Evaluation framework (quality vs. cost)
