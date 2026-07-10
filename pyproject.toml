@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenticlens"
-version = "0.1.2"
+version = "0.1.3"
 description = "Profile, analyze, and optimize token consumption in LLM-powered applications and agentic workflows."
 readme = "README.md"
 license = { file = "LICENSE" }
