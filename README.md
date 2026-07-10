@@ -349,7 +349,7 @@ src/agenticlens/
 
 Near-term priorities:
 
-- richer RAG utility scoring with citation, reranker, and embedding signals
+- ~~richer RAG utility scoring with citation, reranker, and embedding signals~~ ✅
 - model-tier mismatch detection
 - prompt caching opportunity detection
 - integrations for LangChain, LangGraph, LiteLLM, and OpenAI Agents SDK
