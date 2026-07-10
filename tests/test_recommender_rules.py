@@ -202,3 +202,104 @@ def test_rag_chunk_utility_skips_when_no_answer_or_scores() -> None:
     )
 
     assert RAGChunkUtilityRecommender().evaluate(workflow, CONFIG) == []
+
+
+def test_rag_chunk_utility_uses_reranker_scores() -> None:
+    workflow = _workflow(
+        Step(
+            name="Retriever",
+            type=StepType.RETRIEVER,
+            metadata={
+                "avg_tokens_per_chunk": 60,
+                "retrieved_chunks": [
+                    {"text": "Relevant chunk", "reranker_score": 0.85},
+                    {"text": "Another relevant", "reranker_score": 0.72},
+                    {"text": "Low quality chunk", "reranker_score": 0.02},
+                    {"text": "Noise chunk", "reranker_score": 0.01},
+                ],
+            },
+        ),
+    )
+
+    recs = RAGChunkUtilityRecommender().evaluate(workflow, CONFIG)
+
+    assert len(recs) == 1
+    assert recs[0].tokens_saved == 120
+    assert recs[0].quality_risk == "low"
+    assert recs[0].confidence is not None and recs[0].confidence >= 0.65
+
+
+def test_rag_chunk_utility_uses_embedding_similarity() -> None:
+    workflow = _workflow(
+        Step(
+            name="Retriever",
+            type=StepType.RETRIEVER,
+            metadata={
+                "avg_tokens_per_chunk": 40,
+                "retrieved_chunks": [
+                    {"text": "Highly similar", "cosine_similarity": 0.92},
+                    {"text": "Low similarity", "cosine_similarity": 0.03},
+                    {"text": "Very low", "embedding_similarity": 0.01},
+                ],
+            },
+        ),
+    )
+
+    recs = RAGChunkUtilityRecommender().evaluate(workflow, CONFIG)
+
+    assert len(recs) == 1
+    assert recs[0].tokens_saved == 80
+    assert recs[0].quality_risk == "low"
+
+
+def test_rag_chunk_utility_uses_citation_signals() -> None:
+    workflow = _workflow(
+        Step(
+            name="Retriever",
+            type=StepType.RETRIEVER,
+            metadata={
+                "avg_tokens_per_chunk": 50,
+                "retrieved_chunks": [
+                    {"text": "Used chunk", "cited": True},
+                    {"text": "Not cited 1", "cited": False},
+                    {"text": "Not cited 2", "cited": False},
+                    {"text": "Also cited", "referenced": True},
+                ],
+            },
+        ),
+    )
+
+    recs = RAGChunkUtilityRecommender().evaluate(workflow, CONFIG)
+
+    assert len(recs) == 1
+    assert recs[0].tokens_saved == 100
+    assert recs[0].quality_risk == "low"
+
+
+def test_rag_chunk_utility_mixed_signals_prefer_explicit() -> None:
+    """When explicit signals exist, word-overlap fallback is not used."""
+    workflow = _workflow(
+        Step(
+            name="Retriever",
+            type=StepType.RETRIEVER,
+            metadata={
+                "avg_tokens_per_chunk": 50,
+                "retrieved_chunks": [
+                    {"text": "Good chunk with overlap words", "reranker_score": 0.9},
+                    {"text": "Bad chunk despite overlap words", "reranker_score": 0.01},
+                    {"text": "Another bad one", "reranker_score": 0.02},
+                ],
+            },
+        ),
+        Step(
+            name="Final Response",
+            type=StepType.FINAL_RESPONSE,
+            metadata={"final_answer": "overlap words in the answer"},
+        ),
+    )
+
+    recs = RAGChunkUtilityRecommender().evaluate(workflow, CONFIG)
+
+    assert len(recs) == 1
+    # Reranker scores should be used, not word overlap
+    assert recs[0].quality_risk == "low"
