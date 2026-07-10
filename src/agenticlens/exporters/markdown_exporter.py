@@ -11,7 +11,7 @@ class MarkdownExporter(BaseExporter):
     def export(
         self,
         workflow: Workflow,
-        path: str | Path,
+        path: str | Path | None = None,
         recommendations: list[Recommendation] | None = None,
     ) -> None:
         lines: list[str] = []
@@ -63,6 +63,8 @@ class MarkdownExporter(BaseExporter):
                     lines.append(f"- **Quality Risk:** {rec.quality_risk}")
                 lines.append(f"\n{rec.description}\n")
 
+        if path is None:
+            raise ValueError("MarkdownExporter requires a path")
         Path(path).write_text("\n".join(lines), encoding="utf-8")
 
     @staticmethod

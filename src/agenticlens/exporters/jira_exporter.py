@@ -7,6 +7,7 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from agenticlens.exporters.base import BaseExporter
+from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.workflow import Workflow
 
 
@@ -42,7 +43,12 @@ class JiraExporter(BaseExporter):
         self.api_token = api_token
         self.issue_key = issue_key
 
-    def export(self, workflow: Workflow, path: str | Path | None = None) -> None:
+    def export(
+        self,
+        workflow: Workflow,
+        path: str | Path | None = None,
+        recommendations: list[Recommendation] | None = None,
+    ) -> None:
         """Post workflow metrics as a comment on the configured Jira issue.
 
         The *path* parameter is accepted for interface compatibility but is not

@@ -39,9 +39,11 @@ class CSVExporter(BaseExporter):
     def export(
         self,
         workflow: Workflow,
-        path: str | Path,
+        path: str | Path | None = None,
         recommendations: list[Recommendation] | None = None,
     ) -> None:
+        if path is None:
+            raise ValueError("CSVExporter requires a path")
         path = Path(path)
         with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=STEP_FIELDNAMES)

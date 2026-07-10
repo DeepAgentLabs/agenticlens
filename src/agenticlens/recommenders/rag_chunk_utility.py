@@ -57,12 +57,19 @@ class RAGChunkUtilityRecommender(BaseRecommender):
             low_utility_count = 0
             scored_count = 0
             has_rich_signals = False
+
+            # First pass: check if any chunk has rich signals
             for chunk in chunks:
-                utility_score, is_rich = self._explicit_utility_score(chunk)
-                if utility_score is not None:
-                    if is_rich:
-                        has_rich_signals = True
-                elif final_answer:
+                _, is_rich = self._explicit_utility_score(chunk)
+                if is_rich:
+                    has_rich_signals = True
+                    break
+
+            # Second pass: score all chunks
+            for chunk in chunks:
+                utility_score, _ = self._explicit_utility_score(chunk)
+                if utility_score is None and not has_rich_signals and final_answer:
+                    # Only use word-overlap fallback if NO chunk has rich signals
                     utility_score = self._answer_overlap_score(
                         self._chunk_text(chunk),
                         final_answer,
