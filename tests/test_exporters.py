@@ -2,8 +2,9 @@ import csv
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from agenticlens.exporters import CSVExporter, JSONExporter
+from agenticlens.exporters import CSVExporter, JiraExporter, JSONExporter, MarkdownExporter
 from agenticlens.models import Metrics, Step, StepType, Workflow
 
 
@@ -40,3 +41,62 @@ def test_csv_exporter_writes_step_rows(tmp_path: Path) -> None:
     assert len(rows) == 1
     assert rows[0]["step_name"] == "Planner"
     assert rows[0]["total_tokens"] == "15"
+
+
+def test_markdown_exporter_writes_report(tmp_path: Path) -> None:
+    out = tmp_path / "report.md"
+    MarkdownExporter().export(_sample_workflow(), out)
+
+    content = out.read_text(encoding="utf-8")
+    assert "# Workflow Report: Test Workflow" in content
+    assert "| Total Tokens | 15 |" in content
+    assert "| Planner |" in content
+    assert "planner" in content
+
+
+def test_markdown_exporter_handles_none_cost(tmp_path: Path) -> None:
+    out = tmp_path / "report.md"
+    MarkdownExporter().export(_sample_workflow(), out)
+
+    content = out.read_text(encoding="utf-8")
+    assert "| Total Cost | - |" in content
+
+
+def test_jira_exporter_builds_comment() -> None:
+    exporter = JiraExporter(
+        base_url="https://test.atlassian.net",
+        user_email="user@example.com",
+        api_token="fake-token",
+        issue_key="PROJ-123",
+    )
+    comment = exporter._build_comment(_sample_workflow())
+
+    assert "*AgenticLens Workflow Report: Test Workflow*" in comment
+    assert "|Total Tokens|15|" in comment
+    assert "|Planner|" in comment
+
+
+@patch("agenticlens.exporters.jira_exporter.urlopen")
+def test_jira_exporter_posts_comment(mock_urlopen: MagicMock, tmp_path: Path) -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = b'{"id": "12345"}'
+    mock_response.__enter__.return_value = mock_response
+    mock_response.__exit__.return_value = False
+    mock_urlopen.return_value = mock_response
+
+    exporter = JiraExporter(
+        base_url="https://test.atlassian.net",
+        user_email="user@example.com",
+        api_token="fake-token",
+        issue_key="PROJ-123",
+    )
+    out = tmp_path / "comment.txt"
+    exporter.export(_sample_workflow(), out)
+
+    mock_urlopen.assert_called_once()
+    req = mock_urlopen.call_args.args[0]
+    assert req.full_url == "https://test.atlassian.net/rest/api/2/issue/PROJ-123/comment"
+    assert req.get_header("Authorization").startswith("Basic ")
+    assert mock_urlopen.call_args.kwargs["timeout"] == 10
+    assert out.exists()
+    assert "AgenticLens" in out.read_text()
