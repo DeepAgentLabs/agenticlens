@@ -1,13 +1,19 @@
 from pathlib import Path
 
 from agenticlens.exporters.base import BaseExporter
+from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.workflow import Workflow
 
 
 class MarkdownExporter(BaseExporter):
     """Exports a workflow profiling report as a human-readable Markdown file."""
 
-    def export(self, workflow: Workflow, path: str | Path) -> None:
+    def export(
+        self,
+        workflow: Workflow,
+        path: str | Path | None = None,
+        recommendations: list[Recommendation] | None = None,
+    ) -> None:
         lines: list[str] = []
         safe_name = workflow.name.replace("|", "\\|").replace("\r", "").replace("\n", " ")
         lines.append(f"# Workflow Report: {safe_name}\n")
@@ -44,6 +50,21 @@ class MarkdownExporter(BaseExporter):
             )
         lines.append("")
 
+        # Recommendations section
+        if recommendations:
+            lines.append("## Optimization Recommendations\n")
+            for rec in recommendations:
+                lines.append(f"### {rec.title}\n")
+                lines.append(f"- **Severity:** {rec.severity.value}")
+                lines.append(f"- **Tokens Saved:** {rec.tokens_saved:,}")
+                if rec.confidence is not None:
+                    lines.append(f"- **Confidence:** {rec.confidence:.0%}")
+                if rec.quality_risk:
+                    lines.append(f"- **Quality Risk:** {rec.quality_risk}")
+                lines.append(f"\n{rec.description}\n")
+
+        if path is None:
+            raise ValueError("MarkdownExporter requires a path")
         Path(path).write_text("\n".join(lines), encoding="utf-8")
 
     @staticmethod

@@ -6,6 +6,8 @@ from unittest.mock import MagicMock, patch
 
 from agenticlens.exporters import CSVExporter, JiraExporter, JSONExporter, MarkdownExporter
 from agenticlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.models.enums import Severity
+from agenticlens.models.recommendation import Recommendation
 
 
 def _sample_workflow() -> Workflow:
@@ -100,3 +102,73 @@ def test_jira_exporter_posts_comment(mock_urlopen: MagicMock, tmp_path: Path) ->
     assert mock_urlopen.call_args.kwargs["timeout"] == 10
     assert out.exists()
     assert "AgenticLens" in out.read_text()
+
+
+def _sample_recommendations() -> list[Recommendation]:
+    return [
+        Recommendation(
+            title="Low-utility retrieved chunks",
+            description=(
+                "Step 'Retriever' retrieved 2 chunks that appear unlikely to influence the answer."
+            ),
+            severity=Severity.WARNING,
+            tokens_saved=100,
+            confidence=0.85,
+            quality_risk="low",
+        ),
+    ]
+
+
+def test_markdown_exporter_includes_recommendations(tmp_path: Path) -> None:
+    out = tmp_path / "report.md"
+    MarkdownExporter().export(_sample_workflow(), out, recommendations=_sample_recommendations())
+
+    content = out.read_text(encoding="utf-8")
+    assert "## Optimization Recommendations" in content
+    assert "Low-utility retrieved chunks" in content
+    assert "Tokens Saved:** 100" in content
+    assert "Confidence:** 85%" in content
+    assert "Quality Risk:** low" in content
+
+
+def test_json_exporter_includes_recommendations(tmp_path: Path) -> None:
+    out = tmp_path / "workflow.json"
+    JSONExporter().export(_sample_workflow(), out, recommendations=_sample_recommendations())
+
+    data = json.loads(out.read_text())
+    assert "recommendations" in data
+    assert len(data["recommendations"]) == 1
+    assert data["recommendations"][0]["title"] == "Low-utility retrieved chunks"
+    assert data["recommendations"][0]["tokens_saved"] == 100
+
+
+def test_csv_exporter_writes_recommendations_file(tmp_path: Path) -> None:
+    out = tmp_path / "steps.csv"
+    CSVExporter().export(_sample_workflow(), out, recommendations=_sample_recommendations())
+
+    rec_path = tmp_path / "steps_recommendations.csv"
+    assert rec_path.exists()
+
+    with rec_path.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+
+    assert len(rows) == 1
+    assert rows[0]["title"] == "Low-utility retrieved chunks"
+    assert rows[0]["tokens_saved"] == "100"
+    assert rows[0]["severity"] == "warning"
+
+
+def test_exporters_work_without_recommendations(tmp_path: Path) -> None:
+    """Backward compatibility: exporters still work without recommendations."""
+    md_out = tmp_path / "report.md"
+    MarkdownExporter().export(_sample_workflow(), md_out)
+    assert "## Optimization Recommendations" not in md_out.read_text()
+
+    json_out = tmp_path / "workflow.json"
+    JSONExporter().export(_sample_workflow(), json_out)
+    data = json.loads(json_out.read_text())
+    assert "recommendations" not in data
+
+    csv_out = tmp_path / "steps.csv"
+    CSVExporter().export(_sample_workflow(), csv_out)
+    assert not (tmp_path / "steps_recommendations.csv").exists()

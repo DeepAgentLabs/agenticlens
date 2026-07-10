@@ -56,9 +56,23 @@ class RAGChunkUtilityRecommender(BaseRecommender):
 
             low_utility_count = 0
             scored_count = 0
+            has_rich_signals = False
+            has_any_explicit = False
+
+            # First pass: check if any chunk has explicit signals
             for chunk in chunks:
-                utility_score = self._explicit_utility_score(chunk)
-                if utility_score is None and final_answer:
+                score, is_rich = self._explicit_utility_score(chunk)
+                if score is not None:
+                    has_any_explicit = True
+                    if is_rich:
+                        has_rich_signals = True
+                        break
+
+            # Second pass: score all chunks
+            for chunk in chunks:
+                utility_score, _ = self._explicit_utility_score(chunk)
+                if utility_score is None and not has_any_explicit and final_answer:
+                    # Only use word-overlap fallback if NO chunk has explicit scores
                     utility_score = self._answer_overlap_score(
                         self._chunk_text(chunk),
                         final_answer,
@@ -90,8 +104,12 @@ class RAGChunkUtilityRecommender(BaseRecommender):
                     ),
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
-                    confidence=min(0.95, 0.45 + (scored_count / max(len(chunks), 1)) * 0.4),
-                    quality_risk="medium",
+                    confidence=self._compute_confidence(
+                        scored_count,
+                        len(chunks),
+                        has_rich_signals,
+                    ),
+                    quality_risk="low" if has_rich_signals else "medium",
                 )
             )
 
@@ -107,21 +125,50 @@ class RAGChunkUtilityRecommender(BaseRecommender):
         return None
 
     @staticmethod
-    def _explicit_utility_score(chunk: Any) -> float | None:
-        if not isinstance(chunk, dict):
-            return None
+    def _compute_confidence(scored_count: int, total_chunks: int, has_rich_signals: bool) -> float:
+        """Higher confidence when rich signals (reranker/embedding/citation) are present."""
+        coverage = scored_count / max(total_chunks, 1)
+        if has_rich_signals:
+            # Reranker/embedding/citation signals are more reliable
+            return min(0.95, 0.65 + coverage * 0.3)
+        # Generic signals / word-overlap fallback are less reliable
+        return min(0.95, 0.45 + coverage * 0.4)
 
-        for key in ("used", "cited"):
+    @staticmethod
+    def _explicit_utility_score(chunk: Any) -> tuple[float | None, bool]:
+        """Return (score, is_rich_signal) for a chunk.
+
+        Rich signals (citation, reranker, embedding) yield higher confidence.
+        Generic scores (utility_score, relevance_score) are not considered rich.
+        """
+        if not isinstance(chunk, dict):
+            return None, False
+
+        # Citation signal: was this chunk cited in the final answer?
+        for key in ("cited", "used", "referenced"):
             value = chunk.get(key)
             if isinstance(value, bool):
-                return 1.0 if value else 0.0
+                return (1.0 if value else 0.0), True
 
+        # Reranker score: cross-encoder or reranker confidence (0-1)
+        for key in ("reranker_score", "rerank_score", "cross_encoder_score"):
+            value = chunk.get(key)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0.0, min(1.0, float(value))), True
+
+        # Embedding similarity: cosine similarity between chunk and query/answer
+        for key in ("embedding_similarity", "cosine_similarity", "semantic_score"):
+            value = chunk.get(key)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0.0, min(1.0, float(value))), True
+
+        # Generic utility/relevance scores (not considered "rich")
         for key in ("utility_score", "relevance_score", "answer_overlap"):
             value = chunk.get(key)
-            if isinstance(value, int | float):
-                return max(0.0, min(1.0, float(value)))
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                return max(0.0, min(1.0, float(value))), False
 
-        return None
+        return None, False
 
     @staticmethod
     def _chunk_text(chunk: Any) -> str:

@@ -2,12 +2,14 @@
 
 This demonstrates how to use the MarkdownExporter and JiraExporter
 to share profiling results as human-readable reports or Jira comments.
+Also shows how to include optimization recommendations in exports.
 """
 
 import os
 
 from agenticlens import profile, step
 from agenticlens.exporters import JiraExporter, MarkdownExporter
+from agenticlens.recommenders import RecommendationEngine
 
 
 class FakeUsage:
@@ -48,9 +50,12 @@ def run_workflow():
 
 
 def export_markdown(workflow) -> None:
-    """Export workflow report to a Markdown file."""
-    MarkdownExporter().export(workflow, "workflow_report.md")
-    print("Markdown report saved to workflow_report.md")
+    """Export workflow report to a Markdown file, including recommendations."""
+    engine = RecommendationEngine()
+    recs = engine.run(workflow)
+
+    MarkdownExporter().export(workflow, "workflow_report.md", recommendations=recs)
+    print(f"Markdown report saved to workflow_report.md ({len(recs)} recommendations)")
 
 
 def export_to_jira(workflow) -> None:

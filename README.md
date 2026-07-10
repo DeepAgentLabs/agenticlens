@@ -184,19 +184,31 @@ This keeps reporting honest when model pricing is missing or stale.
 
 ## RAG Chunk Utility
 
-The RAG utility rule compares retrieved context with useful context. It can use
-explicit chunk metadata such as:
+The RAG utility rule identifies retrieved chunks that are unlikely to influence
+the final answer. It supports multiple signal types (in priority order):
+
+| Signal Type | Supported Fields | Source |
+| --- | --- | --- |
+| Citation | `cited`, `used`, `referenced` (boolean) | Your app logic |
+| Reranker | `reranker_score`, `rerank_score`, `cross_encoder_score` (0–1) | Cross-encoder models |
+| Embedding | `embedding_similarity`, `cosine_similarity`, `semantic_score` (0–1) | Vector search |
+| Generic | `utility_score`, `relevance_score` (0–1) | Custom scoring |
+| Fallback | Word-overlap against final answer | Automatic |
+
+Example chunk metadata:
 
 ```python
-{"text": "...", "utility_score": 0.92}
-{"text": "...", "used": True}
-{"text": "...", "cited": False}
+{"text": "...", "reranker_score": 0.92}
+{"text": "...", "cosine_similarity": 0.85}
+{"text": "...", "cited": True}
+{"text": "...", "utility_score": 0.12}
 ```
 
-If explicit signals are unavailable, it falls back to lightweight word-overlap
-between retrieved chunks and the final answer. That fallback is intentionally
-conservative: it identifies potentially low-utility context, not chunks that are
-guaranteed safe to remove.
+When rich signals (reranker, embedding, citation) are available, confidence is
+higher and quality risk is lower. If no explicit signals are present, it falls
+back to lightweight word-overlap against the final answer.
+
+For a complete guide, see [docs/rag-chunk-utility.md](docs/rag-chunk-utility.md).
 
 ## Examples
 
@@ -213,6 +225,7 @@ Other examples:
 - `examples/rag_customer_support_demo.py`
 - `examples/multiagent_support_demo.py`
 - `examples/export_demo.py` — export to Markdown and Jira
+- `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
 
 Some examples call real provider APIs and require provider API keys.
 
@@ -224,6 +237,23 @@ Some examples call real provider APIs and require provider API keys.
 from agenticlens.exporters import MarkdownExporter
 
 MarkdownExporter().export(workflow, "report.md")
+```
+
+### With Recommendations
+
+All exporters accept an optional `recommendations` parameter (Jira currently ignores it):
+
+```python
+from agenticlens.exporters import MarkdownExporter, JSONExporter, CSVExporter
+from agenticlens.recommenders import RecommendationEngine
+
+engine = RecommendationEngine()
+recs = engine.run(workflow)
+
+MarkdownExporter().export(workflow, "report.md", recommendations=recs)
+JSONExporter().export(workflow, "report.json", recommendations=recs)
+CSVExporter().export(workflow, "steps.csv", recommendations=recs)
+# CSV also writes steps_recommendations.csv alongside
 ```
 
 ### Jira Integration

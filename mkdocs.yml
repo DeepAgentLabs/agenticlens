@@ -6,5 +6,6 @@ theme:
 nav:
   - Home: index.md
   - Export Formats: export-formats.md
+  - RAG Chunk Utility: rag-chunk-utility.md
 
 repo_url: https://github.com/agenticlens/agenticlens
