@@ -94,7 +94,9 @@ class RAGChunkUtilityRecommender(BaseRecommender):
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
                     confidence=self._compute_confidence(
-                        scored_count, len(chunks), has_rich_signals,
+                        scored_count,
+                        len(chunks),
+                        has_rich_signals,
                     ),
                     quality_risk="low" if has_rich_signals else "medium",
                 )
@@ -112,9 +114,7 @@ class RAGChunkUtilityRecommender(BaseRecommender):
         return None
 
     @staticmethod
-    def _compute_confidence(
-        scored_count: int, total_chunks: int, has_rich_signals: bool
-    ) -> float:
+    def _compute_confidence(scored_count: int, total_chunks: int, has_rich_signals: bool) -> float:
         """Higher confidence when rich signals (reranker/embedding/citation) are present."""
         coverage = scored_count / max(total_chunks, 1)
         if has_rich_signals:
