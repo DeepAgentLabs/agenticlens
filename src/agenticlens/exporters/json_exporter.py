@@ -15,7 +15,5 @@ class JSONExporter(BaseExporter):
     ) -> None:
         data = json.loads(workflow.model_dump_json())
         if recommendations:
-            data["recommendations"] = [
-                rec.model_dump(exclude_none=True) for rec in recommendations
-            ]
+            data["recommendations"] = [rec.model_dump(exclude_none=True) for rec in recommendations]
         Path(path).write_text(json.dumps(data, indent=2), encoding="utf-8")

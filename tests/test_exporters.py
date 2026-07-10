@@ -108,7 +108,9 @@ def _sample_recommendations() -> list[Recommendation]:
     return [
         Recommendation(
             title="Low-utility retrieved chunks",
-            description="Step 'Retriever' retrieved 2 chunks that appear unlikely to influence the answer.",
+            description=(
+                "Step 'Retriever' retrieved 2 chunks that appear unlikely to influence the answer."
+            ),
             severity=Severity.WARNING,
             tokens_saved=100,
             confidence=0.85,

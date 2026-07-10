@@ -239,6 +239,23 @@ from agenticlens.exporters import MarkdownExporter
 MarkdownExporter().export(workflow, "report.md")
 ```
 
+### With Recommendations
+
+All exporters (except Jira) support an optional `recommendations` parameter:
+
+```python
+from agenticlens.exporters import MarkdownExporter, JSONExporter, CSVExporter
+from agenticlens.recommenders import RecommendationEngine
+
+engine = RecommendationEngine()
+recs = engine.run(workflow)
+
+MarkdownExporter().export(workflow, "report.md", recommendations=recs)
+JSONExporter().export(workflow, "report.json", recommendations=recs)
+CSVExporter().export(workflow, "steps.csv", recommendations=recs)
+# CSV also writes steps_recommendations.csv alongside
+```
+
 ### Jira Integration
 
 Post profiling results directly as a comment on a Jira issue:
