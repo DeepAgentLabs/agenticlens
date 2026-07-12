@@ -1,4 +1,5 @@
 from agenticlens.recommenders.base import BaseRecommender
+from agenticlens.recommenders.chaos_impact import ChaosImpactRecommender
 from agenticlens.recommenders.duplicate_tool_calls import DuplicateToolCallsRecommender
 from agenticlens.recommenders.engine import RecommendationEngine
 from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
@@ -8,6 +9,7 @@ from agenticlens.recommenders.repeated_prompt import RepeatedSystemPromptRecomme
 
 __all__ = [
     "BaseRecommender",
+    "ChaosImpactRecommender",
     "DuplicateToolCallsRecommender",
     "ExcessiveChunksRecommender",
     "LongHistoryRecommender",

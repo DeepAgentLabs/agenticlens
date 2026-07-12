@@ -3,6 +3,7 @@ from agenticlens.models.enums import Severity
 from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.workflow import Workflow
 from agenticlens.recommenders.base import BaseRecommender
+from agenticlens.recommenders.chaos_impact import ChaosImpactRecommender
 from agenticlens.recommenders.duplicate_tool_calls import DuplicateToolCallsRecommender
 from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
 from agenticlens.recommenders.long_history import LongHistoryRecommender
@@ -15,6 +16,7 @@ DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
     RAGChunkUtilityRecommender(),
     LongHistoryRecommender(),
     DuplicateToolCallsRecommender(),
+    ChaosImpactRecommender(),
 ]
 
 
@@ -73,7 +75,10 @@ class RecommendationEngine:
             rec.estimated_monthly_savings = (
                 usd_savings * self.config.monthly_runs if usd_savings is not None else None
             )
-            rec.severity = self._severity_for(savings_pct, usd_savings)
+            # Recommenders with no token savings (e.g. ChaosImpactRecommender) aren't
+            # graded by budget impact -- keep the severity they assigned themselves.
+            if rec.tokens_saved > 0:
+                rec.severity = self._severity_for(savings_pct, usd_savings)
             enriched.append(rec)
 
         return sorted(

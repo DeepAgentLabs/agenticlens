@@ -6,6 +6,21 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- `chaos_events` schema extension (v1.1) to `Workflow`/`workflow.json`, documented
+  in `docs/workflow-schema-spec.md`, so fault-injection tools such as
+  [agentic-chaos](https://github.com/DeepAgentLabs/agentic-chaos) can report through
+  AgenticLens's existing analysis engine.
+- `ChaosImpactRecommender`, registered by default, surfaces resilience findings
+  (unhandled failures, silent output degradation) from `chaos_events`.
+
+### Changed
+
+- The recommendation engine's budget-impact pass no longer overwrites the
+  severity of recommendations with zero token savings, so non-savings-based
+  recommenders like `ChaosImpactRecommender` can set their own severity.
+
 ## 0.1.2 - 2026-07-07
 
 ### Added
