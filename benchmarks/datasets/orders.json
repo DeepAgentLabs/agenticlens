@@ -1,0 +1,29 @@
+[
+  {
+    "order_id": "A123",
+    "status": "delivered",
+    "delivered_days_ago": 12,
+    "package_opened": true,
+    "item_used": false,
+    "payment_method": "Visa ending 4242",
+    "tracking_updated_hours_ago": 24
+  },
+  {
+    "order_id": "B456",
+    "status": "delivered",
+    "delivered_days_ago": 45,
+    "package_opened": false,
+    "item_used": false,
+    "payment_method": "Mastercard ending 1111",
+    "tracking_updated_hours_ago": 72
+  },
+  {
+    "order_id": "C789",
+    "status": "in_transit",
+    "delivered_days_ago": null,
+    "package_opened": false,
+    "item_used": false,
+    "payment_method": "Visa ending 9999",
+    "tracking_updated_hours_ago": 52
+  }
+]

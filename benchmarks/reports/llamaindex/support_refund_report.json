@@ -1,0 +1,147 @@
+{
+  "id": "485b74e2-156e-4d5f-b83b-582e29071353",
+  "name": "Benchmark - LlamaIndex - Support Refund",
+  "start_time": "2026-07-14T21:36:36.532376Z",
+  "end_time": "2026-07-14T21:36:36.533155Z",
+  "steps": [
+    {
+      "id": "57477c47-60e0-47df-8422-3c94f4585f08",
+      "name": "LlamaIndex - Classify Ticket Intent",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 180,
+        "completion_tokens": 25,
+        "total_tokens": 205,
+        "latency": 0.0000703999976394698,
+        "ttft": null,
+        "cost": 0.00004199999999999999
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "llamaindex",
+        "framework_documents": 8,
+        "index_type": "llamaindex_documents"
+      }
+    },
+    {
+      "id": "6b2b2a60-c5ea-4210-9ffe-c65761599b9d",
+      "name": "LlamaIndex - Rewrite Query For Retrieval",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 220,
+        "completion_tokens": 35,
+        "total_tokens": 255,
+        "latency": 0.0000168999977177009,
+        "ttft": null,
+        "cost": 0.000054
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "llamaindex"
+      }
+    },
+    {
+      "id": "0e4156e9-8568-43a8-a6b3-6743c93c5597",
+      "name": "LlamaIndex - Retrieve Refund Policy",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.0002535999992687721,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "refund eligibility delivered order opened package unused item refund processing time",
+        "framework": "llamaindex",
+        "index_type": "Document collection",
+        "chunk_count": 4,
+        "avg_tokens_per_chunk": 16,
+        "retrieved_doc_ids": [
+          "refund_002",
+          "refund_003",
+          "refund_001",
+          "shipping_001"
+        ]
+      }
+    },
+    {
+      "id": "416c75f4-551e-4885-85eb-237cd175ce8e",
+      "name": "LlamaIndex - Lookup Order",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.00018619999900693074,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "lookup_order",
+        "tool_args": {
+          "order_id": "A123"
+        },
+        "framework": "llamaindex",
+        "tool_result": {
+          "found": true,
+          "order_id": "A123",
+          "status": "delivered",
+          "delivered_days_ago": 12,
+          "package_opened": true,
+          "item_used": false,
+          "payment_method": "Visa ending 4242",
+          "tracking_updated_hours_ago": 24
+        }
+      }
+    },
+    {
+      "id": "99e8a871-c2c5-4b61-8ad8-6bd8cb7501b1",
+      "name": "LlamaIndex - Refund Eligibility Check",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 720,
+        "completion_tokens": 95,
+        "total_tokens": 815,
+        "latency": 0.000014399996871361509,
+        "ttft": null,
+        "cost": 0.00016499999999999997
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "llamaindex",
+        "intent": "framework=LlamaIndex; intent=refund_request; priority=normal"
+      }
+    },
+    {
+      "id": "d222d8ae-8092-41c3-9374-ce8789a97631",
+      "name": "LlamaIndex - Generate Customer Reply",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 850,
+        "completion_tokens": 130,
+        "total_tokens": 980,
+        "latency": 0.000012500000593718141,
+        "ttft": null,
+        "cost": 0.00020549999999999998
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "llamaindex"
+      }
+    }
+  ]
+}

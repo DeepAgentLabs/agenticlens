@@ -1,0 +1,7 @@
+framework,workflow_name,step_count,total_tokens,prompt_tokens,completion_tokens,total_cost_usd,total_latency_sec,tool_calls,retrieved_chunks,highest_token_step,highest_step_tokens,highest_cost_step,highest_step_cost_usd
+AutoGen,Benchmark - AutoGen - Support Refund,6,2255,1970,285,0.0004665,0.0005153,1,4,AutoGen - Generate Customer Reply,980,AutoGen - Generate Customer Reply,0.0002055
+CrewAI,Benchmark - CrewAI - Support Refund,6,2255,1970,285,0.0004665,0.0004957,1,4,CrewAI - Generate Customer Reply,980,CrewAI - Generate Customer Reply,0.0002055
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,6,2255,1970,285,0.0004665,0.000554,1,4,LlamaIndex - Generate Customer Reply,980,LlamaIndex - Generate Customer Reply,0.0002055
+Native Python,Benchmark - Native Python - Support Refund,6,2255,1970,285,0.0004665,0.0008406,1,4,Generate Customer Reply,980,Generate Customer Reply,0.0002055
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,6,2255,1970,285,0.0004665,0.0006265,1,4,Semantic Kernel - Generate Customer Reply,980,Semantic Kernel - Generate Customer Reply,0.0002055
+LangGraph,Benchmark - LangGraph - Support Refund,6,2460,2130,330,0.0005175,0.0009357,1,4,LangGraph - Generate Customer Reply,1070,LangGraph - Generate Customer Reply,0.000228

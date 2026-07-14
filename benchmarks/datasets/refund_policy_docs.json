@@ -1,0 +1,42 @@
+[
+  {
+    "doc_id": "refund_001",
+    "category": "refund",
+    "text": "Customers can request a refund within 30 days of delivery."
+  },
+  {
+    "doc_id": "refund_002",
+    "category": "refund",
+    "text": "Items must be unused and in original packaging to qualify for a standard refund."
+  },
+  {
+    "doc_id": "refund_003",
+    "category": "refund",
+    "text": "Opened items may require manual review unless the item is defective."
+  },
+  {
+    "doc_id": "refund_004",
+    "category": "payment",
+    "text": "Refunds are processed to the original payment method."
+  },
+  {
+    "doc_id": "refund_005",
+    "category": "payment",
+    "text": "Refunds may take 5 to 10 business days after approval."
+  },
+  {
+    "doc_id": "shipping_001",
+    "category": "shipping",
+    "text": "Delivered orders are eligible for return review if the delivery date is within the return window."
+  },
+  {
+    "doc_id": "tracking_001",
+    "category": "tracking",
+    "text": "If tracking is not updated for 48 hours, customers should contact support."
+  },
+  {
+    "doc_id": "cancel_001",
+    "category": "cancellation",
+    "text": "Orders can be cancelled before shipment. Shipped orders cannot be cancelled."
+  }
+]

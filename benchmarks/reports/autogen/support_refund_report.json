@@ -1,0 +1,147 @@
+{
+  "id": "ed77978d-1a40-41c5-91c0-65aeadcf7466",
+  "name": "Benchmark - AutoGen - Support Refund",
+  "start_time": "2026-07-14T21:36:33.420007Z",
+  "end_time": "2026-07-14T21:36:33.420742Z",
+  "steps": [
+    {
+      "id": "783d0f9d-8531-4503-9120-a87d66ea8fac",
+      "name": "AutoGen - Classify Ticket Intent",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 180,
+        "completion_tokens": 25,
+        "total_tokens": 205,
+        "latency": 0.0000518000015290454,
+        "ttft": null,
+        "cost": 0.00004199999999999999
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "autogen",
+        "agent_name": "support_intent_classifier"
+      }
+    },
+    {
+      "id": "5c2614b0-baeb-4cf9-916e-ce959c8b15e1",
+      "name": "AutoGen - Rewrite Query For Retrieval",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 220,
+        "completion_tokens": 35,
+        "total_tokens": 255,
+        "latency": 0.0000121000011858996,
+        "ttft": null,
+        "cost": 0.000054
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "autogen"
+      }
+    },
+    {
+      "id": "36da4dab-60bb-49fe-bc56-c98cf6dd3849",
+      "name": "AutoGen - Retrieve Refund Policy",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.00026449999859323725,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "refund eligibility delivered order opened package unused item refund processing time",
+        "framework": "autogen",
+        "chunk_count": 4,
+        "avg_tokens_per_chunk": 16,
+        "retrieved_doc_ids": [
+          "refund_002",
+          "refund_003",
+          "refund_001",
+          "shipping_001"
+        ]
+      }
+    },
+    {
+      "id": "fe25246c-7805-45f5-bdf0-eba6beabd356",
+      "name": "AutoGen - Lookup Order",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.00016279999908874743,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "lookup_order",
+        "tool_args": {
+          "order_id": "A123"
+        },
+        "framework": "autogen",
+        "tool_result": {
+          "found": true,
+          "order_id": "A123",
+          "status": "delivered",
+          "delivered_days_ago": 12,
+          "package_opened": true,
+          "item_used": false,
+          "payment_method": "Visa ending 4242",
+          "tracking_updated_hours_ago": 24
+        }
+      }
+    },
+    {
+      "id": "9c3c0f3a-299a-4170-994e-d669a7258563",
+      "name": "AutoGen - Refund Eligibility Check",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 720,
+        "completion_tokens": 95,
+        "total_tokens": 815,
+        "latency": 0.000015300000086426735,
+        "ttft": null,
+        "cost": 0.00016499999999999997
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "autogen",
+        "agent_name": "refund_decision_agent",
+        "intent": "framework=AutoGen; intent=refund_request; priority=normal"
+      }
+    },
+    {
+      "id": "74e5b606-8ef8-444b-9094-268658dc68ac",
+      "name": "AutoGen - Generate Customer Reply",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 850,
+        "completion_tokens": 130,
+        "total_tokens": 980,
+        "latency": 8.799997885944322e-6,
+        "ttft": null,
+        "cost": 0.00020549999999999998
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "autogen",
+        "agent_name": "customer_response_agent"
+      }
+    }
+  ]
+}
