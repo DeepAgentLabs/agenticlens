@@ -1,5 +1,26 @@
 # AgenticLens
 
+<p align="center">
+  <img src="docs/assets/agenticlens-logo.jpeg" alt="AgenticLens logo" width="420">
+</p>
+
+**Open-source evaluation and profiling for production-ready agentic AI systems.**
+
+[![CI](https://github.com/agenticlens/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/agenticlens/agenticlens/actions/workflows/ci.yml)
+[![Docs](https://github.com/agenticlens/agenticlens/actions/workflows/docs.yml/badge.svg)](https://github.com/agenticlens/agenticlens/actions/workflows/docs.yml)
+[![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
+[![Python](https://img.shields.io/pypi/pyversions/agenticlens.svg)](https://pypi.org/project/agenticlens/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/agenticlens/agenticlens?style=social)](https://github.com/agenticlens/agenticlens/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/agenticlens/agenticlens?style=social)](https://github.com/agenticlens/agenticlens/forks)
+[![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
+
+| Public asset | Link |
+| --- | --- |
+| Website and docs | [GitHub Pages](https://agenticlens.github.io/agenticlens/) |
+| Technical specification | [AgenticLens_Spec.md](AgenticLens_Spec.md) |
+| Roadmap | [ROADMAP.md](ROADMAP.md) |
+
 AgenticLens is an open-source Python profiler for LLM applications and agentic
 workflows. It helps developers understand where tokens, latency, and cost are
 spent, then turns that profile into actionable budget optimization

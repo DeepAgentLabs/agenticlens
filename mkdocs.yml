@@ -1,7 +1,13 @@
 site_name: AgenticLens
-site_description: Profile, analyze, and optimize token consumption in LLM-powered applications.
+site_description: Open-source evaluation and profiling for production-ready agentic AI systems.
 theme:
   name: material
+  logo: assets/agenticlens-logo.jpeg
+  favicon: assets/agenticlens-logo.jpeg
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
 
 nav:
   - Home: index.md
@@ -10,3 +16,6 @@ nav:
   - Workflow Schema Spec: workflow-schema-spec.md
 
 repo_url: https://github.com/agenticlens/agenticlens
+repo_name: agenticlens/agenticlens
+exclude_docs: |
+  patents/
