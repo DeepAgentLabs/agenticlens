@@ -32,6 +32,8 @@ jobs:
       - name: Configure Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Install docs dependencies
         run: uv sync --extra docs --python 3.12
