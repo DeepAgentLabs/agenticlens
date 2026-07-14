@@ -6,18 +6,18 @@
 
 **Open-source evaluation and profiling for production-ready agentic AI systems.**
 
-[![CI](https://github.com/agenticlens/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/agenticlens/agenticlens/actions/workflows/ci.yml)
-[![Docs](https://github.com/agenticlens/agenticlens/actions/workflows/docs.yml/badge.svg)](https://github.com/agenticlens/agenticlens/actions/workflows/docs.yml)
+[![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
+[![Docs](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml)
 [![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
 [![Python](https://img.shields.io/pypi/pyversions/agenticlens.svg)](https://pypi.org/project/agenticlens/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/agenticlens/agenticlens?style=social)](https://github.com/agenticlens/agenticlens/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/agenticlens/agenticlens?style=social)](https://github.com/agenticlens/agenticlens/forks)
+[![GitHub stars](https://img.shields.io/github/stars/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/forks)
 [![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
 
 | Public asset | Link |
 | --- | --- |
-| Website and docs | [GitHub Pages](https://agenticlens.github.io/agenticlens/) |
+| Website and docs | [GitHub Pages](https://deepagentlabs.github.io/agenticlens/) |
 | Technical specification | [AgenticLens_Spec.md](AgenticLens_Spec.md) |
 | Roadmap | [ROADMAP.md](ROADMAP.md) |
 
@@ -61,7 +61,7 @@ may still evolve before a stable 1.0 release.
 For local development from this repository:
 
 ```bash
-git clone https://github.com/agenticlens/agenticlens.git
+git clone https://github.com/DeepAgentLabs/agenticlens.git
 cd agenticlens
 uv sync --extra dev
 ```

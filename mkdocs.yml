@@ -15,7 +15,7 @@ nav:
   - RAG Chunk Utility: rag-chunk-utility.md
   - Workflow Schema Spec: workflow-schema-spec.md
 
-repo_url: https://github.com/agenticlens/agenticlens
-repo_name: agenticlens/agenticlens
+repo_url: https://github.com/DeepAgentLabs/agenticlens
+repo_name: DeepAgentLabs/agenticlens
 exclude_docs: |
   patents/

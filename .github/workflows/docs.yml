@@ -29,6 +29,10 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
       - name: Install docs dependencies
         run: uv sync --extra docs --python 3.12
 

@@ -4,9 +4,9 @@
 
 **Open-source evaluation and profiling for production-ready agentic AI systems.**
 
-[![CI](https://github.com/agenticlens/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/agenticlens/agenticlens/actions/workflows/ci.yml)
+[![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
-[![GitHub stars](https://img.shields.io/github/stars/agenticlens/agenticlens?style=social)](https://github.com/agenticlens/agenticlens/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/stargazers)
 [![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
 
 AgenticLens helps teams profile LLM applications, measure cost and latency, and
@@ -35,7 +35,7 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [Workflow schema specification](workflow-schema-spec.md)
 - [Export formats](export-formats.md)
 - [RAG chunk utility](rag-chunk-utility.md)
-- [Technical specification](https://github.com/agenticlens/agenticlens/blob/main/AgenticLens_Spec.md)
+- [Technical specification](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Spec.md)
 
 ## Quickstart
 
