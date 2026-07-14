@@ -5,7 +5,6 @@ from pathlib import Path
 
 from benchmarks.shared.metrics_collector import summarize_agenticlens_report
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 FRAMEWORKS = {
@@ -63,18 +62,19 @@ def write_markdown_summary(results: list[dict], output_path: Path) -> None:
         "",
         "Use case: Customer Support Refund Copilot",
         "",
-        "This benchmark profiles the same practical support workflow across multiple agentic implementations.",
+        "This benchmark profiles the same practical support workflow across multiple "
+        "agentic implementations.",
         "",
-        "| Framework | Total Tokens | Cost | Latency | Steps | Tool Calls | Retrieved Chunks | Highest Token Step | Highest Cost Step |",
+        "| Framework | Total Tokens | Cost | Latency | Steps | Tool Calls | "
+        "Retrieved Chunks | Highest Token Step | Highest Cost Step |",
         "|---|---:|---:|---:|---:|---:|---:|---|---|",
     ]
 
     for row in results:
         lines.append(
             "| {framework} | {total_tokens} | ${total_cost:.6f} | {total_latency:.3f}s | "
-            "{step_count} | {tool_calls} | {retrieved_chunks} | {highest_token_step} | {highest_cost_step} |".format(
-                **row
-            )
+            "{step_count} | {tool_calls} | {retrieved_chunks} | {highest_token_step} | "
+            "{highest_cost_step} |".format(**row)
         )
 
     lines.extend(
@@ -82,8 +82,10 @@ def write_markdown_summary(results: list[dict], output_path: Path) -> None:
             "",
             "## Interpretation",
             "",
-            "These results are workload-specific. They should not be read as a universal ranking of frameworks.",
-            "The goal is to show how AgenticLens makes token usage, cost, latency, retrieval behavior, and tool activity visible across workflows.",
+            "These results are workload-specific. They should not be read as a "
+            "universal ranking of frameworks.",
+            "The goal is to show how AgenticLens makes token usage, cost, latency, "
+            "retrieval behavior, and tool activity visible across workflows.",
         ]
     )
 

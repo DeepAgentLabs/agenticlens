@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
 
-import pandas as pd
 import matplotlib.pyplot as plt
-
+import pandas as pd
 
 REPORTS = {
     "Native Python": "benchmarks/reports/native_python/support_refund_report.json",
@@ -135,7 +134,8 @@ def create_markdown_summary(summary_df: pd.DataFrame, output_path: Path) -> None
         "",
         "## Summary Results",
         "",
-        "| Framework | Total Tokens | Prompt Tokens | Completion Tokens | Cost USD | Latency Sec | Steps | Tool Calls | Retrieved Chunks | Highest Token Step |",
+        "| Framework | Total Tokens | Prompt Tokens | Completion Tokens | Cost USD | "
+        "Latency Sec | Steps | Tool Calls | Retrieved Chunks | Highest Token Step |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
 
@@ -158,12 +158,16 @@ def create_markdown_summary(summary_df: pd.DataFrame, output_path: Path) -> None
             "",
             "## Key Finding",
             "",
-            "The final customer reply step is the highest token-consuming step across the benchmark runs.",
+            "The final customer reply step is the highest token-consuming step across "
+            "the benchmark runs.",
             "",
             "## Important Note",
             "",
-            "These results are workload-specific. They should not be treated as a universal ranking of frameworks.",
-            "The purpose is to show how AgenticLens can normalize and compare token, cost, latency, retrieval, and tool-call metrics across framework implementations.",
+            "These results are workload-specific. They should not be treated as a "
+            "universal ranking of frameworks.",
+            "The purpose is to show how AgenticLens can normalize and compare token, "
+            "cost, latency, retrieval, and tool-call metrics across framework "
+            "implementations.",
         ]
     )
 

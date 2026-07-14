@@ -1,13 +1,12 @@
-import time
 import sys
+import time
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from agenticlens import profile, step
-
-from benchmarks.shared.support_data import (
+from agenticlens import profile, step  # noqa: E402
+from benchmarks.shared.support_data import (  # noqa: E402
     build_policy_context,
     estimate_avg_tokens_per_chunk,
     lookup_order,
@@ -47,7 +46,9 @@ def classify_ticket(ticket: str) -> FakeResponse:
 
 def rewrite_query(ticket: str) -> FakeResponse:
     return FakeResponse(
-        content="refund eligibility delivered order opened package unused item refund processing time",
+        content=(
+            "refund eligibility delivered order opened package unused item refund processing time"
+        ),
         prompt_tokens=220,
         completion_tokens=35,
     )
@@ -64,12 +65,15 @@ def check_refund_eligibility(ticket: str, order: dict, policy_context: str) -> F
     )
 
 
-def generate_customer_reply(ticket: str, order: dict, policy_context: str, decision: str) -> FakeResponse:
+def generate_customer_reply(
+    ticket: str, order: dict, policy_context: str, decision: str
+) -> FakeResponse:
     return FakeResponse(
         content=(
             "Your order is within the 30-day refund window. Since the package was opened, "
-            "the refund may need manual review. Because the item was not used, you may still be eligible. "
-            "If approved, the refund will return to your original payment method and may take 5 to 10 business days."
+            "the refund may need manual review. Because the item was not used, you may "
+            "still be eligible. If approved, the refund will return to your original "
+            "payment method and may take 5 to 10 business days."
         ),
         prompt_tokens=850,
         completion_tokens=130,
@@ -85,7 +89,6 @@ def main() -> None:
     order_id = "A123"
 
     with profile("Benchmark - Native Python - Support Refund"):
-
         with step(
             "Classify Ticket Intent",
             type="planner",

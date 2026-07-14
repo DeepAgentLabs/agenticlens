@@ -1,7 +1,4 @@
-
-
 from agenticlens import profile, step
-
 
 SYSTEM_PROMPT = (
     "You are a careful travel support assistant. "
@@ -28,7 +25,6 @@ def main() -> None:
     )
 
     with profile("Multi-Agent Travel Refund Edge Case Workflow"):
-
         # Edge case 1: large repeated system prompt
         with step(
             "Planner Agent",

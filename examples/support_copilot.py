@@ -2,7 +2,6 @@ import os
 import re
 import sqlite3
 import time
-from pathlib import Path
 from typing import Any
 
 from agenticlens import profile, step
@@ -11,6 +10,7 @@ USE_REAL_OPENAI = bool(os.getenv("OPENAI_API_KEY"))
 
 if USE_REAL_OPENAI:
     from openai import OpenAI
+
     client = OpenAI()
 
 
@@ -37,7 +37,10 @@ POLICY_DOCS = [
     },
     {
         "id": "shipping_001",
-        "text": "Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "text": (
+            "Delivered orders are eligible for return review if the delivery date "
+            "is within the return window."
+        ),
     },
 ]
 
@@ -164,10 +167,11 @@ def fake_llm(task: str, prompt: str) -> FakeResponse:
 
     return FakeResponse(
         content=(
-            "Your order A123 was delivered 12 days ago, so it is within the 30-day refund window. "
-            "Because the package was opened, the refund may need manual review, but since the item was not used, "
-            "you may still be eligible. If approved, the refund will go back to your original payment method and "
-            "may take 5 to 10 business days after approval."
+            "Your order A123 was delivered 12 days ago, so it is within the 30-day "
+            "refund window. Because the package was opened, the refund may need "
+            "manual review, but since the item was not used, you may still be "
+            "eligible. If approved, the refund will go back to your original "
+            "payment method and may take 5 to 10 business days after approval."
         ),
         prompt_tokens=850,
         completion_tokens=120,
@@ -203,7 +207,6 @@ def main() -> None:
     }
 
     with profile("Practical Support Copilot - Refund Ticket") as workflow:
-
         with step(
             "Classify Ticket Intent",
             type="planner",
@@ -232,7 +235,8 @@ def main() -> None:
             start = time.time()
             rewrite_response = call_llm(
                 "rewrite",
-                f"Rewrite this ticket as a search query for refund policy retrieval:\n{ticket['message']}",
+                f"Rewrite this ticket as a search query for refund policy retrieval:\n"
+                f"{ticket['message']}",
             )
             s.record(rewrite_response)
             s.step.metrics.latency = time.time() - start

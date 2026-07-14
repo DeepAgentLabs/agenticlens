@@ -1,7 +1,6 @@
 import time
 
 from agenticlens import profile, step
-
 from benchmarks.shared.support_tasks import (
     check_refund_eligibility,
     classify_ticket,
@@ -45,7 +44,6 @@ def main() -> None:
     )
 
     with profile("Benchmark - AutoGen - Support Refund"):
-
         with step(
             "AutoGen - Classify Ticket Intent",
             type="planner",

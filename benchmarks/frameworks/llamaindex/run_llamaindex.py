@@ -1,7 +1,6 @@
 import time
 
 from agenticlens import profile, step
-
 from benchmarks.shared.support_data import load_policy_docs
 from benchmarks.shared.support_tasks import (
     check_refund_eligibility,
@@ -17,7 +16,7 @@ def main() -> None:
     framework = "LlamaIndex"
 
     try:
-        from llama_index.core import Document, VectorStoreIndex
+        from llama_index.core import Document
     except ImportError as exc:
         raise RuntimeError("LlamaIndex is not installed. Run: pip install llama-index") from exc
 
@@ -29,23 +28,23 @@ def main() -> None:
     order_id = "A123"
 
     # Framework-specific indexing object.
-    # This builds a LlamaIndex document collection, but the deterministic benchmark uses shared retrieval
-    # so results stay comparable with other framework runs.
+    # This builds a LlamaIndex document collection, but the deterministic benchmark
+    # uses shared retrieval so results stay comparable with other framework runs.
     policy_docs = load_policy_docs()
     documents = [
         Document(text=doc["text"], metadata={"doc_id": doc["doc_id"], "category": doc["category"]})
         for doc in policy_docs
     ]
 
-    # Do not build a real embedding index in the deterministic run because it may require model configuration.
-    # Keep this object as the framework-specific document representation.
+    # Do not build a real embedding index in the deterministic run because it may
+    # require model configuration. Keep this object as the framework-specific
+    # document representation.
     index_metadata = {
         "framework_documents": len(documents),
         "index_type": "llamaindex_documents",
     }
 
     with profile("Benchmark - LlamaIndex - Support Refund"):
-
         with step(
             "LlamaIndex - Classify Ticket Intent",
             type="planner",

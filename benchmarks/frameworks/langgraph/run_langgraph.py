@@ -1,8 +1,7 @@
 import time
-from typing import TypedDict, Any
+from typing import Any, TypedDict
 
 from agenticlens import profile, step
-
 from benchmarks.shared.support_data import (
     build_policy_context,
     estimate_avg_tokens_per_chunk,
@@ -55,7 +54,9 @@ def classify_ticket_llm(ticket: str) -> FakeResponse:
 
 def rewrite_query_llm(ticket: str) -> FakeResponse:
     return FakeResponse(
-        content="refund eligibility delivered order opened package unused item refund processing time",
+        content=(
+            "refund eligibility delivered order opened package unused item refund processing time"
+        ),
         prompt_tokens=240,
         completion_tokens=40,
     )
@@ -72,12 +73,15 @@ def refund_decision_llm(ticket: str, order: dict, policy_context: str) -> FakeRe
     )
 
 
-def final_response_llm(ticket: str, order: dict, policy_context: str, decision: str) -> FakeResponse:
+def final_response_llm(
+    ticket: str, order: dict, policy_context: str, decision: str
+) -> FakeResponse:
     return FakeResponse(
         content=(
             "Your order is within the 30-day refund window. Since the package was opened, "
-            "the refund may need manual review. Because the item was not used, you may still be eligible. "
-            "If approved, the refund will return to your original payment method and may take 5 to 10 business days."
+            "the refund may need manual review. Because the item was not used, you may "
+            "still be eligible. If approved, the refund will return to your original "
+            "payment method and may take 5 to 10 business days."
         ),
         prompt_tokens=920,
         completion_tokens=150,
@@ -197,11 +201,9 @@ def final_response_node(state: SupportState) -> SupportState:
 
 def main() -> None:
     try:
-        from langgraph.graph import StateGraph, END
+        from langgraph.graph import END, StateGraph
     except ImportError as exc:
-        raise RuntimeError(
-            "LangGraph is not installed. Run: pip install langgraph"
-        ) from exc
+        raise RuntimeError("LangGraph is not installed. Run: pip install langgraph") from exc
 
     ticket = (
         "My order A123 was delivered 12 days ago. "

@@ -1,7 +1,6 @@
 import time
 
 from agenticlens import profile, step
-
 from benchmarks.shared.support_tasks import (
     check_refund_eligibility,
     classify_ticket,
@@ -18,7 +17,9 @@ def main() -> None:
     try:
         import semantic_kernel as sk
     except ImportError as exc:
-        raise RuntimeError("Semantic Kernel is not installed. Run: pip install semantic-kernel") from exc
+        raise RuntimeError(
+            "Semantic Kernel is not installed. Run: pip install semantic-kernel"
+        ) from exc
 
     ticket = (
         "My order A123 was delivered 12 days ago. "
@@ -32,7 +33,6 @@ def main() -> None:
     kernel = sk.Kernel()
 
     with profile("Benchmark - Semantic Kernel - Support Refund"):
-
         with step(
             "Semantic Kernel - Classify Ticket Intent",
             type="planner",

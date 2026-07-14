@@ -41,7 +41,9 @@ def classify_ticket(ticket: str, framework: str) -> FakeResponse:
 
 def rewrite_query(ticket: str, framework: str) -> FakeResponse:
     return FakeResponse(
-        content="refund eligibility delivered order opened package unused item refund processing time",
+        content=(
+            "refund eligibility delivered order opened package unused item refund processing time"
+        ),
         prompt_tokens=220,
         completion_tokens=35,
     )
@@ -91,7 +93,8 @@ def generate_customer_reply(
             f"[{framework}] Your order is within the 30-day refund window. "
             "Since the package was opened, the refund may need manual review. "
             "Because the item was not used, you may still be eligible. "
-            "If approved, the refund will return to your original payment method and may take 5 to 10 business days."
+            "If approved, the refund will return to your original payment method and "
+            "may take 5 to 10 business days."
         ),
         prompt_tokens=850,
         completion_tokens=130,

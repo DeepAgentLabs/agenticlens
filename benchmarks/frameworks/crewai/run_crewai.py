@@ -1,7 +1,6 @@
 import time
 
 from agenticlens import profile, step
-
 from benchmarks.shared.support_tasks import (
     check_refund_eligibility,
     classify_ticket,
@@ -85,7 +84,8 @@ def main() -> None:
     ]
 
     # We create the CrewAI crew so the benchmark records that this implementation uses CrewAI.
-    # We do not call crew.kickoff() in this deterministic benchmark because that would call a live LLM.
+    # We do not call crew.kickoff() in this deterministic benchmark because that would
+    # call a live LLM.
     crew = Crew(
         agents=[classifier_agent, policy_agent, refund_agent, response_agent],
         tasks=tasks,
@@ -94,7 +94,6 @@ def main() -> None:
     )
 
     with profile("Benchmark - CrewAI - Support Refund"):
-
         with step(
             "CrewAI - Classify Ticket Intent",
             type="planner",
