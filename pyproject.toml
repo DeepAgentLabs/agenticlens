@@ -41,6 +41,9 @@ dev = [
 docs = [
   "mkdocs-material>=9.5",
 ]
+langchain = [
+  "langchain-core>=0.3",
+]
 
 [project.scripts]
 agenticlens = "agenticlens.cli.main:app"
@@ -78,6 +81,13 @@ python_version = "3.10"
 strict = true
 packages = ["agenticlens"]
 mypy_path = "src"
+
+[[tool.mypy.overrides]]
+# langchain-core is an optional dependency (the `langchain` extra) whose own
+# transitive imports (e.g. numpy) ship stubs newer than our target Python
+# version. Skip following into it rather than type-checking its internals.
+module = ["langchain_core", "langchain_core.*"]
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

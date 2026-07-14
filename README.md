@@ -180,6 +180,7 @@ RAG chunk utility.
 | Costing | Local pricing table plus user pricing overrides |
 | Recommendations | Repeated prompts, excessive chunks, low-utility chunks, long history, duplicate tool calls |
 | Budget impact | Dollar-per-run and monthly savings projections |
+| Integrations | Auto-instrumentation adapter for LangChain / LangGraph via callbacks |
 | CLI | `profile`, `report`, and `analyze` commands |
 | Export | JSON, CSV, Markdown, and Jira workflow export |
 | Tooling | pytest, Ruff, mypy, GitHub Actions |
@@ -317,6 +318,29 @@ Set credentials via environment variables for safety — see
 
 For sample output previews of all formats, see [docs/export-formats.md](docs/export-formats.md).
 
+## LangChain Integration
+
+Auto-instrument a LangChain (or LangGraph) run via its callback system instead
+of wrapping every call in `step()`:
+
+```bash
+pip install "agenticlens[langchain]"
+```
+
+```python
+from agenticlens import profile
+from agenticlens.adapters.langchain import AgenticLensCallbackHandler
+
+with profile("My LangChain App") as workflow:
+    chain.invoke(inputs, config={"callbacks": [AgenticLensCallbackHandler()]})
+```
+
+LLM calls, tool calls, and retriever calls are tracked automatically as
+`llm_call`, `tool_call`, and `retriever` steps, with token usage extracted the
+same way `s.record(...)` does. See
+[docs/langchain-integration.md](docs/langchain-integration.md) for details on
+what is and isn't tracked.
+
 ## CLI Reference
 
 Profile a Python script:
@@ -392,7 +416,8 @@ Near-term priorities:
 
 - model-tier mismatch detection
 - prompt caching opportunity detection
-- integrations for LangChain, LangGraph, LiteLLM, and OpenAI Agents SDK
+- integrations for LiteLLM and OpenAI Agents SDK (LangChain / LangGraph done —
+  see [docs/langchain-integration.md](docs/langchain-integration.md))
 - OpenTelemetry and OpenInference trace import
 - optional prompt compression handoff
 

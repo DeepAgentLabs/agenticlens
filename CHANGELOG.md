@@ -4,6 +4,22 @@ All notable changes to this project will be documented here.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `agenticlens.adapters.langchain.AgenticLensCallbackHandler`, an optional
+  (`pip install "agenticlens[langchain]"`) LangChain/LangGraph callback
+  handler that auto-instruments LLM, tool, and retriever calls as AgenticLens
+  steps without manual `step()` blocks. Documented in
+  `docs/langchain-integration.md`.
+- `benchmarks/`, a cross-framework benchmark harness that profiles the same
+  refund-ticket workload through AutoGen, CrewAI, LangGraph, LlamaIndex,
+  Semantic Kernel, and native Python for an apples-to-apples token/cost/latency
+  comparison. Linked from the README.
+- `examples/support_copilot.py` and `examples/multiagent_edge_cases_demo.py`,
+  additional practical and edge-case profiling examples.
+
 ## 0.2.0 - 2026-07-13
 
 ### Added

@@ -209,8 +209,11 @@ Goal: make the core model easy to adopt across real agent stacks.
 
 Planned work:
 
+- [x] LangChain / LangGraph adapter (`agenticlens.adapters.langchain`,
+  optional `langchain` extra) — auto-instruments LLM/tool/retriever calls via
+  callbacks
 - [ ] Add integrations for:
-  LangGraph, LiteLLM, OpenAI Agents SDK, LangChain, CrewAI
+  LiteLLM, OpenAI Agents SDK, CrewAI
 - [ ] Add OpenTelemetry and OpenInference import paths
 - [ ] Broaden provider support:
   Gemini, Ollama, vLLM, LiteLLM, Azure OpenAI
