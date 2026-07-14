@@ -250,6 +250,15 @@ Other examples:
 
 Some examples call real provider APIs and require provider API keys.
 
+## Framework Benchmarks
+
+`benchmarks/` runs the same practical refund-ticket workload through
+AutoGen, CrewAI, LangGraph, LlamaIndex, Semantic Kernel, and native Python,
+profiling each with AgenticLens to normalize tokens, cost, latency, tool
+calls, and retrieved chunks across implementations. See
+[benchmarks/results/benchmark_summary.md](benchmarks/results/benchmark_summary.md)
+for the current comparison table.
+
 ## Notebooks
 
 Beginner-friendly notebooks are available in:
