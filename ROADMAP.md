@@ -2,36 +2,53 @@
 
 ## Product Direction
 
-AgenticLens should aim to be a **local-first observability, evaluation, and
-regression toolkit for agentic AI applications**.
+AgenticLens should aim to be a **local-first observability, evaluation,
+operational intelligence, and governance-evidence toolkit for production AI
+systems**.
 
-That means the PyPI package should own the developer workflow that happens
-closest to code and CI:
+The package should own the developer workflow that happens closest to code,
+experiments, and CI:
 
 - instrumentation and workflow capture
 - graph-aware trace structure
 - cost, latency, and token analysis
+- inference and serving observability
 - step-level and workflow-level scoring
 - evaluator interfaces and local eval runs
 - datasets, experiments, and regression checks
 - prompt/version/config tracking
-- policy and guardrail enforcement in CI
+- incident and change-impact analysis
+- standards-readiness and audit-style reporting
+- advisory release and control decisions for production AI systems
 
-It should **not** try to become a hosted observability platform inside the core
-package. Multi-user dashboards, auth/RBAC, hosted storage, alert routing, and
+AgenticLens should **not** try to become a hosted observability platform or
+full enterprise control plane inside the core package. Multi-user dashboards,
+auth/RBAC, hosted storage, alert routing, deployment orchestration, and
 enterprise ops workflows are useful, but they should remain optional layers on
 top of the package rather than the center of the project.
+
+## Ecosystem Role
+
+Within the DeepAgentLabs ecosystem, the package boundary should stay clear:
+
+- **AgenticLens observes, evaluates, explains, and recommends**
+- **Agentic Chaos injects, validates, tests, and proves resilience**
+
+That split keeps both packages coherent on PyPI while still telling one larger
+story around operational reliability for production AI systems.
 
 ## Guiding Principles
 
 - **Package-first**: every major feature should be usable through Python and the
   CLI without requiring a backend.
-- **Local-first**: runs, datasets, scores, and regressions should work on local
-  files by default.
+- **Local-first**: runs, datasets, scores, regressions, incidents, and audits
+  should work on local files by default.
 - **CI-first**: the output should be useful not only for inspection, but for
-  automated quality gates.
+  automated quality and release gates.
 - **Framework-agnostic**: integrations matter, but the core data model should
   not depend on one framework.
+- **Advisory-first**: when adding release or control functionality, start with
+  evidence and recommendations before enforcement.
 - **Additive evolution**: extend the existing `workflow.json` contract in ways
   that preserve compatibility.
 
@@ -55,186 +72,213 @@ top of the package rather than the center of the project.
 This release line establishes AgenticLens as a **cost and workflow profiling
 tool**.
 
+## Capability Map
+
+These capability families should be introduced gradually inside one coherent
+package:
+
+```text
+agenticlens
+├── observe
+├── inference
+├── evaluate
+├── compare
+├── incidents
+├── telemetry
+├── safety
+├── security
+├── slos
+├── lineage
+├── audit
+├── release
+└── control
+```
+
+Not all of these need to become top-level import packages immediately, but
+they provide the long-term product map.
+
+Inference and serving observability should be treated as a first-class part of
+the package direction, including:
+
+- request latency distributions
+- timeout and error rates
+- fallback rates
+- token consumption per request
+- model and provider version correlation
+- routing or serving-path visibility for AI requests
+
 ## Roadmap
 
-### v0.2 — Graph-Aware Tracing Foundation
+### v0.2 — Compare, SLOs, and Incident Foundations
 
-Goal: move from flat step lists to a workflow model that can describe real
-agent execution structure.
+Goal: extend profiling into operational comparison and reliability reporting
+without changing the package identity.
 
 Why this comes first:
-- nearly every higher-level feature depends on better trace structure
-- step-level evaluation is much stronger when parent/child and retry
-  relationships exist
-- this creates the bridge from "LLM profiler" to "agent observability toolkit"
+
+- it is the most natural extension of today's profiling and analysis features
+- it strengthens the package's runtime observability and operational-analysis
+  story
+- it keeps AgenticLens clearly library-first and PyPI-friendly
 
 Planned work:
 
-- [ ] Extend `Step` with graph-oriented fields such as:
-  `parent_step_id`, `span_kind`, `attempt`, `status`
-- [ ] Add optional ownership/identity fields such as:
-  `agent_name`, `tool_name`, `session_id`, `thread_id`
-- [ ] Support retry groups, handoffs, and sub-agent relationships
-- [ ] Preserve backward compatibility with existing flat `workflow.json`
-- [ ] Add CLI rendering improvements for nested/related steps
-- [ ] Add tests and schema docs for graph-aware traces
+- [ ] Add baseline-versus-candidate workflow comparison
+- [ ] Add compare reports for prompts, models, workflows, and RAG
+  configurations
+- [ ] Add built-in SLIs/SLO reports such as:
+  `success_rate`, `timeout_rate`, `fallback_rate`, `tool_failure_rate`,
+  `grounded_answer_rate`, `cost_per_successful_task`, `p95_latency`
+- [ ] Add explicit inference-serving summaries covering latency distributions,
+  error rates, timeout rates, fallback behavior, and token consumption
+- [ ] Add lightweight incident summaries for failed or anomalous runs
+- [ ] Add provenance metadata fields such as:
+  `prompt_version`, `model_version`, `tool_version`, `run_id`, `environment`
+- [ ] Add CLI commands such as:
+  `agenticlens compare`, `agenticlens slos report`,
+  `agenticlens incidents summarize`
 
 Definition of done:
-- AgenticLens can represent planners, retrievers, tools, sub-agents, retries,
-  and final responses as a connected workflow rather than only a linear list.
 
-### v0.3 — Scores and Evaluator API
+- AgenticLens can answer "what changed?", "did reliability regress?", and
+  "what failed?" using local workflow artifacts.
 
-Goal: make quality a first-class concept, not just a free-form recommendation
-description.
+### v0.3 — Evaluate, Lineage, Audit, and Richer Incidents
+
+Goal: make AgenticLens an operational-intelligence toolkit rather than only a
+profiler.
 
 Why this matters:
-- observability without quality scoring becomes a trace viewer
-- the strongest next step is to score decisions, not just costs
+
+- this is where GenAIOps alignment becomes much more visible
+- observability becomes far more valuable when it is tied to readiness,
+  lineage, and evidence
+- it strengthens the standards-aligned story without turning the package into a
+  deployment platform
 
 Planned work:
 
-- [ ] Add typed score models:
-  `numeric`, `boolean`, `categorical`
-- [ ] Support score scopes:
-  `workflow`, `step`, `thread`, and `dataset_run`
-- [ ] Add evaluator interface with three local evaluator types:
-  `heuristic`, `llm_judge`, `python_callable`
-- [ ] Add built-in evaluator categories:
-  `tool_selection`, `retrieval_quality`, `plan_quality`,
-  `task_completion`, `policy_compliance`
-- [ ] Add score export support to JSON, CSV, and Markdown outputs
-- [ ] Add score-aware CLI views
+- [ ] Add typed evaluation result models and pass/fail thresholds
+- [ ] Add evaluation categories such as:
+  `groundedness`, `faithfulness`, `retrieval_quality`, `task_completion`,
+  `policy_compliance`
+- [ ] Add release-readiness scoring for candidate runs
+- [ ] Add lineage tracking for prompts, models, configs, tools, and knowledge
+  sources
+- [ ] Add richer inference metadata such as provider/model version history,
+  routing decisions, and serving-path context where available
+- [ ] Add audit-style outputs such as:
+  `observability coverage report`, `operational maturity assessment`,
+  `standards-readiness report`
+- [ ] Add richer incident reporting:
+  timeline reconstruction, failed-run evidence, root-cause hints,
+  postmortem-style exports
+- [ ] Add normal-versus-degraded comparison flows using `agentic-chaos`
+  artifacts
+- [ ] Add CLI commands such as:
+  `agenticlens evaluate`, `agenticlens audit`,
+  `agenticlens incidents summarize`
 
 Definition of done:
-- a workflow can carry explicit quality signals that are queryable, exportable,
-  and reusable in experiments and regression checks.
 
-### v0.4 — Datasets and Trace-to-Dataset Curation
+- AgenticLens can capture evaluation evidence, run lineage, and operational
+  audit signals in a form that is exportable, scriptable, and reusable.
 
-Goal: turn one-off debugging into reusable evaluation coverage.
+### v0.4 — Safety, Security, and Advisory Release Controls
+
+Goal: expand into production AI operational intelligence while staying
+advisory-first.
 
 Why this matters:
-- this is the clearest product gap today
-- production failures should become future regression cases
+
+- it covers more of the GenAIOps operational story without trying to replace
+  CI/CD, Kubernetes, or security platforms
+- it keeps the package focused on evidence, analysis, and recommendations
+- it creates a strong standards-informed story while preserving a clean PyPI
+  identity
 
 Planned work:
 
-- [ ] Add local dataset models:
-  `Dataset`, `DatasetItem`, `ExpectedOutput`, `ScenarioTags`, `DatasetRun`
-- [ ] Add CLI commands for curation and inspection
-- [ ] Support trace-to-dataset extraction from saved workflow files
-- [ ] Add a package-friendly flow such as:
-  `agenticlens curate run.json --to-dataset regressions.jsonl`
-- [ ] Support attaching scores and notes to curated items
-- [ ] Document local storage format and compatibility guarantees
+- [ ] Add safety-observability signals such as:
+  hallucination indicators, groundedness failures, unsafe-output counts,
+  guardrail activations, human-escalation triggers
+- [ ] Add security-observability signals such as:
+  prompt-injection indicators, suspicious tool activity, secret leakage
+  signals, abnormal agent loops, unauthorized tool attempts
+- [ ] Add advisory release checks such as:
+  `agenticlens release check`,
+  `agenticlens release rollback-recommendation`
+- [ ] Add configurable release gates based on evaluation, reliability, and
+  policy thresholds
+- [ ] Add advisory runtime-control recommendations such as:
+  model fallback, tool disable, cost ceiling breach, latency threshold breach,
+  human-review routing
+- [ ] Keep external systems optional via adapters rather than re-implementing
+  deployment infrastructure
 
 Definition of done:
-- users can collect interesting runs, convert them into datasets, and reuse
-  them later without external infrastructure.
 
-### v0.5 — Experiment Runner
+- AgenticLens can evaluate whether a production AI system is healthy,
+  release-ready, and regressing or improving, while still acting primarily as a
+  local-first analysis toolkit.
 
-Goal: compare prompt/model/tool variants across the same dataset and see
- quality-cost-latency tradeoffs clearly.
+### v0.5 — Telemetry Export and Observability Interop
+
+Goal: make AgenticLens interoperable with mainstream observability platforms
+without making any vendor format the core model.
 
 Why this matters:
-- developers need more than profiling; they need decision support
-- experiments are the natural layer above datasets and evaluators
+
+- the `AI Operations Workflow Specification` should remain the canonical,
+  richest artifact
+- many teams still want traces and attributes to flow into existing APM and
+  observability systems
+- OpenTelemetry and OTLP give AgenticLens a vendor-neutral bridge to tools such
+  as Grafana, New Relic, Dynatrace, Datadog, Elastic, Honeycomb, and others
 
 Planned work:
 
-- [ ] Add experiment models and run manifests
-- [ ] Support comparing variants across a dataset:
-  prompt versions, model choices, tool configurations
-- [ ] Report deltas for:
-  cost, latency, token usage, and quality scores
-- [ ] Add experiment summaries in Markdown and JSON
-- [ ] Add baseline-vs-candidate comparison output for CI
-- [ ] Keep execution local and scriptable
+- [ ] Add a `telemetry` capability area and exporter layer for workflow-to-trace
+  conversion
+- [ ] Define canonical mapping rules from workflow artifacts to observability
+  formats:
+  workflow -> trace, steps -> spans, workflow/step metadata -> attributes,
+  chaos/incidents/evaluations -> events or annotations
+- [ ] Ensure inference-serving attributes such as provider, model, latency,
+  timeout, routing, and token counts map cleanly into exported telemetry
+- [ ] Add OpenTelemetry trace export support
+- [ ] Add OTLP export support for downstream ingestion by external platforms
+- [ ] Document compatibility targets for popular observability platforms such as
+  Grafana, Datadog, New Relic, Dynatrace, Elastic, and Honeycomb
+- [ ] Add CLI flows such as:
+  `agenticlens export --format otel`
+  `agenticlens export --format otlp`
+- [ ] Preserve `workflow.json` as the richest portable artifact even when
+  exporting to other telemetry formats
+- [ ] Keep vendor-specific adapters optional and downstream from the common
+  OTEL/OTLP mapping layer
 
 Definition of done:
-- AgenticLens can answer "which variant is better?" using repeatable local
-  runs instead of manual trace inspection.
 
-### v0.6 — Prompt Registry and Configuration Tracking
+- AgenticLens can export AI workflow observability data into standard telemetry
+  pipelines while keeping the workflow specification as its source of truth.
 
-Goal: make prompt and configuration changes explicit and traceable.
+## Additional Longer-Term Foundations
 
-Why this matters:
-- prompt drift and silent config changes are frequent causes of regressions
-- traces are much more useful when they reference versioned artifacts
+These foundations still matter and can be pulled forward if later work depends
+on them:
 
-Planned work:
+- graph-aware trace structure
+- score and evaluator APIs
+- datasets and trace-to-dataset curation
+- experiment runner
+- integrations and importers
+- observability-platform adapters built on top of the common telemetry export
+  layer, including Grafana, Datadog, New Relic, Dynatrace, Elastic, and
+  Honeycomb targets
+- optional local UI
 
-- [ ] Add local prompt objects with:
-  `name`, `version`, `labels`, `tags`, `config`, `commit_message`
-- [ ] Let steps reference prompt versions via `prompt_ref` instead of only raw
-  prompt text
-- [ ] Track per-step config metadata such as:
-  `prompt_version`, `model_params`, `tool_schema_version`,
-  `retrieval_index_version`
-- [ ] Add prompt-aware comparisons in reports and experiments
-- [ ] Keep the registry file-based and package-native
-
-Definition of done:
-- a regression can be tied back to the exact prompt/config change that caused
-  it, without requiring a central prompt service.
-
-### v0.7 — CI Guardrails and Policy Layer
-
-Goal: convert observability and evaluation into enforceable release gates.
-
-Why this matters:
-- the real value of local-first tooling shows up in automation
-- teams need "fail the build if quality regresses", not only richer reports
-
-Planned work:
-
-- [ ] Add policy models and CLI commands for rule execution
-- [ ] Support local checks such as:
-  cost caps, latency caps, retrieval-quality floors, score thresholds,
-  duplicate-tool-call growth, and regression deltas
-- [ ] Add exit-code semantics for CI pipelines
-- [ ] Add baseline comparison commands for candidate-vs-main checks
-- [ ] Support policy bundles checked into the repo
-
-Definition of done:
-- AgenticLens can be used as a local quality gate in CI, not just an offline
-  analysis tool.
-
-### v0.8 — Integrations and Importers
-
-Goal: make the core model easy to adopt across real agent stacks.
-
-Planned work:
-
-- [ ] Add integrations for:
-  LangGraph, LiteLLM, OpenAI Agents SDK, LangChain, CrewAI
-- [ ] Add OpenTelemetry and OpenInference import paths
-- [ ] Broaden provider support:
-  Gemini, Ollama, vLLM, LiteLLM, Azure OpenAI
-- [ ] Keep integrations in clearly separated modules
-
-Definition of done:
-- users can bring existing traces and frameworks into AgenticLens without
-  rewriting their entire application.
-
-### v0.9 — Optional Local UI
-
-Goal: add a lightweight local inspection surface without turning the project
-into a SaaS platform.
-
-Planned work:
-
-- [ ] Optional local web UI for traces, scores, datasets, and experiments
-- [ ] Graph visualization for workflow structure
-- [ ] Variant comparison and regression diff views
-- [ ] Local file-backed mode first
-
-Definition of done:
-- users who want richer inspection get a local UI, while the package remains
-  useful without it.
+They should support the operational roadmap above rather than compete with it.
 
 ## Explicitly Out of Scope for Core
 
@@ -246,17 +290,20 @@ they should not define the core package roadmap:
 - enterprise review queues and annotation operations
 - Slack / PagerDuty / Teams alert routing
 - SaaS billing, retention, and access-control workflows
+- full deployment orchestration
+- live traffic shifting
+- Kubernetes operator behavior
+- enterprise approval workflow engines
+- full SOC / SIEM replacement platforms
 
 ## Suggested Package Shape Over Time
 
-If the project grows, the cleanest long-term structure is:
+If the project grows, the cleanest long-term structure is still package-first
+and modular:
 
 1. `agenticlens-core`
-   Models, tracing, scoring, datasets, evaluators, experiments, policies.
+   Models, tracing, evaluation, SLOs, incidents, lineage, audit, policies.
 2. `agenticlens-integrations`
-   Providers, frameworks, OTEL/OpenInference importers.
+   Providers, frameworks, OTEL/OpenInference importers, release adapters.
 3. `agenticlens-ui`
    Optional local inspection UI.
-
-This keeps the PyPI story clear: the core package remains the installable,
-local-first engine, while richer layers stay optional.
