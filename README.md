@@ -4,7 +4,7 @@
   <img src="docs/assets/agenticlens-logo.jpeg" alt="AgenticLens logo" width="420">
 </p>
 
-**Open-source evaluation and profiling for production-ready agentic AI systems.**
+**Open-source observability, evaluation, and operational intelligence for production AI systems.**
 
 [![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
 [![Docs](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml)
@@ -19,12 +19,18 @@
 | --- | --- |
 | Website and docs | [GitHub Pages](https://deepagentlabs.github.io/agenticlens/) |
 | Technical specification | [AgenticLens_Spec.md](AgenticLens_Spec.md) |
+| Workflow specification | [docs/workflow-schema-spec.md](docs/workflow-schema-spec.md) |
 | Roadmap | [ROADMAP.md](ROADMAP.md) |
 
 AgenticLens is an open-source Python profiler for LLM applications and agentic
 workflows. It helps developers understand where tokens, latency, and cost are
 spent, then turns that profile into actionable budget optimization
 recommendations.
+
+Within the broader DeepAgentLabs architecture, AgenticLens is the flagship
+reference implementation for the **AI Operations Workflow Specification**. It
+observes, evaluates, explains, and recommends, while sibling tools can write to
+the same workflow artifact and reuse the same operational model.
 
 Think of it as a lightweight, local `cProfile` for AI workflows: no hosted
 dashboard, no required backend, no account, and no data egress just to inspect a
