@@ -1,11 +1,13 @@
 import csv
 import json
+import os
 import subprocess
 from pathlib import Path
 
 from benchmarks.shared.metrics_collector import summarize_agenticlens_report
 
 ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = ROOT.parent
 
 FRAMEWORKS = {
     "native_python": ROOT / "frameworks" / "native_python" / "run_native.py",
@@ -38,8 +40,17 @@ def run_framework(framework_name: str, script_path: Path) -> Path | None:
         str(report_path),
     ]
 
+    # Each framework script does `from benchmarks.shared...`, which only resolves
+    # if the project root is importable in the subprocess -- add it to PYTHONPATH
+    # rather than relying on each script to patch sys.path itself.
+    env = os.environ.copy()
+    existing_path = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = (
+        f"{PROJECT_ROOT}{os.pathsep}{existing_path}" if existing_path else str(PROJECT_ROOT)
+    )
+
     print(f"\nRunning {framework_name} benchmark...")
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, env=env)
 
     return report_path
 

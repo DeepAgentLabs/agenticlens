@@ -1,11 +1,11 @@
 {
-  "id": "ed77978d-1a40-41c5-91c0-65aeadcf7466",
+  "id": "df496e14-4707-4a7f-af36-2bff85cd766b",
   "name": "Benchmark - AutoGen - Support Refund",
-  "start_time": "2026-07-14T21:36:33.420007Z",
-  "end_time": "2026-07-14T21:36:33.420742Z",
+  "start_time": "2026-07-15T00:01:48.858563Z",
+  "end_time": "2026-07-15T00:01:48.859799Z",
   "steps": [
     {
-      "id": "783d0f9d-8531-4503-9120-a87d66ea8fac",
+      "id": "be51f5cb-cea3-42b1-af99-f1224b7ce963",
       "name": "AutoGen - Classify Ticket Intent",
       "type": "planner",
       "provider": "openai",
@@ -14,9 +14,9 @@
         "prompt_tokens": 180,
         "completion_tokens": 25,
         "total_tokens": 205,
-        "latency": 0.0000518000015290454,
+        "latency": 7.470000127796084e-05,
         "ttft": null,
-        "cost": 0.00004199999999999999
+        "cost": 4.199999999999999e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "5c2614b0-baeb-4cf9-916e-ce959c8b15e1",
+      "id": "4edb1b45-facc-4250-8002-b400135b143a",
       "name": "AutoGen - Rewrite Query For Retrieval",
       "type": "llm_call",
       "provider": "openai",
@@ -34,9 +34,9 @@
         "prompt_tokens": 220,
         "completion_tokens": 35,
         "total_tokens": 255,
-        "latency": 0.0000121000011858996,
+        "latency": 1.8200000340584666e-05,
         "ttft": null,
-        "cost": 0.000054
+        "cost": 5.4e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -44,7 +44,7 @@
       }
     },
     {
-      "id": "36da4dab-60bb-49fe-bc56-c98cf6dd3849",
+      "id": "f60327ec-dcca-4d4c-b774-9343a5b40c1c",
       "name": "AutoGen - Retrieve Refund Policy",
       "type": "retriever",
       "provider": null,
@@ -53,7 +53,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.00026449999859323725,
+        "latency": 0.0004650000009860378,
         "ttft": null,
         "cost": null
       },
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "fe25246c-7805-45f5-bdf0-eba6beabd356",
+      "id": "2ac9061a-2673-4edf-b8ec-a8db5bc9e367",
       "name": "AutoGen - Lookup Order",
       "type": "tool_call",
       "provider": null,
@@ -80,7 +80,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.00016279999908874743,
+        "latency": 0.00032500000088475645,
         "ttft": null,
         "cost": null
       },
@@ -103,7 +103,7 @@
       }
     },
     {
-      "id": "9c3c0f3a-299a-4170-994e-d669a7258563",
+      "id": "b75bdf65-197f-4e79-a0b1-c8c43037980c",
       "name": "AutoGen - Refund Eligibility Check",
       "type": "llm_call",
       "provider": "openai",
@@ -112,7 +112,7 @@
         "prompt_tokens": 720,
         "completion_tokens": 95,
         "total_tokens": 815,
-        "latency": 0.000015300000086426735,
+        "latency": 3.119999746559188e-05,
         "ttft": null,
         "cost": 0.00016499999999999997
       },
@@ -124,7 +124,7 @@
       }
     },
     {
-      "id": "74e5b606-8ef8-444b-9094-268658dc68ac",
+      "id": "e971d586-169f-4103-8a6c-a482bcf79d5e",
       "name": "AutoGen - Generate Customer Reply",
       "type": "final_response",
       "provider": "openai",
@@ -133,7 +133,7 @@
         "prompt_tokens": 850,
         "completion_tokens": 130,
         "total_tokens": 980,
-        "latency": 8.799997885944322e-6,
+        "latency": 1.3900000340072438e-05,
         "ttft": null,
         "cost": 0.00020549999999999998
       },
@@ -143,5 +143,6 @@
         "agent_name": "customer_response_agent"
       }
     }
-  ]
+  ],
+  "chaos_events": []
 }

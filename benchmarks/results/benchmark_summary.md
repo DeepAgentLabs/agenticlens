@@ -15,12 +15,12 @@ The workflow includes:
 
 | Framework | Total Tokens | Prompt Tokens | Completion Tokens | Cost USD | Latency Sec | Steps | Tool Calls | Retrieved Chunks | Highest Token Step |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| AutoGen | 2255 | 1970 | 285 | $0.00046650 | 0.00051530 | 6 | 1 | 4 | AutoGen - Generate Customer Reply |
-| CrewAI | 2255 | 1970 | 285 | $0.00046650 | 0.00049570 | 6 | 1 | 4 | CrewAI - Generate Customer Reply |
-| LlamaIndex | 2255 | 1970 | 285 | $0.00046650 | 0.00055400 | 6 | 1 | 4 | LlamaIndex - Generate Customer Reply |
-| Native Python | 2255 | 1970 | 285 | $0.00046650 | 0.00084060 | 6 | 1 | 4 | Generate Customer Reply |
-| Semantic Kernel | 2255 | 1970 | 285 | $0.00046650 | 0.00062650 | 6 | 1 | 4 | Semantic Kernel - Generate Customer Reply |
-| LangGraph | 2460 | 2130 | 330 | $0.00051750 | 0.00093570 | 6 | 1 | 4 | LangGraph - Generate Customer Reply |
+| AutoGen | 2255 | 1970 | 285 | $0.00046650 | 0.00092800 | 6 | 1 | 4 | AutoGen - Generate Customer Reply |
+| CrewAI | 2255 | 1970 | 285 | $0.00046650 | 0.00067210 | 6 | 1 | 4 | CrewAI - Generate Customer Reply |
+| LlamaIndex | 2255 | 1970 | 285 | $0.00046650 | 0.00053230 | 6 | 1 | 4 | LlamaIndex - Generate Customer Reply |
+| Native Python | 2255 | 1970 | 285 | $0.00046650 | 0.00053850 | 6 | 1 | 4 | Generate Customer Reply |
+| Semantic Kernel | 2255 | 1970 | 285 | $0.00046650 | 0.00118330 | 6 | 1 | 4 | Semantic Kernel - Generate Customer Reply |
+| LangGraph | 2460 | 2130 | 330 | $0.00051750 | 0.00226840 | 6 | 1 | 4 | LangGraph - Generate Customer Reply |
 
 ## Key Finding
 

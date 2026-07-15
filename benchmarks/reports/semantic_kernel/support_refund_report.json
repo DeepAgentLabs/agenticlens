@@ -1,11 +1,11 @@
 {
-  "id": "fb13d0d6-1f6f-4d6a-ab4d-5c668d0cea5c",
+  "id": "fe9fdd0a-2de7-4fc0-a077-5bf8f9c17513",
   "name": "Benchmark - Semantic Kernel - Support Refund",
-  "start_time": "2026-07-14T21:36:43.468619Z",
-  "end_time": "2026-07-14T21:36:43.469494Z",
+  "start_time": "2026-07-15T00:01:57.429218Z",
+  "end_time": "2026-07-15T00:01:57.430915Z",
   "steps": [
     {
-      "id": "93b69a84-c49b-4b76-a1df-adcb25fdb0c8",
+      "id": "de067e62-f161-4998-aca9-d0980646e03b",
       "name": "Semantic Kernel - Classify Ticket Intent",
       "type": "planner",
       "provider": "openai",
@@ -14,9 +14,9 @@
         "prompt_tokens": 180,
         "completion_tokens": 25,
         "total_tokens": 205,
-        "latency": 0.0000700999989931006,
+        "latency": 0.000112599998828955,
         "ttft": null,
-        "cost": 0.00004199999999999999
+        "cost": 4.199999999999999e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "1d4a1a12-241d-4f27-9f27-59ffd9f2b0a7",
+      "id": "f6db5031-c826-4768-bc51-70f48a958896",
       "name": "Semantic Kernel - Rewrite Query For Retrieval",
       "type": "llm_call",
       "provider": "openai",
@@ -34,9 +34,9 @@
         "prompt_tokens": 220,
         "completion_tokens": 35,
         "total_tokens": 255,
-        "latency": 0.0000180000024556648,
+        "latency": 2.970000059576705e-05,
         "ttft": null,
-        "cost": 0.000054
+        "cost": 5.4e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -44,7 +44,7 @@
       }
     },
     {
-      "id": "3c9fcf52-d2ba-4074-af02-0f50764874f2",
+      "id": "3d42c803-2f68-4b3c-be28-d174ee494187",
       "name": "Semantic Kernel - Retrieve Refund Policy",
       "type": "retriever",
       "provider": null,
@@ -53,7 +53,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.0003157999999530148,
+        "latency": 0.0006422000005841255,
         "ttft": null,
         "cost": null
       },
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "34544144-fe85-4115-906b-9542f115e3eb",
+      "id": "d9dc1af4-0434-453c-93b8-5a49943637d4",
       "name": "Semantic Kernel - Lookup Order",
       "type": "tool_call",
       "provider": null,
@@ -80,7 +80,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.00019090000205324031,
+        "latency": 0.00034080000114045106,
         "ttft": null,
         "cost": null
       },
@@ -103,7 +103,7 @@
       }
     },
     {
-      "id": "35081202-09fc-4d6a-a41b-e484a9c98c15",
+      "id": "54bc7085-232c-4652-9016-b2cde854b5a5",
       "name": "Semantic Kernel - Refund Eligibility Check",
       "type": "llm_call",
       "provider": "openai",
@@ -112,7 +112,7 @@
         "prompt_tokens": 720,
         "completion_tokens": 95,
         "total_tokens": 815,
-        "latency": 0.000020200001017656177,
+        "latency": 3.819999983534217e-05,
         "ttft": null,
         "cost": 0.00016499999999999997
       },
@@ -123,7 +123,7 @@
       }
     },
     {
-      "id": "7a1c0cc4-db14-4a72-ac8b-18d2dcd2c968",
+      "id": "2f73c623-9762-4214-a1b9-e1cd1bae7454",
       "name": "Semantic Kernel - Generate Customer Reply",
       "type": "final_response",
       "provider": "openai",
@@ -132,7 +132,7 @@
         "prompt_tokens": 850,
         "completion_tokens": 130,
         "total_tokens": 980,
-        "latency": 0.000011500000255182385,
+        "latency": 1.979999797185883e-05,
         "ttft": null,
         "cost": 0.00020549999999999998
       },
@@ -141,5 +141,6 @@
         "framework": "semantic_kernel"
       }
     }
-  ]
+  ],
+  "chaos_events": []
 }

@@ -1,37 +1,37 @@
 framework,workflow_name,step_name,step_type,provider,model,prompt_tokens,completion_tokens,total_tokens,cost_usd,latency_sec,chunk_count,tool_name
-Native Python,Benchmark - Native Python - Support Refund,Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,9.779999891179614e-05,,
-Native Python,Benchmark - Native Python - Support Refund,Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,3.0399998649954796e-05,,
-Native Python,Benchmark - Native Python - Support Refund,Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.00039590000233147293,4.0,
-Native Python,Benchmark - Native Python - Support Refund,Lookup Order,tool_call,,,0,0,0,0.0,0.0002775000029942021,,lookup_order
-Native Python,Benchmark - Native Python - Support Refund,Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,2.3199998395284638e-05,,
-Native Python,Benchmark - Native Python - Support Refund,Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.5800000255694613e-05,,
-LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Classify Ticket Intent,planner,openai,gpt-4o-mini,190,30,220,4.649999999999999e-05,0.00010509999992791563,,
-LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,240,40,280,5.9999999999999995e-05,3.239999932702631e-05,,
-LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.0004374000018287916,4.0,
-LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Lookup Order,tool_call,,,0,0,0,0.0,0.00030819999665254727,,lookup_order
-LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,780,110,890,0.000183,3.389999983482994e-05,,
-LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Generate Customer Reply,final_response,openai,gpt-4o-mini,920,150,1070,0.00022799999999999999,1.8700000509852543e-05,,
-CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,5.239999882178381e-05,,
-CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.2599997717188671e-05,,
-CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.0002473999993526377,4.0,
-CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Lookup Order,tool_call,,,0,0,0,0.0,0.0001565000020491425,,lookup_order
-CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,1.7400001524947584e-05,,
-CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,9.399998816661537e-06,,
-AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,5.18000015290454e-05,,
-AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.21000011858996e-05,,
-AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.00026449999859323725,4.0,
-AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Lookup Order,tool_call,,,0,0,0,0.0,0.00016279999908874743,,lookup_order
-AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,1.5300000086426735e-05,,
-AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,8.799997885944322e-06,,
-LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,7.03999976394698e-05,,
-LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.68999977177009e-05,,
-LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.0002535999992687721,4.0,
-LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Lookup Order,tool_call,,,0,0,0,0.0,0.00018619999900693074,,lookup_order
-LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,1.4399996871361509e-05,,
-LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.2500000593718141e-05,,
-Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,7.00999989931006e-05,,
-Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.80000024556648e-05,,
-Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.0003157999999530148,4.0,
-Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Lookup Order,tool_call,,,0,0,0,0.0,0.00019090000205324031,,lookup_order
-Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,2.0200001017656177e-05,,
-Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.1500000255182385e-05,,
+Native Python,Benchmark - Native Python - Support Refund,Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,5.7199998991563916e-05,,
+Native Python,Benchmark - Native Python - Support Refund,Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.3500000932253897e-05,,
+Native Python,Benchmark - Native Python - Support Refund,Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.00024149999808287248,4.0,
+Native Python,Benchmark - Native Python - Support Refund,Lookup Order,tool_call,,,0,0,0,0.0,0.0001951000012923032,,lookup_order
+Native Python,Benchmark - Native Python - Support Refund,Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,2.1899999410379678e-05,,
+Native Python,Benchmark - Native Python - Support Refund,Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,9.300001693191007e-06,,
+LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Classify Ticket Intent,planner,openai,gpt-4o-mini,190,30,220,4.649999999999999e-05,0.00025860000096145086,,
+LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,240,40,280,5.9999999999999995e-05,9.900000077323057e-05,,
+LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.001006700000289129,4.0,
+LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Lookup Order,tool_call,,,0,0,0,0.0,0.0007781999993312638,,lookup_order
+LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,780,110,890,0.000183,7.94000006862916e-05,,
+LangGraph,Benchmark - LangGraph - Support Refund,LangGraph - Generate Customer Reply,final_response,openai,gpt-4o-mini,920,150,1070,0.00022799999999999999,4.649999755201861e-05,,
+CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,6.55999974696897e-05,,
+CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,2.0399998902576044e-05,,
+CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.00035519999801181257,4.0,
+CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Lookup Order,tool_call,,,0,0,0,0.0,0.00019799999790848233,,lookup_order
+CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,2.099999983329326e-05,,
+CrewAI,Benchmark - CrewAI - Support Refund,CrewAI - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.1899999663000926e-05,,
+AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,7.470000127796084e-05,,
+AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.8200000340584666e-05,,
+AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.0004650000009860378,4.0,
+AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Lookup Order,tool_call,,,0,0,0,0.0,0.00032500000088475645,,lookup_order
+AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,3.119999746559188e-05,,
+AutoGen,Benchmark - AutoGen - Support Refund,AutoGen - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.3900000340072438e-05,,
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,6.349999966914766e-05,,
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,1.5400000847876072e-05,,
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.00025889999960782006,4.0,
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Lookup Order,tool_call,,,0,0,0,0.0,0.00017049999951268546,,lookup_order
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,1.3800003216601908e-05,,
+LlamaIndex,Benchmark - LlamaIndex - Support Refund,LlamaIndex - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.0199997632298619e-05,,
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Classify Ticket Intent,planner,openai,gpt-4o-mini,180,25,205,4.199999999999999e-05,0.000112599998828955,,
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Rewrite Query For Retrieval,llm_call,openai,gpt-4o-mini,220,35,255,5.4e-05,2.970000059576705e-05,,
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Retrieve Refund Policy,retriever,,,0,0,0,0.0,0.0006422000005841255,4.0,
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Lookup Order,tool_call,,,0,0,0,0.0,0.00034080000114045106,,lookup_order
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Refund Eligibility Check,llm_call,openai,gpt-4o-mini,720,95,815,0.00016499999999999997,3.819999983534217e-05,,
+Semantic Kernel,Benchmark - Semantic Kernel - Support Refund,Semantic Kernel - Generate Customer Reply,final_response,openai,gpt-4o-mini,850,130,980,0.00020549999999999998,1.979999797185883e-05,,

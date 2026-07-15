@@ -1,11 +1,11 @@
 {
-  "id": "627d5ccb-9eb7-4237-b214-197e04ccf38f",
+  "id": "2d9a1e50-2b4d-4fd9-b7da-240808ac553a",
   "name": "Benchmark - Native Python - Support Refund",
-  "start_time": "2026-07-14T21:24:10.816128Z",
-  "end_time": "2026-07-14T21:24:10.817377Z",
+  "start_time": "2026-07-15T00:01:35.653453Z",
+  "end_time": "2026-07-15T00:01:35.654269Z",
   "steps": [
     {
-      "id": "579a7d59-67d2-4091-9217-7cef0cf20701",
+      "id": "df6c2f3b-84d4-4dcf-a5ea-5683bc6c3b28",
       "name": "Classify Ticket Intent",
       "type": "planner",
       "provider": "openai",
@@ -14,16 +14,16 @@
         "prompt_tokens": 180,
         "completion_tokens": 25,
         "total_tokens": 205,
-        "latency": 0.00009779999891179614,
+        "latency": 5.7199998991563916e-05,
         "ttft": null,
-        "cost": 0.00004199999999999999
+        "cost": 4.199999999999999e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?"
       }
     },
     {
-      "id": "0712b159-2ce1-41a3-94fa-8190f0d91d6c",
+      "id": "52f26680-4cdf-4314-9545-208c56530f60",
       "name": "Rewrite Query For Retrieval",
       "type": "llm_call",
       "provider": "openai",
@@ -32,16 +32,16 @@
         "prompt_tokens": 220,
         "completion_tokens": 35,
         "total_tokens": 255,
-        "latency": 0.000030399998649954796,
+        "latency": 1.3500000932253897e-05,
         "ttft": null,
-        "cost": 0.000054
+        "cost": 5.4e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?"
       }
     },
     {
-      "id": "46cb3d96-b2bf-4594-8a4b-20b18d94056b",
+      "id": "231b9539-e57c-4752-8177-d79eb763cc30",
       "name": "Retrieve Refund Policy",
       "type": "retriever",
       "provider": null,
@@ -50,7 +50,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.00039590000233147293,
+        "latency": 0.00024149999808287248,
         "ttft": null,
         "cost": null
       },
@@ -67,7 +67,7 @@
       }
     },
     {
-      "id": "94d99203-43f2-40af-a6b3-fcae079102b6",
+      "id": "c809e3e4-c7bd-4c91-812b-c536a70f187a",
       "name": "Lookup Order",
       "type": "tool_call",
       "provider": null,
@@ -76,7 +76,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.0002775000029942021,
+        "latency": 0.0001951000012923032,
         "ttft": null,
         "cost": null
       },
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "7e78e3d3-4f64-4b62-b16b-8de37eaebd82",
+      "id": "61259de7-c83d-4fae-a202-fc50d1ba017c",
       "name": "Refund Eligibility Check",
       "type": "llm_call",
       "provider": "openai",
@@ -107,7 +107,7 @@
         "prompt_tokens": 720,
         "completion_tokens": 95,
         "total_tokens": 815,
-        "latency": 0.000023199998395284638,
+        "latency": 2.1899999410379678e-05,
         "ttft": null,
         "cost": 0.00016499999999999997
       },
@@ -117,7 +117,7 @@
       }
     },
     {
-      "id": "8781e05d-00a8-4165-a66c-011107270655",
+      "id": "e906019d-9fde-4a17-bd6d-5cd54eb15b90",
       "name": "Generate Customer Reply",
       "type": "final_response",
       "provider": "openai",
@@ -126,7 +126,7 @@
         "prompt_tokens": 850,
         "completion_tokens": 130,
         "total_tokens": 980,
-        "latency": 0.000015800000255694613,
+        "latency": 9.300001693191007e-06,
         "ttft": null,
         "cost": 0.00020549999999999998
       },
@@ -134,5 +134,6 @@
         "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window."
       }
     }
-  ]
+  ],
+  "chaos_events": []
 }

@@ -1,11 +1,11 @@
 {
-  "id": "7f04e0a9-01c7-4833-ada0-c53ddc0da5fe",
+  "id": "af870a32-4467-43a7-9f71-bdd67c3ccf9c",
   "name": "Benchmark - CrewAI - Support Refund",
-  "start_time": "2026-07-14T21:36:31.420353Z",
-  "end_time": "2026-07-14T21:36:31.421058Z",
+  "start_time": "2026-07-15T00:01:46.504093Z",
+  "end_time": "2026-07-15T00:01:46.504997Z",
   "steps": [
     {
-      "id": "0388abf3-38df-4207-87f1-e156b86a6680",
+      "id": "eebd56da-d5c5-432e-88f2-cc971baa2ad4",
       "name": "CrewAI - Classify Ticket Intent",
       "type": "planner",
       "provider": "openai",
@@ -14,9 +14,9 @@
         "prompt_tokens": 180,
         "completion_tokens": 25,
         "total_tokens": 205,
-        "latency": 0.00005239999882178381,
+        "latency": 6.55999974696897e-05,
         "ttft": null,
-        "cost": 0.00004199999999999999
+        "cost": 4.199999999999999e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "505c1d82-9071-4320-b08e-6d19218344e5",
+      "id": "f6074dce-c385-4a6b-88da-e4a4920f889e",
       "name": "CrewAI - Rewrite Query For Retrieval",
       "type": "llm_call",
       "provider": "openai",
@@ -34,9 +34,9 @@
         "prompt_tokens": 220,
         "completion_tokens": 35,
         "total_tokens": 255,
-        "latency": 0.000012599997717188671,
+        "latency": 2.0399998902576044e-05,
         "ttft": null,
-        "cost": 0.000054
+        "cost": 5.4e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -44,7 +44,7 @@
       }
     },
     {
-      "id": "43677484-150f-4b57-99eb-c38b4aa2ec86",
+      "id": "e94e563d-ad3d-43bf-a130-8a571152a840",
       "name": "CrewAI - Retrieve Refund Policy",
       "type": "retriever",
       "provider": null,
@@ -53,7 +53,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.0002473999993526377,
+        "latency": 0.00035519999801181257,
         "ttft": null,
         "cost": null
       },
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "5f59edaa-7280-46a3-a5a1-22ff5253d701",
+      "id": "62511b67-abf5-4e4a-9134-6c0db0db9a27",
       "name": "CrewAI - Lookup Order",
       "type": "tool_call",
       "provider": null,
@@ -80,7 +80,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.0001565000020491425,
+        "latency": 0.00019799999790848233,
         "ttft": null,
         "cost": null
       },
@@ -103,7 +103,7 @@
       }
     },
     {
-      "id": "a63dafd2-480b-4bcf-80f1-8b32283eaeb8",
+      "id": "54087bbd-e619-465d-ae41-0a8ab1c02622",
       "name": "CrewAI - Refund Eligibility Check",
       "type": "llm_call",
       "provider": "openai",
@@ -112,7 +112,7 @@
         "prompt_tokens": 720,
         "completion_tokens": 95,
         "total_tokens": 815,
-        "latency": 0.000017400001524947584,
+        "latency": 2.099999983329326e-05,
         "ttft": null,
         "cost": 0.00016499999999999997
       },
@@ -123,7 +123,7 @@
       }
     },
     {
-      "id": "b396cc25-fe38-4fd2-b474-9669e2643e9b",
+      "id": "d60ee37c-1b2c-4069-9513-1e42346fd564",
       "name": "CrewAI - Generate Customer Reply",
       "type": "final_response",
       "provider": "openai",
@@ -132,7 +132,7 @@
         "prompt_tokens": 850,
         "completion_tokens": 130,
         "total_tokens": 980,
-        "latency": 9.399998816661537e-6,
+        "latency": 1.1899999663000926e-05,
         "ttft": null,
         "cost": 0.00020549999999999998
       },
@@ -141,5 +141,6 @@
         "framework": "crewai"
       }
     }
-  ]
+  ],
+  "chaos_events": []
 }

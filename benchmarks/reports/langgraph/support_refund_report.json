@@ -1,11 +1,11 @@
 {
-  "id": "76a810aa-b143-4ef6-ab3e-ae678ad7bf80",
+  "id": "c43030a5-eec9-4a0d-911f-456612f3149a",
   "name": "Benchmark - LangGraph - Support Refund",
-  "start_time": "2026-07-14T21:39:51.399227Z",
-  "end_time": "2026-07-14T21:39:51.409770Z",
+  "start_time": "2026-07-15T00:01:39.404988Z",
+  "end_time": "2026-07-15T00:01:39.437796Z",
   "steps": [
     {
-      "id": "e3563f4a-1747-466e-b8b9-6d504da39267",
+      "id": "2e5839a4-c25c-4e36-977f-31ec0812d783",
       "name": "LangGraph - Classify Ticket Intent",
       "type": "planner",
       "provider": "openai",
@@ -14,16 +14,16 @@
         "prompt_tokens": 190,
         "completion_tokens": 30,
         "total_tokens": 220,
-        "latency": 0.00010509999992791563,
+        "latency": 0.00025860000096145086,
         "ttft": null,
-        "cost": 0.00004649999999999999
+        "cost": 4.649999999999999e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?"
       }
     },
     {
-      "id": "fc297d97-a69d-4f60-bdd8-7e7d61fd6bc1",
+      "id": "899a6eb8-abfd-4c02-8c8f-1bc4b2e40014",
       "name": "LangGraph - Rewrite Query For Retrieval",
       "type": "llm_call",
       "provider": "openai",
@@ -32,16 +32,16 @@
         "prompt_tokens": 240,
         "completion_tokens": 40,
         "total_tokens": 280,
-        "latency": 0.00003239999932702631,
+        "latency": 9.900000077323057e-05,
         "ttft": null,
-        "cost": 0.000059999999999999995
+        "cost": 5.9999999999999995e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?"
       }
     },
     {
-      "id": "5da0b776-104c-4299-84e2-8bdca5914386",
+      "id": "78c5d4e3-55a6-4bbf-94ec-87fe1483e99c",
       "name": "LangGraph - Retrieve Refund Policy",
       "type": "retriever",
       "provider": null,
@@ -50,7 +50,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.0004374000018287916,
+        "latency": 0.001006700000289129,
         "ttft": null,
         "cost": null
       },
@@ -67,7 +67,7 @@
       }
     },
     {
-      "id": "0f1a9f08-4508-4119-a8a8-e14af0901f09",
+      "id": "be8d9918-765b-4b39-9ecc-2fdd7002d7b6",
       "name": "LangGraph - Lookup Order",
       "type": "tool_call",
       "provider": null,
@@ -76,7 +76,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.00030819999665254727,
+        "latency": 0.0007781999993312638,
         "ttft": null,
         "cost": null
       },
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "fc871ee8-2d17-4f32-9ad0-5cef325ed213",
+      "id": "86cbe2bd-8377-4eae-baf4-f7bb8b638e8d",
       "name": "LangGraph - Refund Eligibility Check",
       "type": "llm_call",
       "provider": "openai",
@@ -107,7 +107,7 @@
         "prompt_tokens": 780,
         "completion_tokens": 110,
         "total_tokens": 890,
-        "latency": 0.00003389999983482994,
+        "latency": 7.94000006862916e-05,
         "ttft": null,
         "cost": 0.000183
       },
@@ -116,7 +116,7 @@
       }
     },
     {
-      "id": "b614121a-21ca-490f-937d-3e6c86628f09",
+      "id": "1da78f49-2fa0-4fbd-8f4f-7adb238cf0ca",
       "name": "LangGraph - Generate Customer Reply",
       "type": "final_response",
       "provider": "openai",
@@ -125,7 +125,7 @@
         "prompt_tokens": 920,
         "completion_tokens": 150,
         "total_tokens": 1070,
-        "latency": 0.000018700000509852543,
+        "latency": 4.649999755201861e-05,
         "ttft": null,
         "cost": 0.00022799999999999999
       },
@@ -133,5 +133,6 @@
         "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window."
       }
     }
-  ]
+  ],
+  "chaos_events": []
 }

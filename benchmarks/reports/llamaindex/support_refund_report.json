@@ -1,11 +1,11 @@
 {
-  "id": "485b74e2-156e-4d5f-b83b-582e29071353",
+  "id": "be557309-d687-43ab-8b36-227b3a6d55f1",
   "name": "Benchmark - LlamaIndex - Support Refund",
-  "start_time": "2026-07-14T21:36:36.532376Z",
-  "end_time": "2026-07-14T21:36:36.533155Z",
+  "start_time": "2026-07-15T00:01:53.015789Z",
+  "end_time": "2026-07-15T00:01:53.016511Z",
   "steps": [
     {
-      "id": "57477c47-60e0-47df-8422-3c94f4585f08",
+      "id": "a905b00d-f0e5-4c21-9d0a-2dbe8b9146eb",
       "name": "LlamaIndex - Classify Ticket Intent",
       "type": "planner",
       "provider": "openai",
@@ -14,9 +14,9 @@
         "prompt_tokens": 180,
         "completion_tokens": 25,
         "total_tokens": 205,
-        "latency": 0.0000703999976394698,
+        "latency": 6.349999966914766e-05,
         "ttft": null,
-        "cost": 0.00004199999999999999
+        "cost": 4.199999999999999e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -26,7 +26,7 @@
       }
     },
     {
-      "id": "6b2b2a60-c5ea-4210-9ffe-c65761599b9d",
+      "id": "76d95e09-bbbd-43bd-9865-2341cce4f670",
       "name": "LlamaIndex - Rewrite Query For Retrieval",
       "type": "llm_call",
       "provider": "openai",
@@ -35,9 +35,9 @@
         "prompt_tokens": 220,
         "completion_tokens": 35,
         "total_tokens": 255,
-        "latency": 0.0000168999977177009,
+        "latency": 1.5400000847876072e-05,
         "ttft": null,
-        "cost": 0.000054
+        "cost": 5.4e-05
       },
       "metadata": {
         "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
@@ -45,7 +45,7 @@
       }
     },
     {
-      "id": "0e4156e9-8568-43a8-a6b3-6743c93c5597",
+      "id": "d82049d7-8247-4d18-98b0-101e16e5cd77",
       "name": "LlamaIndex - Retrieve Refund Policy",
       "type": "retriever",
       "provider": null,
@@ -54,7 +54,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.0002535999992687721,
+        "latency": 0.00025889999960782006,
         "ttft": null,
         "cost": null
       },
@@ -73,7 +73,7 @@
       }
     },
     {
-      "id": "416c75f4-551e-4885-85eb-237cd175ce8e",
+      "id": "5140b857-7e13-4725-8038-0dfc96839a11",
       "name": "LlamaIndex - Lookup Order",
       "type": "tool_call",
       "provider": null,
@@ -82,7 +82,7 @@
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-        "latency": 0.00018619999900693074,
+        "latency": 0.00017049999951268546,
         "ttft": null,
         "cost": null
       },
@@ -105,7 +105,7 @@
       }
     },
     {
-      "id": "99e8a871-c2c5-4b61-8ad8-6bd8cb7501b1",
+      "id": "2f6fa1a7-4339-4f6a-80a3-1a36366e3a56",
       "name": "LlamaIndex - Refund Eligibility Check",
       "type": "llm_call",
       "provider": "openai",
@@ -114,7 +114,7 @@
         "prompt_tokens": 720,
         "completion_tokens": 95,
         "total_tokens": 815,
-        "latency": 0.000014399996871361509,
+        "latency": 1.3800003216601908e-05,
         "ttft": null,
         "cost": 0.00016499999999999997
       },
@@ -125,7 +125,7 @@
       }
     },
     {
-      "id": "d222d8ae-8092-41c3-9374-ce8789a97631",
+      "id": "74abb3f0-9d08-41aa-85d0-b987e1b7036e",
       "name": "LlamaIndex - Generate Customer Reply",
       "type": "final_response",
       "provider": "openai",
@@ -134,7 +134,7 @@
         "prompt_tokens": 850,
         "completion_tokens": 130,
         "total_tokens": 980,
-        "latency": 0.000012500000593718141,
+        "latency": 1.0199997632298619e-05,
         "ttft": null,
         "cost": 0.00020549999999999998
       },
@@ -143,5 +143,6 @@
         "framework": "llamaindex"
       }
     }
-  ]
+  ],
+  "chaos_events": []
 }
