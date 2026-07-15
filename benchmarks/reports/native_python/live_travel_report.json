@@ -1,0 +1,157 @@
+{
+  "id": "713313db-3feb-4ac5-93a2-bd224cc093dd",
+  "name": "Benchmark - Native Python - Live Travel Briefing",
+  "start_time": "2026-07-15T01:19:23.957668Z",
+  "end_time": "2026-07-15T01:19:25.550452Z",
+  "steps": [
+    {
+      "id": "8f08dcf2-0f62-4b6c-9684-112e4d807d07",
+      "name": "Native Python - Classify Trip Request",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 140,
+        "completion_tokens": 28,
+        "total_tokens": 168,
+        "latency": 7.6299998909235e-05,
+        "ttft": null,
+        "cost": 3.78e-05
+      },
+      "metadata": {
+        "prompt": "I'm flying from New York to Tokyo next week for a work trip. What should I know before I go?",
+        "framework": "native_python"
+      }
+    },
+    {
+      "id": "518ca607-8c4c-44fc-a178-4382e6a0331a",
+      "name": "Native Python - Geocode Destination",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.6669330000004265,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "open_meteo_geocoding",
+        "tool_args": {
+          "city": "Tokyo"
+        },
+        "framework": "native_python",
+        "tool_result": {
+          "name": "Tokyo",
+          "country": "Japan",
+          "lat": 35.6895,
+          "lon": 139.69171
+        }
+      }
+    },
+    {
+      "id": "f4b4c7ea-f135-4381-abec-76fa4a92736c",
+      "name": "Native Python - Fetch Live Weather",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.578566399999545,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "open_meteo_forecast",
+        "tool_args": {
+          "lat": 35.6895,
+          "lon": 139.69171
+        },
+        "framework": "native_python",
+        "tool_result": {
+          "time": "2026-07-15T01:15",
+          "interval": 900,
+          "temperature_2m": 29.9,
+          "weather_code": 2,
+          "wind_speed_10m": 4.2
+        }
+      }
+    },
+    {
+      "id": "0034d879-6803-4011-8e8d-15436448b03c",
+      "name": "Native Python - Fetch Live Exchange Rate",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.20708709999598796,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "frankfurter_exchange_rate",
+        "tool_args": {
+          "base": "USD",
+          "target": "JPY"
+        },
+        "framework": "native_python",
+        "tool_result": {
+          "base": "USD",
+          "date": "2026-07-14",
+          "rate": 162.22
+        }
+      }
+    },
+    {
+      "id": "213f65b5-aa78-4850-bb3e-dcd365736485",
+      "name": "Native Python - Retrieve Destination Facts",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.1394676999989315,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "Tokyo",
+        "framework": "native_python",
+        "chunk_count": 3,
+        "avg_tokens_per_chunk": 28,
+        "retrieved_doc_ids": [
+          "Tokyo"
+        ]
+      }
+    },
+    {
+      "id": "3697a04e-ca43-49c5-87e1-8a06ab607f53",
+      "name": "Native Python - Synthesize Travel Briefing",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 460,
+        "completion_tokens": 140,
+        "total_tokens": 600,
+        "latency": 3.429999924264848e-05,
+        "ttft": null,
+        "cost": 0.00015299999999999998
+      },
+      "metadata": {
+        "prompt": "I'm flying from New York to Tokyo next week for a work trip. What should I know before I go?",
+        "framework": "native_python"
+      }
+    }
+  ],
+  "chaos_events": []
+}

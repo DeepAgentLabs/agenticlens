@@ -1,0 +1,159 @@
+{
+  "id": "b04b682a-246a-4fd9-af57-686d8dffd425",
+  "name": "Benchmark - AutoGen - Live Travel Briefing",
+  "start_time": "2026-07-15T01:19:35.638526Z",
+  "end_time": "2026-07-15T01:19:37.104054Z",
+  "steps": [
+    {
+      "id": "b40495a2-1d2d-408e-a3e1-c8493545553a",
+      "name": "AutoGen - Classify Trip Request",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 140,
+        "completion_tokens": 28,
+        "total_tokens": 168,
+        "latency": 4.9299997044727206e-05,
+        "ttft": null,
+        "cost": 3.78e-05
+      },
+      "metadata": {
+        "prompt": "I'm flying from New York to Tokyo next week for a work trip. What should I know before I go?",
+        "framework": "autogen",
+        "agent_name": "trip_planner"
+      }
+    },
+    {
+      "id": "f4e2f55f-e8a9-40e3-91d2-b906ccdf0a77",
+      "name": "AutoGen - Geocode Destination",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.6200604000041494,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "open_meteo_geocoding",
+        "tool_args": {
+          "city": "Tokyo"
+        },
+        "framework": "autogen",
+        "tool_result": {
+          "name": "Tokyo",
+          "country": "Japan",
+          "lat": 35.6895,
+          "lon": 139.69171
+        }
+      }
+    },
+    {
+      "id": "042ac083-62af-416b-9a99-1898a610d08f",
+      "name": "AutoGen - Fetch Live Weather",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.563434600000619,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "open_meteo_forecast",
+        "tool_args": {
+          "lat": 35.6895,
+          "lon": 139.69171
+        },
+        "framework": "autogen",
+        "tool_result": {
+          "time": "2026-07-15T01:15",
+          "interval": 900,
+          "temperature_2m": 29.9,
+          "weather_code": 2,
+          "wind_speed_10m": 4.2
+        }
+      }
+    },
+    {
+      "id": "03e29004-9279-422f-b8cf-75e49ae84e4f",
+      "name": "AutoGen - Fetch Live Exchange Rate",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.13430779999907827,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "frankfurter_exchange_rate",
+        "tool_args": {
+          "base": "USD",
+          "target": "JPY"
+        },
+        "framework": "autogen",
+        "tool_result": {
+          "base": "USD",
+          "date": "2026-07-14",
+          "rate": 162.22
+        }
+      }
+    },
+    {
+      "id": "6d66e28e-fede-462d-a46c-6cb0797d7cab",
+      "name": "AutoGen - Retrieve Destination Facts",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.1468003999980283,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "Tokyo",
+        "framework": "autogen",
+        "chunk_count": 3,
+        "avg_tokens_per_chunk": 28,
+        "retrieved_doc_ids": [
+          "Tokyo"
+        ]
+      }
+    },
+    {
+      "id": "c88e0c8a-ca75-47ab-83d3-2d44e816e9c8",
+      "name": "AutoGen - Synthesize Travel Briefing",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 460,
+        "completion_tokens": 140,
+        "total_tokens": 600,
+        "latency": 7.349999941652641e-05,
+        "ttft": null,
+        "cost": 0.00015299999999999998
+      },
+      "metadata": {
+        "prompt": "I'm flying from New York to Tokyo next week for a work trip. What should I know before I go?",
+        "framework": "autogen",
+        "agent_name": "briefing_writer"
+      }
+    }
+  ],
+  "chaos_events": []
+}
