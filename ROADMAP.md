@@ -70,20 +70,7 @@ representation of that specification, not the specification itself.
 
 ## Architecture View
 
-```text
-AI Frameworks and Runtimes
-LangGraph, CrewAI, OpenAI Agents SDK, AutoGen, Semantic Kernel,
-LlamaIndex, Haystack, custom apps
-                |
-                v
-AgenticLens Integrations
-                |
-                v
-AI Operations Specification
-      |                    |                    |
-      v                    v                    v
-AgenticLens          Agentic Chaos       DeepAgentLabs MCP
-```
+![AI Operations Ecosystem](https://raw.githubusercontent.com/DeepAgentLabs/.github/main/profile/assets/ai-operations-ecosystem.png)
 
 ## Guiding Principles
 
