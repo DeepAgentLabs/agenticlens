@@ -5,6 +5,7 @@ from agenticlens.models import Metrics, Step, StepType, Workflow
 from agenticlens.recommenders import (
     DuplicateToolCallsRecommender,
     ExcessiveChunksRecommender,
+    HandoffBloatRecommender,
     LongHistoryRecommender,
     RAGChunkUtilityRecommender,
     RepeatedSystemPromptRecommender,
@@ -156,6 +157,40 @@ def test_duplicate_tool_calls_no_flag_for_different_args() -> None:
     assert DuplicateToolCallsRecommender().evaluate(workflow, CONFIG) == []
 
 
+def test_handoff_bloat_flags_large_agent_context() -> None:
+    workflow = _workflow(
+        Step(
+            name="Research handoff",
+            type=StepType.LLM_CALL,
+            agent_name="research_agent",
+            handoff_from="planner_agent",
+            metadata={"handoff_tokens": 5200},
+        )
+    )
+
+    recs = HandoffBloatRecommender().evaluate(workflow, CONFIG)
+
+    assert len(recs) == 1
+    assert recs[0].title == "Large agent handoff context"
+    assert recs[0].optimization_type == "agent_handoff_summarization"
+    assert recs[0].step_name == "Research handoff"
+    assert recs[0].metadata["agent_name"] == "research_agent"
+    assert recs[0].metadata["handoff_from"] == "planner_agent"
+    assert recs[0].tokens_saved == 5200 - CONFIG.handoff_token_limit
+
+
+def test_handoff_bloat_no_flag_under_limit() -> None:
+    workflow = _workflow(
+        Step(
+            name="Research handoff",
+            type=StepType.LLM_CALL,
+            metadata={"handoff_tokens": 500},
+        )
+    )
+
+    assert HandoffBloatRecommender().evaluate(workflow, CONFIG) == []
+
+
 def test_rag_chunk_utility_flags_chunks_not_used_in_answer() -> None:
     workflow = _workflow(
         Step(
@@ -188,6 +223,11 @@ def test_rag_chunk_utility_flags_chunks_not_used_in_answer() -> None:
     assert len(recs) == 1
     assert recs[0].title == "Low-utility retrieved chunks"
     assert recs[0].tokens_saved == 100
+    assert recs[0].optimization_type == "rag_chunk_pruning"
+    assert recs[0].step_name == "Retriever"
+    assert recs[0].step_type == "retriever"
+    assert recs[0].metadata["low_utility_chunks"] == 2
+    assert recs[0].metadata["low_utility_chunk_indexes"] == [2, 3]
     assert recs[0].confidence is not None
     assert recs[0].quality_risk == "medium"
 
@@ -225,6 +265,7 @@ def test_rag_chunk_utility_uses_reranker_scores() -> None:
 
     assert len(recs) == 1
     assert recs[0].tokens_saved == 120
+    assert recs[0].metadata["signal_quality"] == "rich"
     assert recs[0].quality_risk == "low"
     assert recs[0].confidence is not None and recs[0].confidence >= 0.65
 

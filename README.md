@@ -4,7 +4,7 @@
   <img src="docs/assets/agenticlens-logo.jpeg" alt="AgenticLens logo" width="420">
 </p>
 
-**Open-source evaluation and profiling for production-ready agentic AI systems.**
+**Step-level token optimization for production-ready agentic AI systems.**
 
 [![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
 [![Docs](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml)
@@ -22,9 +22,9 @@
 | Roadmap | [ROADMAP.md](ROADMAP.md) |
 
 AgenticLens is an open-source Python profiler for LLM applications and agentic
-workflows. It helps developers understand where tokens, latency, and cost are
-spent, then turns that profile into actionable budget optimization
-recommendations.
+workflows. It helps developers understand where tokens are spent at each step,
+then turns that profile into actionable optimization recommendations for prompts,
+RAG, memory, tools, latency, and cost.
 
 Think of it as a lightweight, local `cProfile` for AI workflows: no hosted
 dashboard, no required backend, no account, and no data egress just to inspect a
@@ -41,7 +41,7 @@ question:
 
 > What should I change to reduce the bill?
 
-AgenticLens currently detects patterns such as:
+AgenticLens currently detects token waste patterns such as:
 
 - repeated system prompts that may be cached or deduplicated
 - excessive retrieved chunks in RAG workflows
@@ -49,6 +49,39 @@ AgenticLens currently detects patterns such as:
 - long conversation history that should be summarized or truncated
 - duplicate tool calls that should be cached
 - projected token, dollar-per-run, and monthly savings
+
+## Step-Level Token Optimization
+
+AgenticLens is designed to make token waste visible at the level where engineers
+can actually fix it:
+
+| Workflow area | What AgenticLens flags | Typical fix |
+| --- | --- | --- |
+| Prompting | Repeated system prompt prefixes | Cache or deduplicate stable prompt blocks |
+| RAG | Too many retrieved chunks | Lower top-k or tighten retrieval filters |
+| RAG | Low-utility chunks unlikely to affect the final answer | Rerank, prune, or improve retrieval scoring |
+| Memory | Long conversation history | Summarize or truncate older turns |
+| Tools | Duplicate tool calls with the same arguments | Cache tool results |
+| Multi-agent handoffs | Large context passed between agents | Pass structured summaries or key facts |
+
+The `analyze` command reports reducible tokens by step, so teams can see whether
+the biggest opportunity is in retrieval, memory, planning, tool use, or final
+response generation.
+
+For multi-agent workflows, pass `agent_name` and optional handoff metadata:
+
+```python
+with step(
+    "Research answer",
+    type="llm_call",
+    agent_name="research_agent",
+    agent_role="researcher",
+    handoff_from="planner_agent",
+    handoff_to="answer_agent",
+    handoff_tokens=5200,
+):
+    ...
+```
 
 ## Status
 
@@ -245,6 +278,7 @@ Other examples:
 - `examples/basic_usage.py`
 - `examples/rag_customer_support_demo.py`
 - `examples/multiagent_support_demo.py`
+- `examples/multiagent_token_optimization_demo.py`
 - `examples/export_demo.py` — export to Markdown and Jira
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
 

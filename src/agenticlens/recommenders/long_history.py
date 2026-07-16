@@ -30,8 +30,16 @@ class LongHistoryRecommender(BaseRecommender):
                         f"{config.history_token_limit}. Consider summarizing or "
                         f"truncating older turns."
                     ),
+                    optimization_type="memory_summarization",
+                    step_id=step.id,
+                    step_name=step.name,
+                    step_type=step.type.value,
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
+                    metadata={
+                        "history_tokens": history_tokens,
+                        "recommended_history_token_limit": config.history_token_limit,
+                    },
                 )
             )
         return recommendations

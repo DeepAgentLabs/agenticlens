@@ -41,12 +41,22 @@ class step:  # noqa: N801 -- lowercase to read as a context manager, like contex
         type: StepType | str,
         provider: str | None = None,
         model: str | None = None,
+        agent_name: str | None = None,
+        agent_role: str | None = None,
+        parent_step_id: str | None = None,
+        handoff_from: str | None = None,
+        handoff_to: str | None = None,
         **metadata: Any,
     ) -> None:
         self.name = name
         self.type = StepType(type)
         self.provider = provider
         self.model = model
+        self.agent_name = agent_name
+        self.agent_role = agent_role
+        self.parent_step_id = parent_step_id
+        self.handoff_from = handoff_from
+        self.handoff_to = handoff_to
         self.metadata = metadata
         self._handle: StepHandle | None = None
         self._start: float = 0.0
@@ -56,6 +66,11 @@ class step:  # noqa: N801 -- lowercase to read as a context manager, like contex
         step_model = Step(
             name=self.name,
             type=self.type,
+            agent_name=self.agent_name,
+            agent_role=self.agent_role,
+            parent_step_id=self.parent_step_id,
+            handoff_from=self.handoff_from,
+            handoff_to=self.handoff_to,
             provider=self.provider,
             model=self.model,
             metadata=self.metadata,

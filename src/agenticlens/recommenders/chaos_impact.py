@@ -79,6 +79,13 @@ class ChaosImpactRecommender(BaseRecommender):
         return Recommendation(
             title=f"Chaos impact: {fault_type} on '{step_name}'",
             description=description,
+            optimization_type="resilience",
+            step_name=step_name,
             severity=_OUTCOME_SEVERITY.get(outcome, Severity.INFO),
             tokens_saved=0,
+            metadata={
+                "fault_type": fault_type,
+                "outcome": outcome,
+                "occurrences": count,
+            },
         )

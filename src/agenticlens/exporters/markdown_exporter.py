@@ -31,10 +31,10 @@ class MarkdownExporter(BaseExporter):
         # Per-step breakdown
         lines.append("## Steps\n")
         lines.append(
-            "| # | Name | Type | Provider | Model "
+            "| # | Name | Agent | Type | Provider | Model "
             "| Prompt Tokens | Completion Tokens | Total Tokens | Latency | Cost |"
         )
-        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
 
         def _md_cell(value: str) -> str:
             return value.replace("|", "\\|").replace("\r", "").replace("\n", "<br>")
@@ -42,8 +42,9 @@ class MarkdownExporter(BaseExporter):
         for i, s in enumerate(workflow.steps, 1):
             provider = _md_cell(s.provider) if s.provider else "-"
             model = _md_cell(s.model) if s.model else "-"
+            agent_name = _md_cell(s.agent_name) if s.agent_name else "-"
             lines.append(
-                f"| {i} | {_md_cell(s.name)} | {s.type.value} | {provider} "
+                f"| {i} | {_md_cell(s.name)} | {agent_name} | {s.type.value} | {provider} "
                 f"| {model} | {s.metrics.prompt_tokens:,} "
                 f"| {s.metrics.completion_tokens:,} | {s.metrics.total_tokens:,} "
                 f"| {s.metrics.latency:.2f}s | {self._fmt_cost(s.metrics.cost)} |"
@@ -52,11 +53,33 @@ class MarkdownExporter(BaseExporter):
 
         # Recommendations section
         if recommendations:
+            token_recommendations = [rec for rec in recommendations if rec.tokens_saved > 0]
+            if token_recommendations:
+                lines.append("## Step Token Optimization\n")
+                lines.append(
+                    "| Step | Type | Optimization | Reducible Tokens | Estimated Savings |"
+                )
+                lines.append("| --- | --- | --- | --- | --- |")
+                for rec in token_recommendations:
+                    lines.append(
+                        f"| {_md_cell(rec.step_name or '-')} "
+                        f"| {_md_cell(rec.step_type or '-')} "
+                        f"| {_md_cell(rec.optimization_type)} "
+                        f"| {rec.tokens_saved:,} "
+                        f"| {self._fmt_pct(rec.estimated_savings)} |"
+                    )
+                lines.append("")
+
             lines.append("## Optimization Recommendations\n")
             for rec in recommendations:
                 lines.append(f"### {rec.title}\n")
+                if rec.step_name:
+                    lines.append(f"- **Step:** {rec.step_name}")
+                lines.append(f"- **Optimization Type:** {rec.optimization_type}")
                 lines.append(f"- **Severity:** {rec.severity.value}")
                 lines.append(f"- **Tokens Saved:** {rec.tokens_saved:,}")
+                if rec.estimated_savings is not None:
+                    lines.append(f"- **Estimated Savings:** {rec.estimated_savings:.1f}%")
                 if rec.confidence is not None:
                     lines.append(f"- **Confidence:** {rec.confidence:.0%}")
                 if rec.quality_risk:
@@ -72,3 +95,9 @@ class MarkdownExporter(BaseExporter):
         if cost is None:
             return "-"
         return f"${cost:.6f}"
+
+    @staticmethod
+    def _fmt_pct(value: float | None) -> str:
+        if value is None:
+            return "-"
+        return f"{value:.1f}%"

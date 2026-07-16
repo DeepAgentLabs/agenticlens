@@ -58,6 +58,7 @@ class RAGChunkUtilityRecommender(BaseRecommender):
             scored_count = 0
             has_rich_signals = False
             has_any_explicit = False
+            scored_low_utility_indexes: list[int] = []
 
             # First pass: check if any chunk has explicit signals
             for chunk in chunks:
@@ -69,7 +70,7 @@ class RAGChunkUtilityRecommender(BaseRecommender):
                         break
 
             # Second pass: score all chunks
-            for chunk in chunks:
+            for index, chunk in enumerate(chunks):
                 utility_score, _ = self._explicit_utility_score(chunk)
                 if utility_score is None and not has_any_explicit and final_answer:
                     # Only use word-overlap fallback if NO chunk has explicit scores
@@ -84,6 +85,7 @@ class RAGChunkUtilityRecommender(BaseRecommender):
                 scored_count += 1
                 if utility_score < config.rag_min_chunk_utility_score:
                     low_utility_count += 1
+                    scored_low_utility_indexes.append(index)
 
             if low_utility_count < config.rag_min_low_utility_chunks:
                 continue
@@ -92,6 +94,7 @@ class RAGChunkUtilityRecommender(BaseRecommender):
             if avg_tokens_per_chunk is None:
                 avg_tokens_per_chunk = self._estimate_avg_tokens(chunks)
             tokens_saved = round(low_utility_count * avg_tokens_per_chunk)
+            retrieved_context_tokens = round(len(chunks) * avg_tokens_per_chunk)
 
             recommendations.append(
                 Recommendation(
@@ -102,6 +105,10 @@ class RAGChunkUtilityRecommender(BaseRecommender):
                         f"({scored_count} chunks scored). Consider lowering top-k, "
                         "tightening retrieval filters, or reranking before generation."
                     ),
+                    optimization_type="rag_chunk_pruning",
+                    step_id=step.id,
+                    step_name=step.name,
+                    step_type=step.type.value,
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
                     confidence=self._compute_confidence(
@@ -110,6 +117,16 @@ class RAGChunkUtilityRecommender(BaseRecommender):
                         has_rich_signals,
                     ),
                     quality_risk="low" if has_rich_signals else "medium",
+                    metadata={
+                        "retrieved_chunks": len(chunks),
+                        "scored_chunks": scored_count,
+                        "low_utility_chunks": low_utility_count,
+                        "low_utility_chunk_indexes": scored_low_utility_indexes,
+                        "avg_tokens_per_chunk": avg_tokens_per_chunk,
+                        "retrieved_context_tokens": retrieved_context_tokens,
+                        "min_chunk_utility_score": config.rag_min_chunk_utility_score,
+                        "signal_quality": "rich" if has_rich_signals else "fallback",
+                    },
                 )
             )
 

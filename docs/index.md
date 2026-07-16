@@ -2,26 +2,45 @@
 
 ![AgenticLens logo](assets/agenticlens-logo.jpeg){ width="420" }
 
-**Open-source evaluation and profiling for production-ready agentic AI systems.**
+**Step-level token optimization for production-ready agentic AI systems.**
 
 [![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
 [![GitHub stars](https://img.shields.io/github/stars/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/stargazers)
 [![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
 
-AgenticLens helps teams profile LLM applications, measure cost and latency, and
-turn traces into practical recommendations for production agent systems.
+AgenticLens helps teams profile LLM applications, measure token use at each step,
+and turn traces into practical optimization recommendations for production agent
+systems.
 
 ## What It Measures
 
 | Dimension | What AgenticLens captures |
 | --- | --- |
-| Cost | Prompt tokens, completion tokens, provider pricing, monthly projections |
+| Step token use | Prompt tokens, completion tokens, total tokens by workflow step |
+| Cost | Provider pricing, dollar-per-run, monthly projections |
 | Latency | Step-level runtime and tokens per second |
 | Workflow shape | Planner, retriever, tool, memory, and final-response steps |
 | Waste patterns | Repeated prompts, excessive chunks, duplicate tool calls, long history |
 | Quality risk | Confidence and risk notes for optimization recommendations |
 | Resilience | Fault-injection outcomes through the `chaos_events` schema extension |
+
+## Token Optimization Focus
+
+AgenticLens reports token savings at the step where the waste occurs:
+
+| Area | Optimization signal |
+| --- | --- |
+| Prompting | Repeated prompt prefixes that should be cached or deduplicated |
+| RAG | Excessive top-k retrieval and low-utility retrieved chunks |
+| Memory | Conversation history that should be summarized or truncated |
+| Tools | Duplicate tool calls that should be cached |
+| Multi-agent handoffs | Oversized context passed between agents |
+| Workflow | Estimated reducible tokens, cost per run, and monthly savings |
+
+Multi-agent workflows can attach `agent_name`, `agent_role`, and handoff metadata
+to each step. AgenticLens then reports token usage by agent and flags oversized
+handoffs that should be summarized before passing context to the next agent.
 
 ## Why It Matters
 

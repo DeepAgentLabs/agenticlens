@@ -41,8 +41,16 @@ class DuplicateToolCallsRecommender(BaseRecommender):
                         f"Step '{step.name}' calls tool '{tool_name}' with the same "
                         f"arguments as '{first_seen_name}'. Consider caching the result."
                     ),
+                    optimization_type="tool_result_caching",
+                    step_id=step.id,
+                    step_name=step.name,
+                    step_type=step.type.value,
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
+                    metadata={
+                        "tool_name": tool_name,
+                        "first_seen_step": first_seen_name,
+                    },
                 )
             )
         return recommendations

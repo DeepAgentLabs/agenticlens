@@ -22,6 +22,7 @@ class RecommenderConfig(BaseModel):
     critical_savings_usd: float = 0.05
     rag_min_chunk_utility_score: float = 0.08
     rag_min_low_utility_chunks: int = 2
+    handoff_token_limit: int = 3000
 
 
 class AgenticLensConfig(BaseModel):

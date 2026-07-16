@@ -16,6 +16,8 @@ def _sample_workflow() -> Workflow:
         Step(
             name="Planner",
             type=StepType.PLANNER,
+            agent_name="planner_agent",
+            agent_role="planner",
             provider="openai",
             model="gpt-4o-mini",
             metrics=Metrics(prompt_tokens=10, completion_tokens=5, total_tokens=15),
@@ -42,6 +44,8 @@ def test_csv_exporter_writes_step_rows(tmp_path: Path) -> None:
 
     assert len(rows) == 1
     assert rows[0]["step_name"] == "Planner"
+    assert rows[0]["agent_name"] == "planner_agent"
+    assert rows[0]["agent_role"] == "planner"
     assert rows[0]["total_tokens"] == "15"
 
 
@@ -53,6 +57,7 @@ def test_markdown_exporter_writes_report(tmp_path: Path) -> None:
     assert "# Workflow Report: Test Workflow" in content
     assert "| Total Tokens | 15 |" in content
     assert "| Planner |" in content
+    assert "| planner_agent |" in content
     assert "planner" in content
 
 
@@ -111,8 +116,13 @@ def _sample_recommendations() -> list[Recommendation]:
             description=(
                 "Step 'Retriever' retrieved 2 chunks that appear unlikely to influence the answer."
             ),
+            optimization_type="rag_chunk_pruning",
+            step_id="step-1",
+            step_name="Retriever",
+            step_type="retriever",
             severity=Severity.WARNING,
             tokens_saved=100,
+            estimated_savings=12.5,
             confidence=0.85,
             quality_risk="low",
         ),
@@ -125,8 +135,13 @@ def test_markdown_exporter_includes_recommendations(tmp_path: Path) -> None:
 
     content = out.read_text(encoding="utf-8")
     assert "## Optimization Recommendations" in content
+    assert "## Step Token Optimization" in content
+    assert "| Retriever | retriever | rag_chunk_pruning | 100 | 12.5% |" in content
     assert "Low-utility retrieved chunks" in content
+    assert "Step:** Retriever" in content
+    assert "Optimization Type:** rag_chunk_pruning" in content
     assert "Tokens Saved:** 100" in content
+    assert "Estimated Savings:** 12.5%" in content
     assert "Confidence:** 85%" in content
     assert "Quality Risk:** low" in content
 
@@ -154,7 +169,12 @@ def test_csv_exporter_writes_recommendations_file(tmp_path: Path) -> None:
 
     assert len(rows) == 1
     assert rows[0]["title"] == "Low-utility retrieved chunks"
+    assert rows[0]["optimization_type"] == "rag_chunk_pruning"
+    assert rows[0]["step_id"] == "step-1"
+    assert rows[0]["step_name"] == "Retriever"
+    assert rows[0]["step_type"] == "retriever"
     assert rows[0]["tokens_saved"] == "100"
+    assert rows[0]["estimated_savings"] == "12.5"
     assert rows[0]["severity"] == "warning"
 
 
