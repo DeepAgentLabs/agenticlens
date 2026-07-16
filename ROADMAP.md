@@ -20,6 +20,8 @@ experiments, and CI:
 - incident and change-impact analysis
 - standards-readiness and audit-style reporting
 - advisory release and control decisions for production AI systems
+- agent planning and decision-trace capture
+- platform and infrastructure correlation, scoped to AI-relevant signals only
 
 AgenticLens should **not** try to become a hosted observability platform or
 full enterprise control plane inside the core package. Multi-user dashboards,
@@ -81,6 +83,7 @@ package:
 agenticlens
 ├── observe
 ├── inference
+├── infra
 ├── evaluate
 ├── compare
 ├── incidents
@@ -89,6 +92,7 @@ agenticlens
 ├── security
 ├── slos
 ├── lineage
+├── planning
 ├── audit
 ├── release
 └── control
@@ -106,6 +110,16 @@ the package direction, including:
 - token consumption per request
 - model and provider version correlation
 - routing or serving-path visibility for AI requests
+
+Platform and infrastructure correlation should stay a thin, narrowly-scoped
+capability rather than a general infrastructure observability platform. It
+should ingest basic accelerator and orchestration signals — GPU/NPU/TPU
+utilization, CPU/memory pressure, Kubernetes pod and node health — only where
+they help explain AI system behavior, such as correlating a latency spike or
+failed step with GPU memory pressure or a pod eviction. Existing
+infrastructure observability tools (Prometheus, Grafana, DCGM exporters, and
+similar) remain authoritative for general infra monitoring; AgenticLens only
+needs the slice of that signal that touches AI workload behavior.
 
 ## Roadmap
 
@@ -126,22 +140,33 @@ Planned work:
 - [ ] Add baseline-versus-candidate workflow comparison
 - [ ] Add compare reports for prompts, models, workflows, and RAG
   configurations
+- [ ] Add a reproducible compare/eval harness with committed local artifacts,
+  so benchmark deltas are reviewable in git and usable in CI
+- [ ] Add explicit compare control-arm methodology where relevant, to separate
+  real optimization gains from generic prompt-shortening or configuration noise
 - [ ] Add built-in SLIs/SLO reports such as:
   `success_rate`, `timeout_rate`, `fallback_rate`, `tool_failure_rate`,
   `grounded_answer_rate`, `cost_per_successful_task`, `p95_latency`
 - [ ] Add explicit inference-serving summaries covering latency distributions,
   error rates, timeout rates, fallback behavior, and token consumption
+- [ ] Add cache-aware observability for providers that expose prompt-cache or
+  cached-token usage, including cache-hit metrics and uncached-versus-cached
+  input accounting
 - [ ] Add lightweight incident summaries for failed or anomalous runs
+- [ ] Add local run-history and trend summaries for cost, latency, token
+  consumption, and estimated reducible spend across repeated workflow runs
 - [ ] Add provenance metadata fields such as:
   `prompt_version`, `model_version`, `tool_version`, `run_id`, `environment`
 - [ ] Add CLI commands such as:
   `agenticlens compare`, `agenticlens slos report`,
-  `agenticlens incidents summarize`
+  `agenticlens incidents summarize`, `agenticlens trends`
 
 Definition of done:
 
 - AgenticLens can answer "what changed?", "did reliability regress?", and
   "what failed?" using local workflow artifacts.
+- Compare results are reproducible locally and in CI, with saved artifacts that
+  make regressions and claimed improvements easy to inspect.
 
 ### v0.3 — Evaluate, Lineage, Audit, and Richer Incidents
 
@@ -162,11 +187,19 @@ Planned work:
 - [ ] Add evaluation categories such as:
   `groundedness`, `faithfulness`, `retrieval_quality`, `task_completion`,
   `policy_compliance`
+- [ ] Add evaluation harness documentation and artifact conventions that state
+  clearly what is measured, what is estimated, and which claims are out of
+  scope for a given report
 - [ ] Add release-readiness scoring for candidate runs
 - [ ] Add lineage tracking for prompts, models, configs, tools, and knowledge
   sources
+- [ ] Add agent planning/decision-trace capture: recorded plan steps,
+  replanning events, branch decisions, selected tool/agent choices, and other
+  structured planning annotations where the underlying framework exposes them
 - [ ] Add richer inference metadata such as provider/model version history,
   routing decisions, and serving-path context where available
+- [ ] Add cache-effectiveness reporting that shows when repeated context is
+  actually benefiting from provider-side caching versus remaining fully billed
 - [ ] Add audit-style outputs such as:
   `observability coverage report`, `operational maturity assessment`,
   `standards-readiness report`
@@ -183,6 +216,25 @@ Definition of done:
 
 - AgenticLens can capture evaluation evidence, run lineage, and operational
   audit signals in a form that is exportable, scriptable, and reusable.
+- Evaluation outputs are honest about limitations and preserve enough context to
+  support code review, audit review, and regression triage.
+
+### Cross-Cutting UX and CLI
+
+These improvements support the roadmap above without changing the package's
+local-first scope.
+
+- [ ] Add `agenticlens init` to scaffold starter instrumentation, config, and
+  CI-friendly commands for new repositories
+- [ ] Expand CLI export flows so built-in formats are consistently reachable
+  from commands, including Markdown and Jira-oriented outputs where available
+- [ ] Add cache-savings displays to CLI and exported reports, including cached
+  token counts, cache-hit percentages, and estimated cost avoided when pricing
+  data is available
+- [ ] Add cache-oriented recommendations that identify repeated prompts or
+  stable context blocks that are likely cacheable on supported providers
+- [ ] Keep setup idempotent and safe to re-run, with dry-run support where it
+  improves developer trust
 
 ### v0.4 — Safety, Security, and Advisory Release Controls
 
@@ -263,6 +315,43 @@ Definition of done:
 - AgenticLens can export AI workflow observability data into standard telemetry
   pipelines while keeping the workflow specification as its source of truth.
 
+### v0.6 — Platform & Infrastructure Correlation
+
+Goal: close the remaining gap between AI-workload observability and the
+supporting hardware/orchestration layer, without duplicating general-purpose
+infrastructure observability platforms.
+
+Why this comes after telemetry export:
+
+- it depends on having stable step/workflow telemetry to correlate against
+- it should stay a thin, AI-relevant slice of infra signal, not a competing
+  infra observability product
+- it closes out the last uncovered capability area in the roadmap
+
+Planned work:
+
+- [ ] Add lightweight infra-signal ingestion adapters: GPU/NPU/TPU utilization
+  and memory via NVML/DCGM, and CPU/memory/pod/node health via the Kubernetes
+  metrics API
+- [ ] Correlate ingested infra signals with step-level latency, timeout, and
+  failure events already captured in `workflow.json`
+- [ ] Add infra-correlation findings such as "latency spike coincided with GPU
+  memory pressure" or "step failure coincided with a pod eviction/restart"
+- [ ] Scope ingestion strictly to signals that plausibly explain AI system
+  behavior; do not attempt general infra monitoring, alerting, or dashboards
+- [ ] Add CLI commands such as: `agenticlens infra correlate`
+- [ ] Document this as a supporting capability, explicitly deferring to
+  Prometheus/Grafana/DCGM-style tools for general infrastructure observability
+
+Definition of done:
+
+- AgenticLens can point to a specific infra signal (accelerator pressure, pod
+  health) as a plausible cause behind an observed latency spike or failure,
+  by correlating local workflow artifacts with optional imported infra-signal
+  data.
+- The capability stays additive and optional — it does not become a dependency
+  for any other roadmap area.
+
 ## Additional Longer-Term Foundations
 
 These foundations still matter and can be pulled forward if later work depends
@@ -293,6 +382,8 @@ they should not define the core package roadmap:
 - full deployment orchestration
 - live traffic shifting
 - Kubernetes operator behavior
+- general-purpose infrastructure observability platform (full
+  Prometheus/Grafana/DCGM replacement)
 - enterprise approval workflow engines
 - full SOC / SIEM replacement platforms
 
