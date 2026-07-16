@@ -6,11 +6,41 @@ AgenticLens should aim to be a **local-first observability, evaluation,
 operational intelligence, and governance-evidence toolkit for production AI
 systems**.
 
+At a high level, the package should help a developer answer:
+
+- what ran
+- what the model did
+- what context the model saw
+- how the agent behaved
+- which tools and retrieval steps were involved
+- what it cost
+- whether the output was good
+- whether the run was safe and reliable
+
+The product story should stay focused on **agentic AI observability from a
+developer perspective**, not on becoming a generic telemetry warehouse.
+
+The cleanest framing is:
+
+`instrument the AI runtime once, export everywhere`
+
+For avoidance of doubt, the canonical export target for everything AgenticLens
+builds should be the **AI Operations Specification** reference artifact.
+
+In other words:
+
+- runtime instrumentation should map to AI Operations Specification objects
+- semantic events should map to AI Operations Specification conventions
+- saved local artifacts should be exportable as `workflow.json`
+- other exports such as traces, logs, metrics, OTLP, CSV, or Markdown should
+  be downstream representations of the same underlying contract
+
 The package should own the developer workflow that happens closest to code,
 experiments, and CI:
 
-- instrumentation and workflow capture
+- instrumentation of AI runtime objects and workflow capture
 - AI Operations Specification adoption and reference implementation
+- AI-native semantic conventions and event emission
 - graph-aware trace structure
 - cost, latency, and token analysis
 - inference and serving observability
@@ -24,6 +54,31 @@ experiments, and CI:
 - advisory release and control decisions for production AI systems
 - agent planning and decision-trace capture
 - platform and infrastructure correlation, scoped to AI-relevant signals only
+
+In practice, that means AgenticLens should instrument the core runtime objects
+that appear in real AI applications:
+
+- workflow
+- request
+- agent
+- LLM
+- prompt
+- context
+- RAG
+- memory
+- tool
+- MCP
+- evaluation
+- safety
+- reliability
+- incident
+
+Those objects should emit AI-native semantic events such as `workflow.run`,
+`agent.step`, `llm.call`, `prompt.render`, `rag.retrieve`, `memory.read`,
+`tool.call`, `mcp.call`, `evaluation.run`, and `incident.detected`.
+
+Logs, metrics, traces, and file exports should be the transport layer around
+those runtime objects rather than the product definition itself.
 
 AgenticLens should **not** try to become a hosted observability platform or
 full enterprise control plane inside the core package. Multi-user dashboards,
@@ -57,6 +112,15 @@ AgenticLens is the flagship Python reference implementation for this
 specification. Framework integrations convert framework-specific execution data
 into it. The specification should evolve independently of any one framework,
 provider SDK, orchestration library, or telemetry backend.
+
+That means AgenticLens should behave like the main Python instrumentation layer
+for the AI runtime: capture operational objects, correlate them into one run,
+and export them to both AI-native artifacts and general telemetry backends.
+
+Developers contributing to AgenticLens should be able to ask a simple question
+before adding a feature:
+
+`How does this populate or export the AI Operations Specification?`
 
 Third parties may define compatible extensions while preserving core
 interoperability.
@@ -110,6 +174,47 @@ This release line establishes AgenticLens as a **cost and workflow profiling
 tool** and the flagship Python reference implementation of the AI Operations
 Specification.
 
+## Capability Progression
+
+The package roadmap should feel natural to a developer building increasingly
+serious agentic AI systems:
+
+### Foundation
+
+Understand the basics of a run.
+
+- request and workflow capture
+- object-based runtime instrumentation
+- LLM calls
+- prompt and response visibility
+- token, cost, and latency analysis
+- basic event export and CLI reporting
+
+### Intermediate
+
+Understand why a run behaved the way it did.
+
+- prompt, context, and semantic event diffs
+- prompt and context diffs
+- cache visibility
+- tool-call analysis
+- RAG and retrieval analysis
+- workflow comparison
+- trend reporting
+- recommendation engine growth
+
+### Advanced
+
+Understand whether the system is ready for production.
+
+- agent trajectory and planning traces
+- memory observability
+- evaluation pipelines
+- safety and policy evidence
+- reliability summaries
+- incident and audit reports
+- release-readiness and control recommendations
+
 ## Capability Map
 
 These capability families should be introduced gradually inside one coherent
@@ -117,16 +222,15 @@ package:
 
 ```text
 agenticlens
+├── runtime
 ├── observe
-├── inference
-├── infra
 ├── evaluate
+├── export
 ├── compare
 ├── incidents
 ├── telemetry
 ├── safety
-├── security
-├── slos
+├── reliability
 ├── lineage
 ├── planning
 ├── audit
