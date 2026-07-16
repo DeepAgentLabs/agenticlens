@@ -128,11 +128,7 @@ def render_token_optimization(
         rendered_steps.add(step.id)
         tokens_saved = sum(rec.tokens_saved for rec in recs)
         token_basis = _step_token_basis(step.metrics.total_tokens, recs)
-        savings_pct = (
-            min(100.0, (tokens_saved / token_basis) * 100)
-            if token_basis
-            else 0.0
-        )
+        savings_pct = min(100.0, (tokens_saved / token_basis) * 100) if token_basis else 0.0
         primary = max(recs, key=lambda rec: rec.tokens_saved)
         table.add_row(
             step.name,
