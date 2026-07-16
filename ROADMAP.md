@@ -10,9 +10,11 @@ The package should own the developer workflow that happens closest to code,
 experiments, and CI:
 
 - instrumentation and workflow capture
+- AI Operations Specification adoption and reference implementation
 - graph-aware trace structure
 - cost, latency, and token analysis
 - inference and serving observability
+- framework and ecosystem integrations
 - step-level and workflow-level scoring
 - evaluator interfaces and local eval runs
 - datasets, experiments, and regression checks
@@ -39,6 +41,50 @@ Within the DeepAgentLabs ecosystem, the package boundary should stay clear:
 That split keeps both packages coherent on PyPI while still telling one larger
 story around operational reliability for production AI systems.
 
+## AI Operations Specification
+
+DeepAgentLabs defines and stewards the **AI Operations Specification**, a
+versioned operational data model that enables interoperability between AI
+frameworks, observability, resilience testing, and operational tooling.
+
+The specification serves as the common model shared across:
+
+- AgenticLens
+- Agentic Chaos
+- DeepAgentLabs MCP
+
+AgenticLens is the flagship Python reference implementation for this
+specification. Framework integrations convert framework-specific execution data
+into it. The specification should evolve independently of any one framework,
+provider SDK, orchestration library, or telemetry backend.
+
+Third parties may define compatible extensions while preserving core
+interoperability.
+
+The specification should follow explicit versioning over time, for example
+through `v1`, `v1.1`, and future major revisions once the format stabilizes.
+
+When this roadmap refers to the workflow artifact, the primary concept is the
+**AI Operations Specification**. `workflow.json` is the reference JSON
+representation of that specification, not the specification itself.
+
+## Architecture View
+
+```text
+AI Frameworks and Runtimes
+LangGraph, CrewAI, OpenAI Agents SDK, AutoGen, Semantic Kernel,
+LlamaIndex, Haystack, custom apps
+                |
+                v
+AgenticLens Integrations
+                |
+                v
+AI Operations Specification
+      |                    |                    |
+      v                    v                    v
+AgenticLens          Agentic Chaos       DeepAgentLabs MCP
+```
+
 ## Guiding Principles
 
 - **Package-first**: every major feature should be usable through Python and the
@@ -51,8 +97,9 @@ story around operational reliability for production AI systems.
   not depend on one framework.
 - **Advisory-first**: when adding release or control functionality, start with
   evidence and recommendations before enforcement.
-- **Additive evolution**: extend the existing `workflow.json` contract in ways
-  that preserve compatibility.
+- **Additive evolution**: extend the AI Operations Specification in
+  ways that preserve compatibility across its reference representations,
+  including `workflow.json`.
 
 ## Current Status
 
@@ -69,10 +116,12 @@ story around operational reliability for production AI systems.
 - [x] JSON, CSV, Markdown, and Jira exporters
 - [x] Rule-based recommendation engine
 - [x] RAG chunk-utility scoring
-- [x] Agentic-chaos interop via additive `workflow.json` extensions
+- [x] Agentic-chaos interop via additive AI Operations Specification
+  extensions
 
 This release line establishes AgenticLens as a **cost and workflow profiling
-tool**.
+tool** and the flagship Python reference implementation of the AI Operations
+Specification.
 
 ## Capability Map
 
@@ -95,11 +144,28 @@ agenticlens
 ├── planning
 ├── audit
 ├── release
-└── control
+├── control
+├── integrations
+└── workflow
 ```
 
 Not all of these need to become top-level import packages immediately, but
 they provide the long-term product map.
+
+An initial integrations target map could include:
+
+```text
+integrations
+├── langgraph
+├── crewai
+├── openai_agents
+├── autogen
+├── semantic_kernel
+├── llamaindex
+├── haystack
+├── openinference
+└── opentelemetry
+```
 
 Inference and serving observability should be treated as a first-class part of
 the package direction, including:
@@ -164,7 +230,8 @@ Planned work:
 Definition of done:
 
 - AgenticLens can answer "what changed?", "did reliability regress?", and
-  "what failed?" using local workflow artifacts.
+  "what failed?" using local workflow artifacts derived from the AI Operations
+  Specification.
 - Compare results are reproducible locally and in CI, with saved artifacts that
   make regressions and claimed improvements easy to inspect.
 
@@ -274,14 +341,42 @@ Definition of done:
   release-ready, and regressing or improving, while still acting primarily as a
   local-first analysis toolkit.
 
-### v0.5 — Telemetry Export and Observability Interop
+### v0.5 — Framework Integrations
+
+Goal: make it easy for real-world AI frameworks and agent runtimes to emit the
+AI Operations Specification without each team hand-rolling adapters.
+
+Why this matters:
+
+- it makes the specification concrete and adoptable across ecosystems
+- it reduces instrumentation friction without abandoning the explicit core model
+- it clarifies how AgenticLens interoperates with the broader AI tooling stack
+
+Planned work:
+
+- [ ] Add an `integrations` capability area with stable adapter interfaces
+- [ ] Add first-party framework targets such as LangGraph, CrewAI,
+  OpenAI Agents SDK, AutoGen, Semantic Kernel, LlamaIndex, and Haystack
+- [ ] Add interoperability adapters for OpenInference and OpenTelemetry where
+  they help convert external traces into the AI Operations Specification
+- [ ] Document framework-to-spec mapping rules and coverage expectations
+- [ ] Ensure framework execution can be normalized into the reference JSON
+  representation, `workflow.json`, without making any one framework the core
+  model
+
+Definition of done:
+
+- Framework execution can be converted into the AI Operations Specification
+  through documented integrations and adapter interfaces.
+
+### v0.6 — Telemetry Export and Observability Interop
 
 Goal: make AgenticLens interoperable with mainstream observability platforms
 without making any vendor format the core model.
 
 Why this matters:
 
-- the `AI Operations Workflow Specification` should remain the canonical,
+- the `AI Operations Specification` should remain the canonical,
   richest artifact
 - many teams still want traces and attributes to flow into existing APM and
   observability systems
@@ -305,7 +400,8 @@ Planned work:
 - [ ] Add CLI flows such as:
   `agenticlens export --format otel`
   `agenticlens export --format otlp`
-- [ ] Preserve `workflow.json` as the richest portable artifact even when
+- [ ] Preserve the AI Operations Specification reference JSON
+  representation, `workflow.json`, as the richest portable artifact even when
   exporting to other telemetry formats
 - [ ] Keep vendor-specific adapters optional and downstream from the common
   OTEL/OTLP mapping layer
@@ -313,9 +409,10 @@ Planned work:
 Definition of done:
 
 - AgenticLens can export AI workflow observability data into standard telemetry
-  pipelines while keeping the workflow specification as its source of truth.
+  pipelines while keeping the AI Operations Specification as its source of
+  truth.
 
-### v0.6 — Platform & Infrastructure Correlation
+### v0.7 — Platform & Infrastructure Correlation
 
 Goal: close the remaining gap between AI-workload observability and the
 supporting hardware/orchestration layer, without duplicating general-purpose
@@ -334,7 +431,8 @@ Planned work:
   and memory via NVML/DCGM, and CPU/memory/pod/node health via the Kubernetes
   metrics API
 - [ ] Correlate ingested infra signals with step-level latency, timeout, and
-  failure events already captured in `workflow.json`
+  failure events already captured in the AI Operations Specification
+  reference artifact, `workflow.json`
 - [ ] Add infra-correlation findings such as "latency spike coincided with GPU
   memory pressure" or "step failure coincided with a pod eviction/restart"
 - [ ] Scope ingestion strictly to signals that plausibly explain AI system
@@ -347,8 +445,8 @@ Definition of done:
 
 - AgenticLens can point to a specific infra signal (accelerator pressure, pod
   health) as a plausible cause behind an observed latency spike or failure,
-  by correlating local workflow artifacts with optional imported infra-signal
-  data.
+  by correlating local workflow artifacts from the AI Operations Specification
+  with optional imported infra-signal data.
 - The capability stays additive and optional — it does not become a dependency
   for any other roadmap area.
 
@@ -387,10 +485,14 @@ they should not define the core package roadmap:
 - enterprise approval workflow engines
 - full SOC / SIEM replacement platforms
 
-## Suggested Package Shape Over Time
+## Possible Future Modularization
 
-If the project grows, the cleanest long-term structure is still package-first
-and modular:
+If the project grows significantly, modular packaging may become useful later,
+but it should remain a deployment detail rather than a near-term roadmap
+commitment. For now, the default story should stay simple: `pip install
+agenticlens`.
+
+Possible future splits could include:
 
 1. `agenticlens-core`
    Models, tracing, evaluation, SLOs, incidents, lineage, audit, policies.
