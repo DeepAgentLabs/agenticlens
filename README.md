@@ -22,14 +22,22 @@
 | Workflow specification | [docs/workflow-schema-spec.md](docs/workflow-schema-spec.md) |
 | Roadmap | [ROADMAP.md](ROADMAP.md) |
 
-AgenticLens is an open-source Python profiler for LLM applications and agentic
-workflows. It helps developers understand where tokens, latency, and cost are
-spent, then turns that profile into actionable budget optimization
-recommendations.
+AgenticLens is an open-source Python operational toolkit for LLM applications
+and agentic workflows. It helps developers instrument the AI runtime they are
+actually building: workflows, agents, LLM calls, prompts, context, retrieval,
+memory, tools, MCP actions, evaluations, safety signals, and reliability
+events.
+
+It then turns that runtime into inspectable local artifacts, telemetry, and
+actionable recommendations.
 
 Think of it as a lightweight, local `cProfile` for AI workflows: no hosted
 dashboard, no required backend, no account, and no data egress just to inspect a
 run.
+
+The product idea is simple:
+
+`instrument the AI runtime once, export everywhere`
 
 ## Why AgenticLens?
 
@@ -38,9 +46,10 @@ planners, retrievers, memory, tool calls, repeated system prompts, and final
 response steps.
 
 Most observability tools can show token usage. AgenticLens focuses on the next
-question:
+questions:
 
-> What should I change to reduce the bill?
+> What ran, why did it behave that way, what should I change, and can I export
+> that evidence anywhere I need?
 
 AgenticLens currently detects token waste patterns such as:
 
@@ -204,6 +213,30 @@ token savings, estimated percentage savings, dollar impact when pricing is
 known, confidence when relevant, and quality-risk notes for heuristics such as
 RAG chunk utility.
 
+### AI Runtime Objects
+
+AgenticLens is moving toward an object-based model aligned with the AI
+Operations Specification. At a high level, the runtime includes:
+
+- `Workflow`
+- `Request`
+- `Agent`
+- `LLM`
+- `Prompt`
+- `Context`
+- `RAG`
+- `Memory`
+- `Tool`
+- `MCP`
+- `Evaluation`
+- `Safety`
+- `Reliability`
+- `Incident`
+
+These runtime objects emit AI-native events such as `workflow.run`,
+`agent.step`, `llm.call`, `prompt.render`, `rag.retrieve`, `memory.read`, and
+`tool.call`.
+
 ## Features
 
 | Area | Capability |
@@ -215,7 +248,7 @@ RAG chunk utility.
 | Recommendations | Repeated prompts, excessive chunks, low-utility chunks, long history, duplicate tool calls |
 | Budget impact | Dollar-per-run and monthly savings projections |
 | CLI | `profile`, `report`, and `analyze` commands |
-| Export | JSON, CSV, Markdown, and Jira workflow export |
+| Export | `workflow.json`, JSON, CSV, Markdown, Jira, and future telemetry sinks |
 | Tooling | pytest, Ruff, mypy, GitHub Actions |
 
 ## Cost Calculation
