@@ -34,6 +34,14 @@ class RecommenderConfig(BaseModel):
     system_prompt_prefix_tokens: int = 50
     max_chunks: int = 8
     history_token_limit: int = 4000
+    monthly_runs: int = 1000
+    warning_savings_pct: float = 5.0
+    critical_savings_pct: float = 20.0
+    warning_savings_usd: float = 0.005
+    critical_savings_usd: float = 0.05
+    rag_min_chunk_utility_score: float = 0.08
+    rag_min_low_utility_chunks: int = 2
+    handoff_token_limit: int = 3000
     model_swap_min_savings_pct: float = 15.0
     model_swap_providers: list[str] = Field(
         default_factory=lambda: list(DEFAULT_MODEL_SWAP_PROVIDERS)

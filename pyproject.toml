@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenticlens"
-version = "0.1.0"
+version = "0.2.0"
 description = "Profile, analyze, and optimize token consumption in LLM-powered applications and agentic workflows."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -47,12 +47,12 @@ docs = [
 agenticlens = "agenticlens.cli.main:app"
 
 [project.urls]
-Homepage = "https://github.com/agenticlens/agenticlens"
-Repository = "https://github.com/agenticlens/agenticlens"
-Issues = "https://github.com/agenticlens/agenticlens/issues"
-Changelog = "https://github.com/agenticlens/agenticlens/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/agenticlens/agenticlens#readme"
-Security = "https://github.com/agenticlens/agenticlens/security/policy"
+Homepage = "https://github.com/DeepAgentLabs/agenticlens"
+Repository = "https://github.com/DeepAgentLabs/agenticlens"
+Issues = "https://github.com/DeepAgentLabs/agenticlens/issues"
+Changelog = "https://github.com/DeepAgentLabs/agenticlens/blob/main/CHANGELOG.md"
+Documentation = "https://deepagentlabs.github.io/agenticlens/"
+Security = "https://github.com/DeepAgentLabs/agenticlens/security/policy"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agenticlens"]

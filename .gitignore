@@ -12,3 +12,8 @@ dist/
 build/
 site/
 .env
+test/
+
+# Local patent/provisional drafting artifacts
+docs/patents/
+tools/build_agenticlens_provisional.py

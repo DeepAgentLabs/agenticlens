@@ -43,8 +43,16 @@ class RepeatedSystemPromptRecommender(BaseRecommender):
                         f"Step '{step.name}' repeats the same prompt prefix as "
                         f"'{first_seen_name}'. Consider caching or deduplicating it."
                     ),
+                    optimization_type="prompt_caching",
+                    step_id=step.id,
+                    step_name=step.name,
+                    step_type=step.type.value,
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
+                    metadata={
+                        "first_seen_step": first_seen_name,
+                        "repeated_prefix_tokens": len(prefix_words),
+                    },
                 )
             )
         return recommendations

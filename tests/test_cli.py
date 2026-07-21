@@ -33,6 +33,7 @@ def _sample_workflow() -> Workflow:
         Step(
             name="Planner",
             type=StepType.PLANNER,
+            agent_name="planner_agent",
             provider="openai",
             model="gpt-4o-mini",
             metrics=Metrics(prompt_tokens=10, completion_tokens=5, total_tokens=15, cost=0.01),
@@ -95,6 +96,8 @@ def test_cli_report_displays_saved_workflow(tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert "Saved Workflow" in result.output
+    assert "Agent Token Summary" in result.output
+    assert "planner_agent" in result.output
     assert "Planner" in result.output
 
 

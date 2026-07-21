@@ -1,0 +1,30 @@
+title: "[Idea]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this category for early ideas before they become scoped GitHub issues.
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should AgenticLens support?
+      placeholder: A dashboard exporter that visualizes token usage trends over time...
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Who would use this?
+      description: AI engineers, platform teams, ML researchers, DevOps, or another group?
+    validations:
+      required: false
+  - type: textarea
+    id: api
+    attributes:
+      label: Possible API
+      description: Optional, show how you wish the feature worked.
+      render: python
+    validations:
+      required: false

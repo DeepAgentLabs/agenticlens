@@ -26,6 +26,7 @@ class ExcessiveChunksRecommender(BaseRecommender):
             avg_tokens_per_chunk = step.metadata.get("avg_tokens_per_chunk", 0)
             excess = chunk_count - config.max_chunks
             tokens_saved = round(excess * avg_tokens_per_chunk)
+            retrieved_context_tokens = round(chunk_count * avg_tokens_per_chunk)
 
             recommendations.append(
                 Recommendation(
@@ -35,8 +36,19 @@ class ExcessiveChunksRecommender(BaseRecommender):
                         f"{excess} more than the configured limit of "
                         f"{config.max_chunks}."
                     ),
+                    optimization_type="rag_top_k_reduction",
+                    step_id=step.id,
+                    step_name=step.name,
+                    step_type=step.type.value,
                     severity=Severity.WARNING,
                     tokens_saved=tokens_saved,
+                    metadata={
+                        "chunk_count": chunk_count,
+                        "recommended_max_chunks": config.max_chunks,
+                        "excess_chunks": excess,
+                        "avg_tokens_per_chunk": avg_tokens_per_chunk,
+                        "retrieved_context_tokens": retrieved_context_tokens,
+                    },
                 )
             )
         return recommendations

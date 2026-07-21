@@ -4,7 +4,13 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from agenticlens.cli.render import render_recommendations, render_steps, render_summary
+from agenticlens.cli.render import (
+    render_agent_summary,
+    render_recommendations,
+    render_steps,
+    render_summary,
+    render_token_optimization,
+)
 from agenticlens.exporters import CSVExporter, JSONExporter
 from agenticlens.models.workflow import Workflow
 from agenticlens.profiler.context import completed_workflows
@@ -53,6 +59,7 @@ def profile(
 
     workflow = new_workflows[-1]
     render_summary(console, workflow)
+    render_agent_summary(console, workflow)
     render_steps(console, workflow)
 
     if save is not None:
@@ -73,6 +80,7 @@ def report(
     """Display a saved workflow report."""
     workflow = _load_workflow(report_file)
     render_summary(console, workflow)
+    render_agent_summary(console, workflow)
     render_steps(console, workflow)
 
 
@@ -85,8 +93,13 @@ def analyze(
     engine = RecommendationEngine()
     recommendations = engine.run(workflow)
     savings_pct = RecommendationEngine.estimated_savings_pct(workflow, recommendations)
+    render_agent_summary(console, workflow)
+    if any(step.agent_name for step in workflow.steps):
+        console.print()
+    render_token_optimization(console, workflow, recommendations)
+    console.print()
     cost_savings = RecommendationEngine.estimated_cost_savings(recommendations)
-    render_recommendations(console, recommendations, savings_pct, cost_savings)
+    render_recommendations(console, recommendations, savings_pct, workflow, cost_savings)
 
 
 if __name__ == "__main__":
