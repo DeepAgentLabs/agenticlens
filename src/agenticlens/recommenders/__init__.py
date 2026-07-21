@@ -3,6 +3,7 @@ from agenticlens.recommenders.duplicate_tool_calls import DuplicateToolCallsReco
 from agenticlens.recommenders.engine import RecommendationEngine
 from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
 from agenticlens.recommenders.long_history import LongHistoryRecommender
+from agenticlens.recommenders.model_swap import ModelSwapRecommender
 from agenticlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
 
 __all__ = [
@@ -10,6 +11,7 @@ __all__ = [
     "DuplicateToolCallsRecommender",
     "ExcessiveChunksRecommender",
     "LongHistoryRecommender",
+    "ModelSwapRecommender",
     "RecommendationEngine",
     "RepeatedSystemPromptRecommender",
 ]

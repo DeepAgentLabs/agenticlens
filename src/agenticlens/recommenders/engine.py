@@ -5,6 +5,7 @@ from agenticlens.recommenders.base import BaseRecommender
 from agenticlens.recommenders.duplicate_tool_calls import DuplicateToolCallsRecommender
 from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
 from agenticlens.recommenders.long_history import LongHistoryRecommender
+from agenticlens.recommenders.model_swap import ModelSwapRecommender
 from agenticlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
 
 DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
@@ -12,6 +13,7 @@ DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
     ExcessiveChunksRecommender(),
     LongHistoryRecommender(),
     DuplicateToolCallsRecommender(),
+    ModelSwapRecommender(),
 ]
 
 
@@ -39,3 +41,9 @@ class RecommendationEngine:
             return 0.0
         total_saved = sum(r.tokens_saved for r in recommendations)
         return min(100.0, (total_saved / workflow.total_tokens) * 100)
+
+    @staticmethod
+    def estimated_cost_savings(recommendations: list[Recommendation]) -> float | None:
+        """Aggregate dollar savings from cost-aware recommendations (e.g. model swaps)."""
+        savings = [r.cost_savings for r in recommendations if r.cost_savings is not None]
+        return sum(savings) if savings else None

@@ -57,6 +57,7 @@ def render_recommendations(
     console: Console,
     recommendations: list[Recommendation],
     estimated_savings_pct: float,
+    cost_savings: float | None = None,
 ) -> None:
     """Render optimization suggestions and the aggregate estimated savings."""
     if not recommendations:
@@ -67,6 +68,14 @@ def render_recommendations(
     for rec in recommendations:
         style = _SEVERITY_STYLES.get(rec.severity, "white")
         console.print(f"  [{style}]*[/{style}] {rec.title}")
-        console.print(f"    -- {rec.description} (~{rec.tokens_saved} tokens)")
+        extras = []
+        if rec.tokens_saved:
+            extras.append(f"~{rec.tokens_saved} tokens")
+        if rec.cost_savings is not None:
+            extras.append(f"~${rec.cost_savings:.4f} saved")
+        suffix = f" ({', '.join(extras)})" if extras else ""
+        console.print(f"    -- {rec.description}{suffix}")
 
     console.print(f"\n[bold]Estimated Savings:[/bold] {estimated_savings_pct:.0f}%")
+    if cost_savings is not None:
+        console.print(f"[bold]Estimated Cost Savings:[/bold] ${cost_savings:.4f}")

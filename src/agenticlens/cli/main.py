@@ -85,7 +85,8 @@ def analyze(
     engine = RecommendationEngine()
     recommendations = engine.run(workflow)
     savings_pct = RecommendationEngine.estimated_savings_pct(workflow, recommendations)
-    render_recommendations(console, recommendations, savings_pct)
+    cost_savings = RecommendationEngine.estimated_cost_savings(recommendations)
+    render_recommendations(console, recommendations, savings_pct, cost_savings)
 
 
 if __name__ == "__main__":

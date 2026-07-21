@@ -132,11 +132,14 @@ Collected per step:
 | `output_cost` | Cost of completion tokens |
 | `total_cost` | Total spend for the step |
 
-**Pricing source of truth:** a static pricing table bundled at `src/agenticlens/config/pricing.yaml`, keyed by `provider:model`, kept current via periodic manual updates (community PRs welcome). Resolution order:
+**Pricing source of truth:** live pricing fetched from [LiteLLM's community-maintained pricing feed](https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json), cached on disk with a TTL (default 24h) so cost lookups don't hit the network on every step. Resolution order:
 
 1. User-supplied pricing override (via `pyproject.toml` / YAML config / env var) — always wins.
-2. Bundled `pricing.yaml` entry for the exact `provider:model`.
-3. Unknown model → cost fields are `None` and a `UnknownModelPricingWarning` is emitted. **Never silently report `$0.00`** for an unpriced model — that's misleading, not a graceful fallback.
+2. Live pricing feed, if `live_pricing.enabled` (default `True`) and reachable — matched by exact model name, `provider/model`, or a known alias for versioned model names (e.g. `claude-3-5-sonnet` → `claude-3-5-sonnet-20241022`).
+3. Bundled static `pricing.yaml` fallback for the exact `provider:model` — used when live pricing is disabled, unreachable, and no cached copy exists.
+4. Unknown model → cost fields are `None` and a `UnknownModelPricingWarning` is emitted. **Never silently report `$0.00`** for an unpriced model — that's misleading, not a graceful fallback.
+
+Live pricing can be disabled per-config (`live_pricing.enabled: false`) or hard-disabled via the `AGENTICLENS_DISABLE_LIVE_PRICING` env var (used by this project's own test suite to stay hermetic).
 
 ---
 
@@ -198,13 +201,38 @@ Each rule below detects a pattern and estimates the tokens it would save (`token
 
 All thresholds live in `RecommenderConfig` and are user-overridable; defaults above are starting points, not hard-coded constants.
 
+### Model-Swap Simulator
+
+Unlike the token-pattern rules above, this one is cost-driven: for each step with
+a known `provider`/`model`, it recomputes the step's cost and compares it
+against a pool of candidate models with the *same token usage*, surfacing the
+cheapest viable swap.
+
+- **Candidate pool**: primarily the live LiteLLM pricing feed (see "Cost
+  Metrics" below), filtered to `mode == "chat"`, excluding fine-tune (`ft:`)
+  entries, and restricted to a curated allowlist of direct/first-party model
+  providers — `openai, anthropic, gemini, mistral, xai, deepseek, groq,
+  cohere_chat, perplexity` (configurable via `RecommenderConfig.model_swap_providers`).
+  Deliberately excludes gateway/reseller re-hosts of the same underlying model
+  (`bedrock`, `azure`, `vertex_ai-*`, `openrouter`, ...) — swapping to those is
+  an infra decision, not a genuine model swap. Falls back to the small bundled
+  static pricing table when live pricing is disabled or unreachable.
+- **Context-window safety check**: candidates whose `max_input_tokens` (from
+  the live feed) is smaller than the step's `prompt_tokens` are skipped, so a
+  swap is never recommended if it would flat out fail.
+- **Threshold**: only recommends when savings clear
+  `RecommenderConfig.model_swap_min_savings_pct` (default 15%).
+- Sets `Recommendation.cost_savings` (a dollar amount) rather than
+  `tokens_saved`/`estimated_savings`, since token counts don't change on a
+  model swap — only cost does.
+
 ### Estimated Savings Formula
 
 ```
 estimated_savings_pct = min(100, (sum(tokens_saved for all triggered rules) / workflow.total_tokens) * 100)
 ```
 
-Each `Recommendation` carries its own `estimated_savings` (per-rule), and the workflow summary reports the aggregate using the formula above.
+Each `Recommendation` carries its own `estimated_savings` (per-rule token %), and the workflow summary reports the aggregate using the formula above. Cost-based recommendations (the model-swap simulator) carry `cost_savings` (a dollar amount) instead, aggregated separately via `RecommendationEngine.estimated_cost_savings()` and rendered as a parallel "Estimated Cost Savings" line — the two aggregates use different units and are not combined into one number.
 
 **Example output:**
 
@@ -292,7 +320,9 @@ All models are implemented with **Pydantic v2**.
 | `title` | `str` | Short recommendation title |
 | `description` | `str` | Detailed explanation |
 | `severity` | `Severity` | Enum: `info`, `warning`, `critical` |
+| `tokens_saved` | `int` | Token count the rule expects to save |
 | `estimated_savings` | `float \| None` | Projected % token reduction |
+| `cost_savings` | `float \| None` | Projected dollar savings (cost-aware rules, e.g. model swap); a different unit from `estimated_savings` and not combined with it |
 
 ---
 
