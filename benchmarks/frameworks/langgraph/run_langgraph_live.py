@@ -1,9 +1,13 @@
+import time
 from typing import Any, TypedDict
 
 from agenticlens import profile, step
 from benchmarks.shared.live_travel_tasks import (
+    OPENAI_MODEL,
     QUESTION,
     TRIP,
+    USE_REAL_OPENAI,
+    LLMResponse,
     classify_trip,
     estimate_avg_tokens_per_chunk,
     fetch_destination_summary,
@@ -12,6 +16,46 @@ from benchmarks.shared.live_travel_tasks import (
     geocode_city,
     synthesize_briefing,
 )
+
+if USE_REAL_OPENAI:
+    from langchain_openai import ChatOpenAI
+
+    _llm = ChatOpenAI(model=OPENAI_MODEL)
+
+
+def classify_trip_native() -> tuple[LLMResponse, float]:
+    """Real call goes through LangChain's ChatOpenAI -- its own message
+    formatting and response object, not a raw OpenAI SDK call."""
+    if not USE_REAL_OPENAI:
+        return classify_trip("LangGraph")
+
+    start = time.time()
+    ai_message = _llm.invoke(f"Classify this trip request in one short line:\n{QUESTION}")
+    usage = ai_message.usage_metadata or {}
+    return LLMResponse(
+        ai_message.content, usage.get("input_tokens", 0), usage.get("output_tokens", 0)
+    ), (time.time() - start)
+
+
+def synthesize_briefing_native(
+    place: dict, weather: dict, fx: dict, summary: dict
+) -> tuple[LLMResponse, float]:
+    if not USE_REAL_OPENAI:
+        return synthesize_briefing("LangGraph", place)
+
+    start = time.time()
+    prompt = (
+        f"Traveler question: {QUESTION}\n\n"
+        f"Live weather at {place['name']}: {weather}\n"
+        f"Live USD->JPY rate: {fx['rate']} (as of {fx['date']})\n"
+        f"Destination facts: {summary['extract']}\n\n"
+        "Write a concise, friendly travel briefing (3-4 sentences) using only this data."
+    )
+    ai_message = _llm.invoke(prompt)
+    usage = ai_message.usage_metadata or {}
+    return LLMResponse(
+        ai_message.content, usage.get("input_tokens", 0), usage.get("output_tokens", 0)
+    ), (time.time() - start)
 
 
 class TravelState(TypedDict, total=False):
@@ -28,11 +72,11 @@ def classify_node(state: TravelState) -> TravelState:
         "LangGraph - Classify Trip Request",
         type="planner",
         provider="openai",
-        model="gpt-4o-mini",
+        model=OPENAI_MODEL,
         prompt=QUESTION,
         framework="langgraph",
     ) as s:
-        response, latency = classify_trip("LangGraph")
+        response, latency = classify_trip_native()
         s.record(response)
         s.step.metrics.latency = latency
 
@@ -111,11 +155,13 @@ def synthesize_node(state: TravelState) -> TravelState:
         "LangGraph - Synthesize Travel Briefing",
         type="final_response",
         provider="openai",
-        model="gpt-4o-mini",
+        model=OPENAI_MODEL,
         prompt=QUESTION,
         framework="langgraph",
     ) as s:
-        response, latency = synthesize_briefing("LangGraph", state["place"])
+        response, latency = synthesize_briefing_native(
+            state["place"], state["weather"], state["fx"], state["summary"]
+        )
         s.record(response)
         s.step.metrics.latency = latency
 

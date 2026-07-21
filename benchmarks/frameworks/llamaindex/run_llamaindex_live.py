@@ -1,7 +1,12 @@
+import time
+
 from agenticlens import profile, step
 from benchmarks.shared.live_travel_tasks import (
+    OPENAI_MODEL,
     QUESTION,
     TRIP,
+    USE_REAL_OPENAI,
+    LLMResponse,
     classify_trip,
     estimate_avg_tokens_per_chunk,
     fetch_destination_summary,
@@ -12,6 +17,41 @@ from benchmarks.shared.live_travel_tasks import (
 )
 
 
+def classify_trip_native(llm) -> tuple[LLMResponse, float]:
+    """Real call runs through LlamaIndex's LLM.complete() -- its own
+    completion wrapper, not a raw OpenAI SDK call."""
+    if not USE_REAL_OPENAI:
+        return classify_trip("LlamaIndex")
+
+    start = time.time()
+    resp = llm.complete(f"Classify this trip request in one short line:\n{QUESTION}")
+    kwargs = resp.additional_kwargs
+    return LLMResponse(
+        str(resp), kwargs.get("prompt_tokens", 0), kwargs.get("completion_tokens", 0)
+    ), (time.time() - start)
+
+
+def synthesize_briefing_native(
+    llm, place: dict, weather: dict, fx: dict, summary: dict
+) -> tuple[LLMResponse, float]:
+    if not USE_REAL_OPENAI:
+        return synthesize_briefing("LlamaIndex", place)
+
+    start = time.time()
+    prompt = (
+        f"Traveler question: {QUESTION}\n\n"
+        f"Live weather at {place['name']}: {weather}\n"
+        f"Live USD->JPY rate: {fx['rate']} (as of {fx['date']})\n"
+        f"Destination facts: {summary['extract']}\n\n"
+        "Write a concise, friendly travel briefing (3-4 sentences) using only this data."
+    )
+    resp = llm.complete(prompt)
+    kwargs = resp.additional_kwargs
+    return LLMResponse(
+        str(resp), kwargs.get("prompt_tokens", 0), kwargs.get("completion_tokens", 0)
+    ), (time.time() - start)
+
+
 def main() -> None:
     framework = "LlamaIndex"
 
@@ -20,16 +60,22 @@ def main() -> None:
     except ImportError as exc:
         raise RuntimeError("LlamaIndex is not installed. Run: pip install llama-index") from exc
 
+    llm = None
+    if USE_REAL_OPENAI:
+        from llama_index.llms.openai import OpenAI as LlamaOpenAI
+
+        llm = LlamaOpenAI(model=OPENAI_MODEL)
+
     with profile(f"Benchmark - {framework} - Live Travel Briefing"):
         with step(
             f"{framework} - Classify Trip Request",
             type="planner",
             provider="openai",
-            model="gpt-4o-mini",
+            model=OPENAI_MODEL,
             prompt=QUESTION,
             framework="llamaindex",
         ) as s:
-            response, latency = classify_trip(framework)
+            response, latency = classify_trip_native(llm)
             s.record(response)
             s.step.metrics.latency = latency
 
@@ -86,11 +132,11 @@ def main() -> None:
             f"{framework} - Synthesize Travel Briefing",
             type="final_response",
             provider="openai",
-            model="gpt-4o-mini",
+            model=OPENAI_MODEL,
             prompt=QUESTION,
             framework="llamaindex",
         ) as s:
-            response, latency = synthesize_briefing(framework, place)
+            response, latency = synthesize_briefing_native(llm, place, weather, fx, summary)
             s.record(response)
             s.step.metrics.latency = latency
 

@@ -1,7 +1,12 @@
+import time
+
 from agenticlens import profile, step
 from benchmarks.shared.live_travel_tasks import (
+    OPENAI_MODEL,
     QUESTION,
     TRIP,
+    USE_REAL_OPENAI,
+    LLMResponse,
     classify_trip,
     estimate_avg_tokens_per_chunk,
     fetch_destination_summary,
@@ -12,22 +17,73 @@ from benchmarks.shared.live_travel_tasks import (
 )
 
 
+def classify_trip_native(planner_agent, Task, Crew, Process) -> tuple[LLMResponse, float]:
+    """Real call runs through Crew.kickoff() -- CrewAI wraps the task in its
+    own role/goal/backstory prompt template before it ever reaches the model,
+    so token usage genuinely differs from a raw SDK call."""
+    if not USE_REAL_OPENAI:
+        return classify_trip("CrewAI")
+
+    start = time.time()
+    task = Task(
+        description=f"Classify this trip request in one short line:\n{QUESTION}",
+        expected_output="A short trip intent classification.",
+        agent=planner_agent,
+    )
+    crew = Crew(agents=[planner_agent], tasks=[task], process=Process.sequential, verbose=False)
+    result = crew.kickoff()
+    usage = result.token_usage
+    return LLMResponse(str(result), usage.prompt_tokens, usage.completion_tokens), (
+        time.time() - start
+    )
+
+
+def synthesize_briefing_native(
+    briefing_agent, Task, Crew, Process, place: dict, weather: dict, fx: dict, summary: dict
+) -> tuple[LLMResponse, float]:
+    if not USE_REAL_OPENAI:
+        return synthesize_briefing("CrewAI", place)
+
+    start = time.time()
+    prompt = (
+        f"Traveler question: {QUESTION}\n\n"
+        f"Live weather at {place['name']}: {weather}\n"
+        f"Live USD->JPY rate: {fx['rate']} (as of {fx['date']})\n"
+        f"Destination facts: {summary['extract']}\n\n"
+        "Write a concise, friendly travel briefing (3-4 sentences) using only this data."
+    )
+    task = Task(
+        description=prompt,
+        expected_output="A concise, friendly travel briefing.",
+        agent=briefing_agent,
+    )
+    crew = Crew(agents=[briefing_agent], tasks=[task], process=Process.sequential, verbose=False)
+    result = crew.kickoff()
+    usage = result.token_usage
+    return LLMResponse(str(result), usage.prompt_tokens, usage.completion_tokens), (
+        time.time() - start
+    )
+
+
 def main() -> None:
     framework = "CrewAI"
 
     try:
-        from crewai import Agent, Crew, Process, Task
+        from crewai import LLM, Agent, Crew, Process, Task
     except ImportError as exc:
         raise RuntimeError("CrewAI is not installed. Run: pip install crewai") from exc
 
-    # Framework-specific objects.
-    # These make this a CrewAI benchmark adapter, while AgenticLens measures each
-    # real step. We do not call crew.kickoff() because that would require a live
-    # LLM -- the tool/retriever steps below already make real network calls.
+    llm = LLM(model=OPENAI_MODEL) if USE_REAL_OPENAI else None
+
+    # Framework-specific objects. When a real key is available these agents
+    # are actually executed via crew.kickoff() below; otherwise they exist
+    # only for benchmark identity, matching the deterministic support-refund
+    # benchmark's design.
     planner_agent = Agent(
         role="Trip Planner",
         goal="Classify a trip briefing request",
         backstory="You classify traveler requests into structured trip intents.",
+        llm=llm,
         verbose=False,
         allow_delegation=False,
     )
@@ -35,26 +91,9 @@ def main() -> None:
         role="Briefing Writer",
         goal="Write a concise travel briefing from live data",
         backstory="You synthesize weather, currency, and destination facts for travelers.",
+        llm=llm,
         verbose=False,
         allow_delegation=False,
-    )
-    tasks = [
-        Task(
-            description="Classify the trip briefing request.",
-            expected_output="Trip intent and destination.",
-            agent=planner_agent,
-        ),
-        Task(
-            description="Write the final travel briefing from live data.",
-            expected_output="Customer-facing travel briefing.",
-            agent=briefing_agent,
-        ),
-    ]
-    crew = Crew(
-        agents=[planner_agent, briefing_agent],
-        tasks=tasks,
-        process=Process.sequential,
-        verbose=False,
     )
 
     with profile(f"Benchmark - {framework} - Live Travel Briefing"):
@@ -62,12 +101,11 @@ def main() -> None:
             f"{framework} - Classify Trip Request",
             type="planner",
             provider="openai",
-            model="gpt-4o-mini",
+            model=OPENAI_MODEL,
             prompt=QUESTION,
             framework="crewai",
-            crew_agents=len(crew.agents),
         ) as s:
-            response, latency = classify_trip(framework)
+            response, latency = classify_trip_native(planner_agent, Task, Crew, Process)
             s.record(response)
             s.step.metrics.latency = latency
 
@@ -120,11 +158,13 @@ def main() -> None:
             f"{framework} - Synthesize Travel Briefing",
             type="final_response",
             provider="openai",
-            model="gpt-4o-mini",
+            model=OPENAI_MODEL,
             prompt=QUESTION,
             framework="crewai",
         ) as s:
-            response, latency = synthesize_briefing(framework, place)
+            response, latency = synthesize_briefing_native(
+                briefing_agent, Task, Crew, Process, place, weather, fx, summary
+            )
             s.record(response)
             s.step.metrics.latency = latency
 

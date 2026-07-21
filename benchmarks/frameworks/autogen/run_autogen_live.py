@@ -1,7 +1,13 @@
+import asyncio
+import time
+
 from agenticlens import profile, step
 from benchmarks.shared.live_travel_tasks import (
+    OPENAI_MODEL,
     QUESTION,
     TRIP,
+    USE_REAL_OPENAI,
+    LLMResponse,
     classify_trip,
     estimate_avg_tokens_per_chunk,
     fetch_destination_summary,
@@ -10,6 +16,46 @@ from benchmarks.shared.live_travel_tasks import (
     geocode_city,
     synthesize_briefing,
 )
+
+
+async def _run_agent(agent, task: str) -> tuple[str, int, int]:
+    result = await agent.run(task=task)
+    last = result.messages[-1]
+    usage = last.models_usage
+    prompt_tokens = usage.prompt_tokens if usage else 0
+    completion_tokens = usage.completion_tokens if usage else 0
+    return last.content, prompt_tokens, completion_tokens
+
+
+def classify_trip_native(planner_agent) -> tuple[LLMResponse, float]:
+    """Real call runs through AssistantAgent.run() -- AutoGen's own
+    system-message + task framing, not a raw OpenAI SDK call."""
+    if not USE_REAL_OPENAI:
+        return classify_trip("AutoGen")
+
+    start = time.time()
+    content, prompt_tokens, completion_tokens = asyncio.run(
+        _run_agent(planner_agent, f"Classify this trip request in one short line:\n{QUESTION}")
+    )
+    return LLMResponse(content, prompt_tokens, completion_tokens), (time.time() - start)
+
+
+def synthesize_briefing_native(
+    briefing_agent, place: dict, weather: dict, fx: dict, summary: dict
+) -> tuple[LLMResponse, float]:
+    if not USE_REAL_OPENAI:
+        return synthesize_briefing("AutoGen", place)
+
+    start = time.time()
+    prompt = (
+        f"Traveler question: {QUESTION}\n\n"
+        f"Live weather at {place['name']}: {weather}\n"
+        f"Live USD->JPY rate: {fx['rate']} (as of {fx['date']})\n"
+        f"Destination facts: {summary['extract']}\n\n"
+        "Write a concise, friendly travel briefing (3-4 sentences) using only this data."
+    )
+    content, prompt_tokens, completion_tokens = asyncio.run(_run_agent(briefing_agent, prompt))
+    return LLMResponse(content, prompt_tokens, completion_tokens), (time.time() - start)
 
 
 def main() -> None:
@@ -22,23 +68,26 @@ def main() -> None:
             "AutoGen AgentChat is not installed. Run: pip install autogen-agentchat autogen-core"
         ) from exc
 
-    # Framework-specific agents.
-    # We instantiate agents for benchmark identity, but do not call a live model
-    # client -- the tool/retriever steps below already make real network calls.
-    planner_agent = AssistantAgent(name="trip_planner", model_client=None)
-    briefing_agent = AssistantAgent(name="briefing_writer", model_client=None)
+    model_client = None
+    if USE_REAL_OPENAI:
+        from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+        model_client = OpenAIChatCompletionClient(model=OPENAI_MODEL)
+
+    planner_agent = AssistantAgent(name="trip_planner", model_client=model_client)
+    briefing_agent = AssistantAgent(name="briefing_writer", model_client=model_client)
 
     with profile(f"Benchmark - {framework} - Live Travel Briefing"):
         with step(
             f"{framework} - Classify Trip Request",
             type="planner",
             provider="openai",
-            model="gpt-4o-mini",
+            model=OPENAI_MODEL,
             prompt=QUESTION,
             framework="autogen",
             agent_name=planner_agent.name,
         ) as s:
-            response, latency = classify_trip(framework)
+            response, latency = classify_trip_native(planner_agent)
             s.record(response)
             s.step.metrics.latency = latency
 
@@ -91,14 +140,19 @@ def main() -> None:
             f"{framework} - Synthesize Travel Briefing",
             type="final_response",
             provider="openai",
-            model="gpt-4o-mini",
+            model=OPENAI_MODEL,
             prompt=QUESTION,
             framework="autogen",
             agent_name=briefing_agent.name,
         ) as s:
-            response, latency = synthesize_briefing(framework, place)
+            response, latency = synthesize_briefing_native(
+                briefing_agent, place, weather, fx, summary
+            )
             s.record(response)
             s.step.metrics.latency = latency
+
+    if USE_REAL_OPENAI:
+        asyncio.run(model_client.close())
 
     print(response.choices[0].message.content)
 

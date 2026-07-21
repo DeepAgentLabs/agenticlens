@@ -8,9 +8,13 @@ fixture.
 """
 
 import json
+import os
 import time
 import urllib.request
 from typing import Any
+
+USE_REAL_OPENAI = bool(os.getenv("OPENAI_API_KEY"))
+OPENAI_MODEL = "gpt-4o-mini"
 
 USER_AGENT = "AgenticLens-Benchmark/1.0 (+https://github.com/DeepAgentLabs/agenticlens)"
 
@@ -41,6 +45,15 @@ class FakeResponse:
     def __init__(self, content: str, prompt_tokens: int, completion_tokens: int):
         self.usage = FakeUsage(prompt_tokens, completion_tokens)
         self.choices = [FakeChoice(content)]
+
+
+# Also used to normalize *real* per-framework LLM responses (CrewAI's
+# CrewOutput.token_usage, AutoGen's RequestUsage, LlamaIndex's
+# additional_kwargs, Semantic Kernel's metadata["usage"], LangChain's
+# usage_metadata) into the single shape `StepHandle.record()` understands,
+# so every framework's real call still flows through the same AgenticLens
+# provider-detection path as the fallback.
+LLMResponse = FakeResponse
 
 
 def classify_trip(framework: str) -> tuple[FakeResponse, float]:

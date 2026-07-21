@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(python -m mypy --no-site-packages src/agenticlens/models/step.py)",
+      "Bash(pip uninstall *)",
+      "Bash(git check-ignore *)",
+      "Bash(python -m pytest tests/test_adapters_langchain.py -q)",
+      "Bash(python -m pytest -q tests/)",
+      "Bash(python -m ruff check benchmarks/shared/benchmark_runner.py)",
+      "Bash(git commit -m ' *)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\manem\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\e--agenticlens\\\\9e618684-551e-4264-8655-deac3e2e58bd\\\\scratchpad\")",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)",
+      "Bash(python -c \"import os; print\\('OPENAI_API_KEY set:', bool\\(os.getenv\\('OPENAI_API_KEY'\\)\\)\\)\")",
+      "Bash(python examples/live_multiagent_travel_briefing.py)"
+    ]
+  }
+}
