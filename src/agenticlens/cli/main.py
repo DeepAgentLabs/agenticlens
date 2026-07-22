@@ -98,7 +98,8 @@ def analyze(
         console.print()
     render_token_optimization(console, workflow, recommendations)
     console.print()
-    render_recommendations(console, recommendations, savings_pct, workflow)
+    cost_savings = RecommendationEngine.estimated_cost_savings(recommendations)
+    render_recommendations(console, recommendations, savings_pct, workflow, cost_savings)
 
 
 if __name__ == "__main__":

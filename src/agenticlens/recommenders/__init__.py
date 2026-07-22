@@ -6,6 +6,7 @@ from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
 from agenticlens.recommenders.handoff_bloat import HandoffBloatRecommender
 from agenticlens.recommenders.long_history import LongHistoryRecommender
 from agenticlens.recommenders.rag_chunk_utility import RAGChunkUtilityRecommender
+from agenticlens.recommenders.model_swap import ModelSwapRecommender
 from agenticlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     "HandoffBloatRecommender",
     "LongHistoryRecommender",
     "RAGChunkUtilityRecommender",
+    "ModelSwapRecommender",
     "RecommendationEngine",
     "RepeatedSystemPromptRecommender",
 ]

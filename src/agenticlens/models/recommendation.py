@@ -25,3 +25,10 @@ class Recommendation(BaseModel):
     confidence: float | None = None
     quality_risk: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+    cost_savings: float | None = Field(
+        default=None,
+        description=(
+            "Projected dollar savings for cost-aware recommenders (e.g. model swaps). "
+            "Distinct from `estimated_savings`, which is a token-reduction percentage."
+        ),
+    )

@@ -9,6 +9,7 @@ from agenticlens.recommenders.excessive_chunks import ExcessiveChunksRecommender
 from agenticlens.recommenders.handoff_bloat import HandoffBloatRecommender
 from agenticlens.recommenders.long_history import LongHistoryRecommender
 from agenticlens.recommenders.rag_chunk_utility import RAGChunkUtilityRecommender
+from agenticlens.recommenders.model_swap import ModelSwapRecommender
 from agenticlens.recommenders.repeated_prompt import RepeatedSystemPromptRecommender
 
 DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
@@ -19,6 +20,7 @@ DEFAULT_RECOMMENDERS: list[BaseRecommender] = [
     DuplicateToolCallsRecommender(),
     HandoffBloatRecommender(),
     ChaosImpactRecommender(),
+    ModelSwapRecommender(),
 ]
 
 
@@ -103,3 +105,9 @@ class RecommendationEngine:
         ):
             return Severity.WARNING
         return Severity.INFO
+
+    @staticmethod
+    def estimated_cost_savings(recommendations: list[Recommendation]) -> float | None:
+        """Aggregate dollar savings from cost-aware recommendations (e.g. model swaps)."""
+        savings = [r.cost_savings for r in recommendations if r.cost_savings is not None]
+        return sum(savings) if savings else None

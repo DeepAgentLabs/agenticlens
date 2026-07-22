@@ -60,6 +60,7 @@ def render_recommendations(
     recommendations: list[Recommendation],
     estimated_savings_pct: float,
     workflow: Workflow | None = None,
+    cost_savings: float | None = None,
 ) -> None:
     """Render optimization suggestions and the aggregate estimated savings."""
     if not recommendations:
@@ -224,3 +225,5 @@ def _step_token_basis(step_tokens: int, recommendations: list[Recommendation]) -
     if context_tokens:
         return max(step_tokens, max(context_tokens))
     return step_tokens
+    if cost_savings is not None:
+        console.print(f"[bold]Estimated Cost Savings:[/bold] ${cost_savings:.4f}")
