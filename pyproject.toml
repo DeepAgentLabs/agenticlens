@@ -57,6 +57,9 @@ Security = "https://github.com/DeepAgentLabs/agenticlens/security/policy"
 [tool.hatch.build.targets.wheel]
 packages = ["src/agenticlens"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "agenticlens/schemas"
+
 [tool.ruff]
 line-length = 100
 target-version = "py310"

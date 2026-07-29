@@ -7,6 +7,39 @@ from agenticlens.cli.main import app
 from agenticlens.exporters import JSONExporter
 from agenticlens.models import Metrics, Step, StepType, Workflow
 
+
+def test_inspect_trace(tmp_path):
+    trace_file = tmp_path / "trace.json"
+    trace_file.write_text(
+        '{"application_name":"demo","status":"succeeded","spans":[]}',
+        encoding="utf-8",
+    )
+    result = CliRunner().invoke(app, ["inspect", str(trace_file)])
+    assert result.exit_code == 0
+    assert "Run Summary" in result.output
+    assert "demo" in result.output
+
+
+def test_compare_trace_directories(tmp_path):
+    baseline = tmp_path / "baseline"
+    candidate = tmp_path / "candidate"
+    baseline.mkdir()
+    candidate.mkdir()
+    payload = '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}'
+    (baseline / "run.json").write_text(payload, encoding="utf-8")
+    (candidate / "run.json").write_text(payload, encoding="utf-8")
+    report_file = tmp_path / "comparison.json"
+
+    result = CliRunner().invoke(
+        app,
+        ["compare", str(baseline), str(candidate), "--save", str(report_file)],
+    )
+
+    assert result.exit_code == 0
+    assert "No regressions detected" in result.output
+    assert report_file.exists()
+
+
 runner = CliRunner()
 
 _PROFILE_SCRIPT = """

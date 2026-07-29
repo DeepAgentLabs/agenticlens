@@ -14,6 +14,7 @@ nav:
   - Export Formats: export-formats.md
   - RAG Chunk Utility: rag-chunk-utility.md
   - Workflow Schema Spec: workflow-schema-spec.md
+  - Trace and Comparison: trace-and-comparison.md
 
 repo_url: https://github.com/DeepAgentLabs/agenticlens
 repo_name: DeepAgentLabs/agenticlens

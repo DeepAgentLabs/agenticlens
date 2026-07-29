@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/v1/report.schema.json",
+  "title": "AgenticLens Comparison Report",
+  "type": "object",
+  "required": ["schema_version", "baseline", "candidate", "regression_threshold", "regressions"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "baseline": {"type": "object"},
+    "candidate": {"type": "object"},
+    "regression_threshold": {"type": "number", "minimum": 0},
+    "regressions": {"type": "array", "items": {"type": "string"}}
+  }
+}
