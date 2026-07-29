@@ -1,5 +1,7 @@
 # AgenticLens
 
+<!-- Temporary branch-protection test change -->
+
 <p align="center">
   <img src="docs/assets/agenticlens-logo.jpeg" alt="AgenticLens logo" width="420">
 </p>
