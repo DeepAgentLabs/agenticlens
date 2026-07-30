@@ -1,56 +1,46 @@
-# AgenticLens Research and Development Roadmap
+# AgenticLens Research Program
 
-## 1. Project Vision
+## Document Status
 
-**AgenticLens** will evolve from a token-profiling library into an open-source framework for:
+| Field | Value |
+| --- | --- |
+| Document type | Supporting research program |
+| Product roadmap | `agenticlens-roadmap.md` |
+| Implementation repository | `DeepAgentLabs/agenticlens` |
+| Status | Active |
+| Scope | Measurement, evaluation, diagnosis, and optimization research |
 
-- agent evaluation
-- agent observability
-- execution-trace analysis
-- failure diagnosis
-- inference and workflow optimization
+This document defines the AgenticLens research program. It records research
+questions, experimental constructs, benchmark requirements, validation methods,
+and publication outputs. It does not establish committed product scope.
+Product commitments are defined only in `agenticlens-roadmap.md`.
 
-### Proposed positioning
+## Research Objective
 
-> AgenticLens is an open-source evaluation, observability, and optimization framework for agentic AI systems. It measures how agents execute, identifies inefficient or unreliable behavior, and recommends changes that improve quality, cost, latency, and stability.
+The program evaluates whether structured execution traces can make agentic AI
+systems measurable, diagnosable, and optimizable across frameworks, models, and
+task categories.
 
-### Core research question
+The primary research question is:
 
-> How can execution traces be used to measure, diagnose, and optimize agentic AI workflows?
+> To what extent can structured execution traces support reliable measurement,
+> failure attribution, and evidence-based optimization of agentic AI workflows?
 
----
+The research program covers five capability areas:
 
-## 2. Repository Decision
+1. execution measurement
+2. agent evaluation
+3. runtime observability
+4. failure diagnosis
+5. workflow optimization
 
-### Recommendation: Continue using the existing AgenticLens repository
+Research must proceed in this order. Diagnostic and optimization claims require
+validated measurements and reproducible execution artifacts.
 
-Do **not** create a separate repository for the core research framework yet.
+## Repository Governance
 
-The new research direction is a natural expansion of AgenticLens:
-
-```text
-Token profiling
-      ↓
-Execution tracing
-      ↓
-Evaluation
-      ↓
-Diagnosis
-      ↓
-Optimization
-```
-
-Creating a separate repository now would:
-
-- divide contributors and GitHub visibility
-- duplicate instrumentation code
-- create confusion about which project users should install
-- make the research look disconnected from the existing open-source work
-- increase maintenance and release effort
-
-### Recommended structure
-
-Use the existing repository as the main product:
+The installable research implementation remains within the AgenticLens product
+repository.
 
 ```text
 DeepAgentLabs/
@@ -59,88 +49,59 @@ DeepAgentLabs/
 └── agenticlens-research
 ```
 
-Only `agenticlens` needs to exist immediately.
+### AgenticLens
 
-The other repositories can be created later when the content becomes large enough:
-
-#### `agenticlens`
-
-The installable Python framework.
-
-Contains:
+The `agenticlens` repository contains:
 
 - instrumentation
-- trace schema
-- metrics
-- evaluation
-- diagnosis
-- optimization
-- CLI
+- trace schemas
+- raw metrics
+- evaluation interfaces
+- deterministic diagnosis
+- optimization analysis
+- CLI commands
 - reports
 - framework adapters
 
-#### `agenticlens-benchmarks`
+### AgenticLens Benchmarks
 
-Create this when the benchmark contains many datasets, framework implementations, recorded traces, and experiment scripts.
+The `agenticlens-benchmarks` repository may be created when benchmark datasets,
+framework implementations, recorded traces, and reproduction scripts can no
+longer be maintained effectively in the product repository.
 
-Contains:
+Its scope is limited to:
 
-- common task datasets
+- benchmark datasets
 - framework-specific benchmark agents
 - experiment configurations
 - baseline results
 - reproduction scripts
 
-#### `agenticlens-research`
+### AgenticLens Research
 
-Create this after the first paper is mature.
+The `agenticlens-research` repository may be created when a publication package
+requires independent versioning.
 
-Contains:
+Its scope is limited to:
 
 - paper-specific experiments
-- notebooks
 - statistical analysis
-- figures
+- figures and tables
 - ablation studies
 - supplementary material
-- accepted-paper artifacts
+- archived publication artifacts
 
-### Avoid creating
+The research program must not introduce a second product implementation or
+competing package identity.
 
-Do not create a second competing product repository such as:
+# Measurement Model
 
-```text
-agent-observer
-agent-evaluator
-agent-optimizer
-```
+## Unified Trace
 
-These capabilities should remain modules under the AgenticLens identity.
-
----
-
-## 3. Research Scope
-
-AgenticLens will study five connected areas:
-
-1. **Execution measurement**
-2. **Agent evaluation**
-3. **Agent observability**
-4. **Failure diagnosis**
-5. **Workflow optimization**
-
-The work should proceed in that order. Reliable diagnosis and optimization require trustworthy raw measurements.
-
----
-
-# Part I: Measurement and Trace Infrastructure
-
-## 4. Unified Agent Trace Schema
-
-Every agent execution should be represented as a run containing nested spans.
+Every execution is represented as one run containing hierarchical spans.
 
 ```text
-AgentRun
+Run
 ├── PlanningSpan
 ├── ModelCallSpan
 ├── MemoryReadSpan
@@ -149,93 +110,73 @@ AgentRun
 ├── ToolCallSpan
 ├── ValidationSpan
 ├── RetrySpan
+├── DelegationSpan
 └── FinalResponseSpan
 ```
 
-## 4.1 Run-level fields
+### Run Fields
 
-```yaml
-run_id:
-trace_id:
-application_name:
-framework:
-framework_version:
-task_id:
-task_type:
-started_at:
-completed_at:
-status:
-total_latency_ms:
-total_input_tokens:
-total_output_tokens:
-total_tokens:
-estimated_cost_usd:
-task_success:
-error_type:
-metadata:
-```
+The minimum run representation includes:
 
-## 4.2 Span-level fields
+- schema version
+- run ID
+- trace ID
+- application name
+- framework and version
+- task ID and type
+- experiment and variant IDs
+- start and completion timestamps
+- status
+- task-success result
+- total latency
+- input and output tokens
+- estimated cost
+- error classification
+- extensible metadata
 
-```yaml
-span_id:
-parent_span_id:
-span_type:
-agent_name:
-model_name:
-provider:
-started_at:
-completed_at:
-latency_ms:
-input_tokens:
-output_tokens:
-estimated_cost_usd:
-tool_name:
-retry_number:
-status:
-error_type:
-input_reference:
-output_reference:
-attributes:
-```
+### Span Fields
 
-## 4.3 Initial span types
+The minimum span representation includes:
 
-```python
-MODEL_CALL = "model_call"
-PLANNING = "planning"
-MEMORY_READ = "memory_read"
-MEMORY_WRITE = "memory_write"
-RETRIEVAL = "retrieval"
-TOOL_CALL = "tool_call"
-VALIDATION = "validation"
-RETRY = "retry"
-DELEGATION = "delegation"
-FINAL_RESPONSE = "final_response"
-```
+- span ID
+- parent span ID
+- span name and type
+- agent name
+- provider and model
+- tool name
+- retry number
+- start and completion timestamps
+- latency
+- input and output tokens
+- estimated cost
+- status
+- error classification
+- input and output references
+- redacted payload fields
+- extensible attributes
 
-## 4.4 Design principles
+### Trace Requirements
 
-The trace schema must be:
+Trace artifacts must be:
 
 - framework-neutral
-- model-provider-neutral
+- provider-neutral
 - hierarchical
-- serializable to JSON
-- compatible with distributed tracing concepts
-- safe for redaction
-- inexpensive to capture
-- extensible through attributes
+- JSON serializable
+- explicitly versioned
+- safe for configurable redaction
+- validatable without network access
+- inexpensive enough for repeated experiments
+- compatible with distributed-tracing concepts
 
----
+# Raw Metrics
 
-# Part II: Raw Metrics
+Composite metrics must not replace raw measurements in reports. Every composite
+score must retain the raw measurements required to reproduce it.
 
-## 5. Token Metrics
+## Token Metrics
 
-Implement raw token metrics before composite scores.
-
-### Required metrics
+Required token measurements include:
 
 - total input tokens
 - total output tokens
@@ -250,1305 +191,649 @@ Implement raw token metrics before composite scores.
 - duplicated-context tokens
 - final-answer tokens
 
-### Initial formulas
+### Memory Share
 
-#### Memory share
+```text
+memory_share = memory_tokens / total_tokens
+```
 
-\[
-\text{Memory Share}
-=
-\frac{\text{Memory Tokens}}
-{\text{Total Tokens}}
-\]
+### Retry Token Share
 
-#### Retry token share
+```text
+retry_token_share = retry_tokens / total_tokens
+```
 
-\[
-\text{Retry Token Share}
-=
-\frac{\text{Retry Tokens}}
-{\text{Total Tokens}}
-\]
+### Planning Token Share
 
-#### Planning token share
+```text
+planning_token_share = planning_tokens / total_tokens
+```
 
-\[
-\text{Planning Share}
-=
-\frac{\text{Planning Tokens}}
-{\text{Total Tokens}}
-\]
+### Output Efficiency
 
-#### Output efficiency
+```text
+output_efficiency = final_answer_tokens / total_tokens
+```
 
-\[
-\text{Output Efficiency}
-=
-\frac{\text{Useful Output Tokens}}
-{\text{Total Tokens}}
-\]
+Output efficiency measures token allocation. It does not measure answer quality.
 
-The definition of useful output must be experimentally specified rather than assumed.
+## Latency Metrics
 
----
-
-## 6. Latency Metrics
-
-### Required metrics
+Required latency measurements include:
 
 - end-to-end latency
-- model-call latency
+- latency by span
+- latency by span type
+- model latency
 - tool latency
-- memory latency
 - retrieval latency
-- orchestration latency
-- time to first token
-- time per output token
-- queueing delay when available
-- critical-path latency
-- parallelism savings
+- memory latency
 - retry latency
+- time to first model request
+- model time to first token, when available
+- agent response-start latency
+- P50, P95, and P99 across repeated runs
 
-### Agent response-start decomposition
+Agent response-start latency should be decomposed where instrumentation permits:
 
-\[
-T_{\text{response-start}}
-=
-T_{\text{orchestration}}
-+
-T_{\text{model-TTFT}}
-\]
+```text
+agent_response_start =
+    planning_latency
+  + memory_latency
+  + retrieval_latency
+  + tool_latency
+  + model_queue_latency
+  + model_time_to_first_token
+```
 
-Where:
+Missing components must remain missing rather than being reported as zero.
 
-\[
-T_{\text{orchestration}}
-=
-T_{\text{memory}}
-+
-T_{\text{retrieval}}
-+
-T_{\text{tool-preprocessing}}
-+
-T_{\text{prompt-assembly}}
-\]
+## Cost Metrics
 
-And:
+Required cost measurements include:
 
-\[
-T_{\text{model-TTFT}}
-=
-T_{\text{network}}
-+
-T_{\text{queue}}
-+
-T_{\text{prefill}}
-+
-T_{\text{first-token}}
-\]
-
-Not every provider exposes every component. AgenticLens must clearly distinguish:
-
-- directly measured values
-- provider-reported values
-- estimated values
-- unavailable values
-
----
-
-## 7. Cost Metrics
-
-### Required metrics
-
-- estimated cost per run
+- input cost
+- output cost
+- total run cost
 - cost by model
 - cost by agent
 - cost by span type
 - retry cost
-- memory-processing cost
-- tool cost when known
+- failed-run cost
 - cost per successful task
 
-### Cost per successful task
+```text
+cost_per_successful_task =
+    total_cost / successful_tasks
+```
 
-\[
-C_{\text{success}}
-=
-\frac{\text{Total Experiment Cost}}
-{\text{Number of Successful Runs}}
-\]
+Estimated costs must identify the pricing source and pricing timestamp where
+available.
 
-This metric is more useful than average run cost when systems have different failure rates.
+## Reliability Metrics
 
----
+Required reliability measurements include:
 
-## 8. Reliability Metrics
-
-### Required metrics
-
-- task success rate
-- tool-call success rate
+- task-success rate
+- failure rate
+- timeout rate
+- tool-failure rate
+- fallback rate
 - retry rate
 - recovery rate
-- timeout rate
-- invalid-output rate
-- repeated-run variance
-- path divergence
-- framework failure rate
+- validation-failure rate
+- human-escalation rate
 
-### Task success rate
+```text
+task_success_rate = successful_runs / total_runs
+```
 
-\[
-SR =
-\frac{\text{Successful Runs}}
-{\text{Total Runs}}
-\]
+```text
+recovery_rate = recovered_failures / recoverable_failures
+```
 
-### Recovery rate
+# Experimental Metrics
 
-\[
-RR =
-\frac{\text{Failed Attempts Recovered}}
-{\text{Recoverable Failed Attempts}}
-\]
+Experimental metrics must satisfy the following requirements:
 
----
+- explicit version identifier
+- published formula
+- defined input measurements
+- configurable weights where applicable
+- sensitivity analysis
+- ablation analysis
+- comparison with raw metrics
+- stated limitations
+- no universal validity claim without cross-domain evidence
 
-# Part III: Proposed Research Metrics
+## Agent Efficiency Utility
 
-## 9. Important Research Rule
+### Objective
 
-The following are **proposed metrics**, not established standards.
+Measure the relationship between task outcome and operational consumption.
 
-They must initially be labeled:
+### Candidate Form
 
-- experimental
-- beta
-- research metric
-- proposed metric
+```text
+efficiency_utility =
+    quality_score
+    / normalized(cost + latency + token_consumption)
+```
 
-AgenticLens should always show the raw measurements used to calculate a composite score.
+The final formulation must address:
 
----
+- scale normalization
+- zero and near-zero denominators
+- quality-score calibration
+- workload-specific weighting
+- failure treatment
+- cross-model comparability
 
-## 10. Agent Efficiency Utility
+### Validation
 
-### Research objective
+- compare against cost per successful task
+- evaluate rank stability under weight changes
+- report domain-specific performance
+- perform ablations for cost, latency, and token components
 
-Measure whether an agent achieves high-quality, reliable results without excessive tokens, cost, latency, or retries.
+## Trajectory Quality
 
-### Candidate formulation
+### Objective
 
-\[
-AEU =
-\frac{Q \times R}
-{\alpha T_n+\beta C_n+\gamma L_n+\delta Y_n+\epsilon}
-\]
+Measure whether an execution path was effective, valid, and economical.
 
-Where:
+Candidate components include:
 
-- \(Q\): normalized task-quality score
-- \(R\): reliability score
-- \(T_n\): normalized token consumption
-- \(C_n\): normalized monetary cost
-- \(L_n\): normalized latency
-- \(Y_n\): normalized retry overhead
-- \(\alpha,\beta,\gamma,\delta\): configurable weights
-- \(\epsilon\): small constant preventing division by zero
+- task completion
+- valid tool selection
+- valid tool arguments
+- unnecessary-step rate
+- loop count
+- handoff completeness
+- recovery behavior
+- policy compliance
 
-### Research questions
+A trajectory score must not obscure component results. Reports must show each
+component and the aggregate separately.
 
-1. Does AEU align with human preference between competing agents?
-2. How sensitive is it to each weight?
-3. Does it preserve rankings across task categories?
-4. Should reliability multiply quality or appear as a separate term?
-5. Is a ratio preferable to a weighted additive score?
+## Execution Stability
 
-### Required experiments
+### Objective
 
-- compare against quality-only ranking
-- compare against cost-only ranking
-- compare against Pareto-front analysis
-- collect human rankings of agent executions
-- measure Spearman correlation with human rankings
-- perform weight sensitivity analysis
-- test stability across frameworks and models
+Measure variation across repeated runs under the same experimental condition.
 
----
+Required statistics include:
 
-## 11. Trajectory Quality Score
+- success-rate variance
+- latency coefficient of variation
+- token coefficient of variation
+- cost coefficient of variation
+- trajectory similarity
+- output agreement where appropriate
 
-### Research objective
+At least 20 runs per condition are required for formal stability analysis unless
+a documented power analysis supports a different sample size.
 
-Evaluate the quality of the execution path, not only the final answer.
+## Memory Utility
 
-### Candidate components
+### Objective
 
-- planning quality
-- memory relevance
-- retrieval relevance
-- tool-selection correctness
-- tool-result utilization
-- validation quality
-- retry usefulness
-- final-answer quality
+Measure whether memory consumption contributes to task performance.
 
-### Candidate formulation
+Required conditions include:
 
-\[
-TQS =
-w_pE_p+
-w_mE_m+
-w_rE_r+
-w_tE_t+
-w_vE_v+
-w_yE_y+
-w_fE_f
-\]
-
-### Contribution requirement
-
-The weighted sum itself is not novel. Novelty must come from:
-
-- operational definitions
-- annotation protocol
-- benchmark dataset
-- evaluator implementation
-- weight-learning method
-- human agreement analysis
-- predictive value for production failures
-
-### Research hypothesis
-
-> Trajectory-quality measurements predict agent failures and inefficiencies better than final-answer evaluation alone.
-
----
-
-## 12. Execution Stability Score
-
-### Research objective
-
-Measure nondeterministic variation across repeated runs of the same task.
-
-Calculate coefficients of variation separately:
-
-\[
-CV_Q =
-\frac{\sigma_Q}
-{\mu_Q+\epsilon}
-\]
-
-\[
-CV_T =
-\frac{\sigma_T}
-{\mu_T+\epsilon}
-\]
-
-\[
-CV_L =
-\frac{\sigma_L}
-{\mu_L+\epsilon}
-\]
-
-\[
-CV_C =
-\frac{\sigma_C}
-{\mu_C+\epsilon}
-\]
-
-Candidate stability score:
-
-\[
-ESS =
-1-
-\left(
-\alpha CV_Q+
-\beta CV_T+
-\gamma CV_L+
-\delta CV_C
-\right)
-\]
-
-The implementation must clamp or transform the value when necessary so users do not receive misleading negative scores.
-
-### Additional stability measures
-
-- success-rate confidence interval
-- execution-path edit distance
-- tool-selection agreement
-- agent-transition agreement
-- retry-count variance
-- output semantic similarity
-
----
-
-## 13. Memory Utility
-
-### Research objective
-
-Determine whether memory improves task quality enough to justify its token, cost, and latency overhead.
-
-### Basic measurements
-
-#### Memory utilization
-
-\[
-MU =
-\frac{\text{Relevant Retrieved Memory}}
-{\text{Total Retrieved Memory}}
-\]
-
-#### Memory contribution
-
-\[
-MC =
-Q_{\text{with-memory}}
--
-Q_{\text{without-memory}}
-\]
-
-### Candidate normalized Memory Utility Ratio
-
-\[
-MUR =
-\frac{\Delta Q/Q_0}
-{
-\alpha(\Delta T/T_0)
-+
-\beta(\Delta L/L_0)
-+
-\gamma(\Delta C/C_0)
-+
-\epsilon
-}
-\]
-
-### Required memory strategies
-
+- full memory
+- summarized memory
+- limited-window memory
+- retrieval-based memory
 - no memory
-- full conversation history
-- sliding window
-- summary memory
-- vector-retrieved memory
-- episodic memory
-- hybrid memory
 
-### Research questions
+Required measurements include:
 
-1. At what point does more memory stop improving quality?
-2. Which memory strategy provides the best quality-cost trade-off?
-3. Can trace signals predict when memory should be skipped?
-4. How often does irrelevant memory cause incorrect decisions?
-5. Can memory pruning reduce TTFT without reducing task success?
+- memory tokens
+- memory share
+- memory latency
+- memory cost
+- task quality
+- task-success rate
+- factual contribution
+- contradiction rate
 
----
+### Candidate Form
 
-## 14. Retry Efficiency
+```text
+memory_utility =
+    quality_gain_attributable_to_memory
+    / normalized(memory_tokens + memory_latency + memory_cost)
+```
 
-### Research objective
+Causal language requires controlled intervention or an equivalent experimental
+design.
 
-Differentiate useful recovery attempts from redundant reasoning loops.
+## Retry Efficiency
 
-### Candidate formulation
+### Objective
 
-\[
-RE =
-\frac{
-P(\text{success after retry})
--
-P(\text{success before retry})
-}
-{
-\alpha T_{\text{retry}}^{norm}
-+
-\beta L_{\text{retry}}^{norm}
-+
-\gamma C_{\text{retry}}^{norm}
-+
-\epsilon
-}
-\]
+Distinguish retries that recover a task from retries that add cost without
+changing the outcome.
 
-### Retry classifications
+Retry classifications include:
 
-- corrective retry
-- infrastructure retry
-- validation-triggered retry
-- reflection retry
-- redundant retry
-- repeated failure
-- harmful retry
+- recovered
+- partially recovered
+- repeated identical failure
+- invalid retry
+- policy-exhausted
+- unresolved
 
-### Required measurements
+Required measurements include:
 
-- additional tokens
-- additional latency
-- additional cost
-- semantic change
-- quality change
-- final recovery status
-- reason for retry
-- same-error repetition
+- triggering failure
+- retry number
+- retry tokens
+- retry latency
+- retry cost
+- state change between attempts
+- final task outcome
 
----
+### Candidate Form
 
-## 15. Observability Value
+```text
+retry_efficiency =
+    recovered_value
+    / normalized(retry_tokens + retry_latency + retry_cost)
+```
 
-### Research objective
+## Observability Value
 
-Measure the diagnostic benefit of telemetry against its collection and analysis overhead.
+### Objective
 
-### Candidate formulation
+Measure whether additional telemetry improves diagnosis or reduces investigation
+time.
 
-\[
-OV =
-\frac{
-\alpha A_{RCA}
-+
-\beta R_{step}
-+
-\gamma (1-\widehat{T}_{diagnosis})
-}
-{
-\delta \widehat{S}
-+
-\eta \widehat{L}
-+
-\theta \widehat{C}
-+
-\epsilon
-}
-\]
+Telemetry levels:
 
-Where:
+| Level | Captured evidence |
+| --- | --- |
+| 0 — Minimal | Run status, total latency, total tokens |
+| 1 — Operational | Span timing, usage, cost, error type |
+| 2 — Contextual | Tool, retrieval, memory, retry, and lineage metadata |
+| 3 — Diagnostic | Redacted payload evidence and decision annotations |
 
-- \(A_{RCA}\): root-cause identification accuracy
-- \(R_{step}\): faulty-step recall
-- \(\widehat{T}_{diagnosis}\): normalized diagnosis time
-- \(\widehat{S}\): normalized telemetry storage
-- \(\widehat{L}\): normalized runtime overhead
-- \(\widehat{C}\): normalized analysis cost
+Required outcomes include:
 
-### Telemetry levels to compare
+- diagnosis accuracy
+- time to diagnosis
+- attribution confidence
+- false-positive rate
+- instrumentation overhead
+- storage overhead
 
-#### Level 0: Minimal
+# Diagnostic Program
 
-- status
-- total latency
-- total tokens
+## Failure Taxonomy
 
-#### Level 1: Operational
-
-- per-model call
-- tool calls
-- errors
-- retries
-
-#### Level 2: Contextual
-
-- prompt segments
-- memory activity
-- retrieved documents
-- state changes
-
-#### Level 3: Diagnostic
-
-- validation decisions
-- dependency graph
-- semantic similarity
-- counterfactual replay data
-
----
-
-# Part IV: Diagnostic Engine
-
-## 16. Failure Taxonomy
-
-Create a stable failure taxonomy before implementing automated diagnosis.
+The diagnostic taxonomy includes:
 
 ### Planning failures
 
-- incorrect task decomposition
-- missing required step
-- unnecessary planning
-- cyclic planning
-- infeasible plan
+- incomplete plan
+- invalid ordering
+- unnecessary decomposition
+- repeated replanning
+- unreachable objective
 
 ### Memory failures
 
-- irrelevant memory
+- missing relevant memory
 - stale memory
 - contradictory memory
 - excessive memory
-- missing required memory
+- incorrect memory write
 
 ### Retrieval failures
 
 - no relevant result
-- incorrect result
-- insufficient evidence
-- duplicated evidence
-- retrieval latency timeout
+- irrelevant result
+- stale source
+- conflicting source
+- excessive context
 
 ### Tool failures
 
-- wrong tool selected
-- invalid parameters
-- tool timeout
-- tool returned malformed output
-- tool output ignored
-- unsafe tool sequence
+- incorrect tool selection
+- invalid arguments
+- authorization failure
+- timeout
+- partial response
+- duplicate invocation
 
 ### Coordination failures
 
-- incorrect delegation
-- duplicated work
-- agent ping-pong
-- state synchronization failure
-- premature termination
+- incomplete handoff
+- context loss
+- circular delegation
+- redundant agent
+- unresolved disagreement
 
 ### Validation failures
 
-- missing validation
-- weak validation
-- false rejection
-- false acceptance
-- validation after irreversible action
+- invalid structured output
+- missing required field
+- policy violation
+- unsupported citation
+- incomplete answer
 
 ### Model failures
 
+- refusal
 - hallucination
-- instruction violation
-- format violation
-- unsupported conclusion
-- reasoning inconsistency
+- malformed output
+- context overflow
+- provider error
 
 ### Infrastructure failures
 
-- provider timeout
 - rate limit
-- network error
-- authentication failure
-- serialization error
+- network failure
+- process restart
+- resource pressure
+- orchestration eviction
 
----
+## Rule-Based Diagnosis
 
-## 17. Rule-Based Diagnosis
+Initial diagnosis must remain deterministic and reproducible.
 
-Start with deterministic rules.
+Every diagnostic finding requires:
 
-Example:
+- finding ID and version
+- failure category
+- severity
+- confidence
+- affected run and span IDs
+- measured evidence
+- threshold or rule identifier
+- remediation text
+- known limitations
 
-```python
-if retry_count >= 3 and semantic_similarity > 0.95:
-    finding = "Repeated retries produced nearly identical outputs."
+## Statistical Anomaly Detection
 
-if memory_share > 0.60 and memory_relevance < 0.30:
-    finding = "High memory consumption with low measured relevance."
+Initial anomaly-detection targets include:
 
-if tool_error and not validation_span and not retry_span:
-    finding = "Tool failure propagated without recovery or validation."
+- latency shifts
+- token-consumption shifts
+- cost shifts
+- failure-rate shifts
+- tool-call frequency changes
+- retry-rate changes
+- trajectory-length changes
 
-if planning_share > 0.40 and unique_actions <= 2:
-    finding = "Planning overhead appears disproportionate to task complexity."
-```
+Models must be evaluated against simple statistical baselines before additional
+complexity is introduced.
 
-Every rule should return:
+## Root-Cause Attribution
 
-```yaml
-finding_id:
-category:
-severity:
-confidence:
-evidence:
-affected_spans:
-recommendation:
-metric_values:
-rule_version:
-```
+Attribution research must report:
 
----
+- top-ranked responsible span
+- top-ranked responsible agent
+- confidence
+- supporting evidence
+- alternative hypotheses
+- attribution accuracy
+- false-positive and false-negative rates
 
-## 18. Statistical Anomaly Detection
+Attribution claims require controlled failure injection or independently labeled
+incident data.
 
-After rule-based diagnosis, add statistical methods.
+# Optimization Program
 
-Candidate methods:
-
-- z-score thresholds
-- median absolute deviation
-- Isolation Forest
-- Local Outlier Factor
-- change-point detection
-- sequence anomaly detection
-- graph anomaly detection
-
-### Initial use cases
-
-- token spikes
-- unusual latency
-- repeated tool use
-- abnormal memory growth
-- excessive delegation
-- anomalous retry count
-- unexpected execution path
-
----
-
-## 19. Root-Cause Attribution
-
-### Research goal
-
-Identify:
-
-1. responsible agent
-2. responsible step
-3. failure category
-4. supporting evidence
-5. confidence level
-
-### Initial approach
-
-Combine:
-
-- trace dependency graph
-- rule findings
-- error propagation
-- anomaly score
-- validation results
-- downstream impact
-
-### Later approach
-
-Add counterfactual replay:
-
-1. capture a failed trace
-2. replace one suspected step
-3. replay downstream steps
-4. observe whether the outcome changes
-5. estimate causal responsibility
-
-### Research hypothesis
-
-> Counterfactual trace replay improves faulty-step attribution compared with trace inspection alone.
-
----
-
-# Part V: Optimization Engine
-
-## 20. Recommendation Categories
+## Recommendation Categories
 
 ### Prompt optimization
 
-- remove duplicated context
-- reduce system-prompt repetition
-- reorder stable prompt prefixes
-- compress examples
-- remove unused tool schemas
+- repeated instruction removal
+- stable-prefix caching
+- contradictory instruction detection
+- prompt-version comparison
 
 ### Memory optimization
 
-- shorten memory window
-- summarize older turns
-- retrieve only relevant episodes
-- skip memory for simple tasks
-- deduplicate memory entries
+- history summarization
+- retention limits
+- stale-memory removal
+- retrieval-based memory
 
 ### Retry optimization
 
-- stop semantically repetitive retries
-- retry only recoverable failures
-- change model after repeated failure
-- change tool arguments rather than repeating
-- enforce retry budget
+- retry-limit adjustment
+- invalid-retry prevention
+- backoff correction
+- fallback activation
 
-### Model routing
+### Model optimization
 
-- use small models for classification
-- use larger models only for complex steps
-- route based on confidence
-- route based on latency budget
-- route based on context length
+- lower-cost candidate evaluation
+- workload-specific selection
+- fallback analysis
+- provider comparison
 
 ### Workflow optimization
 
-- execute independent tools in parallel
-- skip low-value agents
-- cache repeated results
-- eliminate duplicated validation
-- terminate when confidence is sufficient
-- optimize the critical path
-
----
-
-## 21. Recommendation Confidence
-
-Each recommendation must show:
-
-```yaml
-recommendation:
-evidence:
-confidence:
-expected_token_change:
-expected_latency_change:
-expected_cost_change:
-quality_risk:
-validation_required:
-```
-
-Do not present projected savings as guaranteed.
-
-Use labels such as:
-
-- measured
-- estimated
-- simulated
-- experimentally observed
-- insufficient evidence
-
----
-
-## 22. Before-and-After Validation
-
-AgenticLens should support experiments comparing a baseline with an optimized configuration.
-
-```python
-comparison = agenticlens.compare(
-    baseline="runs/baseline.jsonl",
-    candidate="runs/optimized.jsonl",
-)
-```
-
-Example output:
-
-```text
-Task success:       84% → 86%
-Median tokens:    6,420 → 4,110
-Median latency:   8.2 s → 6.5 s
-Retry rate:        31% → 14%
-Estimated cost:  $0.18 → $0.11
-```
-
-Use confidence intervals and significance testing when enough runs are available.
-
----
-
-# Part VI: Package Architecture
-
-## 23. Proposed Python Package Structure
-
-```text
-agenticlens/
-├── __init__.py
-├── cli/
-│   ├── profile.py
-│   ├── evaluate.py
-│   ├── diagnose.py
-│   ├── compare.py
-│   └── benchmark.py
-│
-├── core/
-│   ├── run.py
-│   ├── span.py
-│   ├── trace.py
-│   ├── context.py
-│   └── enums.py
-│
-├── instrumentation/
-│   ├── decorators.py
-│   ├── model_calls.py
-│   ├── tools.py
-│   ├── memory.py
-│   ├── retrieval.py
-│   └── streaming.py
-│
-├── adapters/
-│   ├── native/
-│   ├── langgraph/
-│   ├── crewai/
-│   ├── autogen/
-│   ├── llamaindex/
-│   └── semantic_kernel/
-│
-├── metrics/
-│   ├── tokens.py
-│   ├── latency.py
-│   ├── cost.py
-│   ├── reliability.py
-│   ├── stability.py
-│   ├── memory.py
-│   ├── retries.py
-│   └── experimental/
-│       ├── agent_efficiency.py
-│       ├── trajectory_quality.py
-│       ├── memory_utility.py
-│       └── observability_value.py
-│
-├── evaluation/
-│   ├── task.py
-│   ├── trajectory.py
-│   ├── repeated_runs.py
-│   ├── human_annotations.py
-│   └── evaluators/
-│
-├── diagnosis/
-│   ├── taxonomy.py
-│   ├── rules.py
-│   ├── anomalies.py
-│   ├── attribution.py
-│   └── counterfactual.py
-│
-├── optimization/
-│   ├── recommendations.py
-│   ├── prompt.py
-│   ├── memory.py
-│   ├── retries.py
-│   ├── routing.py
-│   └── critical_path.py
-│
-├── reports/
-│   ├── console.py
-│   ├── json.py
-│   ├── html.py
-│   └── comparison.py
-│
-├── privacy/
-│   ├── redaction.py
-│   ├── sampling.py
-│   └── policies.py
-│
-└── schemas/
-    ├── trace.schema.json
-    ├── report.schema.json
-    └── finding.schema.json
-```
-
----
-
-# Part VII: Public API Proposal
-
-## 24. Profiling
-
-```python
-from agenticlens import observe
-
-with observe(run_name="support-refund") as run:
-    result = support_agent.invoke(
-        {"message": "I need a refund for my order"}
-    )
-
-run.save("runs/support-refund.json")
-```
-
----
-
-## 25. Evaluation
-
-```python
-from agenticlens import evaluate
-
-report = evaluate(
-    trace="runs/support-refund.json",
-    task_success=True,
-    task_quality=0.91,
-)
-
-print(report.raw_metrics)
-print(report.experimental_metrics)
-```
-
----
-
-## 26. Diagnosis
-
-```python
-from agenticlens import diagnose
-
-diagnosis = diagnose("runs/support-refund.json")
-
-for finding in diagnosis.findings:
-    print(finding.category)
-    print(finding.evidence)
-    print(finding.recommendation)
-```
-
----
-
-## 27. Repeated-Run Stability
-
-```python
-from agenticlens import evaluate_stability
-
-report = evaluate_stability(
-    traces="runs/refund/*.json",
-    group_by="task_id",
-)
-```
-
----
-
-## 28. Comparison
-
-```python
-from agenticlens import compare
-
-report = compare(
-    baseline="experiments/full-memory/",
-    candidate="experiments/summary-memory/",
-)
-```
-
----
-
-# Part VIII: CLI Proposal
-
-## 29. Commands
-
-```bash
-agenticlens profile app.py --output run.json
-```
-
-```bash
-agenticlens evaluate run.json --task-score 0.91
-```
-
-```bash
-agenticlens diagnose run.json
-```
-
-```bash
-agenticlens compare baseline/ optimized/
-```
-
-```bash
-agenticlens benchmark benchmark.yaml
-```
-
-```bash
-agenticlens report run.json --format html
-```
-
----
-
-# Part IX: Benchmark Design
-
-## 30. Benchmark Principles
-
-The benchmark must compare systems using the same:
-
-- task dataset
-- model where possible
-- temperature
-- maximum-token limit
-- tools
-- memory content
-- retry budget
-- success criteria
-- execution environment
-
-Record all deviations.
-
----
-
-## 31. Frameworks
-
-Initial target frameworks:
-
-1. native Python
-2. LangGraph
-3. CrewAI
-4. AutoGen
-5. LlamaIndex
-6. Semantic Kernel
-
-Do not begin with all frameworks simultaneously.
-
-Recommended order:
-
-1. native Python
-2. LangGraph
-3. CrewAI
-4. AutoGen
-5. remaining adapters
-
----
-
-## 32. Task Categories
+- redundant-step removal
+- unnecessary-handoff reduction
+- tool-result caching
+- retrieval top-k adjustment
+
+## Recommendation Confidence
+
+Recommendation confidence must account for:
+
+- evidence completeness
+- sample size
+- repeatability
+- evaluator agreement
+- intervention history
+- domain transfer risk
+
+Confidence is not equivalent to expected quality.
+
+## Before-and-After Validation
+
+Every optimization study must preserve:
+
+- baseline configuration
+- candidate configuration
+- controlled variables
+- repeated trials
+- raw traces
+- quality measurements
+- cost, latency, and reliability measurements
+- regression analysis
+- accepted and rejected recommendations
+
+Projected benefit and observed benefit must be reported separately.
+
+# Benchmark Program
+
+## Benchmark Principles
+
+Benchmarks must be:
+
+- reproducible
+- versioned
+- framework-neutral at the task level
+- transparent about external dependencies
+- capable of preserving failures
+- suitable for repeated trials
+- explicit about measured and estimated values
+
+## Framework Coverage
+
+Initial framework targets include:
+
+- native Python
+- HTTP agents
+- LangGraph
+- OpenAI Agents SDK
+- CrewAI
+- AutoGen
+
+Additional frameworks may be added after core trace coverage is validated.
+
+## Task Categories
 
 ### Single-agent tasks
 
-- classification
-- structured extraction
-- question answering
+- instruction following
+- structured output
+- retrieval question answering
 - tool selection
-- retrieval-augmented answering
+- tool argument generation
 
 ### Multi-step tasks
 
-- customer-support resolution
-- travel planning
-- research synthesis
-- incident diagnosis
-- document verification
+- planning and execution
+- retrieval and synthesis
+- validation and correction
+- tool failure and recovery
 
 ### Multi-agent tasks
 
-- planner and executor
-- researcher and reviewer
-- support triage and specialist
-- code generator and validator
-- debate and judge
+- delegation
+- handoff preservation
+- disagreement resolution
+- shared-memory use
+- final synthesis
 
----
+## Experimental Conditions
 
-## 33. Experimental Conditions
+Experiments must record:
 
-For every task, vary:
-
-- model
-- framework
+- model and model version
+- provider
+- prompt version
+- sampling parameters
+- framework and version
+- tool versions
+- dataset and suite versions
 - memory strategy
-- retry strategy
-- number of agents
-- context length
-- tool latency
-- failure injection
-- telemetry level
-- optimization strategy
+- retrieval strategy
+- retry policy
+- environment
+- random seed where applicable
 
----
+## Failure Injection
 
-## 34. Minimum Repetition
+Controlled failure conditions include:
 
-Because agent behavior is nondeterministic:
-
-- exploratory development: 5 runs per condition
-- preliminary study: 20 runs per condition
-- journal-quality experiment: preferably 30 or more runs per condition
-
-The final number should be justified with statistical power or confidence analysis.
-
----
-
-## 35. Failure Injection
-
-Create controlled failures:
-
-- incorrect tool result
+- model timeout
 - tool timeout
-- empty retrieval result
-- irrelevant memory
+- invalid tool response
+- retrieval omission
 - stale memory
-- malformed model output
-- agent communication loss
-- rate limit
-- contradictory evidence
-- duplicated context
+- conflicting context
+- malformed output
+- provider failure
+- agent handoff loss
 
-Store the ground-truth responsible agent and span.
+Normal and degraded conditions must use equivalent task sets.
 
-This enables objective evaluation of root-cause attribution.
+# Statistical Validation
 
----
+## Descriptive Analysis
 
-# Part X: Statistical Validation
+Required descriptive statistics include:
 
-## 36. Required Analyses
-
-### Descriptive statistics
-
+- count
 - mean
 - median
 - standard deviation
-- percentiles
-- confidence intervals
+- coefficient of variation
+- minimum and maximum
+- P50, P95, and P99 where appropriate
 
-### Comparative tests
+## Comparative Analysis
 
-Choose tests based on distribution and experiment design:
+Comparative methods may include:
 
-- paired t-test
-- Wilcoxon signed-rank test
-- Mann-Whitney U test
-- ANOVA
-- Kruskal-Wallis test
+- paired tests
+- non-parametric paired tests
+- bootstrap confidence intervals
+- effect sizes
+- multiple-comparison correction
 
-### Relationships
+Method selection must match the data distribution and experimental design.
 
-- Pearson correlation
-- Spearman rank correlation
-- regression analysis
+## Relationship Analysis
 
-### Evaluator reliability
+Relationship analysis may include:
 
-- Cohen's kappa
-- Fleiss' kappa
-- Krippendorff's alpha
+- correlation
+- partial correlation
+- regression
+- mixed-effects models
 
-### Metric validation
+Correlation must not be reported as causation.
+
+## Evaluator Reliability
+
+Evaluator studies must include:
+
+- inter-rater agreement
+- human-model agreement
+- deterministic-model agreement
+- calibration error
+- disagreement analysis
+
+## Metric Validation
+
+Experimental metric validation must include:
 
 - construct validity
 - convergent validity
 - discriminant validity
 - sensitivity analysis
-- ablation studies
+- ablation analysis
+- cross-domain robustness
 
-Correct for multiple comparisons when testing many hypotheses.
+# Development Program
 
----
-
-# Part XI: Research Papers
-
-## 37. Paper 1: Measurement and Evaluation
-
-### Working title
-
-**AgenticLens: A Multidimensional Evaluation Framework for Quality, Cost, Latency, and Reliability in Agentic AI**
-
-### Primary contributions
-
-1. framework-neutral trace schema
-2. multidimensional benchmark
-3. repeated-run stability analysis
-4. proposed efficiency metrics
-5. cross-framework empirical study
-6. open-source implementation
-
-### Main research questions
-
-- How much do agent frameworks differ in tokens, latency, cost, and stability under equivalent tasks?
-- Do multidimensional metrics better represent agent utility than task success alone?
-- How stable are agent rankings across workloads?
-- Which execution components create the greatest resource overhead?
-
----
-
-## 38. Paper 2: Memory and Retry Efficiency
-
-### Working title
-
-**Memory Is Not Free: Evaluating Memory and Retry Utility in LLM Agent Workflows**
-
-### Primary contributions
-
-1. memory-utility measurement methodology
-2. retry-efficiency taxonomy
-3. benchmark across memory strategies
-4. causal ablation of memory and retries
-5. adaptive recommendations
-
-### Main research questions
-
-- When does memory improve task performance?
-- When does memory become unnecessary overhead?
-- Which retry strategies provide genuine recovery?
-- Can runtime traces predict low-value memory and retries?
-
----
-
-## 39. Paper 3: Failure Attribution
-
-### Working title
-
-**Trace-Based Root-Cause Attribution for Multi-Agent AI Systems**
-
-### Primary contributions
-
-1. controlled failure-injection benchmark
-2. agent-level attribution
-3. step-level attribution
-4. evidence-backed diagnosis
-5. counterfactual replay method
-
-### Main research questions
-
-- How accurately can execution traces locate faulty agents and steps?
-- Which telemetry signals are most useful?
-- Does counterfactual replay improve attribution accuracy?
-- What observability level provides the best diagnostic value?
-
----
-
-## 40. Paper 4: Agentic TTFT
-
-### Working title
-
-**Decomposing and Optimizing Time to First Token in Agentic AI Applications**
-
-### Primary contributions
-
-1. agent-level response-start latency model
-2. instrumentation across orchestration and inference stages
-3. workload taxonomy
-4. bottleneck analysis
-5. adaptive optimization controller
-
-### Main research questions
-
-- How much response-start latency occurs outside the model?
-- How do memory, retrieval, prompt assembly, and tool schemas affect TTFT?
-- Which optimizations work under different context lengths and workloads?
-- Can runtime signals select an effective optimization strategy?
-
----
-
-# Part XII: Development Phases
-
-## 41. Phase 0: Protect the Existing Project
-
-Before adding research features:
-
-- tag the current stable release
-- document current functionality
-- add regression tests
-- define backward-compatibility policy
-- create a development branch
-- publish a roadmap issue
-- mark experimental APIs clearly
-
-Recommended branches:
-
-```text
-main
-develop
-research/trace-schema
-research/metrics
-research/diagnosis
-```
-
-Prefer short-lived feature branches and merge regularly.
-
----
-
-## 42. Phase 1: Trace Foundation
-
-### Goal
-
-Produce reliable, framework-neutral trace files.
+## Phase 0 — Compatibility Baseline
 
 ### Deliverables
 
-- `Run` and `Span` models
-- JSON trace schema
-- nested spans
-- timing capture
-- token capture
-- error capture
-- trace validation
-- redaction hooks
-- console and JSON reports
+- current release tag
+- regression suite
+- compatibility policy
+- experimental API labels
+- roadmap publication
 
-### Exit criteria
+### Completion criteria
 
-- deterministic unit tests pass
+- existing profiler behavior is covered by regression tests
+- public compatibility expectations are documented
+
+## Phase 1 — Trace Foundation
+
+### Deliverables
+
+- run and span models
+- versioned JSON schemas
+- nested instrumentation
+- timing, token, cost, and error capture
+- validation
+- redaction
+- console and JSON reporting
+
+### Completion criteria
+
 - malformed traces are rejected
-- nested spans maintain correct relationships
-- trace overhead is measured
-- existing AgenticLens profiling still works
+- parent-child relationships remain valid
+- existing profiling remains compatible
+- instrumentation overhead is measured
 
----
-
-## 43. Phase 2: Raw Metrics
+## Phase 2 — Raw Metrics
 
 ### Deliverables
 
@@ -1556,567 +841,294 @@ Produce reliable, framework-neutral trace files.
 - latency metrics
 - cost metrics
 - reliability metrics
-- metrics by agent
-- metrics by span type
+- metrics by agent and span type
 - baseline comparison
 
-### Exit criteria
+### Completion criteria
 
-- raw metric calculations are tested
-- no composite metric is required for basic reports
-- all estimated values are labeled
 - metrics reproduce from saved traces
+- estimated values are labeled
+- composite scores are not required for basic reports
 
----
-
-## 44. Phase 3: Memory and Retry Analysis
+## Phase 3 — Memory and Retry Analysis
 
 ### Deliverables
 
-- memory-share metric
+- memory-share analysis
 - memory-relevance interface
-- retry classifications
-- retry-overhead calculations
-- context duplication detection
-- initial rules and recommendations
+- retry classification
+- retry overhead
+- context-duplication detection
+- deterministic findings
 
-### Exit criteria
+### Completion criteria
 
-- full-memory and no-memory experiment supported
-- retries can be associated with triggering failures
-- recommendations cite exact evidence
+- memory strategies can be compared experimentally
+- retries reference triggering failures
+- findings cite exact evidence
 
----
-
-## 45. Phase 4: Evaluation and Stability
+## Phase 4 — Evaluation and Stability
 
 ### Deliverables
 
-- task evaluator interface
+- evaluator interface
 - repeated-run grouping
 - stability statistics
-- experimental efficiency metric
-- trajectory evaluator interface
+- experimental efficiency metrics
+- trajectory evaluator
 - human-annotation format
 
-### Exit criteria
+### Completion criteria
 
-- at least 20 repeated runs supported per condition
-- raw and composite metrics shown together
+- at least 20 runs per formal stability condition are supported
+- raw and composite metrics are reported together
 - metric weights are configurable
-- sensitivity report available
+- sensitivity reports are available
 
----
-
-## 46. Phase 5: Diagnosis
+## Phase 5 — Diagnosis
 
 ### Deliverables
 
 - failure taxonomy
-- rule engine
+- deterministic rule engine
 - anomaly detection
-- faulty-agent attribution
-- faulty-step attribution
+- span and agent attribution
 - confidence and evidence output
 
-### Exit criteria
+### Completion criteria
 
-- controlled failure dataset created
-- attribution accuracy measured
-- false-positive analysis completed
-- diagnosis works without requiring an LLM
+- controlled failure dataset is available
+- attribution accuracy is measured
+- false-positive analysis is complete
+- core diagnosis does not require an LLM
 
----
-
-## 47. Phase 6: Optimization
+## Phase 6 — Optimization
 
 ### Deliverables
 
-- recommendation engine
 - memory optimization
 - retry optimization
 - prompt optimization
-- model-routing experiments
+- model-selection experiments
+- workflow optimization
 - before-and-after validation
 
-### Exit criteria
+### Completion criteria
 
 - recommendations are measurable
-- projected and observed results are separated
-- quality regression checks exist
-- optimization can be disabled independently
+- projected and observed effects are separated
+- quality regression checks are applied
+- optimization components can be disabled independently
 
----
+# Initial Implementation Sequence
 
-# Part XIII: First Coding Sprint
+## Sprint 1 — Trace and Raw Metrics
 
-## 48. Sprint Objective
+- core run and span models
+- trace, finding, and report schemas
+- nested trace context manager
+- total and per-span token metrics
+- total and per-span latency metrics
+- retry and tool-call counts
+- run inspection report
+- native Python example
 
-Build the smallest research-ready trace and metrics foundation.
+## Sprint 2 — Memory and Retry Diagnostics
 
-### Week 1
-
-#### Task 1: Create core models
-
-Implement:
-
-```text
-Run
-Span
-SpanType
-RunStatus
-MetricValue
-Finding
-```
-
-#### Task 2: Define JSON schemas
-
-Create:
-
-```text
-schemas/trace.schema.json
-schemas/finding.schema.json
-schemas/report.schema.json
-```
-
-#### Task 3: Add context manager
-
-```python
-with agenticlens.trace("demo") as trace:
-    with trace.span("planner", span_type="planning"):
-        plan = create_plan()
-```
-
-#### Task 4: Add raw metrics
-
-Implement:
-
-- total tokens
-- input tokens
-- output tokens
-- latency
-- tokens by span
-- latency by span
-- retry count
-- tool-call count
-
-#### Task 5: Create report output
-
-```bash
-agenticlens inspect run.json
-```
-
-Output:
-
-- run summary
-- span tree
-- token distribution
-- latency distribution
-- errors
-- retries
-
-### Week 1 completion definition
-
-A native Python example should generate a validated trace and reproducible report.
-
----
-
-## 49. Second Coding Sprint
-
-### Goal
-
-Implement memory and retry diagnostics.
-
-### Tasks
-
-- memory span instrumentation
+- memory spans
 - memory share
-- retry span instrumentation
+- retry spans
 - retry overhead
-- semantic similarity interface
-- first five diagnosis rules
-- JSON finding output
-- unit tests
-- example notebook
+- triggering-failure references
+- context-duplication analysis
+- deterministic findings
+- unit and integration tests
 
----
+## Sprint 3 — Repeated-Run Evaluation
 
-## 50. Third Coding Sprint
-
-### Goal
-
-Support repeated-run evaluation.
-
-### Tasks
-
-- experiment manifest
+- experiment manifests
 - run grouping
 - success rate
 - confidence intervals
 - coefficient of variation
-- stability report
-- baseline-vs-candidate comparison
+- baseline comparison
+- regression report
 - CSV export
 
----
+# Testing Requirements
 
-# Part XIV: Configuration
+## Unit Tests
 
-## 51. Proposed Configuration File
+Unit tests must cover:
 
-```yaml
-project:
-  name: support-agent-study
-
-tracing:
-  capture_prompts: false
-  capture_outputs: false
-  capture_tool_arguments: true
-  redact_pii: true
-
-metrics:
-  tokens: true
-  latency: true
-  cost: true
-  reliability: true
-
-experimental_metrics:
-  agent_efficiency:
-    enabled: true
-    weights:
-      tokens: 0.25
-      cost: 0.25
-      latency: 0.25
-      retries: 0.25
-
-diagnosis:
-  rules: true
-  anomaly_detection: false
-
-reports:
-  formats:
-    - json
-    - html
-```
-
----
-
-# Part XV: Testing Strategy
-
-## 52. Unit Tests
-
-Test:
-
-- token aggregation
-- latency aggregation
-- parent-child span relationships
-- normalization
-- divide-by-zero behavior
-- missing values
-- retries
-- failed spans
-- partial traces
+- schema validation
+- parent-child relationships
+- metric formulas
 - redaction
+- retry classification
+- finding thresholds
+- comparison deltas
+- serialization compatibility
 
----
+## Integration Tests
 
-## 53. Integration Tests
+Integration tests must cover:
 
-Create deterministic fake providers for:
+- native Python tracing
+- saved-trace inspection
+- baseline and candidate comparison
+- failure capture
+- offline operation
+- existing profiler compatibility
 
-- streaming model calls
-- tool calls
-- memory reads
-- retrieval
-- retries
-- failures
-- parallel spans
+## Golden Trace Tests
 
-Do not depend on paid model APIs for the main test suite.
+Golden artifacts must cover:
 
----
+- successful run
+- failed run
+- nested tool retry
+- memory-intensive run
+- multi-agent delegation
+- malformed trace
 
-## 54. Golden Trace Tests
+Schema or serializer changes require explicit golden-artifact review.
 
-Store fixed traces and expected reports:
+## Performance Tests
 
-```text
-tests/golden/
-├── simple_model_call.json
-├── tool_failure.json
-├── redundant_retry.json
-├── excessive_memory.json
-└── multi_agent_failure.json
-```
+Performance tests must measure:
 
-Golden tests prevent metric behavior from changing silently.
-
----
-
-## 55. Performance Tests
-
-Measure AgenticLens overhead:
-
-- execution-time overhead
-- memory overhead
-- trace-file size
+- trace creation overhead
+- span creation overhead
 - serialization time
-- report-generation time
+- artifact size
+- comparison time
+- redaction overhead
 
-Observability overhead must itself be observable.
+# Research Integrity
 
----
+## Prohibited Claims
 
-# Part XVI: Research Integrity
+Publication and product material must not claim:
 
-## 56. Claims to Avoid
+- universal agent quality measurement
+- causal attribution from observational correlation alone
+- guaranteed quality equivalence between models
+- complete PII removal by default redaction
+- statistically significant improvement without an appropriate test
+- framework independence without demonstrated coverage
 
-Do not claim:
+## Permitted Claim Structure
 
-- the first complete agent-evaluation framework
-- the first cost-aware agent metric
-- the first agent-observability framework
-- guaranteed optimization
-- causal diagnosis without intervention
-- model-internal reasoning access
-- universal metric validity
+Claims must identify:
 
-These require stronger evidence and a comprehensive literature review.
+- evaluated task set
+- experimental conditions
+- sample size
+- metric version
+- statistical method
+- effect size
+- confidence interval where applicable
+- known limitations
 
----
+## Reproducibility Requirements
 
-## 57. Safer Claims
+Every research result must preserve:
 
-Use claims such as:
-
-- We propose...
-- We empirically evaluate...
-- We introduce an open-source implementation...
-- We study the relationship between...
-- Our experiments indicate...
-- Under the tested workloads...
-- The proposed metric correlates with...
-- The method reduces median token consumption by...
-- The framework identifies the injected faulty span with...
-
----
-
-## 58. Reproducibility Checklist
-
-Every experiment should record:
-
-- AgenticLens version
-- framework and version
-- model and version
-- provider
-- temperature
-- token limits
-- prompt templates
-- tool definitions
-- memory configuration
-- retry configuration
+- source revision
+- environment and dependency lock
 - dataset version
-- random seed when applicable
-- hardware
-- region
-- execution date
-- number of runs
-- failures and exclusions
-- cost assumptions
+- experiment manifest
+- prompt and model versions
+- raw traces
+- evaluator versions
+- configuration
+- analysis code
+- generated tables and figures
 
----
+## Privacy and Security
 
-## 59. Privacy and Security
+Research artifacts must:
 
-Agent traces may contain:
+- minimize payload capture
+- apply redaction before persistence
+- document retained sensitive fields
+- separate public and restricted datasets
+- avoid committing credentials
+- define retention and access controls
 
-- personal data
-- credentials
-- business data
-- retrieved documents
-- tool arguments
-- model responses
+# Publication Program
 
-AgenticLens must support:
+## Study 1 — Measurement and Evaluation
 
-- field-level redaction
-- content hashing
-- prompt capture disabled by default
-- configurable sampling
-- local-only storage
-- secret detection
-- retention controls
-- pluggable redaction policies
+Primary contributions:
 
-Never require raw chain-of-thought capture.
+- unified trace representation
+- raw operational metric framework
+- repeated-run methodology
+- initial efficiency and stability validation
 
----
+## Study 2 — Memory and Retry Efficiency
 
-# Part XVII: Initial GitHub Issues
+Primary contributions:
 
-## 60. Epic: Unified Trace Schema
+- memory contribution experiments
+- retry classification
+- memory and retry efficiency metrics
+- controlled strategy comparisons
 
-- Define Run model
-- Define Span model
-- Add span hierarchy validation
-- Add JSON schema
-- Add serializer
-- Add trace migration/version field
-- Add redaction hook
+## Study 3 — Failure Attribution
 
-## 61. Epic: Raw Metrics
+Primary contributions:
 
-- Token aggregation
-- Latency aggregation
-- Cost estimation
-- Reliability statistics
-- Per-agent breakdown
-- Per-span-type breakdown
+- failure taxonomy
+- controlled failure dataset
+- deterministic attribution baseline
+- agent and span attribution evaluation
 
-## 62. Epic: Memory Analysis
+## Study 4 — Agent Response-Start Latency
 
-- Memory span type
-- Memory share
-- Memory relevance protocol
-- Memory ablation runner
-- Memory diagnostic rules
+Primary contributions:
 
-## 63. Epic: Retry Analysis
+- response-start decomposition
+- planning, memory, retrieval, tool, and model latency analysis
+- framework and workload comparison
 
-- Retry span type
-- Retry reason
-- Retry cost
-- Retry semantic similarity
-- Retry outcome classification
-- Retry diagnostic rules
+# Program Priorities
 
-## 64. Epic: Repeated-Run Evaluation
+## Active Priorities
 
-- Experiment manifest
-- Run grouping
-- Stability statistics
-- Confidence intervals
-- Comparison report
-
-## 65. Epic: Research Metrics
-
-- Agent Efficiency Utility
-- Trajectory Quality Score
-- Memory Utility Ratio
-- Retry Efficiency
-- Observability Value
-- Sensitivity analysis
-- Metric versioning
-
----
-
-# Part XVIII: Immediate Priorities
-
-## 66. Build Now
-
-Start with these five features:
-
-1. unified `Run` and `Span` trace schema
+1. unified run and span trace schema
 2. token and latency breakdown by span
 3. memory-share analysis
 4. retry-overhead analysis
 5. repeated-run comparison
 
-These are useful even before the proposed formulas are finalized.
-
----
-
-## 67. Do Not Build Yet
-
-Delay these until the measurement layer is stable:
+## Deferred Scope
 
 - autonomous prompt rewriting
 - automatic production changes
 - LLM-only root-cause analysis
-- complex model router
-- large dashboard platform
-- dozens of framework adapters
-- one universal agent score
+- complex runtime routing
+- large dashboard development
+- broad framework-adapter coverage
+- a universal agent score
 
----
+# Program Completion Standard
 
-# Part XIX: Definition of the AgenticLens Research Contribution
-
-The strongest long-term contribution is not one formula.
-
-It is the complete research system:
+The research foundation is complete when AgenticLens provides:
 
 ```text
-Standardized execution traces
+standardized execution traces
         +
-Multidimensional raw measurements
+multidimensional raw measurements
         +
-Experimentally validated metrics
+experimentally validated metrics
         +
-Failure attribution
+measured failure attribution
         +
-Evidence-backed optimization
+evidence-backed optimization
 ```
 
-### Long-term research statement
-
-> AgenticLens investigates whether structured execution traces can make agentic AI systems measurable, diagnosable, and optimizable across frameworks, models, and task categories.
-
-### Long-term product statement
-
-> AgenticLens shows what an agent consumed, where it was consumed, whether each step contributed to the result, what caused failures, and which changes are likely to improve the workflow.
-
----
-
-# Part XX: Final Repository Plan
-
-## Today
-
-Continue development in:
-
-```text
-DeepAgentLabs/AgenticLens
-```
-
-Create new top-level modules inside the existing project:
-
-```text
-core/
-instrumentation/
-metrics/
-evaluation/
-diagnosis/
-optimization/
-reports/
-schemas/
-```
-
-Create a GitHub milestone:
-
-```text
-AgenticLens Research Foundation v0.2
-```
-
-## After the benchmark grows
-
-Create:
-
-```text
-DeepAgentLabs/agenticlens-benchmarks
-```
-
-## When preparing the first submission
-
-Create:
-
-```text
-DeepAgentLabs/agenticlens-research
-```
-
-Use it for paper artifacts, not as a second implementation.
-
-## Final recommendation
-
-**One product repository, one benchmark repository, and one paper-artifact repository.**
-
-AgenticLens should remain the central framework and public identity.
+Research outputs must remain reproducible, versioned, explicit about
+limitations, and separable from committed product claims.

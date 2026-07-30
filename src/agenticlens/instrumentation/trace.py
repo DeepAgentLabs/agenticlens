@@ -34,10 +34,31 @@ class SpanHandle:
 
 
 class SpanContext:
-    def __init__(self, owner: "trace", name: str, span_type: SpanType | str, **attributes: Any):
+    def __init__(
+        self,
+        owner: "trace",
+        name: str,
+        span_type: SpanType | str,
+        *,
+        agent_name: str | None = None,
+        model_name: str | None = None,
+        provider: str | None = None,
+        tool_name: str | None = None,
+        retry_number: int | None = None,
+        input_reference: str | None = None,
+        output_reference: str | None = None,
+        **attributes: Any,
+    ):
         self.owner = owner
         self.name = name
         self.span_type = SpanType(span_type)
+        self.agent_name = agent_name
+        self.model_name = model_name
+        self.provider = provider
+        self.tool_name = tool_name
+        self.retry_number = retry_number
+        self.input_reference = input_reference
+        self.output_reference = output_reference
         self.attributes = attributes
         self.model: Span | None = None
         self._token: Token[Span | None] | None = None
@@ -49,6 +70,13 @@ class SpanContext:
             name=self.name,
             span_type=self.span_type,
             parent_span_id=parent.span_id if parent else None,
+            agent_name=self.agent_name,
+            model_name=self.model_name,
+            provider=self.provider,
+            tool_name=self.tool_name,
+            retry_number=self.retry_number,
+            input_reference=self.input_reference,
+            output_reference=self.output_reference,
             attributes=self.owner.redactor(self.attributes),
         )
         self.owner.run.spans.append(self.model)
@@ -81,10 +109,25 @@ class trace:  # noqa: N801
         application_name: str,
         *,
         redactor: Redactor = redact_sensitive,
+        framework: str | None = None,
+        framework_version: str | None = None,
+        task_id: str | None = None,
+        task_type: str | None = None,
+        experiment_id: str | None = None,
+        variant_id: str | None = None,
         **metadata: Any,
     ) -> None:
         self.redactor = redactor
-        self.run = Run(application_name=application_name, metadata=redactor(metadata))
+        self.run = Run(
+            application_name=application_name,
+            framework=framework,
+            framework_version=framework_version,
+            task_id=task_id,
+            task_type=task_type,
+            experiment_id=experiment_id,
+            variant_id=variant_id,
+            metadata=redactor(metadata),
+        )
         self._token: Token[trace | None] | None = None
 
     def __enter__(self) -> "trace":

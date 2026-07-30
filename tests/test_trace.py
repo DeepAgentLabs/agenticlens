@@ -100,6 +100,48 @@ def test_trace_redacts_explicitly_captured_values():
     assert captured.output_data == "contact [REDACTED_EMAIL]"
 
 
+def test_trace_records_framework_and_experiment_identity():
+    with trace(
+        "identity",
+        framework="langgraph",
+        framework_version="1.2",
+        task_id="case-1",
+        task_type="support",
+        experiment_id="experiment-1",
+        variant_id="candidate",
+    ) as recording:
+        pass
+
+    assert recording.run.framework == "langgraph"
+    assert recording.run.framework_version == "1.2"
+    assert recording.run.task_id == "case-1"
+    assert recording.run.task_type == "support"
+    assert recording.run.experiment_id == "experiment-1"
+    assert recording.run.variant_id == "candidate"
+
+
+def test_span_maps_structured_identity_fields():
+    with (
+        trace("structured-span") as recording,
+        recording.span(
+            "tool",
+            SpanType.TOOL_CALL,
+            agent_name="analyst",
+            model_name="test-model",
+            provider="local",
+            tool_name="calculator",
+        ),
+    ):
+        pass
+
+    span = recording.run.spans[0]
+    assert span.agent_name == "analyst"
+    assert span.model_name == "test-model"
+    assert span.provider == "local"
+    assert span.tool_name == "calculator"
+    assert "tool_name" not in span.attributes
+
+
 def test_memory_and_retry_analysis_cites_span_evidence():
     with trace("diagnostics") as recording:
         with recording.span("memory", SpanType.MEMORY_READ) as memory:

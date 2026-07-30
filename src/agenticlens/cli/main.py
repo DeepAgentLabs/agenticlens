@@ -18,6 +18,15 @@ from agenticlens.comparison import (
     export_comparison_json,
     load_runs,
 )
+from agenticlens.evaluation import (
+    EvaluationReport,
+    GateConfig,
+    evaluate_gate,
+    evaluate_suite,
+    load_samples,
+    load_suite,
+    save_html_report,
+)
 from agenticlens.exporters import CSVExporter, JSONExporter
 from agenticlens.models.trace import Run
 from agenticlens.models.workflow import Workflow
@@ -199,6 +208,85 @@ def compare(
         console.print(f"Saved comparison to {save}")
     if fail_on_regression and report.regressions:
         raise typer.Exit(code=2)
+
+
+@app.command()
+def evaluate(
+    suite_file: Path = typer.Argument(..., help="YAML or JSON evaluation suite."),
+    samples_file: Path = typer.Argument(..., help="YAML or JSON outputs and traces."),
+    save: Path = typer.Option(
+        Path("agenticlens-evaluation.json"),
+        "--save",
+        help="Save the machine-readable evaluation report.",
+    ),
+    html: Path | None = typer.Option(
+        None,
+        "--html",
+        help="Also create a standalone HTML report.",
+    ),
+) -> None:
+    """Score agent outputs, tool use, latency, and cost against a test suite."""
+    try:
+        result = evaluate_suite(load_suite(suite_file), load_samples(samples_file))
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to evaluate suite:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    save.parent.mkdir(parents=True, exist_ok=True)
+    save.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    if html is not None:
+        save_html_report(result, html)
+
+    table = Table(title=f"Evaluation · {result.suite_name}")
+    table.add_column("Cases", justify="right")
+    table.add_column("Passed", justify="right")
+    table.add_column("Pass rate", justify="right")
+    table.add_column("Average score", justify="right")
+    table.add_column("Average latency", justify="right")
+    table.add_row(
+        str(result.summary.total_cases),
+        str(result.summary.passed_cases),
+        f"{result.summary.pass_rate:.1%}",
+        f"{result.summary.average_score:.3f}",
+        f"{result.summary.average_latency_ms:.1f} ms",
+    )
+    console.print(table)
+    console.print(f"Saved evaluation to {save}")
+    if html is not None:
+        console.print(f"Saved HTML report to {html}")
+
+
+@app.command()
+def gate(
+    report_file: Path = typer.Argument(..., help="AgenticLens evaluation report JSON."),
+    min_pass_rate: float = typer.Option(1.0, min=0.0, max=1.0),
+    min_average_score: float = typer.Option(1.0, min=0.0, max=1.0),
+    max_failed_cases: int = typer.Option(0, min=0),
+    max_average_latency_ms: float | None = typer.Option(None, min=0.0),
+    max_total_cost_usd: float | None = typer.Option(None, min=0.0),
+) -> None:
+    """Apply release thresholds and return exit code 2 when the gate fails."""
+    try:
+        report = EvaluationReport.model_validate_json(report_file.read_text(encoding="utf-8"))
+        decision = evaluate_gate(
+            report,
+            GateConfig(
+                min_pass_rate=min_pass_rate,
+                min_average_score=min_average_score,
+                max_failed_cases=max_failed_cases,
+                max_average_latency_ms=max_average_latency_ms,
+                max_total_cost_usd=max_total_cost_usd,
+            ),
+        )
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to apply release gate:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    if decision.passed:
+        console.print("[green]Release gate passed.[/green]")
+        return
+    console.print("[red]Release gate failed.[/red]")
+    for reason in decision.reasons:
+        console.print(f"  • {reason}")
+    raise typer.Exit(code=2)
 
 
 if __name__ == "__main__":

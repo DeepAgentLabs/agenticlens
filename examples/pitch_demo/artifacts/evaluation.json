@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "suite_name": "Multi-agent support workflow",
+  "suite_version": "1.0",
+  "created_at": "2026-07-30T07:16:44.522087Z",
+  "summary": {
+    "total_cases": 1,
+    "passed_cases": 1,
+    "failed_cases": 0,
+    "pass_rate": 1.0,
+    "average_score": 1.0,
+    "total_cost_usd": null,
+    "average_latency_ms": 7.889
+  },
+  "cases": [
+    {
+      "case_id": "regional-case-total",
+      "case_name": "Calculate the combined resolved case count",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:combined number of resolved cases",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "explanation": "Output contains required text: 'combined number of resolved cases'.",
+          "evaluator_type": "deterministic",
+          "metadata": {}
+        },
+        {
+          "name": "contains:42",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "explanation": "Output contains required text: '42'.",
+          "evaluator_type": "deterministic",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:add",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "explanation": "Required tool 'add' was called.",
+          "evaluator_type": "deterministic",
+          "metadata": {}
+        },
+        {
+          "name": "forbidden_tool:external_network",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "explanation": "Forbidden tool 'external_network' was not called.",
+          "evaluator_type": "deterministic",
+          "metadata": {}
+        },
+        {
+          "name": "latency_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "explanation": "Latency 7.9 ms meets the 2000.0 ms limit.",
+          "evaluator_type": "deterministic",
+          "metadata": {}
+        }
+      ],
+      "output": "Reference data: North region resolved 18 cases and South region resolved 24. The combined number of resolved cases is 42.",
+      "trace_id": "1c56e9c0-41ce-44c3-9a15-a7ea150dd129",
+      "latency_ms": 7.889,
+      "cost_usd": null
+    }
+  ]
+}

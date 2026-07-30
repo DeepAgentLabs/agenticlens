@@ -42,6 +42,12 @@ dev = [
 docs = [
   "mkdocs-material>=9.5",
 ]
+langgraph = [
+  "langgraph>=1.0,<2",
+]
+multi-agent = [
+  "langgraph>=1.0,<2",
+]
 
 [project.scripts]
 agenticlens = "agenticlens.cli.main:app"
@@ -73,6 +79,9 @@ ignore = ["B008"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["agenticlens"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/agenticlens/evaluation/html_report.py" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"

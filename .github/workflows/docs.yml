@@ -38,7 +38,15 @@ jobs:
         run: uv sync --extra docs --python 3.12
 
       - name: Build docs
-        run: uv run mkdocs build --strict
+        run: uv run mkdocs build --strict --site-dir site/docs
+
+      - name: Add product website
+        run: |
+          cp index.html site/index.html
+          cp site.css site/site.css
+          cp site.js site/site.js
+          cp og.png site/og.png
+          touch site/.nojekyll
 
       - name: Upload artifact
         if: github.event_name != 'pull_request'

@@ -1,1353 +1,503 @@
-# AgenticLens Roadmap
+# AgenticLens Product Roadmap
 
-## Vision
+## Purpose
 
-AgenticLens will evolve from a lightweight AI workflow profiler into an open-source **AI runtime intelligence and evaluation platform** for production agentic systems.
+This roadmap defines the planned evolution of AgenticLens from a local workflow
+profiler into an open-source runtime intelligence and evaluation framework for
+agentic AI systems.
 
-It should help teams:
+The roadmap is directional. Release scope may change as implementation evidence,
+compatibility requirements, and contributor feedback develop. Features are
+considered complete only when they are implemented, documented, tested, and
+available through a stable Python or CLI interface.
 
-- observe agent behavior
-- evaluate output quality and task success
-- compare models, prompts, tools, retrieval strategies, and agent architectures
-- select the best model for each workload
-- detect regressions before deployment
-- optimize cost, latency, reliability, safety, and quality
-- enforce enterprise policies
-- generate audit-ready operational evidence
+## Product Direction
 
-> **Instrument once, evaluate continuously, optimize intelligently, and govern confidently.**
+AgenticLens provides local-first tools to observe, evaluate, compare, optimize,
+and govern AI workflows.
 
----
+The platform is intended to answer:
 
-## Product Positioning
-
-AgenticLens should not be positioned only as a token and latency profiler.
-
-> **AgenticLens is an open-source AI runtime intelligence platform that helps teams observe, evaluate, compare, optimize, and govern production AI agents.**
-
-### Questions it should answer
-
-- What happened during an agent workflow?
+- What happened during an agent run?
+- Where were tokens, latency, and cost consumed?
 - Did the agent complete the intended task?
-- Which model performed best for this workload?
-- Is the premium model worth its additional cost?
-- Which prompt or retrieval configuration produced the best result?
-- What caused a regression?
-- Can a smaller model handle this task safely?
-- Which agent steps add cost without improving quality?
-- Does the workflow comply with enterprise policies?
-- Can the system recover from model, tool, memory, or provider failures?
+- Which model, prompt, retrieval strategy, or workflow performed best?
+- Did a candidate configuration introduce a regression?
+- Which execution steps added cost without improving outcomes?
+- Is a workflow operating within defined reliability and policy limits?
 
----
+The primary operating principle is:
 
-# Product Architecture
+> Instrument once, evaluate continuously, and optimize from recorded evidence.
+
+## Product Principles
+
+### Package-first
+
+Core capabilities must remain usable through Python and the CLI without a
+hosted service.
+
+### Local-first
+
+Tracing, evaluation, comparison, and reporting must work with local artifacts by
+default.
+
+### Framework-neutral
+
+Core models must not depend on one provider, agent framework, orchestration
+library, or telemetry backend.
+
+### Evidence-backed
+
+Findings and recommendations must identify the measurements, thresholds, and
+trace evidence on which they are based.
+
+### Advisory-first
+
+Early release and control features should report and recommend before they
+enforce or modify production behavior.
+
+### Compatible evolution
+
+Schemas and public APIs must use explicit versioning. Additive changes are
+preferred where practical.
+
+### Honest measurement
+
+Measured, estimated, projected, and inferred values must be distinguishable in
+reports and APIs.
+
+## Current Capabilities
+
+The following capabilities are implemented in the current development line.
+
+### Workflow profiling
+
+- explicit `profile()` and `step()` instrumentation
+- OpenAI and Anthropic usage extraction
+- prompt, completion, and total-token metrics
+- latency, time-to-first-token, and throughput metrics
+- per-step, per-agent, and workflow summaries
+- JSON, CSV, Markdown, and Jira-oriented exports
+
+### Cost intelligence
+
+- user-defined pricing overrides
+- cached live pricing from the LiteLLM community feed
+- bundled offline pricing fallback
+- stale-cache fallback when pricing refresh fails
+- explicit unknown-pricing behavior
+- workflow and step cost calculation
+- model-swap cost recommendations
+- projected per-run and monthly savings
+
+### Optimization analysis
+
+- repeated prompt detection
+- excessive retrieval detection
+- RAG chunk-utility analysis
+- long-history detection
+- duplicate tool-call detection
+- multi-agent handoff analysis
+- model-tier cost comparison
+- agentic-chaos impact findings
+
+### Research trace foundation
+
+- framework-neutral `Run` and nested `Span` models
+- planning, model, memory, retrieval, tool, validation, retry, delegation, and
+  final-response span types
+- token, latency, cost, status, and error capture
+- parent-child trace validation
+- opt-in payload capture with recursive redaction
+- JSON trace persistence
+- trace inspection through the CLI
+
+### Diagnostics and comparison
+
+- memory-share analysis
+- retry token, latency, and cost analysis
+- deterministic findings with span-level evidence
+- repeated-run baseline and candidate groups
+- mean, median, P95, standard deviation, and coefficient of variation
+- success-rate and cost-per-successful-task reporting
+- configurable regression detection
+- JSON and CSV comparison reports
+- CI-compatible regression exit status
+
+### Artifact contracts
+
+- versioned trace schema
+- versioned finding schema
+- versioned comparison-report schema
+- schema inclusion in wheel distributions
+
+## Capability Architecture
 
 ```text
-Enterprise AI Applications
-          |
-          v
-AgenticLens Instrumentation Layer
-          |
-          +--------------------+
-          |                    |
-          v                    v
-   Runtime Tracing       Evaluation Runtime
-          |                    |
-          +----------+---------+
-                     |
-                     v
-              AI Operations Store
-                     |
-      +--------------+--------------+
-      |              |              |
-      v              v              v
- Experiment      ModelFit       Governance
-   Engine         Engine          Engine
-      |              |              |
-      +--------------+--------------+
-                     |
-                     v
-              Recommendations
-                     |
-        +------------+------------+
-        |                         |
-        v                         v
-   Web Dashboard             CLI / API / MCP
+Application and agent runtimes
+            |
+            v
+Instrumentation
+├── workflow profiler
+└── structured trace API
+            |
+            v
+Local artifacts and schemas
+            |
+     +------+------+----------------+
+     |             |                |
+     v             v                v
+Diagnostics    Evaluation      Comparison
+     |             |                |
+     +-------------+----------------+
+                   |
+                   v
+          Recommendations and gates
+                   |
+          +--------+---------+
+          |                  |
+          v                  v
+        CLI/API        Optional dashboard
 ```
 
----
+## Release Plan
 
-# Core Product Modules
+## v0.2 — Trace and Comparison Foundation
 
-## 1. AgenticLens Observe
+### Objective
 
-Captures and visualizes the complete AI runtime.
+Establish reproducible execution traces, cost intelligence, deterministic
+diagnostics, and baseline comparison.
 
-### Capabilities
+### Delivered
 
-- workflow tracing
-- agent-step tracing
-- LLM call tracing
-- prompt and context inspection
-- token and cost tracking
-- latency breakdown
-- retrieval activity
-- memory reads and writes
-- tool and MCP calls
-- agent handoffs
-- retries and failures
-- safety and reliability events
-- OpenTelemetry export
-- local artifact export
+- hierarchical run and span tracing
+- raw token, latency, cost, retry, and tool metrics
+- payload redaction
+- memory and retry findings
+- repeated-run statistics
+- baseline-versus-candidate regression detection
+- trace inspection and comparison CLI commands
+- JSON and CSV comparison exports
+- versioned research schemas
 
----
+### Remaining work
 
-## 2. AgenticLens Evaluate
+- detect cyclic parent relationships
+- associate retry spans with triggering failures
+- classify retry outcomes
+- detect duplicated context
+- measure instrumentation overhead
+- add minimum-sample guidance to comparison reports
+- add Markdown trace and comparison reports
 
-Evaluates both the final outcome and the execution path of an AI agent.
+### Completion criteria
 
-### Evaluation dimensions
+- all trace artifacts validate against published schemas
+- existing profiler APIs remain compatible
+- comparison results reproduce from saved traces
+- privacy defaults and redaction behavior are documented
+- performance overhead is measured
 
-- task success
-- correctness
-- relevance
-- completeness
-- groundedness
-- citation quality
-- tool-selection accuracy
-- tool-argument accuracy
-- structured-output validity
-- instruction adherence
-- policy compliance
-- safety
-- consistency
-- failure recovery
-- business outcome quality
+## v0.3 — Evaluation Foundation
 
-### Evaluator types
+### Objective
 
-- deterministic evaluators
-- reference-based evaluators
-- model-based judges
-- trajectory evaluators
-- RAG evaluators
-- tool-use evaluators
-- safety evaluators
-- human feedback
-- custom enterprise evaluators
+Evaluate task outcomes and execution requirements using versioned, reusable test
+suites.
 
----
+### Planned deliverables
 
-## 3. AgenticLens Experiments
+- `TestCase` and `TestSuite` models
+- `Evaluator`, `EvaluationContext`, and `Score` interfaces
+- YAML and JSON test-suite loading
+- evaluator registration
+- native Python and HTTP targets
+- JSON and Markdown evaluation reports
+- evaluator and suite version capture
 
-Compares alternative AI system configurations against the same test suite.
-
-### Experiment dimensions
-
-- model and model version
-- provider
-- prompt version
-- system prompt
-- temperature and sampling parameters
-- RAG strategy
-- embedding model
-- reranker
-- top-k
-- memory strategy
-- tool configuration
-- agent architecture
-- fallback strategy
-- retry policy
-
-### Experiment outputs
-
-- model leaderboard
-- test-level score comparison
-- score heatmap
-- regression analysis
-- trace comparison
-- cost comparison
-- latency comparison
-- reliability comparison
-- Pareto frontier
-- recommended configuration
-
----
-
-## 4. AgenticLens ModelFit
-
-Selects the best model for each task category under enterprise constraints.
-
-### Inputs
-
-- task type
-- task complexity
-- domain
-- risk level
-- expected quality
-- latency target
-- cost limit
-- tool-use requirements
-- structured-output requirements
-- data sensitivity
-- provider restrictions
-- deployment region
-- historical success rate
-- provider health
-- safety requirements
-
-### Outputs
-
-- recommended model
-- recommendation confidence
-- alternative models
-- expected quality
-- expected cost
-- expected latency
-- policy compliance status
-- explanation for selection
-- fallback chain
-- routing recommendation
-
-### Primary business metric
-
-> **Cost per successful task**
-
-Additional metrics:
-
-- cost per approved response
-- cost per resolved ticket
-- cost per completed workflow
-- latency per successful task
-- retries per successful task
-- human escalations per model
-- quality-adjusted cost
-
----
-
-## 5. AgenticLens Optimize
-
-Provides evidence-based optimization recommendations.
-
-### Models
-
-- replace unnecessarily expensive models
-- route simple tasks to smaller models
-- reserve premium models for high-risk tasks
-- identify provider-specific strengths
-
-### Prompts
-
-- detect repeated instructions
-- identify contradictory sections
-- compare prompt versions
-- detect quality regressions
-- recommend prompt compression
-- recommend caching stable prompt blocks
-
-### RAG
-
-- optimize top-k
-- detect irrelevant chunks
-- detect stale context
-- evaluate chunk utility
-- compare rerankers
-- compare embedding models
-- identify cases where RAG adds no value
-
-### Memory
-
-- detect excessive history
-- identify repeated context
-- identify stale or contradictory memory
-- recommend summarization
-- recommend retention limits
-
-### Tools
-
-- identify duplicate calls
-- detect invalid arguments
-- identify low-value tools
-- detect unnecessary retries
-- recommend caching
-- evaluate tool success rates
-
-### Multi-agent systems
-
-- detect unnecessary handoffs
-- identify redundant agents
-- detect loops
-- identify context loss
-- measure handoff cost
-- recommend simpler execution paths
-
----
-
-## 6. AgenticLens Govern
-
-Adds enterprise controls and auditability.
-
-### Governance features
-
-- model allowlists
-- provider restrictions
-- prompt approval
-- policy-as-code
-- cost limits
-- latency limits
-- minimum quality thresholds
-- data residency controls
-- PII masking
-- retention policies
-- human-review requirements
-- model-version history
-- prompt-version history
-- audit trails
-- release gates
-- compliance reports
-
----
-
-## 7. AgenticLens Test Suites
-
-Provides versioned datasets for evaluating AI agents.
-
-### Test suite sources
-
-- manually authored golden cases
-- production traces
-- user feedback
-- escalated failures
-- synthetic variations
-- chaos-generated failures
-- imported public benchmarks
-- domain-specific datasets
-
-### Starter suites
-
-#### Universal Agent Suite
-
-- instruction following
-- structured output
-- invalid input handling
-- tool selection
-- tool argument validation
-- timeout recovery
-- turn-limit enforcement
-- prompt injection resistance
-- sensitive-data handling
-
-#### RAG Suite
-
-- grounded answers
-- citation correctness
-- irrelevant context
-- conflicting documents
-- missing answers
-- stale documents
-- adversarial documents
-- multi-document synthesis
-
-#### Tool-Calling Suite
-
-- correct tool selection
-- correct arguments
-- authorization
-- duplicate-call prevention
-- idempotency
-- timeout handling
-- partial responses
-- fallback behavior
-
-#### Multi-Agent Suite
-
-- correct delegation
-- handoff completeness
-- context preservation
-- circular delegation
-- shared-memory handling
-- agent disagreement
-- final synthesis
-- step efficiency
-
-#### Safety Suite
-
-- prompt injection
-- data exfiltration
-- PII leakage
-- unauthorized actions
-- unsafe tool invocation
-- policy bypass
-- harmful output
-
----
-
-# Evaluation Framework
-
-## Core objects
-
-```text
-Test Suite
-    |
-    +-- Test Cases
-           |
-           +-- Experiment Variant
-                  |
-                  +-- Agent Run
-                         |
-                         +-- Trace
-                                |
-                                +-- Scores
-```
-
-## Evaluation result example
-
-```json
-{
-  "task_success": 1.0,
-  "answer_correctness": 0.92,
-  "groundedness": 0.96,
-  "tool_selection": 1.0,
-  "tool_argument_accuracy": 0.88,
-  "policy_compliance": 1.0,
-  "safety": 1.0,
-  "latency_ms": 2840,
-  "cost_usd": 0.031,
-  "turn_count": 4
-}
-```
-
-## Evaluator interface
-
-```python
-from dataclasses import dataclass
-from typing import Any, Protocol
-
-
-@dataclass
-class EvalContext:
-    test_case: dict[str, Any]
-    output: Any
-    trace: dict[str, Any]
-    reference: Any | None = None
-
-
-@dataclass
-class Score:
-    name: str
-    value: float
-    passed: bool
-    explanation: str
-    metadata: dict[str, Any]
-
-
-class Evaluator(Protocol):
-    name: str
-
-    def evaluate(self, context: EvalContext) -> Score:
-        ...
-```
-
----
-
-# Dashboard Vision
-
-The UI should feel like an MLOps experiment platform designed specifically for agentic systems.
-
-## Dashboard sections
-
-### Overview
-
-- total runs
-- active experiments
-- model usage
-- monthly cost
-- task-success rate
-- policy violations
-- regression alerts
-- estimated savings
-
-### Experiment comparison
-
-- variants
-- models
-- prompts
-- test suites
-- aggregate scores
-- cost
-- latency
-- reliability
-- recommendation
-
-### Model leaderboard
-
-| Model | Success | Quality | Groundedness | Tool Score | Safety | P95 Latency | Cost/Success |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Model A | 91% | 0.89 | 0.94 | 0.93 | 0.99 | 3.2s | $0.08 |
-| Model B | 87% | 0.85 | 0.92 | 0.96 | 0.99 | 1.8s | $0.03 |
-| Model C | 96% | 0.94 | 0.97 | 0.91 | 1.00 | 5.1s | $0.21 |
-
-### Test-case heatmap
-
-- rows: test cases
-- columns: models or variants
-- cells: pass, fail, score, or regression
-
-### Trace viewer
-
-- workflow tree
-- agent steps
-- tool calls
-- retrieval
-- memory
-- handoffs
-- retries
-- errors
-- scores per step
-
-### ModelFit view
-
-- recommended model by task type
-- reason for recommendation
-- confidence
-- constraint violations
-- expected savings
-- fallback option
-
-### Governance view
-
-- approved models
-- policy violations
-- sensitive workflows
-- human reviews
-- audit evidence
-- release-gate status
-
----
-
-# Framework Support
-
-AgenticLens should remain framework-agnostic.
-
-## Adapter interface
-
-```python
-class AgentAdapter(Protocol):
-    name: str
-
-    def invoke(self, test_case):
-        ...
-
-    def extract_trace(self, result):
-        ...
-
-    def reset_state(self):
-        ...
-```
-
-## Planned adapters
-
-- native Python
-- LangGraph
-- OpenAI Agents SDK
-- CrewAI
-- AutoGen
-- Semantic Kernel
-- LlamaIndex
-- HTTP agents
-- MCP-hosted agents
-- custom enterprise runtimes
-
----
-
-# Platform Architecture
-
-## Initial stack
-
-### Backend
-
-- Python
-- FastAPI
-- Pydantic
-- SQLAlchemy
-- PostgreSQL
-- Redis
-- background workers
-- object storage
-
-### Frontend
-
-- React or Next.js
-- TypeScript
-- TanStack Table
-- charting library
-- trace-tree component
-- JSON and prompt editor
-
-### Deployment
-
-- local SQLite mode
-- Docker Compose
-- Kubernetes
-- Helm chart
-- self-hosted enterprise deployment
-
-## Core entities
-
-```text
-organizations
-projects
-applications
-agents
-models
-model_versions
-prompts
-prompt_versions
-tools
-datasets
-dataset_versions
-test_cases
-test_suites
-experiments
-experiment_variants
-runs
-traces
-spans
-evaluators
-evaluator_versions
-scores
-feedback
-policies
-recommendations
-deployments
-```
-
----
-
-# AI Operations Specification Extensions
-
-## New runtime objects
-
-- `TestSuite`
-- `TestCase`
-- `Experiment`
-- `ExperimentVariant`
-- `Evaluation`
-- `Evaluator`
-- `Score`
-- `ModelRecommendation`
-- `PolicyDecision`
-- `HumanFeedback`
-
-## New semantic events
-
-```text
-evaluation.started
-evaluation.completed
-score.computed
-human_feedback.recorded
-experiment.started
-experiment.completed
-test_case.failed
-regression.detected
-model.recommended
-policy.gate.failed
-```
-
----
-
-# CLI Vision
-
-```bash
-# Run a test suite
-agenticlens eval run \
-  --suite suites/support.yaml \
-  --target examples/support_agent.py \
-  --save results.json
-
-# Compare models
-agenticlens eval compare \
-  --suite customer-support-v1.yaml \
-  --variants model-variants.yaml \
-  --trials 3
-
-# Compare against a baseline
-agenticlens eval regression \
-  --baseline production-results.json \
-  --candidate candidate-results.json
-
-# Apply a release gate
-agenticlens gate \
-  --results candidate-results.json \
-  --min-success-rate 0.90 \
-  --max-regression 0.02
-
-# Open the dashboard
-agenticlens ui
-```
-
----
-
-# Implementation Roadmap
-
-## Phase 0: Product and specification alignment
-
-### Goal
-
-Define stable product and evaluation contracts before expanding implementation.
-
-### Deliverables
-
-- finalize product positioning
-- define evaluation vocabulary
-- define test-suite schema
-- define experiment schema
-- define score schema
-- define evaluator interface
-- extend the AI Operations Specification
-- create architecture decision records
-- define compatibility and versioning rules
-
-### Exit criteria
-
-- schemas reviewed
-- example artifacts validated
-- cross-repository compatibility agreed
-- roadmap published
-
----
-
-## Phase 1: Evaluation SDK
-
-### Goal
-
-Create the minimum framework for evaluating any Python or HTTP-based agent.
-
-### Deliverables
-
-- `TestCase`
-- `TestSuite`
-- `Experiment`
-- `ExperimentVariant`
-- `Evaluator`
-- `Score`
-- evaluation runner
-- YAML and JSON test suites
-- deterministic evaluators
-- custom evaluator registration
-- JSON report
-- Markdown report
-- CLI commands
-
-### Initial evaluators
+### Initial deterministic evaluators
 
 - exact match
 - contains match
-- JSON schema
+- JSON Schema validation
 - required fields
-- required tool
-- forbidden tool
-- tool arguments
+- required and forbidden tools
+- tool-argument validation
 - latency threshold
 - cost threshold
 - turn-count threshold
-- business-rule evaluator
+- custom business rules
 
-### Exit criteria
+### Completion criteria
 
-- one native Python agent evaluated
-- one HTTP agent evaluated
-- reports generated
-- test-suite version captured
-- evaluator version captured
+- one Python agent and one HTTP agent can run the same suite
+- every score identifies its evaluator and version
+- reports distinguish measured and estimated values
+- failed cases retain trace-level evidence
 
----
+## v0.4 — Experiments and Statistical Comparison
 
-## Phase 2: Model and configuration comparison
+### Objective
 
-### Goal
+Compare models and agent configurations against the same test suite with
+repeated trials.
 
-Compare models and agent configurations against the same test suite.
+### Planned deliverables
 
-### Deliverables
+- experiment and variant manifests
+- repeated trials per test case
+- prompt, model, retrieval, memory, and retry-policy comparison
+- pass@k and pass^k
+- confidence intervals
+- consistency and stability summaries
+- baseline regression analysis
+- test-level score heatmaps
+- Pareto analysis
+- HTML and CSV reports
 
-- multiple variants
-- repeated trials
-- model comparison
-- prompt comparison
-- aggregated metrics
-- pass@k
-- pass^k
-- consistency score
-- cost per successful task
-- baseline comparison
-- regression detection
-- HTML report
-- CSV export
+### Completion criteria
 
-### Exit criteria
+- at least three variants can be compared in one experiment
+- trial counts and randomization settings are recorded
+- regression reports include minimum-sample warnings
+- quality, cost, latency, and reliability are shown together
 
-- three models compared
-- three trials per test case
-- regressions identified
-- recommendation summary generated
+## v0.5 — Advanced Evaluation and Diagnosis
 
----
+### Objective
 
-## Phase 3: Local dashboard
+Evaluate semantic quality and execution trajectories, then attribute failures to
+recorded evidence.
 
-### Goal
+### Planned deliverables
 
-Provide an MLOps-style UI for experiments and agent traces.
-
-### Deliverables
-
-- FastAPI service
-- SQLite mode
-- PostgreSQL mode
-- experiment list
-- run list
-- model leaderboard
-- score heatmap
-- trace viewer
-- test-case details
-- failure filters
-- search
-- comparison charts
-- Docker Compose setup
-
-### Command
-
-```bash
-agenticlens ui
-```
-
-### Exit criteria
-
-- experiment results visible in UI
-- test-level drilldown works
-- trace comparison works
-- model comparison works
-- local setup documented
-
----
-
-## Phase 4: Advanced evaluation
-
-### Goal
-
-Evaluate output quality, trajectories, RAG, tools, safety, and recovery.
-
-### Deliverables
-
-- LLM judge interface
-- judge-prompt versioning
-- judge-model metadata
-- groundedness evaluator
-- relevance evaluator
-- completeness evaluator
-- citation evaluator
-- tool-trajectory evaluator
-- agent-goal evaluator
-- handoff evaluator
-- loop evaluator
-- safety evaluator
-- human feedback API
-- human-review queue
+- model-based judge interface
+- judge prompt and model versioning
+- groundedness, relevance, completeness, and citation evaluators
+- tool-trajectory and agent-goal evaluators
+- handoff and loop evaluators
+- safety evaluators
 - evaluator calibration reports
+- failure taxonomy
+- deterministic diagnosis rules
+- anomaly detection
+- faulty-step and faulty-agent attribution
+- incident timeline reconstruction
 
-### Exit criteria
+### Completion criteria
 
-- deterministic and judge scores shown separately
-- evaluator disagreement visible
-- human feedback stored
-- judge cost reported
-- calibration dataset supported
+- deterministic and model-based scores are reported separately
+- judge cost is recorded
+- evaluator disagreement is visible
+- diagnoses include confidence and supporting spans
+- attribution accuracy is evaluated on controlled failures
 
----
+## v0.6 — Test-Suite and Dataset Management
 
-## Phase 5: Test-suite management
+### Objective
 
-### Goal
+Support the creation, review, versioning, and reuse of evaluation datasets.
 
-Help teams create and maintain enterprise evaluation datasets.
+### Planned deliverables
 
-### Deliverables
-
-- suite editor
-- test-case editor
-- suite versioning
-- dataset import
-- CSV and JSON import
-- production trace to test case
-- user feedback to test case
+- test-case and suite editors
+- immutable suite versions
+- CSV and JSON imports
+- production trace conversion
+- user-feedback conversion
 - synthetic variation generation
-- approval workflow
-- tagging
-- domain categories
+- tags and domain categories
 - train, validation, and test splits
 - duplicate detection
 - PII masking
+- approval metadata
 
-### Exit criteria
+### Completion criteria
 
-- test cases created from traces
-- test cases reviewed and approved
-- suite versions immutable
-- regression suite reusable in CI
+- traces can be converted into reviewable test cases
+- approved suite versions are immutable
+- regression suites can run in CI
+- sensitive fields can be masked before storage
 
----
+## v0.7 — ModelFit
 
-## Phase 6: AgenticLens ModelFit
+### Objective
 
-### Goal
+Recommend models for defined task categories under quality, cost, latency,
+safety, provider, and deployment constraints.
 
-Recommend the best model for each enterprise task.
-
-### Deliverables
+### Planned deliverables
 
 - task taxonomy
 - constraint configuration
 - weighted scoring
 - Pareto frontier
 - cost-per-success ranking
-- workload-specific recommendations
 - recommendation confidence
 - recommendation explanation
-- fallback recommendations
+- alternative and fallback models
 - task-level model matrix
 
-### Example output
+### Completion criteria
 
-```text
-Recommended model: Model B
+- recommendations are generated by task category
+- hard constraints are enforced
+- savings estimates are tied to experiment evidence
+- quality risks and alternatives are reported
 
-Reason:
-- Meets the 90% task-success threshold
-- Meets the 95% groundedness threshold
-- Reduces cost per successful task by 42%
-- Improves P95 latency by 31%
+## v0.8 — Advisory Runtime Routing
 
-Fallback:
-- Use Model C for high-risk legal requests
-```
+### Objective
 
-### Exit criteria
+Use evaluation evidence to recommend or select models at runtime with complete
+decision records.
 
-- recommendations explainable
-- enterprise constraints enforced
-- recommendations generated by task type
-- savings estimate generated
-
----
-
-## Phase 7: Runtime routing
-
-### Goal
-
-Use evaluation evidence to select models dynamically.
-
-### Deliverables
+### Planned deliverables
 
 - routing SDK
-- rule-based router
-- score-based router
+- rule-based and score-based routing
 - policy-aware routing
-- fallback chain
+- fallback chains
 - provider failover
-- confidence threshold
-- escalation
-- shadow mode
-- canary mode
+- confidence thresholds
+- human escalation
+- shadow and canary modes
 - routing audit log
 
-### Exit criteria
+### Completion criteria
 
-- routing works in shadow mode
-- routing decisions explainable
-- fallback tested
-- policy violations blocked
-- routing performance measured
+- routing decisions are explainable
+- fallback behavior is tested
+- shadow-mode performance is measurable
+- policy violations can be blocked when enforcement is enabled
 
----
+## v0.9 — Optimization Intelligence
 
-## Phase 8: Optimization intelligence
+### Objective
 
-### Goal
+Generate evidence-backed recommendations across prompts, retrieval, memory,
+tools, models, and multi-agent workflows.
 
-Recommend improvements beyond model selection.
+### Planned deliverables
 
-### Deliverables
+- prompt compression and caching recommendations
+- retrieval and reranking recommendations
+- memory retention and summarization recommendations
+- tool caching and retry recommendations
+- redundant-step and unnecessary-handoff detection
+- quality-cost trade-off analysis
+- projected benefit, confidence, and risk
+- accepted and rejected recommendation tracking
 
-- prompt recommendations
-- RAG recommendations
-- memory recommendations
-- tool recommendations
-- multi-agent recommendations
-- redundant-step detection
-- low-value agent detection
-- quality-cost tradeoff analysis
-- projected savings
-- recommendation confidence
-- recommendation risk
+### Completion criteria
 
-### Exit criteria
+- recommendations cite measured evidence
+- expected benefit and quality risk are separated
+- projected and observed outcomes are reported independently
+- recommendation outcomes can be evaluated after adoption
 
-- recommendations tied to evidence
-- expected benefit quantified
-- quality risk stated
-- accepted and rejected recommendations tracked
+## v1.0 — Production and Enterprise Readiness
 
----
+### Objective
 
-## Phase 9: Governance and enterprise readiness
+Provide stable contracts, policy controls, audit evidence, and supported
+deployment options.
 
-### Goal
+### Planned deliverables
 
-Make AgenticLens deployable in enterprise environments.
-
-### Deliverables
-
+- stable public APIs and schemas
 - organizations and projects
-- SSO
-- RBAC
+- authentication and role-based access controls
 - audit logs
-- model registry
-- prompt registry
+- model and prompt registries
 - policy-as-code
-- model allowlists
-- retention controls
-- PII controls
-- data residency configuration
-- human approvals
+- retention and PII controls
 - release gates
 - compliance exports
 - private evaluator support
-- Kubernetes deployment
-- Helm chart
+- Kubernetes and Helm deployment options
 
-### Exit criteria
+### Completion criteria
 
-- multi-user deployment
-- role separation
-- audit-ready records
-- private deployment documented
-- enterprise security review completed
+- public compatibility policy is published
+- upgrade and migration paths are documented
+- governance decisions produce audit evidence
+- release gates are reproducible
+- supported deployment modes pass security review
 
----
+## Ecosystem Integrations
 
-## Phase 10: Ecosystem integrations
+Integrations will be introduced after the trace and evaluation contracts are
+stable enough to map framework behavior consistently.
 
-### Goal
+Planned targets include:
 
-Make AgenticLens the central intelligence layer of DeepAgentLabs.
+- LangGraph
+- OpenAI Agents SDK
+- CrewAI
+- AutoGen
+- Semantic Kernel
+- LlamaIndex
+- Haystack
+- HTTP agents
+- MCP-hosted agents
+- OpenInference
+- OpenTelemetry and OTLP
 
-### Deliverables
+Integration packages must document coverage and any framework behavior that
+cannot be represented in the core schema.
 
-- Agentic Chaos integration
-- Deep Agentic Core MCP integration
-- AI Operations Specification conformance
-- framework adapters
-- OpenTelemetry integration
-- CI integrations
-- Jira integration
-- GitHub integration
-- data warehouse export
+## Success Measures
 
-### Exit criteria
+### Developer experience
 
-- AgenticLens and Agentic Chaos share artifacts
-- MCP exposes evaluation and comparison tools
-- conformance suite passes
-- at least three framework adapters stable
+- time required to instrument a representative workflow
+- percentage of runs that produce valid artifacts
+- reproducibility of local and CI reports
+- compatibility across supported Python versions
 
----
+### Evaluation quality
 
-# Suggested Release Sequence
+- evaluator agreement and calibration
+- regression-detection precision and recall
+- repeated-run stability
+- trace coverage for failed cases
 
-## v0.2 — Evaluation foundation
+### Operational value
 
-- test cases
-- test suites
-- deterministic evaluators
-- CLI evaluation runner
-- JSON and Markdown reports
-
-## v0.3 — Experiment comparison
-
-- variants
-- repeated trials
-- model comparison
-- baseline regression
 - cost per successful task
+- reduction in avoidable tokens and retries
+- improvement in P95 latency
+- reduction in undiagnosed failures
+- time required to identify the responsible step
 
-## v0.4 — Local dashboard
+## Early Non-Goals
 
-- experiment UI
-- model leaderboard
-- score heatmap
-- trace comparison
+The following are not near-term core objectives:
 
-## v0.5 — Advanced evaluators
+- autonomous production prompt rewriting
+- automatic production model replacement
+- live traffic shifting
+- a general-purpose infrastructure monitoring platform
+- a full SOC or SIEM replacement
+- a full deployment orchestrator
+- a universal score intended to summarize every agent quality dimension
+- a hosted multi-tenant service as a requirement for core functionality
 
-- LLM judges
-- RAG evaluators
-- trajectory evaluators
-- safety evaluators
-- human feedback
+## Documentation Policy
 
-## v0.6 — Test-suite manager
+Public documentation must:
 
-- trace-to-test
-- dataset versioning
-- suite editor
-- synthetic cases
-- approval workflow
+- describe implemented and planned capabilities separately
+- use stable product terminology
+- avoid unsupported performance or quality claims
+- identify experimental APIs
+- state limitations and required operator judgment
+- include runnable examples where practical
+- remain consistent with the current code and schemas
 
-## v0.7 — ModelFit
-
-- enterprise constraints
-- weighted ranking
-- Pareto analysis
-- model recommendations
-
-## v0.8 — Runtime routing
-
-- routing SDK
-- fallback chains
-- shadow mode
-- policy-aware selection
-
-## v0.9 — Optimization intelligence
-
-- prompt optimization
-- RAG optimization
-- agent architecture optimization
-- savings analysis
-
-## v1.0 — Enterprise-ready open platform
-
-- governance
-- RBAC
-- audit
-- self-hosted dashboard
-- stable schemas
-- stable APIs
-- framework adapters
-- MCP integration
-
----
-
-# First 90-Day Execution Plan
-
-## Days 1–30
-
-- finalize schemas
-- implement evaluator interface
-- implement test-suite loader
-- implement deterministic evaluators
-- create evaluation runner
-- create two sample suites
-- add CLI commands
-- generate JSON and Markdown reports
-- write unit tests
-- publish architecture documentation
-
-## Days 31–60
-
-- implement experiment variants
-- implement repeated trials
-- implement aggregation
-- add pass@k and pass^k
-- calculate cost per successful task
-- implement baseline comparison
-- add regression detection
-- generate HTML comparison report
-- compare at least three models
-
-## Days 61–90
-
-- add FastAPI backend
-- add SQLite persistence
-- create experiment dashboard
-- create model leaderboard
-- create test-case heatmap
-- add trace drilldown
-- provide Docker Compose setup
-- publish an end-to-end demonstration
-- release AgenticLens Evals preview
-
----
-
-# Initial Reference Use Case
-
-## Customer Support Agent
-
-### Test suite
-
-- refund eligibility
-- return-window enforcement
-- damaged product
-- unauthorized refund attempt
-- missing order
-- duplicate request
-- provider timeout
-- tool timeout
-- corrupted memory
-- irrelevant retrieval
-
-### Variants
-
-- small model
-- medium model
-- premium model
-- prompt version A
-- prompt version B
-- RAG top-k 4
-- RAG top-k 8
-
-### Evaluators
-
-- task success
-- policy compliance
-- required tools
-- forbidden tools
-- groundedness
-- citation correctness
-- output format
-- latency
-- cost
-- failure recovery
-
-### Dashboard outcome
-
-- model leaderboard
-- test-case heatmap
-- failed trace comparison
-- cost per successful task
-- recommended model by scenario
-- optimization suggestions
-
----
-
-# Success Metrics
-
-## Developer adoption
-
-- package downloads
-- GitHub stars
-- active contributors
-- documentation usage
-- framework integrations
-- test suites created
-
-## Evaluation quality
-
-- evaluator agreement
-- judge-human agreement
-- regression detection accuracy
-- false-positive rate
-- suite coverage
-- repeatability
-
-## Enterprise value
-
-- inference cost reduction
-- task-success improvement
-- latency improvement
-- reduced human escalation
-- faster model selection
-- fewer production regressions
-- policy violations prevented
-- time saved during release validation
-
----
-
-# Design Principles
-
-- framework-agnostic
-- specification-first
-- local-first
-- open-source core
-- explainable recommendations
-- deterministic checks before model judges
-- traceable scores
-- versioned everything
-- enterprise extensibility
-- no hidden composite score
-- quality before cost
-- cost per successful outcome
-- human review for high-risk use cases
-- composable with Agentic Chaos and MCP
-
----
-
-# Non-Goals for Early Releases
-
-AgenticLens should not initially attempt to:
-
-- replace every existing MLOps system
-- provide a hosted SaaS before the local product is stable
-- train foundation models
-- create one universal score for every agent
-- depend on one agent framework
-- automatically change production routing without review
-- rely entirely on model-based judges
-- create many separate repositories before core abstractions stabilize
-
----
-
-# Immediate Next Milestone
-
-## AgenticLens Evals v0.1
-
-The first major milestone should support:
-
-1. Define a test suite in YAML.
-2. Execute any Python callable or HTTP-based agent.
-3. Compare multiple models or configurations.
-4. Run deterministic and custom evaluators.
-5. Repeat each test several times.
-6. Calculate quality, success, cost, latency, and consistency.
-7. Detect regressions against a baseline.
-8. Generate JSON, Markdown, CSV, and HTML reports.
-9. Open results in a local dashboard.
-10. Recommend the best eligible model under defined constraints.
-
-### Proposed command
-
-```bash
-agenticlens eval compare \
-  --suite customer-support-v1.yaml \
-  --variants model-variants.yaml \
-  --trials 3 \
-  --serve
-```
-
----
-
-# Long-Term Direction
-
-```text
-Profiler
-   |
-   v
-Observability Toolkit
-   |
-   v
-Evaluation Platform
-   |
-   v
-Experimentation Platform
-   |
-   v
-Model Intelligence Platform
-   |
-   v
-Runtime Optimization Platform
-   |
-   v
-Enterprise AI Operations Platform
-```
-
-> **Most tools show traces. AgenticLens should turn runtime evidence into decisions.**
+The supporting research plan is maintained in
+`AgenticLens_Research_and_Development_Roadmap.md`. Research metrics described
+there remain experimental until implemented and validated.
