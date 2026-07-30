@@ -2,16 +2,17 @@
 
 ![AgenticLens logo](assets/agenticlens-logo.jpeg){ width="420" }
 
-**Step-level token optimization for production-ready agentic AI systems.**
+**Open-source observability, evaluation, and operational intelligence for
+production AI systems.**
 
 [![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
 [![GitHub stars](https://img.shields.io/github/stars/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/stargazers)
 [![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
 
-AgenticLens helps teams profile LLM applications, measure token use at each step,
-and turn traces into practical optimization recommendations for production agent
-systems.
+AgenticLens helps teams profile LLM applications, capture structured agent
+traces, calculate cost, diagnose memory and retry overhead, and compare
+candidate configurations against reviewed baselines.
 
 ## What It Measures
 
@@ -24,6 +25,8 @@ systems.
 | Waste patterns | Repeated prompts, excessive chunks, duplicate tool calls, long history |
 | Quality risk | Confidence and risk notes for optimization recommendations |
 | Resilience | Fault-injection outcomes through the `chaos_events` schema extension |
+| Tracing | Hierarchical runs and spans with status and error evidence |
+| Comparison | Success, tokens, latency, cost, variability, and regression deltas |
 
 ## Token Optimization Focus
 
@@ -54,7 +57,9 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [Workflow schema specification](workflow-schema-spec.md)
 - [Export formats](export-formats.md)
 - [RAG chunk utility](rag-chunk-utility.md)
-- [Technical specification](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Spec.md)
+- [Trace and comparison](trace-and-comparison.md)
+- [Product roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/agenticlens-roadmap.md)
+- [Research roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Research_and_Development_Roadmap.md)
 
 ## Quickstart
 
@@ -74,7 +79,9 @@ uv run agenticlens analyze workflow.json
 
 ## Current Status
 
-AgenticLens is early-stage open-source software. The core profiler, CLI, export
-formats, pricing model, and recommendation engine are implemented. Integrations
-for agent frameworks, trace formats, and workflow explorers are active roadmap
-priorities.
+AgenticLens is early-stage open-source software. Workflow profiling, live and
+offline pricing, optimization recommendations, structured tracing, deterministic
+memory and retry findings, repeated-run comparison, CLI commands, and export
+formats are implemented. The trace and comparison APIs remain experimental.
+Evaluation suites, framework adapters, OpenTelemetry export, and the optional
+dashboard remain roadmap work.

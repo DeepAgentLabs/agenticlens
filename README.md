@@ -18,9 +18,9 @@
 | Public asset | Link |
 | --- | --- |
 | Website and docs | [GitHub Pages](https://deepagentlabs.github.io/agenticlens/) |
-| Technical specification | [AgenticLens_Spec.md](AgenticLens_Spec.md) |
+| Product roadmap | [agenticlens-roadmap.md](agenticlens-roadmap.md) |
 | Workflow specification | [docs/workflow-schema-spec.md](docs/workflow-schema-spec.md) |
-| Roadmap | [ROADMAP.md](ROADMAP.md) |
+| Research roadmap | [AgenticLens_Research_and_Development_Roadmap.md](AgenticLens_Research_and_Development_Roadmap.md) |
 
 AgenticLens is an open-source Python operational toolkit for LLM applications
 and agentic workflows. It helps developers instrument the AI runtime they are
@@ -1022,8 +1022,10 @@ Near-term priorities:
 - OpenTelemetry and OpenInference trace import
 - optional prompt compression handoff
 
-See [ROADMAP.md](ROADMAP.md) and [AgenticLens_Spec.md](AgenticLens_Spec.md) for
-more detail.
+See the [product roadmap](agenticlens-roadmap.md) for committed product
+direction and the
+[research roadmap](AgenticLens_Research_and_Development_Roadmap.md) for
+experimental research plans.
 
 ## Contributing
 
