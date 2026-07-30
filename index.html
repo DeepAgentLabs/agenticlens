@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Open-source observability, evaluation, optimization, and release gates for agentic AI systems.">
+  <meta property="og:title" content="AgenticLens — Trace. Evaluate. Ship.">
+  <meta property="og:description" content="Ship agentic AI with evidence.">
+  <meta property="og:image" content="og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>AgenticLens — Trace. Evaluate. Ship.</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <main>
+    <nav class="nav shell" aria-label="Primary navigation">
+      <a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span>AgenticLens</a>
+      <div class="nav-links">
+        <a href="#platform">Platform</a><a href="#evaluators">Evaluators</a>
+        <a href="#workflow">How it works</a><a href="docs/">Documentation</a>
+      </div>
+      <a class="button button-small button-ghost" href="https://github.com/DeepAgentLabs/agenticlens">GitHub <span>↗</span></a>
+    </nav>
+
+    <section class="hero shell" id="top">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span>Open-source · Local-first · Framework-neutral</div>
+        <h1>Ship agentic AI<br>with <span>evidence.</span></h1>
+        <p class="hero-lead">AgenticLens traces multi-agent execution, evaluates quality and behavior, finds cost and token waste, and gates releases—without requiring a hosted backend.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#playground">Explore the live demo <span>→</span></a>
+          <button class="copy-command" id="copy-install"><code>pip install agenticlens</code><span>⧉</span></button>
+        </div>
+        <div class="hero-proof">
+          <div><strong>102</strong><span>tests passing</span></div>
+          <div><strong>91%</strong><span>code coverage</span></div>
+          <div><strong>0</strong><span>required services</span></div>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="AgenticLens trace visualization">
+        <div class="visual-topbar"><span class="window-dots"><i></i><i></i><i></i></span><span>langgraph-supervisor.json</span><em>LIVE TRACE</em></div>
+        <div class="trace-stage">
+          <div class="trace-line"></div>
+          <div class="trace-row"><span class="trace-node cyan">1</span><div><small>Supervisor</small><strong>Delegate</strong><span>research_agent</span></div><time>0.8 ms</time></div>
+          <div class="trace-row"><span class="trace-node violet">2</span><div><small>Research</small><strong>Retrieve</strong><span>regional support data</span></div><time>1.7 ms</time></div>
+          <div class="trace-row"><span class="trace-node cyan">3</span><div><small>Supervisor</small><strong>Delegate</strong><span>math_agent</span></div><time>0.5 ms</time></div>
+          <div class="trace-row"><span class="trace-node green">4</span><div><small>Math</small><strong>Tool · add</strong><span>18 + 24 → 42</span></div><time>0.4 ms</time></div>
+          <div class="trace-row"><span class="trace-node amber">5</span><div><small>Reviewer</small><strong>Final response</strong><span>grounded answer</span></div><time>1.2 ms</time></div>
+        </div>
+        <div class="visual-footer"><div><span>STATUS</span><strong class="success">● Succeeded</strong></div><div><span>SPANS</span><strong>7</strong></div><div><span>TOKENS</span><strong>86</strong></div><div><span>COST</span><strong>$0.0000</strong></div></div>
+        <div class="floating-score"><span>Release gate</span><strong>Passed</strong><i>✓</i></div>
+      </div>
+    </section>
+
+    <section class="trust-strip"><div class="shell trust-inner"><span>BUILT FOR THE AGENT STACK</span><b>LangGraph</b><b>OpenAI</b><b>Anthropic</b><b>MCP</b><b>Any Python agent</b></div></section>
+
+    <section class="section shell" id="platform">
+      <div class="section-heading"><div><span class="kicker">THE OPERATING LENS</span><h2>From opaque runs to<br>release confidence.</h2></div><p>One local toolkit connects execution evidence, quality evaluation, operational performance, and optimization decisions.</p></div>
+      <div class="capability-grid">
+        <article class="capability-card"><span class="card-number">01</span><div class="capability-icon icon-0"><i></i></div><h3>Trace</h3><p>See every agent, handoff, tool call, retry, token, and latency event in one structured run.</p><a href="#playground">See it in action <span>→</span></a></article>
+        <article class="capability-card"><span class="card-number">02</span><div class="capability-icon icon-1"><i></i></div><h3>Evaluate</h3><p>Score outputs and execution behavior with deterministic checks or your own LLM judge.</p><a href="#playground">See it in action <span>→</span></a></article>
+        <article class="capability-card"><span class="card-number">03</span><div class="capability-icon icon-2"><i></i></div><h3>Compare</h3><p>Measure baseline and candidate runs to catch token, latency, cost, and reliability regressions.</p><a href="#playground">See it in action <span>→</span></a></article>
+        <article class="capability-card"><span class="card-number">04</span><div class="capability-icon icon-3"><i></i></div><h3>Optimize</h3><p>Turn evidence into recommendations for prompts, RAG, memory, tools, models, and handoffs.</p><a href="#playground">See it in action <span>→</span></a></article>
+        <article class="capability-card"><span class="card-number">05</span><div class="capability-icon icon-4"><i></i></div><h3>Gate</h3><p>Enforce quality, pass rate, latency, cost, and failure thresholds before production.</p><a href="#playground">See it in action <span>→</span></a></article>
+        <article class="capability-card"><span class="card-number">06</span><div class="capability-icon icon-5"><i></i></div><h3>Export</h3><p>Keep portable JSON, CSV, Markdown, Jira-ready output, and standalone HTML reports locally.</p><a href="docs/">Read the docs <span>→</span></a></article>
+      </div>
+    </section>
+
+    <section class="playground-wrap" id="playground">
+      <div class="section shell">
+        <div class="section-heading playground-heading"><div><span class="kicker">INTERACTIVE PRODUCT TOUR</span><h2>Trace. Evaluate. Gate.</h2></div><p>Explore the same evidence flow used by the offline LangGraph supervisor demo included in the repository.</p></div>
+        <div class="playground">
+          <div class="playground-tabs" role="tablist">
+            <button class="active" data-tab="trace" role="tab"><span>01</span>Trace</button>
+            <button data-tab="evaluate" role="tab"><span>02</span>Evaluate</button>
+            <button data-tab="gate" role="tab"><span>03</span>Gate</button>
+          </div>
+          <div class="playground-content">
+            <div class="tour-copy js-panel" data-panel="trace"><span class="tour-label">STRUCTURED EXECUTION</span><h3>Follow the whole agent graph—not just model calls.</h3><p>AgenticLens records hierarchical spans for delegation, retrieval, memory, tools, validation, retries, and final responses.</p><ul><li>Agent and framework identity</li><li>Parent-child execution tree</li><li>Tokens, cost, and latency evidence</li></ul></div>
+            <div class="tour-copy js-panel" data-panel="evaluate" hidden><span class="tour-label">UNIFIED EVALUATORS</span><h3>Bring any judge. Keep one score contract.</h3><p>Combine built-in checks with Python rules, semantic scorers, classifiers, internal services, or any LLM judge.</p><label class="toggle-row"><span><b>LLM answer-quality judge</b><small>Provider-neutral adapter</small></span><input id="judge-toggle" type="checkbox" checked><i></i></label></div>
+            <div class="tour-copy js-panel" data-panel="gate" hidden><span class="tour-label">RELEASE POLICY</span><h3>Turn quality evidence into an automated decision.</h3><p>Set the minimum acceptable score. The release gate updates against the observed result.</p><label class="range-label"><span>Minimum score <b id="threshold-value">90%</b></span><input id="gate-threshold" type="range" min="70" max="100" value="90"></label></div>
+            <div class="tour-panel">
+              <div class="panel-toolbar"><span>Evaluation run</span><em>regional-case-total</em></div>
+              <div class="js-panel mini-trace" data-output="trace">
+                <div><span class="cyan">1</span><p><b>Supervisor</b><small>Delegate · research_agent</small></p><time>0.8 ms</time></div>
+                <div><span class="violet">2</span><p><b>Research</b><small>Retrieve · regional data</small></p><time>1.7 ms</time></div>
+                <div><span class="green">3</span><p><b>Math</b><small>Tool · 18 + 24 → 42</small></p><time>0.4 ms</time></div>
+                <div><span class="amber">4</span><p><b>Reviewer</b><small>Final · grounded answer</small></p><time>1.2 ms</time></div>
+              </div>
+              <div class="js-panel score-list" data-output="evaluate" hidden>
+                <div><span class="check">✓</span><p><b>Exact match</b><small>Deterministic</small></p><strong>1.00</strong></div>
+                <div><span class="check">✓</span><p><b>Required tools</b><small>Trace-aware</small></p><strong>1.00</strong></div>
+                <div><span class="check">✓</span><p><b>Latency threshold</b><small>Operational</small></p><strong>1.00</strong></div>
+                <div id="judge-score"><span class="check">✓</span><p><b>Answer quality</b><small>LLM judge</small></p><strong>0.95</strong></div>
+                <div class="score-total"><span>Average score</span><strong id="average-score">0.95</strong></div>
+              </div>
+              <div class="js-panel gate-result" data-output="gate" hidden>
+                <div class="gate-orb passed" id="gate-orb">✓</div><span>RELEASE DECISION</span><h3 id="gate-title">Ready to ship</h3>
+                <p id="gate-copy">Observed 95% · Required 90%</p><div class="gate-bar"><i id="gate-bar" style="width:95%"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="evaluators">
+      <div class="split">
+        <div class="split-copy"><span class="kicker">UNIFIED EVALUATOR FRAMEWORK</span><h2>Your models.<br>Your rubrics.<br>One contract.</h2><p>AgenticLens does not lock evaluation to one provider. Register a trusted evaluator, reference it in a versioned suite, and route every score through the same report and release gate.</p><div class="pill-row"><span>Deterministic</span><span>LLM judge</span><span>Semantic</span><span>Safety</span><span>RAG</span><span>Custom</span></div></div>
+        <div class="code-card"><div class="code-tabs"><span class="active">judge.py</span><span>suite.yaml</span></div><pre class="static-code"><code><span class="keyword">from</span> agenticlens.evaluation <span class="keyword">import</span> (
+  EvaluatorRegistry, LLMJudgeEvaluator
+)
+
+registry = EvaluatorRegistry()
+registry.register(
+  LLMJudgeEvaluator(
+    <span class="string">"quality_judge"</span>, call_your_model
+  )
+)
+
+report = evaluate_suite(
+  suite, samples, registry=registry
+)</code></pre><div class="code-status"><span>●</span>Provider-neutral · Normalized score · Gate-ready</div></div>
+      </div>
+    </section>
+
+    <section class="workflow section" id="workflow"><div class="shell">
+      <div class="section-heading"><div><span class="kicker">HOW IT WORKS</span><h2>Instrument once.<br>Use the evidence everywhere.</h2></div><p>AgenticLens produces portable artifacts your team can inspect, compare, share, and enforce.</p></div>
+      <div class="flow"><article><span>01</span><i></i><h3>Instrument</h3><p>Wrap workflows and spans with a small Python API.</p></article><article><span>02</span><i></i><h3>Observe</h3><p>Capture traces, tokens, latency, cost, and behavior.</p></article><article><span>03</span><i></i><h3>Evaluate</h3><p>Run versioned suites with built-in and custom evaluators.</p></article><article><span>04</span><i></i><h3>Ship</h3><p>Compare candidates and enforce release policies in CI.</p></article></div>
+    </div></section>
+
+    <section class="section shell" id="open-source"><div class="open-card">
+      <div><span class="kicker">OPEN SOURCE · MIT LICENSE</span><h2>Your agent data<br>stays yours.</h2><p>No mandatory account. No hosted backend. No data egress required just to inspect a run. Start locally and integrate on your terms.</p><div class="hero-actions"><a class="button button-primary" href="https://github.com/DeepAgentLabs/agenticlens">View on GitHub ↗</a><a class="button button-ghost" href="docs/">Read the docs</a></div></div>
+      <div class="terminal"><div><span></span><span></span><span></span><em>terminal</em></div><pre><code><i>$</i> pip install agenticlens
+<i>$</i> agenticlens inspect trace.json
+
+<b>Run Summary</b>
+Status      <strong>succeeded</strong>
+Spans       7
+Tokens      86
+Latency     5.2 ms
+
+<i>$</i> agenticlens gate evaluation.json
+<strong>✓ Release gate passed.</strong></code></pre></div>
+    </div></section>
+
+    <footer><div class="shell footer-inner"><a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span>AgenticLens</a><p>Observability and evaluation for production-ready agentic AI.</p><div><a href="https://github.com/DeepAgentLabs/agenticlens">GitHub</a><a href="docs/">Docs</a><a href="#top">Back to top ↑</a></div></div></footer>
+  </main>
+  <script src="site.js"></script>
+</body>
+</html>

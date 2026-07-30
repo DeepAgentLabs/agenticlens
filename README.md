@@ -50,6 +50,7 @@ The product idea is simple:
 - [Privacy-Preserving Capture](#privacy-preserving-capture)
 - [Memory and Retry Diagnostics](#memory-and-retry-diagnostics)
 - [Repeated-Run Comparison](#repeated-run-comparison)
+- [Evaluation and Release Gates](#evaluation-and-release-gates)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -85,6 +86,11 @@ AgenticLens currently detects token waste patterns such as:
 It can also capture hierarchical agent traces, measure memory and retry
 overhead, compare repeated baseline and candidate runs, and fail CI when a
 candidate exceeds configured regression limits.
+
+AgenticLens can now evaluate versioned test suites against recorded outputs and
+traces. Deterministic checks cover answer content, required or forbidden tool
+use, latency, and cost. The resulting evidence can be exported as JSON, rendered
+as a standalone HTML report, and enforced as a release gate in CI.
 
 ## Architecture
 
@@ -172,10 +178,45 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Hierarchical run/span tracing | Implemented, experimental |
 | Memory and retry overhead findings | Implemented, experimental |
 | Repeated-run regression comparison | Implemented, experimental |
-| Evaluation SDK and test suites | Planned |
+| Unified evaluator SDK and versioned test suites | Implemented, experimental |
+| Provider-neutral custom and LLM-judge adapters | Implemented, experimental |
+| Quality, tool-use, latency, and cost release gates | Implemented, experimental |
+| Standalone evaluation HTML report | Implemented, experimental |
 | Statistical significance testing | Planned |
 | Framework trace adapters and OpenTelemetry export | Planned |
 | Dashboard, ModelFit, and governance | Planned |
+
+## Evaluation and Release Gates
+
+Versioned YAML or JSON suites turn expected agent behavior into executable
+acceptance criteria. AgenticLens checks response content, required and forbidden
+tools, end-to-end latency, and estimated cost against recorded run traces.
+
+```bash
+agenticlens evaluate suite.yaml samples.json \
+  --save evaluation.json \
+  --html evaluation.html
+
+agenticlens gate evaluation.json \
+  --min-pass-rate 0.95 \
+  --min-average-score 0.98 \
+  --max-failed-cases 1
+```
+
+The evaluation command produces machine-readable JSON and an optional
+standalone HTML report. The gate command returns exit status `2` when a
+configured release threshold fails, making it suitable for CI.
+
+The offline LangGraph pitch demonstration exercises the complete workflow:
+
+```bash
+uv sync --extra langgraph
+uv run python -m examples.pitch_demo.run_pitch_demo
+```
+
+It performs a real supervisor graph execution, records structured multi-agent
+spans, evaluates output and tool behavior, applies the release gate, and writes
+the presentation-ready report to `examples/pitch_demo/artifacts/evaluation.html`.
 
 ## Installation
 
@@ -833,10 +874,16 @@ Other examples:
 - `examples/rag_customer_support_demo.py`
 - `examples/multiagent_support_demo.py`
 - `examples/multiagent_token_optimization_demo.py`
+- `examples/reference_workflows/langgraph_supervisor.py` — offline LangGraph supervisor
 - `examples/export_demo.py` — export to Markdown and Jira
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
 
 Some examples call real provider APIs and require provider API keys.
+
+The reference workflows are based on orchestration patterns published by the
+official framework repositories. See
+[docs/multi-agent-reference-workflows.md](docs/multi-agent-reference-workflows.md)
+for setup, source links, dependency isolation, and instrumentation boundaries.
 
 ## Exporting Reports
 
