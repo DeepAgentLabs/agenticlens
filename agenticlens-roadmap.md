@@ -200,6 +200,31 @@ diagnostics, and baseline comparison.
 - privacy defaults and redaction behavior are documented
 - performance overhead is measured
 
+## v0.2.x — Evidence Provenance & Operational Intelligence
+
+### Objective
+
+Make every finding and recommendation traceable to its source evidence, and add
+intelligent guidance for what analysis to run next.
+
+### Planned deliverables
+
+- first-class `Evidence` object on all findings and recommendations (source
+  step/span, timestamp, confidence, derived reasoning chain)
+- "next best analysis" recommendations — suggest what the user should inspect
+  next based on workflow shape and current findings
+- OpenTelemetry trace export — let agenticlens traces flow into
+  Grafana/Jaeger/OTel-native systems
+- import-layer enforcement in CI — prevent architectural drift as the package
+  grows (e.g., `exporters/` must not import from `cli/`)
+
+### Completion criteria
+
+- every recommendation includes a provenance reference to its source spans
+- next-step suggestions are generated for workflows with 3+ analysis findings
+- OTel spans are emitted for profiled workflows when configured
+- CI rejects forbidden cross-module imports
+
 ## v0.3 — Evaluation Foundation
 
 ### Objective
@@ -285,6 +310,12 @@ recorded evidence.
 - anomaly detection
 - faulty-step and faulty-agent attribution
 - incident timeline reconstruction
+- investigation-style narratives on top of recommendations — root-cause
+  explanations of waste, retries, handoff bloat, or tool inefficiency
+- richer CLI subcommands for inspection (`inspect`, `compare`, `trace show`,
+  `report explain`)
+- analysis guardrails (budget limits, recursion-depth caps, stagnation
+  detection for automated analyzers)
 
 ### Completion criteria
 

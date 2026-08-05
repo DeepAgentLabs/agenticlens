@@ -1,0 +1,76 @@
+## AgenticLens Development Reference
+
+## Build and Run
+
+- Install: `make install` (runs `uv sync --extra dev --extra docs`)
+- Test: `make test` or `make check` (lint + format + typecheck + test)
+- Lint: `make lint`
+- Type check: `make typecheck`
+- Build docs: `make docs`
+- CLI: `uv run agenticlens <command>`
+
+## Code Style
+
+- Strict typing (mypy strict mode, Python 3.10+)
+- Line length: 100
+- Ruff rules: E, F, I, UP, B, SIM, N
+- Per-file ignores: E501 for `html_report.py`
+- One purpose per file (separation of concerns)
+- Evidence-backed: findings must identify measurements, thresholds, and trace
+  evidence on which they are based
+
+## Repo Map
+
+| Path | Purpose |
+|------|---------|
+| `src/agenticlens/profiler/` | Workflow and step profiling (`profile()`, `step()`) |
+| `src/agenticlens/instrumentation/` | Structured Run/Span tracing, payload redaction |
+| `src/agenticlens/analysis/` | Memory and retry diagnostics |
+| `src/agenticlens/analyzers/` | Analyzer implementations |
+| `src/agenticlens/comparison/` | Repeated-run statistics, regression reports |
+| `src/agenticlens/config/` | Pricing data, settings, configuration |
+| `src/agenticlens/evaluation/` | Test cases, suites, evaluators, and scoring |
+| `src/agenticlens/exporters/` | JSON, CSV, Markdown, Jira exports |
+| `src/agenticlens/metrics/` | Cost and performance calculation |
+| `src/agenticlens/models/` | Pydantic data models (Workflow, Step, ChaosEvent) |
+| `src/agenticlens/providers/` | Provider response usage extraction (OpenAI, Anthropic) |
+| `src/agenticlens/recommenders/` | Rule-based optimization suggestions |
+| `src/agenticlens/reports/` | Trace inspection rendering |
+| `src/agenticlens/cli/` | Typer CLI and Rich rendering |
+| `src/agenticlens/utils/` | Shared utilities |
+| `schemas/` | Versioned JSON Schemas (trace, finding, report) |
+| `tests/` | Pytest test suite |
+| `docs/` | MkDocs documentation source |
+| `Makefile` | Local dev automation |
+
+## Entry Points
+
+- Console script: `agenticlens` → `cli/main.py:app`
+- Profiling API: `from agenticlens import profile, step`
+- Analysis CLI: `agenticlens analyze <workflow.json>`
+
+## Module Boundaries
+
+- `exporters/` must not import from `cli/`
+- `models/` must not import from `recommenders/` or `analysis/`
+- `providers/` extracts usage data only — no analysis logic
+- `recommenders/` reads models and metrics, produces findings
+- `cli/` composes everything for user-facing commands
+
+## Adding a New Recommender
+
+1. Create `src/agenticlens/recommenders/my_recommender.py`
+2. Implement the recommender (takes a Workflow, returns findings)
+3. Register in `DEFAULT_RECOMMENDERS` in `recommenders/engine.py`
+4. Add tests in `tests/`
+5. Every finding must include source evidence (step/span reference)
+
+## Schema Versioning
+
+- Schemas live in `schemas/` and are included in the wheel via `force-include`
+- Trace, finding, and comparison-report schemas are versioned independently
+- Additive changes preferred; breaking changes require version bump
+
+## Pre-push Checklist
+
+Run `make check` before every push. It runs: lint → format-check → typecheck → test.
