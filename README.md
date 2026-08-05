@@ -1009,21 +1009,21 @@ The `compare` command accepts either one JSON trace file or a directory of
 
 ## Development
 
-Install development dependencies:
+A `Makefile` provides shorthand for common tasks:
 
 ```bash
-uv sync --extra dev
+make install     # install dev dependencies
+make check       # run all quality gates (lint + format + typecheck + test)
+make test-cov    # tests with coverage report
+make docs        # build documentation
+make help        # list all available targets
 ```
 
-Run the test suite:
+Or run individual steps:
 
 ```bash
+uv sync --extra dev --extra docs
 uv run pytest
-```
-
-Run linting, formatting, and type checks:
-
-```bash
 uv run ruff check .
 uv run ruff format .
 uv run mypy
@@ -1059,6 +1059,12 @@ schemas/           versioned trace, finding, and report JSON Schemas
 
 Near-term priorities:
 
+- **evidence provenance** — every recommendation points to source step/span,
+  timestamp, confidence, and derived reasoning
+- **next-best-analysis recommendations** — suggest what to inspect next based
+  on workflow shape
+- **OpenTelemetry export** — traces flow into Grafana/Jaeger/OTel-native systems
+- **import-layer enforcement** — CI prevents architectural drift across modules
 - context-duplication detection
 - retry classification and triggering-failure association
 - experiment manifests and confidence intervals
