@@ -64,7 +64,19 @@ Recommendation rules should:
 
 ## Releases
 
-Releases are automated via GitHub Actions when a version tag is pushed. See the release workflow for details.
+Releases are automated via GitHub Actions when a version tag is pushed.
+
+### Release checklist
+
+1. Update the version string in all three locations:
+   - `pyproject.toml` → `version = "X.Y.Z"`
+   - `src/agenticlens/__init__.py` → `__version__ = "X.Y.Z"`
+   - `CHANGELOG.md` → add a `## X.Y.Z - YYYY-MM-DD` section
+2. Commit: `git commit -am "release: vX.Y.Z"`
+3. Tag: `git tag vX.Y.Z`
+4. Push: `git push origin main --tags`
+
+The `release-pypi.yml` workflow triggers on the tag push and publishes to PyPI via Trusted Publishing (OIDC).
 
 ## Community and security
 
