@@ -3,16 +3,19 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from agenticlens.evaluation import (
+    BusinessRuleEvaluator,
     EvaluationContext,
     EvaluationSample,
     EvaluatorConfig,
     EvaluatorRegistry,
     GateConfig,
     LLMJudgeEvaluator,
+    PythonTarget,
     Score,
     evaluate_gate,
     evaluate_suite,
     render_html_report,
+    run_live_suite,
 )
 from agenticlens.evaluation import (
     TestCase as EvaluationTestCase,
@@ -177,3 +180,161 @@ def test_unregistered_evaluator_is_rejected() -> None:
             suite,
             [EvaluationSample(case_id="case-1", output="ok", trace=make_run())],
         )
+
+
+def test_evaluate_suite_supports_json_fields_tool_args_and_turn_thresholds() -> None:
+    suite = EvaluationTestSuite(
+        name="structured",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="Structured output",
+                output_json_schema={
+                    "type": "object",
+                    "required": ["answer", "meta"],
+                    "properties": {
+                        "answer": {"type": "string"},
+                        "meta": {"type": "object", "required": ["confidence"]},
+                    },
+                },
+                required_output_fields=["meta.confidence"],
+                required_tool_arguments={"add": ["a", "b"]},
+                max_turns=2,
+            )
+        ],
+    )
+    run = make_run()
+    run.metadata["turn_count"] = 2
+    run.spans[0].attributes["tool_args"] = {"a": 40, "b": 2}
+
+    report = evaluate_suite(
+        suite,
+        [
+            EvaluationSample(
+                case_id="case-1",
+                output='{"answer":"42","meta":{"confidence":0.9}}',
+                trace=run,
+            )
+        ],
+    )
+    assert report.cases[0].passed
+    assert {score.name for score in report.cases[0].scores} >= {
+        "json_schema",
+        "required_field:meta.confidence",
+        "tool_args:add",
+        "turn_count_threshold",
+    }
+
+
+def test_business_rule_evaluator_uses_business_rule_type() -> None:
+    registry = EvaluatorRegistry()
+    registry.register(
+        BusinessRuleEvaluator(
+            "business_rule",
+            lambda context: Score(
+                name="vip_rule",
+                value=1.0 if context.sample.output == "vip" else 0.0,
+                passed=False,
+                explanation="VIP response requirement.",
+            ),
+        )
+    )
+    suite = EvaluationTestSuite(
+        name="business",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="VIP policy",
+                evaluators=[EvaluatorConfig(name="business_rule")],
+            )
+        ],
+    )
+    report = evaluate_suite(
+        suite,
+        [EvaluationSample(case_id="case-1", output="vip", trace=make_run())],
+        registry=registry,
+    )
+    assert report.cases[0].scores[0].evaluator_type == "business_rule"
+
+
+def test_run_live_suite_executes_python_target() -> None:
+    suite = EvaluationTestSuite(
+        name="live",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="Answer",
+                input={"response": '{"answer":"42","meta":{"confidence":0.9}}'},
+                output_json_schema={"type": "object", "required": ["answer"]},
+                required_tool_arguments={"add": ["a", "b"]},
+                max_turns=1,
+            )
+        ],
+    )
+    report = run_live_suite(
+        suite,
+        PythonTarget(callable_path="tests/live_eval_target.py:run_case"),
+    )
+    assert report.summary.pass_rate == 1.0
+
+
+def test_run_live_suite_preserves_suite_case_id_when_target_returns_one(tmp_path) -> None:
+    target_file = tmp_path / "target.py"
+    target_file.write_text(
+        "\n".join(
+            [
+                "from datetime import datetime, timezone",
+                "",
+                "def run_case(payload, *, case):",
+                "    return {",
+                "        'case_id': 'wrong-case',",
+                "        'output': 'ok',",
+                "        'trace': {",
+                "            'application_name': 'live-target',",
+                "            'started_at': datetime.now(timezone.utc).isoformat(),",
+                "            'completed_at': datetime.now(timezone.utc).isoformat(),",
+                "            'status': 'succeeded',",
+                "            'task_success': True,",
+                "            'spans': [],",
+                "        },",
+                "    }",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    suite = EvaluationTestSuite(
+        name="live",
+        version="1",
+        cases=[EvaluationTestCase(id="case-1", name="Answer", expected_output="ok")],
+    )
+
+    report = run_live_suite(
+        suite,
+        PythonTarget(callable_path=f"{target_file}:run_case"),
+    )
+
+    assert report.cases[0].case_id == "case-1"
+
+
+def test_json_schema_reports_unsupported_type_gracefully() -> None:
+    suite = EvaluationTestSuite(
+        name="schema",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="Unsupported type",
+                output_json_schema={"type": "null"},
+            )
+        ],
+    )
+    report = evaluate_suite(
+        suite,
+        [EvaluationSample(case_id="case-1", output="null", trace=make_run())],
+    )
+
+    assert not report.cases[0].passed
+    assert report.cases[0].scores[0].explanation == "Unsupported JSON schema type 'null'."
