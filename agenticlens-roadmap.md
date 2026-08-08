@@ -217,6 +217,10 @@ intelligent guidance for what analysis to run next.
   Grafana/Jaeger/OTel-native systems
 - import-layer enforcement in CI — prevent architectural drift as the package
   grows (e.g., `exporters/` must not import from `cli/`)
+- AIOS conformance tooling in the CLI — commands such as
+  `agenticlens validate workflow.json` and
+  `agenticlens conformance --version 0.4 workflow.json`, with normative rules,
+  fixtures, and expected behavior defined by `ai-operations-spec`
 
 ### Completion criteria
 
@@ -224,6 +228,8 @@ intelligent guidance for what analysis to run next.
 - next-step suggestions are generated for workflows with 3+ analysis findings
 - OTel spans are emitted for profiled workflows when configured
 - CI rejects forbidden cross-module imports
+- conformance reports clearly distinguish AIOS-defined pass/fail rules from
+  AgenticLens-specific presentation and CLI behavior
 
 ## v0.3 — Evaluation Foundation
 
@@ -314,6 +320,8 @@ recorded evidence.
   explanations of waste, retries, handoff bloat, or tool inefficiency
 - richer CLI subcommands for inspection (`inspect`, `compare`, `trace show`,
   `report explain`)
+- richer conformance commands and reporting (`conformance`, spec-version
+  selection, structured pass/fail summaries)
 - analysis guardrails (budget limits, recursion-depth caps, stagnation
   detection for automated analyzers)
 
