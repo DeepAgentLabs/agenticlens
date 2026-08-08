@@ -1,5 +1,33 @@
 # AgenticLens Product Roadmap
 
+## Release Status
+
+Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0`
+(current, 2026-08-08) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+below are this roadmap's release-plan sequence, not PyPI tags — shipped
+`0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
+forward from `v0.5` and `v1.0`.
+
+- **v0.2** ✅ Delivered in `0.3.0` — Trace and Comparison Foundation
+  (hierarchical tracing, cyclic-parent detection, retry attribution,
+  regression detection, baseline/candidate comparison, and Markdown reports)
+- **v0.2.x** 🚧 Planned — Evidence Provenance & Operational Intelligence
+  (`Evidence` objects, OTel export, import-layer enforcement, AIOS conformance
+  CLI)
+- **v0.3** 🏗️ Mostly complete — Evaluation Foundation (evaluator framework,
+  deterministic checks, custom/LLM-judge evaluators, release gates,
+  `evaluate`/`gate` CLI, and live agent targets); judge calibration and
+  dataset management still open
+- **v0.4** 🚧 Planned — Experiments and Statistical Comparison
+- **v0.5** 🚧 Planned — Advanced Evaluation and Diagnosis (semantic/safety/RAG
+  scoring partially pulled forward into `v0.3`)
+- **v0.6** 🚧 Planned — Test-Suite and Dataset Management
+- **v0.7** 🚧 Planned — ModelFit
+- **v0.8** 🚧 Planned — Advisory Runtime Routing
+- **v0.9** 🚧 Planned — Optimization Intelligence
+- **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
+  partially pulled forward into `v0.3`)
+
 ## Purpose
 
 This roadmap defines the planned evolution of AgenticLens from a local workflow
@@ -98,7 +126,8 @@ The following capabilities are implemented in the current development line.
 - RAG chunk-utility analysis
 - long-history detection
 - duplicate tool-call detection
-- multi-agent handoff analysis
+- multi-agent handoff analysis, including handoff-bloat findings
+- agent-aware summaries in CLI analysis output
 - model-tier cost comparison
 - agentic-chaos impact findings
 
@@ -124,6 +153,24 @@ The following capabilities are implemented in the current development line.
 - configurable regression detection
 - JSON and CSV comparison reports
 - CI-compatible regression exit status
+
+### Evaluation and release gates
+
+- versioned YAML and JSON test suites (`TestSuite`, `TestCase`)
+- a unified, provider-neutral evaluator contract (`Evaluator`, `EvaluationContext`,
+  `Score`, `EvaluatorRegistry`)
+- built-in deterministic checks: exact match, required-substring match, required
+  and forbidden tool calls, latency threshold, cost threshold
+- custom evaluators via `CallableEvaluator`, and model-based judges via
+  `LLMJudgeEvaluator`, sharing one normalized score contract
+- evaluation against recorded samples and their AgenticLens traces (not yet
+  live Python or HTTP agent invocation)
+- JSON and standalone HTML evaluation reports
+- configurable release gates on pass rate, average score, failed-case count,
+  average latency, and total cost, with CI-friendly exit codes
+- `evaluate` and `gate` CLI commands
+- a deterministic, offline LangGraph reference workflow demonstrating tracing,
+  evaluation, and release-gate output together
 
 ### Artifact contracts
 
@@ -176,21 +223,20 @@ diagnostics, and baseline comparison.
 - raw token, latency, cost, retry, and tool metrics
 - payload redaction
 - memory and retry findings
+- cyclic parent detection
+- retry attribution and retry outcome classification
+- duplicated-context detection
 - repeated-run statistics
 - baseline-versus-candidate regression detection
+- minimum-sample guidance in comparison reports
 - trace inspection and comparison CLI commands
-- JSON and CSV comparison exports
+- JSON, CSV, and Markdown comparison exports
+- Markdown trace reports
 - versioned research schemas
 
 ### Remaining work
 
-- detect cyclic parent relationships
-- associate retry spans with triggering failures
-- classify retry outcomes
-- detect duplicated context
 - measure instrumentation overhead
-- add minimum-sample guidance to comparison reports
-- add Markdown trace and comparison reports
 
 ### Completion criteria
 
@@ -198,7 +244,7 @@ diagnostics, and baseline comparison.
 - existing profiler APIs remain compatible
 - comparison results reproduce from saved traces
 - privacy defaults and redaction behavior are documented
-- performance overhead is measured
+- [ ] performance overhead is measured
 
 ## v0.2.x — Evidence Provenance & Operational Intelligence
 
@@ -207,16 +253,19 @@ diagnostics, and baseline comparison.
 Make every finding and recommendation traceable to its source evidence, and add
 intelligent guidance for what analysis to run next.
 
-### Planned deliverables
+### Delivered so far
 
-- first-class `Evidence` object on all findings and recommendations (source
+- first-class `Evidence` object on findings and recommendations (source
   step/span, timestamp, confidence, derived reasoning chain)
 - "next best analysis" recommendations — suggest what the user should inspect
   next based on workflow shape and current findings
-- OpenTelemetry trace export — let agenticlens traces flow into
-  Grafana/Jaeger/OTel-native systems
 - import-layer enforcement in CI — prevent architectural drift as the package
   grows (e.g., `exporters/` must not import from `cli/`)
+
+### Remaining planned deliverables
+
+- OpenTelemetry trace export — let agenticlens traces flow into
+  Grafana/Jaeger/OTel-native systems
 - AIOS conformance tooling in the CLI — commands such as
   `agenticlens validate workflow.json` and
   `agenticlens conformance --version 0.4 workflow.json`, with normative rules,
@@ -224,12 +273,12 @@ intelligent guidance for what analysis to run next.
 
 ### Completion criteria
 
-- every recommendation includes a provenance reference to its source spans
-- next-step suggestions are generated for workflows with 3+ analysis findings
-- OTel spans are emitted for profiled workflows when configured
-- CI rejects forbidden cross-module imports
-- conformance reports clearly distinguish AIOS-defined pass/fail rules from
-  AgenticLens-specific presentation and CLI behavior
+- [x] every recommendation includes a provenance reference to its source spans
+- [x] next-step suggestions are generated from current findings
+- [ ] OTel spans are emitted for profiled workflows when configured
+- [x] CI rejects forbidden cross-module imports
+- [ ] conformance reports clearly distinguish AIOS-defined pass/fail rules from
+      AgenticLens-specific presentation and CLI behavior
 
 ## v0.3 — Evaluation Foundation
 
@@ -238,35 +287,48 @@ intelligent guidance for what analysis to run next.
 Evaluate task outcomes and execution requirements using versioned, reusable test
 suites.
 
-### Planned deliverables
+### Delivered
 
-- `TestCase` and `TestSuite` models
-- `Evaluator`, `EvaluationContext`, and `Score` interfaces
-- YAML and JSON test-suite loading
-- evaluator registration
-- native Python and HTTP targets
-- JSON and Markdown evaluation reports
-- evaluator and suite version capture
+- `TestCase` and `TestSuite` models with versioned YAML/JSON loading
+- `Evaluator`, `EvaluationContext`, `Score`, and `EvaluatorRegistry` interfaces
+- built-in deterministic checks: exact match, required-substring match,
+  required/forbidden tools, JSON Schema validation, required fields,
+  required tool arguments, turn-count threshold, latency threshold, and cost
+  threshold
+- `CallableEvaluator` for custom Python rules, semantic, safety, and RAG
+  checks, `BusinessRuleEvaluator`, and `LLMJudgeEvaluator` for model-based
+  judgments, on one shared score contract
+- JSON and standalone HTML evaluation reports (HTML in place of the
+  originally planned Markdown report)
+- configurable release gates (pass rate, average score, failed cases,
+  latency, cost) with CI-friendly exit codes, via the `evaluate` and `gate`
+  CLI commands
+- live Python and HTTP evaluation targets via `evaluate-live`
+- a deterministic, offline LangGraph reference workflow demonstrating the
+  full trace-to-evaluation-to-gate path
 
-### Initial deterministic evaluators
+This pulled forward parts of the semantic, safety, RAG, and LLM-judge scoring
+originally planned for [v0.5](#v05--advanced-evaluation-and-diagnosis), and
+part of the release-gate concept originally planned for
+[v1.0](#v10--production-and-enterprise-readiness), via the shared evaluator
+contract rather than as separate subsystems.
 
-- exact match
-- contains match
-- JSON Schema validation
-- required fields
-- required and forbidden tools
-- tool-argument validation
-- latency threshold
-- cost threshold
-- turn-count threshold
-- custom business rules
+### Remaining work
+
+- built-in provider clients for LLM-judge calls (applications currently
+  supply the model call themselves)
+- asynchronous and batched evaluation execution
+- judge calibration reports and statistical confidence intervals
+- evaluation dataset management
+- automatic framework event adapters beyond the LangGraph reference demo
 
 ### Completion criteria
 
-- one Python agent and one HTTP agent can run the same suite
-- every score identifies its evaluator and version
-- reports distinguish measured and estimated values
-- failed cases retain trace-level evidence
+- [x] every score identifies its evaluator and version
+- [x] reports distinguish measured and estimated values (evaluated scores vs.
+      unavailable/omitted cost and latency data)
+- [x] failed cases retain trace-level evidence
+- [x] one Python agent and one HTTP agent can run the same suite live
 
 ## v0.4 — Experiments and Statistical Comparison
 
@@ -470,6 +532,10 @@ deployment options.
 
 Integrations will be introduced after the trace and evaluation contracts are
 stable enough to map framework behavior consistently.
+
+A deterministic LangGraph example demonstrates tracing, evaluation, and
+release-gate output together (see [v0.3](#v03--evaluation-foundation)), but
+this is a reference demo, not a first-class, maintained integration package.
 
 Planned targets include:
 
