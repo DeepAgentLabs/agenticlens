@@ -69,6 +69,13 @@ class LLMJudgeEvaluator(CallableEvaluator):
         super().__init__(name, judge, evaluator_type="llm_judge")
 
 
+class BusinessRuleEvaluator(CallableEvaluator):
+    """Named helper for application-specific pass/fail logic."""
+
+    def __init__(self, name: str, rule: EvaluationFunction) -> None:
+        super().__init__(name, rule, evaluator_type="business_rule")
+
+
 class EvaluatorRegistry:
     def __init__(self) -> None:
         self._evaluators: dict[str, Evaluator] = {}
