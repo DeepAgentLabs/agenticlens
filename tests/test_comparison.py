@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from agenticlens.comparison import compare_runs
+from agenticlens.comparison import compare_runs, render_comparison_markdown
 from agenticlens.comparison.runner import summarize_runs
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 
@@ -67,3 +67,13 @@ def test_compare_detects_quality_and_efficiency_regressions():
 def test_comparison_requires_runs():
     with pytest.raises(ValueError, match="At least one run"):
         summarize_runs("empty", [])
+
+
+def test_comparison_adds_minimum_sample_guidance_and_markdown():
+    baseline = [_run(success=True, tokens=100, latency_ms=100)]
+    candidate = [_run(success=True, tokens=90, latency_ms=90)]
+    report = compare_runs(baseline, candidate)
+
+    assert report.sample_size_guidance is not None
+    markdown = render_comparison_markdown(report)
+    assert "Sample Size Guidance" in markdown

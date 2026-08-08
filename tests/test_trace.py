@@ -6,7 +6,10 @@ from pydantic import ValidationError
 from agenticlens import Run, RunStatus, SpanType, trace
 from agenticlens.analysis.trace import (
     analyze_trace,
+    classify_retry_outcomes,
+    duplicated_context_groups,
     memory_share,
+    retry_attribution,
     retry_latency_ms,
     retry_token_share,
 )
@@ -71,6 +74,18 @@ def test_run_rejects_unknown_parent():
         ],
     }
     with pytest.raises(ValidationError, match="unknown parent"):
+        Run.model_validate(payload)
+
+
+def test_run_rejects_parent_cycles():
+    payload = {
+        "application_name": "bad",
+        "spans": [
+            {"span_id": "a", "name": "one", "span_type": "custom", "parent_span_id": "b"},
+            {"span_id": "b", "name": "two", "span_type": "custom", "parent_span_id": "a"},
+        ],
+    }
+    with pytest.raises(ValidationError, match="cycle"):
         Run.model_validate(payload)
 
 
@@ -155,3 +170,35 @@ def test_memory_and_retry_analysis_cites_span_evidence():
     findings = analyze_trace(recording.run)
     assert {finding.category for finding in findings} == {"memory", "retry"}
     assert findings[0].span_ids
+    assert findings[0].evidence
+
+
+def test_retry_analysis_attributes_triggering_failure_and_outcomes():
+    recording = trace("retry-attribution")
+    with recording:
+        with pytest.raises(RuntimeError), recording.span("tool", SpanType.TOOL_CALL):
+            raise RuntimeError("network")
+        with recording.span("retry", SpanType.RETRY) as retry:
+            retry.record_tokens(5, 0)
+            with recording.span("tool-success", SpanType.TOOL_CALL):
+                pass
+
+    outcomes = classify_retry_outcomes(recording.run)
+    attribution = retry_attribution(recording.run)
+    retry_span = next(span for span in recording.run.spans if span.span_type is SpanType.RETRY)
+    assert outcomes["recovered"] == 1
+    assert attribution[retry_span.span_id]["triggering_failure_span_id"]
+    assert "triggering_failure_span_id" not in retry_span.attributes
+
+
+def test_duplicate_context_detection_groups_reused_inputs():
+    with trace("duplicates") as recording:
+        with recording.span("one", SpanType.MODEL_CALL, input_reference="context:42"):
+            pass
+        with recording.span("two", SpanType.MODEL_CALL, input_reference="context:42"):
+            pass
+
+    groups = duplicated_context_groups(recording.run)
+    findings = analyze_trace(recording.run, duplicated_context_threshold=2)
+    assert groups == [[recording.run.spans[0].span_id, recording.run.spans[1].span_id]]
+    assert any(finding.category == "context" for finding in findings)

@@ -2,7 +2,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.tree import Tree
 
-from agenticlens.analysis import analyze_trace
+from agenticlens.analysis import analyze_trace, next_best_analyses
 from agenticlens.metrics.trace import (
     latency_by_span_type,
     retry_count,
@@ -10,6 +10,10 @@ from agenticlens.metrics.trace import (
     tool_call_count,
 )
 from agenticlens.models.trace import Run, Span
+
+
+def _escape_markdown_cell(value: str) -> str:
+    return value.replace("|", "\\|").replace("\r", "").replace("\n", "<br>")
 
 
 def _span_label(span: Span) -> str:
@@ -67,6 +71,61 @@ def render_trace(console: Console, run: Run) -> None:
             finding_table.add_row(
                 finding.severity,
                 finding.title,
-                ", ".join(f"{key}={value}" for key, value in finding.evidence.items()),
+                "; ".join(
+                    f"{item.source}: {item.reasoning or item.details}" for item in finding.evidence
+                ),
             )
         console.print(finding_table)
+        suggestions = next_best_analyses(findings)
+        if suggestions:
+            console.print("[bold]Next Best Analysis[/bold]")
+            for suggestion in suggestions:
+                console.print(f"  • {suggestion}")
+
+
+def render_trace_markdown(run: Run) -> str:
+    findings = analyze_trace(run)
+    lines = [
+        f"# Trace Report: {run.application_name}",
+        "",
+        "## Summary",
+        "",
+        "| Metric | Value |",
+        "| --- | ---: |",
+        f"| Run ID | `{run.run_id}` |",
+        f"| Status | {run.status.value} |",
+        f"| Total tokens | {run.total_tokens} |",
+        f"| Latency (ms) | {run.total_latency_ms:.1f} |",
+        f"| Retries | {retry_count(run)} |",
+        f"| Tool calls | {tool_call_count(run)} |",
+        "",
+        "## Spans",
+        "",
+        "| Name | Type | Parent | Tokens | Latency (ms) | Status |",
+        "| --- | --- | --- | ---: | ---: | --- |",
+    ]
+    for span in run.spans:
+        lines.append(
+            f"| {_escape_markdown_cell(span.name)} | {span.span_type.value} "
+            f"| {_escape_markdown_cell(span.parent_span_id or '-')} "
+            f"| {span.total_tokens} | {span.latency_ms:.1f} | {span.status.value} |"
+        )
+    if findings:
+        lines.extend(["", "## Findings", ""])
+        for finding in findings:
+            lines.append(f"### {finding.title}")
+            lines.append("")
+            lines.append(f"- Severity: {finding.severity}")
+            lines.append(f"- Category: {finding.category}")
+            lines.append(f"- Confidence: {finding.confidence:.2f}")
+            if finding.span_ids:
+                lines.append(f"- Spans: {', '.join(finding.span_ids)}")
+            for item in finding.evidence:
+                lines.append(f"- Evidence ({item.source}): {item.reasoning or item.details}")
+            lines.append("")
+        suggestions = next_best_analyses(findings)
+        if suggestions:
+            lines.extend(["## Next Best Analysis", ""])
+            lines.extend([f"- {suggestion}" for suggestion in suggestions])
+            lines.append("")
+    return "\n".join(lines) + "\n"

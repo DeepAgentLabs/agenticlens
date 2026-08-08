@@ -12,6 +12,21 @@
     "severity": {"type": "string"},
     "confidence": {"type": "number", "minimum": 0, "maximum": 1},
     "span_ids": {"type": "array", "items": {"type": "string"}},
-    "evidence": {"type": "object"}
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "confidence", "details"],
+        "properties": {
+          "source": {"type": "string", "minLength": 1},
+          "span_id": {"type": ["string", "null"]},
+          "timestamp": {"type": ["string", "null"], "format": "date-time"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "reasoning": {"type": ["string", "null"]},
+          "details": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    }
   }
 }

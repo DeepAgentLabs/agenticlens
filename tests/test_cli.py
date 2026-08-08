@@ -20,6 +20,19 @@ def test_inspect_trace(tmp_path):
     assert "demo" in result.output
 
 
+def test_inspect_trace_can_save_markdown(tmp_path):
+    trace_file = tmp_path / "trace.json"
+    markdown_file = tmp_path / "trace.md"
+    trace_file.write_text(
+        '{"application_name":"demo","status":"succeeded","spans":[]}',
+        encoding="utf-8",
+    )
+    result = CliRunner().invoke(app, ["inspect", str(trace_file), "--save", str(markdown_file)])
+    assert result.exit_code == 0
+    assert markdown_file.exists()
+    assert "Trace Report" in markdown_file.read_text(encoding="utf-8")
+
+
 def test_compare_trace_directories(tmp_path):
     baseline = tmp_path / "baseline"
     candidate = tmp_path / "candidate"
@@ -38,6 +51,43 @@ def test_compare_trace_directories(tmp_path):
     assert result.exit_code == 0
     assert "No regressions detected" in result.output
     assert report_file.exists()
+
+
+def test_compare_can_save_markdown(tmp_path):
+    baseline = tmp_path / "baseline"
+    candidate = tmp_path / "candidate"
+    baseline.mkdir()
+    candidate.mkdir()
+    payload = '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}'
+    (baseline / "run.json").write_text(payload, encoding="utf-8")
+    (candidate / "run.json").write_text(payload, encoding="utf-8")
+    report_file = tmp_path / "comparison.md"
+
+    result = CliRunner().invoke(
+        app,
+        ["compare", str(baseline), str(candidate), "--save", str(report_file), "--format", "md"],
+    )
+
+    assert result.exit_code == 0
+    assert "Sample Size Guidance" in report_file.read_text(encoding="utf-8")
+
+
+def test_compare_can_enforce_min_samples(tmp_path):
+    baseline = tmp_path / "baseline"
+    candidate = tmp_path / "candidate"
+    baseline.mkdir()
+    candidate.mkdir()
+    payload = '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}'
+    (baseline / "run.json").write_text(payload, encoding="utf-8")
+    (candidate / "run.json").write_text(payload, encoding="utf-8")
+
+    result = CliRunner().invoke(
+        app,
+        ["compare", str(baseline), str(candidate), "--min-samples", "2"],
+    )
+
+    assert result.exit_code == 3
+    assert "sample size requirement not met" in result.output.lower()
 
 
 runner = CliRunner()
@@ -171,3 +221,51 @@ def test_cli_analyze_no_recommendations(tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert "no optimization suggestions" in result.output.lower()
+
+
+def test_evaluate_live_python_target(tmp_path: Path) -> None:
+    suite_file = tmp_path / "suite.json"
+    report_file = tmp_path / "evaluation.json"
+    suite_file.write_text(
+        json.dumps(
+            {
+                "name": "live",
+                "version": "1",
+                "cases": [
+                    {
+                        "id": "case-1",
+                        "name": "Live target",
+                        "input": {"response": '{"answer":"42","meta":{"confidence":0.9}}'},
+                        "output_json_schema": {"type": "object", "required": ["answer"]},
+                        "required_tool_arguments": {"add": ["a", "b"]},
+                        "max_turns": 1,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "evaluate-live",
+            str(suite_file),
+            "--target-kind",
+            "python",
+            "--target",
+            "tests/live_eval_target.py:run_case",
+            "--save",
+            str(report_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert report_file.exists()
+    assert "Live evaluation complete" in result.output
+
+
+def test_evaluate_live_help_mentions_trusted_targets() -> None:
+    result = runner.invoke(app, ["evaluate-live", "--help"])
+    assert result.exit_code == 0
+    assert "trusted live python or http target" in result.output.lower()
