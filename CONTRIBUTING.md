@@ -22,7 +22,13 @@ uv sync --extra dev
 
 1. Create a focused branch from `main`.
 2. Add or update tests with every behavior change.
-3. Run:
+3. Add or update user-facing examples when the feature, CLI, output format, or
+   workflow changes.
+4. If a roadmap item is completed or its status changes, update `README.md`
+   and `agenticlens-roadmap.md` in the same pull request.
+5. If the work is release-ready, update `pyproject.toml`,
+   `src/agenticlens/__init__.py`, and `CHANGELOG.md` as part of the release.
+6. Run:
 
 ```bash
 ruff check .
@@ -31,8 +37,8 @@ mypy
 pytest
 ```
 
-4. Keep PRs focused — one concern per pull request.
-5. Write clear commit messages describing *why*, not just *what*.
+7. Keep PRs focused — one concern per pull request.
+8. Write clear commit messages describing *why*, not just *what*.
 
 ## Good contributions
 
