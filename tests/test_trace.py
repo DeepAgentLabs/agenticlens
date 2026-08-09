@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
@@ -202,3 +203,16 @@ def test_duplicate_context_detection_groups_reused_inputs():
     findings = analyze_trace(recording.run, duplicated_context_threshold=2)
     assert groups == [[recording.run.spans[0].span_id, recording.run.spans[1].span_id]]
     assert any(finding.category == "context" for finding in findings)
+
+
+def test_trace_exports_to_otlp_when_configured() -> None:
+    with (
+        patch("agenticlens.instrumentation.trace.OTLPTraceExporter.export") as export,
+        trace("support-agent", otlp_endpoint="http://collector:4318/v1/traces") as recording,
+        recording.span("plan", SpanType.PLANNING),
+    ):
+        pass
+
+    export.assert_called_once()
+    exported_run = export.call_args.args[0]
+    assert exported_run.application_name == "support-agent"
