@@ -40,6 +40,9 @@ dev = [
 docs = [
     { name = "mkdocs-material" },
 ]
+langchain = [
+    { name = "langchain-core" },
+]
 langgraph = [
     { name = "langgraph" },
 ]
@@ -51,6 +54,7 @@ multi-agent = [
 requires-dist = [
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "jsonschema", specifier = ">=4.23" },
+    { name = "langchain-core", marker = "extra == 'langchain'", specifier = ">=0.3" },
     { name = "langgraph", marker = "extra == 'langgraph'", specifier = ">=1.0,<2" },
     { name = "langgraph", marker = "extra == 'multi-agent'", specifier = ">=1.0,<2" },
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5" },
@@ -66,7 +70,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.12" },
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
 ]
-provides-extras = ["dev", "docs", "langgraph", "multi-agent"]
+provides-extras = ["dev", "docs", "langchain", "langgraph", "multi-agent"]
 
 [[package]]
 name = "annotated-doc"

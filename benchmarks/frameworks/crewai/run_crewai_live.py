@@ -17,7 +17,9 @@ from benchmarks.shared.live_travel_tasks import (
 )
 
 
-def classify_trip_native(planner_agent, Task, Crew, Process) -> tuple[LLMResponse, float]:
+def classify_trip_native(
+    planner_agent, task_cls, crew_cls, process_cls
+) -> tuple[LLMResponse, float]:
     """Real call runs through Crew.kickoff() -- CrewAI wraps the task in its
     own role/goal/backstory prompt template before it ever reaches the model,
     so token usage genuinely differs from a raw SDK call."""
@@ -25,12 +27,17 @@ def classify_trip_native(planner_agent, Task, Crew, Process) -> tuple[LLMRespons
         return classify_trip("CrewAI")
 
     start = time.time()
-    task = Task(
+    task = task_cls(
         description=f"Classify this trip request in one short line:\n{QUESTION}",
         expected_output="A short trip intent classification.",
         agent=planner_agent,
     )
-    crew = Crew(agents=[planner_agent], tasks=[task], process=Process.sequential, verbose=False)
+    crew = crew_cls(
+        agents=[planner_agent],
+        tasks=[task],
+        process=process_cls.sequential,
+        verbose=False,
+    )
     result = crew.kickoff()
     usage = result.token_usage
     return LLMResponse(str(result), usage.prompt_tokens, usage.completion_tokens), (
@@ -39,7 +46,14 @@ def classify_trip_native(planner_agent, Task, Crew, Process) -> tuple[LLMRespons
 
 
 def synthesize_briefing_native(
-    briefing_agent, Task, Crew, Process, place: dict, weather: dict, fx: dict, summary: dict
+    briefing_agent,
+    task_cls,
+    crew_cls,
+    process_cls,
+    place: dict,
+    weather: dict,
+    fx: dict,
+    summary: dict,
 ) -> tuple[LLMResponse, float]:
     if not USE_REAL_OPENAI:
         return synthesize_briefing("CrewAI", place)
@@ -52,12 +66,17 @@ def synthesize_briefing_native(
         f"Destination facts: {summary['extract']}\n\n"
         "Write a concise, friendly travel briefing (3-4 sentences) using only this data."
     )
-    task = Task(
+    task = task_cls(
         description=prompt,
         expected_output="A concise, friendly travel briefing.",
         agent=briefing_agent,
     )
-    crew = Crew(agents=[briefing_agent], tasks=[task], process=Process.sequential, verbose=False)
+    crew = crew_cls(
+        agents=[briefing_agent],
+        tasks=[task],
+        process=process_cls.sequential,
+        verbose=False,
+    )
     result = crew.kickoff()
     usage = result.token_usage
     return LLMResponse(str(result), usage.prompt_tokens, usage.completion_tokens), (
