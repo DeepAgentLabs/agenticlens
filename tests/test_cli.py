@@ -91,6 +91,7 @@ def test_compare_can_enforce_min_samples(tmp_path):
 
 
 runner = CliRunner()
+SPEC_ROOT = Path(__file__).resolve().parents[2] / "ai-operations-spec"
 
 _PROFILE_SCRIPT = """
 from agenticlens import profile, step
@@ -269,3 +270,79 @@ def test_evaluate_live_help_mentions_trusted_targets() -> None:
     result = runner.invoke(app, ["evaluate-live", "--help"])
     assert result.exit_code == 0
     assert "trusted live python or http target" in result.output.lower()
+
+
+def test_validate_accepts_valid_aios_workflow_fixture() -> None:
+    artifact = SPEC_ROOT / "specification" / "v0.4" / "examples" / "valid" / "workflow.json"
+
+    result = runner.invoke(
+        app,
+        ["validate", str(artifact), "--spec-root", str(SPEC_ROOT)],
+    )
+
+    assert result.exit_code == 0
+    assert "Draft alignment" in result.output
+    assert "No AIOS issues detected" in result.output
+
+
+def test_validate_rejects_invalid_aios_fixture() -> None:
+    artifact = (
+        SPEC_ROOT / "specification" / "v0.4" / "examples" / "invalid" / "workflow-missing-name.json"
+    )
+
+    result = runner.invoke(
+        app,
+        ["validate", str(artifact), "--spec-root", str(SPEC_ROOT)],
+    )
+
+    assert result.exit_code == 2
+    assert "schema.invalid" in result.output
+
+
+def test_conformance_rejects_semantically_invalid_aios_fixture() -> None:
+    artifact = (
+        SPEC_ROOT
+        / "specification"
+        / "v0.4"
+        / "examples"
+        / "semantic-invalid"
+        / "dangling-reference.json"
+    )
+
+    result = runner.invoke(
+        app,
+        ["conformance", str(artifact), "--spec-root", str(SPEC_ROOT)],
+    )
+
+    assert result.exit_code == 2
+    assert "semantic.unresolved-reference" in result.output
+
+
+def test_conformance_accepts_valid_aios_run_fixture_and_can_save_report(tmp_path: Path) -> None:
+    artifact = SPEC_ROOT / "specification" / "v0.4" / "examples" / "valid" / "run.json"
+    report_file = tmp_path / "conformance.json"
+
+    result = runner.invoke(
+        app,
+        [
+            "conformance",
+            str(artifact),
+            "--spec-root",
+            str(SPEC_ROOT),
+            "--save",
+            str(report_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert report_file.exists()
+    report = json.loads(report_file.read_text(encoding="utf-8"))
+    assert report["aligned"] is True
+    assert report["mode"] == "conformance"
+
+
+def test_finding_schema_v2_artifact_exists() -> None:
+    schema_path = Path("schemas/v2/finding.schema.json")
+    assert schema_path.exists()
+    data = json.loads(schema_path.read_text(encoding="utf-8"))
+    assert data["$id"] == "https://deepagentlabs.github.io/agenticlens/schemas/v2/finding.schema.json"
