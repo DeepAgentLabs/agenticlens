@@ -1,0 +1,23 @@
+{
+  "spec_version": "0.4-draft",
+  "artifact_type": "run",
+  "id": "run-dangling",
+  "started_at": "2026-07-21T06:00:00Z",
+  "status": "completed",
+  "requests": [],
+  "steps": [],
+  "relationships": [
+    {
+      "id": "rel-dangling",
+      "type": "depends-on",
+      "source": {
+        "id": "missing-a",
+        "type": "step"
+      },
+      "target": {
+        "id": "missing-b",
+        "type": "step"
+      }
+    }
+  ]
+}

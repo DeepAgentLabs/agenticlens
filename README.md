@@ -1,256 +1,984 @@
 # AgenticLens
 
-AgenticLens is an open-source profiler for LLM applications, RAG pipelines, and agentic workflows.
+<p align="center">
+  <img src="docs/assets/agenticlens-logo.jpeg" alt="AgenticLens logo" width="420">
+</p>
 
-It helps developers understand where tokens, cost, and latency are being spent across each step of an AI workflow.
+**Open-source observability, evaluation, and operational intelligence for production AI systems.**
 
-> **Status:** MVP. Core profiling, CLI reports, exporters, and heuristic recommendation rules are implemented.
+[![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
+[![Docs](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/docs.yml)
+[![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
+[![Python](https://img.shields.io/pypi/pyversions/agenticlens.svg)](https://pypi.org/project/agenticlens/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/forks)
+[![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
 
-AgenticLens tracks:
+| Public asset | Link |
+| --- | --- |
+| Website and docs | [GitHub Pages](https://deepagentlabs.github.io/agenticlens/) |
+| Product roadmap | [agenticlens-roadmap.md](agenticlens-roadmap.md) |
+| Workflow specification | [docs/workflow-schema-spec.md](docs/workflow-schema-spec.md) |
+| Research roadmap | [AgenticLens_Research_and_Development_Roadmap.md](AgenticLens_Research_and_Development_Roadmap.md) |
 
-- Prompt tokens
-- Completion tokens
-- Total tokens
-- Estimated cost
-- Latency
-- Workflow steps
-- Tool calls
-- Retrieval metadata
-- Optimization opportunities
+AgenticLens is an open-source Python operational toolkit for LLM applications
+and agentic workflows. It helps developers instrument the AI runtime they are
+actually building: workflows, agents, LLM calls, prompts, context, retrieval,
+memory, tools, MCP actions, evaluations, safety signals, and reliability
+events.
+
+It then turns that runtime into inspectable local artifacts, telemetry, and
+actionable recommendations.
+
+Think of it as a lightweight, local `cProfile` for AI workflows: no hosted
+dashboard, no required backend, no account, and no data egress just to inspect a
+run.
+
+The product idea is simple:
+
+`instrument the AI runtime once, export everywhere`
+
+## Contents
+
+- [Why AgenticLens?](#why-agenticlens)
+- [Architecture](#architecture)
+- [Status](#status)
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+- [Structured Agent Tracing](#structured-agent-tracing)
+- [Privacy-Preserving Capture](#privacy-preserving-capture)
+- [Memory and Retry Diagnostics](#memory-and-retry-diagnostics)
+- [Repeated-Run Comparison](#repeated-run-comparison)
+- [Evaluation and Release Gates](#evaluation-and-release-gates)
+- [Using Regression Checks in CI](#using-regression-checks-in-ci)
+- [Portable Schemas](#portable-schemas)
+- [Features](#features)
+- [Cost Calculation](#cost-calculation)
+- [Configuration Reference](#configuration-reference)
+- [Notebooks](#notebooks)
+- [CLI Reference](#cli-reference)
+- [Current Limitations](#current-limitations)
+- [Development](#development)
+- [Roadmap](#roadmap)
 
 ## Why AgenticLens?
 
-LLM applications often become expensive and slow as they grow from simple prompts into RAG pipelines, tool-using agents, and multi-agent workflows.
+LLM applications rarely spend money in one place. Cost often leaks across
+planners, retrievers, memory, tool calls, repeated system prompts, and final
+response steps.
 
-AgenticLens gives developers a lightweight way to answer:
+Most observability tools can show token usage. AgenticLens focuses on the next
+questions:
 
-- Which step used the most tokens?
-- Which agent was most expensive?
-- Did retrieval send too many chunks?
-- Is conversation history too large?
-- Are we repeating the same system prompt?
-- Did the workflow call the same tool twice?
-- How much token usage can be reduced?
+> What ran, why did it behave that way, what should I change, and can I export
+> that evidence anywhere I need?
+
+AgenticLens currently detects token waste patterns such as:
+
+- repeated system prompts that may be cached or deduplicated
+- excessive retrieved chunks in RAG workflows
+- low-utility retrieved chunks that appear unlikely to affect the final answer
+- long conversation history that should be summarized or truncated
+- duplicate tool calls that should be cached
+- model-tier mismatches where a lower-cost model may handle the recorded workload
+- projected token, dollar-per-run, and monthly savings
+
+It can also capture hierarchical agent traces, measure memory and retry
+overhead, compare repeated baseline and candidate runs, and fail CI when a
+candidate exceeds configured regression limits.
+
+AgenticLens can now evaluate versioned test suites against recorded outputs and
+traces. Deterministic checks cover answer content, required or forbidden tool
+use, required tool arguments, structured JSON output, required output fields,
+turn counts, latency, and cost. The resulting evidence can be exported as JSON,
+rendered as a standalone HTML report, and enforced as a release gate in CI.
+Trusted live Python and HTTP targets can also be executed directly against the
+same suite.
+
+## Architecture
+
+AgenticLens provides two compatible instrumentation paths:
+
+```text
+Application code
+├── Workflow profiler
+│   ├── profile() and step()
+│   ├── provider usage extraction
+│   ├── automatic cost calculation
+│   └── optimization recommendations
+│
+└── Research trace API
+    ├── trace() and nested spans
+    ├── raw execution metrics
+    ├── deterministic findings
+    └── repeated-run comparison
+
+Local artifacts
+├── workflow JSON
+├── run trace JSON
+├── comparison JSON and CSV
+├── Markdown
+└── Jira-oriented output
+```
+
+Use the workflow profiler for step-level token and cost optimization with
+provider response extraction. Use the trace API for hierarchical execution
+evidence, memory/retry analysis, and repeated-run experiments. Applications may
+use both while the research API evolves.
+
+AgenticLens remains package-first, local-first, framework-neutral, CI-friendly,
+and advisory-first. It does not require a hosted backend and does not
+automatically change production prompts, models, tools, or routing.
+
+## Step-Level Token Optimization
+
+AgenticLens is designed to make token waste visible at the level where engineers
+can actually fix it:
+
+| Workflow area | What AgenticLens flags | Typical fix |
+| --- | --- | --- |
+| Prompting | Repeated system prompt prefixes | Cache or deduplicate stable prompt blocks |
+| RAG | Too many retrieved chunks | Lower top-k or tighten retrieval filters |
+| RAG | Low-utility chunks unlikely to affect the final answer | Rerank, prune, or improve retrieval scoring |
+| Memory | Long conversation history | Summarize or truncate older turns |
+| Tools | Duplicate tool calls with the same arguments | Cache tool results |
+| Multi-agent handoffs | Large context passed between agents | Pass structured summaries or key facts |
+| Model selection | A lower-cost candidate can process the recorded token volume | Evaluate the candidate against quality requirements before switching |
+
+The `analyze` command reports reducible tokens by step, so teams can see whether
+the biggest opportunity is in retrieval, memory, planning, tool use, or final
+response generation.
+
+For multi-agent workflows, pass `agent_name` and optional handoff metadata:
+
+```python
+with step(
+    "Research answer",
+    type="llm_call",
+    agent_name="research_agent",
+    agent_role="researcher",
+    handoff_from="planner_agent",
+    handoff_to="answer_agent",
+    handoff_tokens=5200,
+):
+    ...
+```
+
+## Status
+
+AgenticLens is early-stage software. Workflow profiling, structured execution
+tracing, cost calculation, deterministic diagnostics, repeated-run comparison,
+export, CLI, and the rule-based recommendation engine are implemented. The
+research trace API is experimental and may evolve before a stable 1.0 release.
+
+| Capability | Status |
+| --- | --- |
+| Workflow and step profiler | Implemented |
+| OpenAI and Anthropic usage extraction | Implemented |
+| Live, cached, bundled, and overridden pricing | Implemented |
+| Rule-based token optimization | Implemented |
+| RAG chunk-utility analysis | Implemented |
+| Hierarchical run/span tracing | Implemented, experimental |
+| Memory and retry overhead findings | Implemented, experimental |
+| Repeated-run regression comparison | Implemented, experimental |
+| Unified evaluator SDK and versioned test suites | Implemented, experimental |
+| Provider-neutral custom and LLM-judge adapters | Implemented, experimental |
+| Live Python and HTTP evaluation targets | Implemented, experimental |
+| Quality, tool-use, latency, and cost release gates | Implemented, experimental |
+| Standalone evaluation HTML report | Implemented, experimental |
+| AIOS draft validation and conformance CLI | Implemented, experimental |
+| OTLP/HTTP JSON trace export | Implemented, experimental |
+| Statistical significance testing | Planned |
+| Framework trace adapters | Planned |
+| Dashboard, ModelFit, and governance | Planned |
+
+## Evaluation and Release Gates
+
+Versioned YAML or JSON suites turn expected agent behavior into executable
+acceptance criteria. AgenticLens checks response content, required and forbidden
+tools, required tool arguments, structured JSON output, required output fields,
+turn counts, end-to-end latency, and estimated cost against recorded run traces.
+
+```bash
+agenticlens evaluate suite.yaml samples.json \
+  --save evaluation.json \
+  --html evaluation.html
+
+agenticlens gate evaluation.json \
+  --min-pass-rate 0.95 \
+  --min-average-score 0.98 \
+  --max-failed-cases 1
+```
+
+The evaluation command produces machine-readable JSON and an optional
+standalone HTML report. The gate command returns exit status `2` when a
+configured release threshold fails, making it suitable for CI.
+
+## AIOS Validation and Conformance
+
+AgenticLens can validate AI Operations Specification draft workflow and run
+artifacts against the sibling `ai-operations-spec` schemas and semantic rules.
+
+```bash
+agenticlens validate workflow.json --version 0.4
+agenticlens conformance run.json --version 0.4 --spec-root ../ai-operations-spec
+```
+
+`validate` performs schema checks. `conformance` adds semantic graph and
+reference checks and reports draft alignment rather than stable conformance,
+because AIOS `v0.4` remains a draft.
+
+## OpenTelemetry Export
+
+Structured `trace()` runs can now emit OTLP/HTTP JSON spans when configured:
+
+```python
+from agenticlens import SpanType, trace
+
+with trace(
+    "support-agent",
+    otlp_endpoint="http://localhost:4318/v1/traces",
+) as recording:
+    with recording.span("planner", SpanType.PLANNING) as planner:
+        planner.record_tokens(input_tokens=120, output_tokens=30)
+```
+
+Or configure export through environment variables:
+
+```bash
+export AGENTICLENS_OTLP_TRACES_ENDPOINT=http://localhost:4318/v1/traces
+export AGENTICLENS_OTLP_HEADERS='Authorization=Bearer local-dev-token'
+export AGENTICLENS_OTLP_TIMEOUT_SECONDS=10
+```
+
+See `examples/operational_intelligence_demo.py` for a runnable local example
+that writes both an AgenticLens run artifact and an OTLP payload.
+
+Run a trusted live target directly:
+
+```bash
+agenticlens evaluate-live suite.yaml \
+  --target-kind python \
+  --target examples/live_evaluation_demo.py:run_case \
+  --save evaluation-live.json
+```
+
+`evaluate-live` is intentionally powerful. Python targets execute local code
+and HTTP targets can reach arbitrary URLs, so suite files and live targets
+should be treated as trusted developer-controlled inputs.
+
+The offline LangGraph pitch demonstration exercises the complete workflow:
+
+```bash
+uv sync --extra langgraph
+uv run python -m examples.pitch_demo.run_pitch_demo
+```
+
+It performs a real supervisor graph execution, records structured multi-agent
+spans, evaluates output and tool behavior, applies the release gate, and writes
+the presentation-ready report to `examples/pitch_demo/artifacts/evaluation.html`.
 
 ## Installation
 
-### From PyPI
+For local development from this repository:
 
 ```bash
-pip install agenticlens
-```
-
-### Development Install
-
-```bash
+git clone https://github.com/DeepAgentLabs/agenticlens.git
+cd agenticlens
 uv sync --extra dev
 ```
 
-or:
+If you do not use `uv`, install in editable mode with development extras:
 
 ```bash
-pip install -e .
+python -m venv .venv
+. .venv/bin/activate
+pip install -e ".[dev]"
 ```
 
-## Quick Start
+On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+```
+
+## Quickstart
+
+Instrument your workflow with explicit `profile()` and `step()` blocks:
 
 ```python
 from agenticlens import profile, step
 
-with profile("Customer Support") as workflow:
+with profile("Customer Support Agent"):
     with step(
         "Planner",
         type="planner",
         provider="openai",
         model="gpt-4o-mini",
+        prompt=planner_prompt,
     ) as s:
-        response = planner_llm.invoke(prompt)
+        response = planner_llm.invoke(planner_prompt)
         s.record(response)
 
-print(workflow.total_tokens)
-print(workflow.total_cost)
-```
-
-## Core Concepts
-
-| Concept | Meaning |
-|---|---|
-| `profile()` | Starts profiling one workflow |
-| `step()` | Tracks one operation inside the workflow |
-| `s.record(response)` | Extracts token usage from an LLM response |
-| `provider` | LLM provider, such as `openai` or `anthropic` |
-| `model` | Model name used for cost estimation |
-| `metadata` | Extra step details such as retrieved chunks, tool names, prompts, or history size |
-
-## Supported Step Types
-
-AgenticLens supports these step types:
-
-```text
-planner
-retriever
-memory
-tool_call
-llm_call
-final_response
-```
-
-## CLI Usage
-
-Run and profile a Python script:
-
-```bash
-agenticlens profile examples/basic_usage.py
-```
-
-Save a workflow report:
-
-```bash
-agenticlens profile examples/basic_usage.py --save report.json
-```
-
-View a saved report:
-
-```bash
-agenticlens report report.json
-```
-
-Analyze optimization opportunities:
-
-```bash
-agenticlens analyze report.json
-```
-
-## Example Output
-
-```text
-╔═ Customer Support ═╗
-║ Total Tokens   160 ║
-║ Total Cost     $0.00 ║
-║ Latency        0.12 sec ║
-╚═══════════════════╝
-
-Step Breakdown
-
-Planner    planner    120 prompt    40 completion
-```
-
-## RAG Example
-
-```python
-from agenticlens import profile, step
-
-with profile("RAG Workflow") as workflow:
     with step(
-        "Retrieve Chunks",
+        "Retriever",
         type="retriever",
-        chunk_count=5,
-        avg_tokens_per_chunk=120,
+        chunk_count=12,
+        avg_tokens_per_chunk=80,
     ):
-        chunks = retriever.search(query)
+        chunks = retriever.search(user_question)
 
     with step(
-        "Generate Answer",
-        type="llm_call",
-        provider="openai",
-        model="gpt-4o-mini",
-    ) as s:
-        response = llm.invoke(query, context=chunks)
-        s.record(response)
-```
-
-## Multi-Agent Example
-
-```python
-from agenticlens import profile, step
-
-with profile("Multi-Agent Support Workflow") as workflow:
-    with step(
-        "Planner Agent",
-        type="planner",
-        provider="openai",
-        model="gpt-4o-mini",
-    ) as s:
-        response = planner_agent.run(user_query)
-        s.record(response)
-
-    with step(
-        "Retriever Agent",
-        type="retriever",
-        chunk_count=8,
-    ):
-        chunks = retriever.search(user_query)
-
-    with step(
-        "Tool Agent - Lookup Order",
-        type="tool_call",
-        tool_name="lookup_order",
-        tool_args={"order_id": "A123"},
-    ):
-        order = lookup_order("A123")
-
-    with step(
-        "Final Response Agent",
+        "Final Answer",
         type="final_response",
         provider="openai",
         model="gpt-4o-mini",
+        final_answer="Refunds are processed to the original payment method.",
     ) as s:
-        response = final_agent.run(user_query, chunks, order)
+        response = answer_llm.invoke(final_prompt)
         s.record(response)
 ```
 
-## Optimization Recommendations
-
-AgenticLens can identify common token waste patterns:
-
-| Recommendation | Meaning |
-|---|---|
-| Repeated system prompt | Same long prompt appears across multiple steps |
-| Excessive retrieved chunks | Retriever sends more chunks than the configured limit |
-| Long conversation history | Memory/history exceeds the configured token threshold |
-| Duplicate tool call | Same tool is called again with the same arguments |
-
-Example:
+Then profile and analyze a script:
 
 ```bash
-agenticlens analyze report.json
+uv run agenticlens profile examples/recommendations_demo.py --save workflow.json
+uv run agenticlens analyze workflow.json
 ```
 
-Output:
+Example output:
 
 ```text
+Budget Optimization Run cost: $0.0068; reducible: ~$0.0024/run (35%), ~$2.38/month.
+
 Optimization Suggestions
+  * Long conversation history
+  * Excessive retrieved chunks
+  * Repeated system prompt
+  * Low-utility retrieved chunks
+  * Duplicate tool call
 
-* Repeated system prompt
-  -- Step 'Final Response' repeats the same prompt prefix as 'Planner'. (~295 tokens)
-
-* Excessive retrieved chunks
-  -- Step 'Retriever' retrieved 12 chunks, 4 more than the configured limit of 8. (~320 tokens)
-
-Estimated Savings: 32%
+Estimated Savings: 35%
 ```
 
-## Exporters
+## Structured Agent Tracing
 
-AgenticLens supports exporting workflow reports.
+The research trace API represents one agent execution as a `Run` containing
+nested `Span` objects. It is framework- and provider-neutral and is additive to
+the existing `profile()` and `step()` API.
 
 ```python
-from agenticlens.exporters import JSONExporter, CSVExporter
+from agenticlens import SpanType, trace
 
-JSONExporter().export(workflow, "report.json")
-CSVExporter().export(workflow, "steps.csv")
+with trace(
+    "customer-support-agent",
+    environment="staging",
+    prompt_version="support-v4",
+) as recording:
+    with recording.span("create-plan", SpanType.PLANNING) as planner:
+        plan = create_plan()
+        planner.record_tokens(input_tokens=300, output_tokens=75)
+
+    with recording.span("load-history", SpanType.MEMORY_READ) as memory:
+        history = load_customer_history()
+        memory.record_tokens(input_tokens=800)
+
+    with recording.span("search-account", SpanType.TOOL_CALL) as tool:
+        account = search_account()
+        tool.record_tokens(input_tokens=50, output_tokens=120)
+
+    with recording.span("generate-answer", SpanType.MODEL_CALL) as model:
+        answer = generate_answer(account, history)
+        model.record_tokens(input_tokens=1200, output_tokens=250)
+        model.record_cost(0.021)
+
+recording.save("run.json")
 ```
+
+Supported span types include planning, model calls, memory reads and writes,
+retrieval, tool calls, validation, retries, delegation, final responses, and
+custom operations.
+
+Each run can report:
+
+- total input, output, and combined tokens
+- end-to-end and per-span latency
+- estimated cost
+- tokens and latency by span type
+- tool-call and retry counts
+- execution status and captured exceptions
+- memory and retry overhead
+
+Parent-child span relationships preserve execution structure, such as a retry
+that occurred inside a failed tool call. Saved traces are validated for
+duplicate IDs, missing parents, self-parent relationships, and cyclic parent
+graphs.
+
+Inspect a saved trace:
+
+```bash
+agenticlens inspect run.json
+```
+
+The terminal report includes a run summary, nested span tree, token and latency
+distributions, errors, retries, deterministic findings, and next-best-analysis
+guidance when findings indicate a likely follow-up investigation path.
+
+Save a Markdown trace report:
+
+```bash
+agenticlens inspect run.json --save trace-report.md
+```
+
+### Trace lifecycle
+
+```text
+trace() entered
+    ↓
+Run created with status "running"
+    ↓
+Nested spans record operations
+    ↓
+Each span records timing, usage, status, and optional evidence
+    ↓
+Exceptions mark the active span and run as "failed"
+    ↓
+Run receives its completion time and final status
+    ↓
+Run is saved as portable JSON
+```
+
+Exceptions are recorded but not swallowed. The original exception continues to
+propagate so application behavior is unchanged:
+
+```python
+with trace("tool-agent") as recording:
+    with recording.span("lookup", SpanType.TOOL_CALL):
+        raise TimeoutError("Customer database timed out")
+```
+
+Runs carry identity, application, framework, task, experiment, timing, status,
+success, error, and metadata fields. Spans carry parent relationships, type,
+agent, provider, model, tool, retry, usage, timing, cost, status, error,
+references, optional redacted payloads, and extensible attributes.
+
+Run totals are reproducible from the recorded spans:
+
+```text
+total_input_tokens  = sum(span.input_tokens)
+total_output_tokens = sum(span.output_tokens)
+total_tokens        = input + output
+estimated_cost      = sum(known span costs)
+end-to-end latency  = completed_at - started_at
+```
+
+## Privacy-Preserving Capture
+
+Prompts, responses, and tool arguments are not captured by default. Applications
+must explicitly opt in:
+
+```python
+with recording.span("model", SpanType.MODEL_CALL) as span:
+    response = call_model(request)
+    span.record_io(input_data=request, output_data=response)
+```
+
+Explicitly captured values pass through a recursive redactor. The default
+redactor covers common secret fields, authorization values, bearer tokens,
+cookies, passwords, API keys, and email addresses. A custom `redactor=`
+function can be supplied for application-specific requirements.
+
+The built-in redactor is a defense-in-depth control, not a complete compliance
+or data-loss-prevention system. Teams should still minimize payload capture and
+apply their own retention and access policies.
+
+## Memory and Retry Diagnostics
+
+AgenticLens calculates:
+
+```text
+memory_share = memory_tokens / total_tokens
+retry_token_share = retry_tokens / total_tokens
+retry_latency_share = retry_latency / total_latency
+```
+
+It also reports retry count, retry latency, and retry cost. When memory or retry
+consumption exceeds a configured threshold, AgenticLens produces a deterministic
+finding containing:
+
+- the measured values
+- the threshold that was exceeded
+- severity and confidence
+- exact span IDs that contributed to the finding
+
+These findings identify measurable overhead. Retry findings also retain
+evidence about likely triggering failures and whether a retry appears to have
+recovered, failed, or remained unresolved.
+
+## Repeated-Run Comparison
+
+Agent systems are nondeterministic, so one run is rarely sufficient. Store
+baseline and candidate traces in separate directories:
+
+```text
+results/
+  baseline/
+    run-001.json
+    run-002.json
+  candidate/
+    run-001.json
+    run-002.json
+```
+
+Then compare them:
+
+```bash
+agenticlens compare results/baseline results/candidate
+```
+
+For each group, AgenticLens calculates:
+
+- run count and task-success rate
+- mean, median, and P95 tokens
+- mean, median, and P95 latency
+- standard deviation and coefficient of variation
+- mean cost and cost per successful task
+
+The comparison detects relative regressions in success rate, mean tokens,
+latency, and cost. The threshold is configurable:
+
+```bash
+agenticlens compare results/baseline results/candidate \
+  --regression-threshold 0.05 \
+  --save comparison.json
+```
+
+Use CSV for tabular analysis:
+
+```bash
+agenticlens compare results/baseline results/candidate \
+  --save comparison.csv \
+  --format csv
+```
+
+Use Markdown for a review-friendly report:
+
+```bash
+agenticlens compare results/baseline results/candidate \
+  --save comparison.md \
+  --format md
+```
+
+Use `--fail-on-regression` to return a nonzero exit status in CI:
+
+```bash
+agenticlens compare results/baseline results/candidate \
+  --regression-threshold 0.05 \
+  --fail-on-regression
+```
+
+Require a minimum cohort size before trusting a comparison:
+
+```bash
+agenticlens compare results/baseline results/candidate --min-samples 5
+```
+
+Current comparisons are descriptive. They do not claim statistical
+significance or causal attribution, especially for small or uncontrolled
+samples.
+
+### Designing a useful comparison
+
+For credible results:
+
+1. Use the same test cases for baseline and candidate conditions.
+2. Keep unrelated settings fixed.
+3. Record prompt, model, tool, and dataset versions in run metadata.
+4. Run multiple trials per test case.
+5. Preserve failed runs instead of deleting them.
+6. Compare success and quality alongside cost and latency.
+7. Review trace-level evidence before accepting an aggregate conclusion.
+
+A 5% regression flag means the configured relative threshold was exceeded. It
+does not mean the difference is statistically significant.
+
+### Interpreting cost per successful task
+
+Average request cost can favor a cheap but unreliable configuration:
+
+```text
+cost_per_successful_task = total_recorded_cost / successful_runs
+```
+
+| Variant | Mean run cost | Success rate | Cost per success |
+| --- | ---: | ---: | ---: |
+| Small model | $0.04 | 50% | $0.08 |
+| Larger model | $0.06 | 100% | $0.06 |
+
+Here, the larger model costs more per attempt but less per successful task.
+
+## Using Regression Checks in CI
+
+Store or download a reviewed baseline, generate candidate traces in the build,
+and compare them:
+
+```yaml
+name: Agent regression check
+
+on:
+  pull_request:
+
+jobs:
+  agent-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --extra dev
+      - name: Generate candidate traces
+        run: uv run python benchmarks/run_candidate.py
+      - name: Compare with baseline
+        run: |
+          uv run agenticlens compare \
+            benchmarks/baseline \
+            benchmarks/candidate \
+            --regression-threshold 0.05 \
+            --save comparison.json \
+            --fail-on-regression
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agenticlens-comparison
+          path: comparison.json
+```
+
+`--fail-on-regression` returns exit code `2` when the comparison is valid but
+regressions are detected. Invalid inputs or unreadable traces return exit code
+`1`.
+
+## Portable Schemas
+
+Versioned JSON Schemas are provided for:
+
+- run traces: `schemas/trace.schema.json`
+- deterministic findings: `schemas/finding.schema.json` and `schemas/v2/finding.schema.json`
+- comparison reports: `schemas/report.schema.json`
+
+The schemas are included in wheel distributions under `agenticlens/schemas`.
+They allow external systems to validate and consume artifacts without depending
+on AgenticLens internal Python classes.
+
+For compatibility-sensitive integrations, prefer the versioned schema URLs
+published in each schema's `$id` instead of the unversioned convenience alias.
+
+| Artifact | Purpose |
+| --- | --- |
+| Workflow JSON | Existing profiler output and recommendation input |
+| Run trace JSON | Hierarchical research execution record |
+| Finding JSON | Deterministic diagnostic evidence |
+| Comparison JSON | Complete machine-readable baseline/candidate report |
+| Comparison CSV | Flat metric deltas for analysis and charts |
+
+The run trace and workflow artifact are related but currently distinct.
+Consumers should inspect the artifact schema rather than assuming they are
+interchangeable.
+
+## Core Concepts
+
+### Workflow
+
+A workflow is one complete execution of an LLM application, such as answering a
+customer support question or running a multi-agent task.
+
+```python
+with profile("Refund Support"):
+    ...
+```
+
+### Step
+
+A step is a meaningful unit inside that workflow: planner, retriever, memory,
+tool call, LLM call, or final response.
+
+```python
+with step("Retrieve Policy Chunks", type="retriever", chunk_count=10):
+    ...
+```
+
+### Recommendation
+
+A recommendation is a rule-based optimization suggestion. Recommendations carry
+token savings, estimated percentage savings, dollar impact when pricing is
+known, confidence when relevant, and quality-risk notes for heuristics such as
+RAG chunk utility.
+
+### AI Runtime Objects
+
+AgenticLens is moving toward an object-based model aligned with the AI
+Operations Specification. At a high level, the runtime includes:
+
+- `Workflow`
+- `Request`
+- `Agent`
+- `LLM`
+- `Prompt`
+- `Context`
+- `RAG`
+- `Memory`
+- `Tool`
+- `MCP`
+- `Evaluation`
+- `Safety`
+- `Reliability`
+- `Incident`
+
+These runtime objects emit AI-native events such as `workflow.run`,
+`agent.step`, `llm.call`, `prompt.render`, `rag.retrieve`, `memory.read`, and
+`tool.call`.
+
+## Features
+
+| Area | Capability |
+| --- | --- |
+| Profiling | Explicit `profile()` and `step()` context managers |
+| Tracing | Framework-neutral `Run` and nested `Span` execution traces |
+| Metrics | Prompt tokens, completion tokens, total tokens, latency, TPS, cost |
+| Diagnostics | Memory-share and retry-overhead findings with span-level evidence |
+| Comparison | Repeated runs, P95, variability, cost per success, regression detection |
+| Evaluation | Structured-output, tool-argument, and turn-count checks |
+| Privacy | Opt-in payload capture with recursive redaction |
+| Providers | OpenAI and Anthropic response usage extraction |
+| Costing | User overrides, cached live LiteLLM pricing, bundled fallback pricing |
+| Recommendations | Repeated prompts, excessive chunks, low-utility chunks, long history, duplicate tool calls |
+| Budget impact | Dollar-per-run and monthly savings projections |
+| CLI | `profile`, `report`, `analyze`, `inspect`, `compare`, `evaluate`, `evaluate-live`, and `gate` |
+| Export | Workflow reports, run traces, JSON, CSV, Markdown, and Jira |
+| Schemas | Versioned trace, finding, and comparison-report JSON Schemas |
+| Tooling | pytest, Ruff, mypy, GitHub Actions |
+
+## Cost Calculation
+
+AgenticLens calculates per-step cost from the provider, model, prompt tokens,
+and completion tokens recorded by the profiler:
+
+```text
+input_cost = (prompt_tokens / 1000) * input_price_per_1k
+output_cost = (completion_tokens / 1000) * output_price_per_1k
+total_cost = input_cost + output_cost
+```
+
+Pricing resolution order:
+
+1. User-supplied pricing override
+2. Live LiteLLM community pricing feed, when enabled
+3. Bundled `src/agenticlens/config/pricing.yaml`
+4. Unknown model: cost is reported as `None`, not `$0.00`
+
+Live pricing is enabled by default. AgenticLens downloads LiteLLM's
+community-maintained model pricing table and stores it in:
+
+```text
+~/.cache/agenticlens/live_pricing_cache.json
+```
+
+The default cache lifetime is 24 hours and the default network timeout is five
+seconds. A fresh cache avoids another network request. If refresh fails,
+AgenticLens uses the stale cache when one exists; otherwise it falls back to the
+bundled table.
+
+Live entries are converted from cost per token into AgenticLens's internal USD
+per 1,000-token representation. Model lookup supports direct model names,
+`provider/model` names, and explicit aliases for provider feeds whose versioned
+keys differ from AgenticLens model names.
+
+Configure pricing with an AgenticLens YAML file:
+
+```yaml
+pricing_overrides:
+  "openai:internal-fine-tune":
+    input_per_1k: 0.002
+    output_per_1k: 0.008
+
+live_pricing:
+  enabled: true
+  ttl_seconds: 86400
+  timeout_seconds: 5
+  cache_path: ".agenticlens/live_pricing_cache.json"
+```
+
+Point AgenticLens at the file with:
+
+```bash
+export AGENTICLENS_CONFIG=agenticlens.yaml
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:AGENTICLENS_CONFIG = "agenticlens.yaml"
+```
+
+For hermetic builds, offline execution, or tests, disable remote pricing:
+
+```bash
+export AGENTICLENS_DISABLE_LIVE_PRICING=1
+```
+
+User overrides always win, including when live pricing is enabled. This is
+useful for negotiated provider rates, private deployments, fine-tuned models,
+or internal chargeback prices.
+
+When pricing cannot be resolved, AgenticLens emits an
+`UnknownModelPricingWarning` and preserves the cost as `None`. Reports render
+that value as unavailable rather than incorrectly treating an unknown model as
+free.
+
+### Model-Swap Cost Analysis
+
+The model-swap recommender recalculates the current step cost using the active
+pricing configuration and compares it with lower-cost candidates. It uses the
+live LiteLLM table when available and the bundled table as a fallback.
+
+Candidate discovery is restricted by default to a curated list of direct model
+providers so gateway and reseller aliases do not overwhelm the comparison.
+Recommendations include:
+
+- current provider and model
+- candidate provider and model
+- measured token volume used in the estimate
+- current and projected candidate cost
+- projected dollar and percentage savings
+- a quality-risk warning
+
+A cheaper model is a candidate for evaluation, not an automatic replacement.
+AgenticLens does not claim equivalent quality and does not change production
+routing.
+
+### Cost-Aware Reports and Comparisons
+
+Resolved step costs flow into:
+
+- workflow total cost
+- per-step and per-agent CLI summaries
+- JSON, CSV, Markdown, and Jira exports
+- projected recommendation savings
+- repeated-run mean cost
+- cost per successful task
+- baseline-versus-candidate cost regression detection
+
+Trace spans also accept explicitly recorded estimated costs through
+`span.record_cost()`. Trace cost is currently caller-supplied; automatic pricing
+resolution is implemented for the existing `profile()` and `step()` workflow
+profiler.
+
+## Configuration Reference
+
+AgenticLens loads YAML configuration from an explicit path passed to
+`load_config()`, from `AGENTICLENS_CONFIG`, or from defaults.
+
+```yaml
+pricing_overrides:
+  "openai:internal-fine-tune":
+    input_per_1k: 0.002
+    output_per_1k: 0.008
+
+live_pricing:
+  enabled: true
+  url: "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json"
+  cache_path: ".agenticlens/live_pricing_cache.json"
+  ttl_seconds: 86400
+  timeout_seconds: 5
+
+recommender:
+  system_prompt_prefix_tokens: 50
+  max_chunks: 8
+  history_token_limit: 4000
+  monthly_runs: 1000
+  warning_savings_pct: 5
+  critical_savings_pct: 20
+  warning_savings_usd: 0.005
+  critical_savings_usd: 0.05
+  rag_min_chunk_utility_score: 0.08
+  rag_min_low_utility_chunks: 2
+  handoff_token_limit: 3000
+  model_swap_min_savings_pct: 15
+  model_swap_providers:
+    - openai
+    - anthropic
+    - gemini
+```
+
+| Environment variable | Purpose |
+| --- | --- |
+| `AGENTICLENS_CONFIG` | Path to an AgenticLens YAML configuration file |
+| `AGENTICLENS_DISABLE_LIVE_PRICING` | Disable remote pricing and use cache/static fallback |
+
+Configuration through `[tool.agenticlens]` in `pyproject.toml` is planned but
+is not implemented yet.
+
+## RAG Chunk Utility
+
+The RAG utility rule identifies retrieved chunks that are unlikely to influence
+the final answer. It supports multiple signal types (in priority order):
+
+| Signal Type | Supported Fields | Source |
+| --- | --- | --- |
+| Citation | `cited`, `used`, `referenced` (boolean) | Your app logic |
+| Reranker | `reranker_score`, `rerank_score`, `cross_encoder_score` (0–1) | Cross-encoder models |
+| Embedding | `embedding_similarity`, `cosine_similarity`, `semantic_score` (0–1) | Vector search |
+| Generic | `utility_score`, `relevance_score` (0–1) | Custom scoring |
+| Fallback | Word-overlap against final answer | Automatic |
+
+Example chunk metadata:
+
+```python
+{"text": "...", "reranker_score": 0.92}
+{"text": "...", "cosine_similarity": 0.85}
+{"text": "...", "cited": True}
+{"text": "...", "utility_score": 0.12}
+```
+
+When rich signals (reranker, embedding, citation) are available, confidence is
+higher and quality risk is lower. If no explicit signals are present, it falls
+back to lightweight word-overlap against the final answer.
+
+For a complete guide, see [docs/rag-chunk-utility.md](docs/rag-chunk-utility.md).
 
 ## Examples
 
-Example scripts are available in:
+Run the recommendation demo:
 
-```text
-examples/basic_usage.py
-examples/recommendations_demo.py
-examples/rag_customer_support_demo.py
-examples/multiagent_support_demo.py
+```bash
+uv run agenticlens profile examples/recommendations_demo.py --save workflow.json
+uv run agenticlens analyze workflow.json
 ```
+
+Other examples:
+
+- `examples/basic_usage.py`
+- `examples/rag_customer_support_demo.py`
+- `examples/multiagent_support_demo.py`
+- `examples/multiagent_token_optimization_demo.py`
+- `examples/reference_workflows/langgraph_supervisor.py` — offline LangGraph supervisor
+- `examples/export_demo.py` — export to Markdown and Jira
+- `examples/live_evaluation_demo.py` — trusted live Python target for `evaluate-live`
+- `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
+- `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` against
+  the shared evaluator contract
+- `examples/operational_intelligence_demo.py` — structured trace, OTLP export, and
+  AIOS conformance together
+- `examples/pitch_demo/` — offline LangGraph pitch demo tying tracing, evaluation,
+  and release gates together (see [docs/evaluation-and-release-gates.md](docs/evaluation-and-release-gates.md))
+
+Some examples call real provider APIs and require provider API keys.
+
+The reference workflows are based on orchestration patterns published by the
+official framework repositories. See
+[docs/multi-agent-reference-workflows.md](docs/multi-agent-reference-workflows.md)
+for setup, source links, dependency isolation, and instrumentation boundaries.
 
 ## Notebooks
 
@@ -261,86 +989,258 @@ notebooks/agenticlens_workflow_demo_beginner.ipynb
 notebooks/agenticlens_multiagent_demo_beginner.ipynb
 ```
 
-The notebooks show:
+The notebooks walk through step-by-step workflow and multi-agent profiling,
+token usage tables, latency and cost charts, saved AgenticLens artifacts, and
+optimization analysis.
 
-- Step-by-step RAG profiling
-- Step-by-step multi-agent profiling
-- Token usage tables
-- Latency charts
-- Cost charts
-- Saved AgenticLens reports
-- Optimization analysis
+## Exporting Reports
+
+### Markdown
+
+```python
+from agenticlens.exporters import MarkdownExporter
+
+MarkdownExporter().export(workflow, "report.md")
+```
+
+### With Recommendations
+
+All exporters accept an optional `recommendations` parameter (Jira currently ignores it):
+
+```python
+from agenticlens.exporters import MarkdownExporter, JSONExporter, CSVExporter
+from agenticlens.recommenders import RecommendationEngine
+
+engine = RecommendationEngine()
+recs = engine.run(workflow)
+
+MarkdownExporter().export(workflow, "report.md", recommendations=recs)
+JSONExporter().export(workflow, "report.json", recommendations=recs)
+CSVExporter().export(workflow, "steps.csv", recommendations=recs)
+# CSV also writes steps_recommendations.csv alongside
+```
+
+### Jira Integration
+
+Post profiling results directly as a comment on a Jira issue:
+
+```python
+from agenticlens.exporters import JiraExporter
+
+JiraExporter(
+    base_url="https://yourteam.atlassian.net",
+    user_email="you@example.com",
+    api_token="your-api-token",
+    issue_key="PROJ-123",
+).export(workflow)
+```
+
+Set credentials via environment variables for safety — see
+`examples/export_demo.py` for a complete example.
+
+For sample output previews of all formats, see [docs/export-formats.md](docs/export-formats.md).
+
+## CLI Reference
+
+Profile a Python script:
+
+```bash
+uv run agenticlens profile app.py
+```
+
+Save a workflow report:
+
+```bash
+uv run agenticlens profile app.py --save workflow.json
+```
+
+Display a saved workflow:
+
+```bash
+uv run agenticlens report workflow.json
+```
+
+Analyze a saved workflow:
+
+```bash
+uv run agenticlens analyze workflow.json
+```
+
+Inspect a saved run trace:
+
+```bash
+uv run agenticlens inspect run.json
+```
+
+Save a Markdown trace report:
+
+```bash
+uv run agenticlens inspect run.json --save trace.md
+```
+
+Compare baseline and candidate traces:
+
+```bash
+uv run agenticlens compare results/baseline results/candidate
+```
+
+Save a comparison and fail CI on detected regressions:
+
+```bash
+uv run agenticlens compare results/baseline results/candidate \
+  --save comparison.json \
+  --fail-on-regression
+```
+
+Save a Markdown comparison report and enforce sample size:
+
+```bash
+uv run agenticlens compare results/baseline results/candidate \
+  --save comparison.md \
+  --format md \
+  --min-samples 5
+```
+
+Evaluate recorded samples:
+
+```bash
+uv run agenticlens evaluate suite.yaml samples.json --html evaluation.html
+```
+
+Run a trusted live Python target:
+
+```bash
+uv run agenticlens evaluate-live suite.yaml \
+  --target-kind python \
+  --target examples/live_evaluation_demo.py:run_case
+```
+
+Apply a release gate:
+
+```bash
+uv run agenticlens gate evaluation.json --min-pass-rate 0.95
+```
+
+### Command summary
+
+| Command | Purpose |
+| --- | --- |
+| `profile` | Run an instrumented Python script and optionally save its workflow |
+| `report` | Render an existing workflow JSON artifact |
+| `analyze` | Run optimization recommenders against a workflow |
+| `inspect` | Render a run trace, span tree, distributions, and findings |
+| `compare` | Compare baseline and candidate trace files or directories |
+| `validate` | Run AIOS draft schema validation on a workflow or run artifact |
+| `conformance` | Run AIOS draft schema and semantic checks with draft-alignment reporting |
+| `evaluate` | Score recorded outputs and traces against a test suite |
+| `evaluate-live` | Run a trusted live Python or HTTP target against a suite |
+| `gate` | Enforce release thresholds from an evaluation report |
+
+The `compare` command accepts either one JSON trace file or a directory of
+`*.json` traces for each condition.
+
+## Current Limitations
+
+- The research trace API and workflow profiler use separate artifact types.
+- Trace-span cost must currently be recorded by the caller.
+- Memory findings measure consumption, not semantic relevance or contribution.
+- Comparisons do not calculate confidence intervals or significance tests yet.
+- Built-in evaluators are deterministic; semantic, safety, and RAG-quality checks
+  rely on application-supplied `CallableEvaluator`/`LLMJudgeEvaluator` logic
+  rather than a bundled model-based judge.
+- Model-swap recommendations estimate cost and do not guarantee quality.
+- Live pricing uses a community-maintained feed that may lag provider changes.
+- Default redaction cannot guarantee removal of every domain-specific secret or
+  personal identifier.
+- `evaluate-live` assumes trusted targets and suite definitions.
+- Framework adapters and a local dashboard remain planned.
 
 ## Development
 
-Install development dependencies:
+A `Makefile` provides shorthand for common tasks:
 
 ```bash
-uv sync --extra dev
+make install     # install dev dependencies
+make check       # run all quality gates (lint + format + typecheck + test)
+make test-cov    # tests with coverage report
+make docs        # build documentation
+make help        # list all available targets
 ```
 
-Run tests:
+Or run individual steps:
 
 ```bash
+uv sync --extra dev --extra docs
 uv run pytest
-```
-
-Run linting:
-
-```bash
 uv run ruff check .
-```
-
-Format code:
-
-```bash
 uv run ruff format .
-```
-
-Run type checks:
-
-```bash
 uv run mypy
 ```
 
-## Test Status
-
-The current test suite covers:
-
-- CLI commands
-- Profiling API
-- Models
-- Providers
-- Pricing
-- Exporters
-- Recommendation engine
-- Recommendation rules
-
-Example:
+Useful targeted checks while working:
 
 ```bash
-pytest -v
+uv run ruff check src tests
+uv run ruff format --check src tests
 ```
 
-Expected result:
+## Project Structure
 
 ```text
-42 passed
+src/agenticlens/
+  instrumentation/ structured run and span tracing, payload redaction
+  analysis/        memory and retry diagnostics
+  comparison/      repeated-run statistics, regression reports, export
+  reports/         trace inspection rendering
+  profiler/       workflow and step profiling
+  metrics/        cost and performance calculation
+  providers/      provider response usage extraction
+  recommenders/   rule-based optimization suggestions
+  exporters/      JSON, CSV, Markdown, and Jira exports
+  cli/            Typer CLI and Rich rendering
+  config/         pricing and settings
+  models/         Pydantic data models
+schemas/           versioned trace, finding, and report JSON Schemas
 ```
 
-## Project Docs
+## Roadmap
 
-See:
+Near-term priorities:
 
-- [AgenticLens_Spec.md](AgenticLens_Spec.md)
-- [ROADMAP.md](ROADMAP.md)
+- experiment manifests and confidence intervals
+- evaluation dataset management
+- automatic pricing resolution for research trace spans
+- prompt caching opportunity detection
+- integrations for LangChain, LangGraph, LiteLLM, and OpenAI Agents SDK
+- OpenTelemetry and OpenInference trace import
+- optional prompt compression handoff
 
-## Positioning
+See the [product roadmap](agenticlens-roadmap.md) for committed product
+direction and the
+[research roadmap](AgenticLens_Research_and_Development_Roadmap.md) for
+experimental research plans.
 
-AgenticLens is a lightweight, developer-first profiler for token usage, cost, latency, and optimization suggestions.
+## Contributing
 
-It is not intended to replace full observability platforms such as LangSmith, Langfuse, Helicone, or Phoenix. It is designed to be simple, local-first, and easy to add to Python-based LLM workflows.
+Contributions are welcome. Good first areas include:
+
+- provider integrations
+- recommender rules
+- example workflows
+- docs and tutorials
+- export formats
+- test coverage
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
+## Security
+
+Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
+
+## Code of Conduct
+
+This project follows [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-MIT
+AgenticLens is released under the MIT License. See [LICENSE](LICENSE).

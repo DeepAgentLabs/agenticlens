@@ -1,9 +1,9 @@
 import os
 import time
+
 from openai import OpenAI
 
 from agenticlens import profile, step
-
 
 client = OpenAI()
 
@@ -93,7 +93,6 @@ def main():
             print("\nRetrieved Chunks:")
             for chunk in chunks:
                 print("-", chunk)
-            chunks = simple_retrieve(user_question, top_k=10)
 
         with step(
             "Generate Answer",
@@ -106,6 +105,7 @@ def main():
             response = call_llm(user_question, chunks)
             s.record(response)
             s.step.metrics.latency = time.time() - start
+            s.step.metadata["final_answer"] = response.choices[0].message.content
 
         answer = response.choices[0].message.content
         print("\nFinal Answer:")

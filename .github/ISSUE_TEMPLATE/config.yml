@@ -1,5 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Documentation
-    url: https://github.com/agenticlens/agenticlens/wiki
-    about: Check the wiki for guides and API reference
+  - name: Examples
+    url: https://github.com/DeepAgentLabs/agenticlens/tree/main/examples
+    about: Browse example scripts for profiling, cost analysis, and multi-agent workflows.
+  - name: Notebooks
+    url: https://github.com/DeepAgentLabs/agenticlens/tree/main/notebooks
+    about: Interactive Jupyter notebooks with step-by-step demos and tutorials.
+  - name: Project specification
+    url: https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Spec.md
+    about: Read the full design specification and architecture overview.

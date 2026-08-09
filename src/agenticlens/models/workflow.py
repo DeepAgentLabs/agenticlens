@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -14,6 +15,16 @@ class Workflow(BaseModel):
     start_time: datetime
     end_time: datetime | None = None
     steps: list[Step] = Field(default_factory=list)
+    chaos_events: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description=(
+            "Additive workflow.json extension (schema v1.1, see "
+            "docs/workflow-schema-spec.md). Populated by fault-injection tools such as "
+            "agentic-chaos; each entry is expected to carry at least 'fault_type', "
+            "'outcome', and (when correlated to a step) 'step_id'/'step_name'. Left "
+            "loosely typed here so AgenticLens has no hard dependency on the producer."
+        ),
+    )
 
     @property
     def total_tokens(self) -> int:

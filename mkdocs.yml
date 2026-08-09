@@ -1,9 +1,25 @@
 site_name: AgenticLens
-site_description: Profile, analyze, and optimize token consumption in LLM-powered applications.
+site_description: Open-source evaluation and profiling for production-ready agentic AI systems.
 theme:
   name: material
+  logo: assets/agenticlens-logo.jpeg
+  favicon: assets/agenticlens-logo.jpeg
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
 
 nav:
   - Home: index.md
+  - AIOS Validation and OTel: aios-validation-and-otel.md
+  - Export Formats: export-formats.md
+  - RAG Chunk Utility: rag-chunk-utility.md
+  - Workflow Schema Spec: workflow-schema-spec.md
+  - Trace and Comparison: trace-and-comparison.md
+  - Evaluation and Release Gates: evaluation-and-release-gates.md
+  - Multi-Agent Reference Workflows: multi-agent-reference-workflows.md
 
-repo_url: https://github.com/agenticlens/agenticlens
+repo_url: https://github.com/DeepAgentLabs/agenticlens
+repo_name: DeepAgentLabs/agenticlens
+exclude_docs: |
+  patents/

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build distributions
@@ -29,9 +29,6 @@ jobs:
   publish-testpypi:
     runs-on: ubuntu-latest
     needs: build
-    environment: testpypi
-    permissions:
-      id-token: write
     steps:
       - name: Download distributions
         uses: actions/download-artifact@v4
@@ -42,4 +39,6 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           skip-existing: true

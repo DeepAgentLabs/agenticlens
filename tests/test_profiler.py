@@ -84,3 +84,28 @@ def test_record_sets_ttft_when_provided() -> None:
     with profile("Test"), step("LLM Call", type="llm_call") as s:
         s.record(Response(), ttft=0.42)
         assert s.step.metrics.ttft == 0.42
+
+
+def test_step_accepts_multi_agent_metadata() -> None:
+    with (
+        profile("Multi Agent") as workflow,
+        step(
+            "Research",
+            type="llm_call",
+            agent_name="research_agent",
+            agent_role="researcher",
+            parent_step_id="plan-1",
+            handoff_from="planner_agent",
+            handoff_to="answer_agent",
+            handoff_tokens=4500,
+        ),
+    ):
+        pass
+
+    recorded = workflow.steps[0]
+    assert recorded.agent_name == "research_agent"
+    assert recorded.agent_role == "researcher"
+    assert recorded.parent_step_id == "plan-1"
+    assert recorded.handoff_from == "planner_agent"
+    assert recorded.handoff_to == "answer_agent"
+    assert recorded.metadata["handoff_tokens"] == 4500

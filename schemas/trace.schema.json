@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/v1/trace.schema.json",
+  "title": "AgenticLens Run Trace",
+  "type": "object",
+  "required": ["schema_version", "run_id", "trace_id", "application_name", "started_at", "status", "spans"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "trace_id": {"type": "string", "minLength": 1},
+    "application_name": {"type": "string", "minLength": 1},
+    "started_at": {"type": "string", "format": "date-time"},
+    "completed_at": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"enum": ["running", "succeeded", "failed"]},
+    "spans": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/span"}
+    },
+    "metadata": {"type": "object"}
+  },
+  "$defs": {
+    "span": {
+      "type": "object",
+      "required": ["span_id", "name", "span_type", "started_at", "status"],
+      "properties": {
+        "span_id": {"type": "string", "minLength": 1},
+        "parent_span_id": {"type": ["string", "null"]},
+        "name": {"type": "string", "minLength": 1},
+        "span_type": {
+          "enum": ["model_call", "planning", "memory_read", "memory_write", "retrieval", "tool_call", "validation", "retry", "delegation", "final_response", "custom"]
+        },
+        "started_at": {"type": "string", "format": "date-time"},
+        "completed_at": {"type": ["string", "null"], "format": "date-time"},
+        "latency_ms": {"type": "number", "minimum": 0},
+        "input_tokens": {"type": "integer", "minimum": 0},
+        "output_tokens": {"type": "integer", "minimum": 0},
+        "status": {"enum": ["running", "succeeded", "failed"]},
+        "attributes": {"type": "object"}
+      }
+    }
+  }
+}

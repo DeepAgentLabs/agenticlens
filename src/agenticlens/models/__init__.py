@@ -2,6 +2,7 @@ from agenticlens.models.enums import Severity, StepType
 from agenticlens.models.metrics import Metrics
 from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.step import Step
+from agenticlens.models.trace import Evidence, Finding, MetricValue, Run, RunStatus, Span, SpanType
 from agenticlens.models.workflow import Workflow
 
 __all__ = [
@@ -10,5 +11,12 @@ __all__ = [
     "Severity",
     "Step",
     "StepType",
+    "Evidence",
+    "Finding",
+    "MetricValue",
+    "Run",
+    "RunStatus",
+    "Span",
+    "SpanType",
     "Workflow",
 ]

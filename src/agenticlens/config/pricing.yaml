@@ -1,8 +1,9 @@
-# Bundled model pricing table (USD per 1,000 tokens).
+# Bundled fallback pricing table (USD per 1,000 tokens).
 #
-# NOTE: prices drift frequently. Verify against each provider's current
-# pricing page before a release. Entries here are placeholders to be
-# confirmed, not guaranteed-current values.
+# This is the last-resort safety net, only used when live pricing (see
+# agenticlens.config.live_pricing) is disabled or unreachable and no cached
+# live data exists. NOTE: prices drift frequently -- verify against each
+# provider's current pricing page before a release.
 #
 # Keys are "<provider>:<model>". Resolution order is documented in
 # AgenticLens_Spec.md under "Cost Metrics".

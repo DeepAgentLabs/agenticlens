@@ -1,4 +1,4 @@
-"""Workflow that deliberately triggers all 4 MVP recommendation rules.
+"""Workflow that deliberately triggers the recommendation rules.
 
 Run with: `agenticlens analyze` against a saved report, e.g.:
 
@@ -34,12 +34,23 @@ def main() -> None:
         ) as s:
             s.record(FakeResponse(prompt_tokens=900, completion_tokens=100))
 
-        # Triggers: excessive retrieved chunks (12 > default max_chunks of 8).
+        # Triggers: excessive retrieved chunks (12 > default max_chunks of 8)
+        # and low-utility retrieved chunks (explicit chunk utility scores).
         with step(
             "Retriever",
             type="retriever",
             chunk_count=12,
             avg_tokens_per_chunk=80,
+            retrieved_chunks=[
+                {
+                    "text": "Refunds are processed to the original payment method.",
+                    "utility_score": 0.9,
+                },
+                {"text": "Refunds may take 5 to 10 business days.", "utility_score": 0.85},
+                {"text": "Express shipping takes 2 to 3 business days.", "utility_score": 0.0},
+                {"text": "Return pickup is available in selected ZIP codes.", "utility_score": 0.0},
+                {"text": "Gift cards cannot be exchanged for cash.", "utility_score": 0.0},
+            ],
         ):
             pass
 
@@ -81,6 +92,10 @@ def main() -> None:
             provider="anthropic",
             model="claude-3-5-sonnet",
             prompt=SYSTEM_PROMPT + "Here is the answer.",
+            final_answer=(
+                "Refunds are processed to the original payment method and may "
+                "take 5 to 10 business days."
+            ),
         ) as s:
             s.record(FakeResponse(prompt_tokens=850, completion_tokens=200))
 

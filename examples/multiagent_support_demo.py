@@ -1,5 +1,6 @@
 import os
 import time
+
 from openai import OpenAI
 
 from agenticlens import profile, step
@@ -44,7 +45,10 @@ def lookup_order(order_id: str):
 
 def call_llm(agent_name: str, prompt: str):
     messages = [
-        {"role": "system", "content": f"You are the {agent_name} in a multi-agent customer support workflow."},
+        {
+            "role": "system",
+            "content": f"You are the {agent_name} in a multi-agent customer support workflow.",
+        },
         {"role": "user", "content": prompt},
     ]
 
@@ -59,7 +63,6 @@ def main():
     user_question = "My order A123 was delivered. Can I get a refund and how long will it take?"
 
     with profile("Multi-Agent Customer Support Workflow") as workflow:
-
         with step(
             "Planner Agent",
             type="planner",

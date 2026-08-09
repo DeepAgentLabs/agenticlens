@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenticlens"
-version = "0.1.0"
+version = "0.4.0"
 description = "Profile, analyze, and optimize token consumption in LLM-powered applications and agentic workflows."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -19,6 +19,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
@@ -26,6 +27,8 @@ dependencies = [
   "typer>=0.12",
   "rich>=13.0",
   "pyyaml>=6.0",
+  "jsonschema>=4.23",
+  "referencing>=0.35",
 ]
 
 [project.optional-dependencies]
@@ -41,20 +44,29 @@ dev = [
 docs = [
   "mkdocs-material>=9.5",
 ]
+langgraph = [
+  "langgraph>=1.0,<2",
+]
+multi-agent = [
+  "langgraph>=1.0,<2",
+]
 
 [project.scripts]
 agenticlens = "agenticlens.cli.main:app"
 
 [project.urls]
-Homepage = "https://github.com/agenticlens/agenticlens"
-Repository = "https://github.com/agenticlens/agenticlens"
-Issues = "https://github.com/agenticlens/agenticlens/issues"
-Changelog = "https://github.com/agenticlens/agenticlens/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/agenticlens/agenticlens#readme"
-Security = "https://github.com/agenticlens/agenticlens/security/policy"
+Homepage = "https://github.com/DeepAgentLabs/agenticlens"
+Repository = "https://github.com/DeepAgentLabs/agenticlens"
+Issues = "https://github.com/DeepAgentLabs/agenticlens/issues"
+Changelog = "https://github.com/DeepAgentLabs/agenticlens/blob/main/CHANGELOG.md"
+Documentation = "https://deepagentlabs.github.io/agenticlens/"
+Security = "https://github.com/DeepAgentLabs/agenticlens/security/policy"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agenticlens"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "agenticlens/schemas"
 
 [tool.ruff]
 line-length = 100
@@ -70,6 +82,9 @@ ignore = ["B008"]
 [tool.ruff.lint.isort]
 known-first-party = ["agenticlens"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/agenticlens/evaluation/html_report.py" = ["E501"]
+
 [tool.ruff.format]
 quote-style = "double"
 
@@ -78,6 +93,10 @@ python_version = "3.10"
 strict = true
 packages = ["agenticlens"]
 mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["jsonschema", "referencing", "referencing.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
