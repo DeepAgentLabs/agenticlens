@@ -1,0 +1,146 @@
+{
+  "id": "fe9fdd0a-2de7-4fc0-a077-5bf8f9c17513",
+  "name": "Benchmark - Semantic Kernel - Support Refund",
+  "start_time": "2026-07-15T00:01:57.429218Z",
+  "end_time": "2026-07-15T00:01:57.430915Z",
+  "steps": [
+    {
+      "id": "de067e62-f161-4998-aca9-d0980646e03b",
+      "name": "Semantic Kernel - Classify Ticket Intent",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 180,
+        "completion_tokens": 25,
+        "total_tokens": 205,
+        "latency": 0.000112599998828955,
+        "ttft": null,
+        "cost": 4.199999999999999e-05
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "semantic_kernel",
+        "kernel_type": "Kernel"
+      }
+    },
+    {
+      "id": "f6db5031-c826-4768-bc51-70f48a958896",
+      "name": "Semantic Kernel - Rewrite Query For Retrieval",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 220,
+        "completion_tokens": 35,
+        "total_tokens": 255,
+        "latency": 2.970000059576705e-05,
+        "ttft": null,
+        "cost": 5.4e-05
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "semantic_kernel"
+      }
+    },
+    {
+      "id": "3d42c803-2f68-4b3c-be28-d174ee494187",
+      "name": "Semantic Kernel - Retrieve Refund Policy",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.0006422000005841255,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "refund eligibility delivered order opened package unused item refund processing time",
+        "framework": "semantic_kernel",
+        "chunk_count": 4,
+        "avg_tokens_per_chunk": 16,
+        "retrieved_doc_ids": [
+          "refund_002",
+          "refund_003",
+          "refund_001",
+          "shipping_001"
+        ]
+      }
+    },
+    {
+      "id": "d9dc1af4-0434-453c-93b8-5a49943637d4",
+      "name": "Semantic Kernel - Lookup Order",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.00034080000114045106,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "lookup_order",
+        "tool_args": {
+          "order_id": "A123"
+        },
+        "framework": "semantic_kernel",
+        "tool_result": {
+          "found": true,
+          "order_id": "A123",
+          "status": "delivered",
+          "delivered_days_ago": 12,
+          "package_opened": true,
+          "item_used": false,
+          "payment_method": "Visa ending 4242",
+          "tracking_updated_hours_ago": 24
+        }
+      }
+    },
+    {
+      "id": "54bc7085-232c-4652-9016-b2cde854b5a5",
+      "name": "Semantic Kernel - Refund Eligibility Check",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 720,
+        "completion_tokens": 95,
+        "total_tokens": 815,
+        "latency": 3.819999983534217e-05,
+        "ttft": null,
+        "cost": 0.00016499999999999997
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "semantic_kernel",
+        "intent": "framework=Semantic Kernel; intent=refund_request; priority=normal"
+      }
+    },
+    {
+      "id": "2f73c623-9762-4214-a1b9-e1cd1bae7454",
+      "name": "Semantic Kernel - Generate Customer Reply",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 850,
+        "completion_tokens": 130,
+        "total_tokens": 980,
+        "latency": 1.979999797185883e-05,
+        "ttft": null,
+        "cost": 0.00020549999999999998
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "semantic_kernel"
+      }
+    }
+  ],
+  "chaos_events": []
+}

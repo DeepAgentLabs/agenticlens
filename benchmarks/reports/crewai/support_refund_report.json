@@ -1,0 +1,146 @@
+{
+  "id": "af870a32-4467-43a7-9f71-bdd67c3ccf9c",
+  "name": "Benchmark - CrewAI - Support Refund",
+  "start_time": "2026-07-15T00:01:46.504093Z",
+  "end_time": "2026-07-15T00:01:46.504997Z",
+  "steps": [
+    {
+      "id": "eebd56da-d5c5-432e-88f2-cc971baa2ad4",
+      "name": "CrewAI - Classify Ticket Intent",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 180,
+        "completion_tokens": 25,
+        "total_tokens": 205,
+        "latency": 6.55999974696897e-05,
+        "ttft": null,
+        "cost": 4.199999999999999e-05
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "crewai",
+        "crew_agents": 4
+      }
+    },
+    {
+      "id": "f6074dce-c385-4a6b-88da-e4a4920f889e",
+      "name": "CrewAI - Rewrite Query For Retrieval",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 220,
+        "completion_tokens": 35,
+        "total_tokens": 255,
+        "latency": 2.0399998902576044e-05,
+        "ttft": null,
+        "cost": 5.4e-05
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+        "framework": "crewai"
+      }
+    },
+    {
+      "id": "e94e563d-ad3d-43bf-a130-8a571152a840",
+      "name": "CrewAI - Retrieve Refund Policy",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.00035519999801181257,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "refund eligibility delivered order opened package unused item refund processing time",
+        "framework": "crewai",
+        "chunk_count": 4,
+        "avg_tokens_per_chunk": 16,
+        "retrieved_doc_ids": [
+          "refund_002",
+          "refund_003",
+          "refund_001",
+          "shipping_001"
+        ]
+      }
+    },
+    {
+      "id": "62511b67-abf5-4e4a-9134-6c0db0db9a27",
+      "name": "CrewAI - Lookup Order",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.00019799999790848233,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "lookup_order",
+        "tool_args": {
+          "order_id": "A123"
+        },
+        "framework": "crewai",
+        "tool_result": {
+          "found": true,
+          "order_id": "A123",
+          "status": "delivered",
+          "delivered_days_ago": 12,
+          "package_opened": true,
+          "item_used": false,
+          "payment_method": "Visa ending 4242",
+          "tracking_updated_hours_ago": 24
+        }
+      }
+    },
+    {
+      "id": "54087bbd-e619-465d-ae41-0a8ab1c02622",
+      "name": "CrewAI - Refund Eligibility Check",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 720,
+        "completion_tokens": 95,
+        "total_tokens": 815,
+        "latency": 2.099999983329326e-05,
+        "ttft": null,
+        "cost": 0.00016499999999999997
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "crewai",
+        "intent": "framework=CrewAI; intent=refund_request; priority=normal"
+      }
+    },
+    {
+      "id": "d60ee37c-1b2c-4069-9513-1e42346fd564",
+      "name": "CrewAI - Generate Customer Reply",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 850,
+        "completion_tokens": 130,
+        "total_tokens": 980,
+        "latency": 1.1899999663000926e-05,
+        "ttft": null,
+        "cost": 0.00020549999999999998
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window.",
+        "framework": "crewai"
+      }
+    }
+  ],
+  "chaos_events": []
+}

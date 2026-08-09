@@ -56,7 +56,9 @@ The product idea is simple:
 - [Features](#features)
 - [Cost Calculation](#cost-calculation)
 - [Configuration Reference](#configuration-reference)
+- [Framework Benchmarks](#framework-benchmarks)
 - [Notebooks](#notebooks)
+- [LangChain Integration](#langchain-integration)
 - [CLI Reference](#cli-reference)
 - [Current Limitations](#current-limitations)
 - [Development](#development)
@@ -962,6 +964,9 @@ Other examples:
 - `examples/rag_customer_support_demo.py`
 - `examples/multiagent_support_demo.py`
 - `examples/multiagent_token_optimization_demo.py`
+- `examples/support_copilot.py` — practical support workflow profiling example
+- `examples/multiagent_edge_cases_demo.py` — edge-case instrumentation example
+- `examples/live_multiagent_travel_briefing.py` — live provider multi-agent travel briefing demo
 - `examples/reference_workflows/langgraph_supervisor.py` — offline LangGraph supervisor
 - `examples/export_demo.py` — export to Markdown and Jira
 - `examples/live_evaluation_demo.py` — trusted live Python target for `evaluate-live`
@@ -979,6 +984,15 @@ The reference workflows are based on orchestration patterns published by the
 official framework repositories. See
 [docs/multi-agent-reference-workflows.md](docs/multi-agent-reference-workflows.md)
 for setup, source links, dependency isolation, and instrumentation boundaries.
+
+## Framework Benchmarks
+
+`benchmarks/` runs the same practical refund-ticket workload through AutoGen,
+CrewAI, LangGraph, LlamaIndex, Semantic Kernel, and native Python, profiling
+each with AgenticLens to normalize tokens, cost, latency, tool calls, and
+retrieved chunks across implementations. See
+[benchmarks/results/benchmark_summary.md](benchmarks/results/benchmark_summary.md)
+for the current comparison table.
 
 ## Notebooks
 
@@ -1039,6 +1053,29 @@ Set credentials via environment variables for safety — see
 `examples/export_demo.py` for a complete example.
 
 For sample output previews of all formats, see [docs/export-formats.md](docs/export-formats.md).
+
+## LangChain Integration
+
+Auto-instrument a LangChain (or LangGraph) run via its callback system instead
+of wrapping every call in `step()`:
+
+```bash
+pip install "agenticlens[langchain]"
+```
+
+```python
+from agenticlens import profile
+from agenticlens.adapters.langchain import AgenticLensCallbackHandler
+
+with profile("My LangChain App") as workflow:
+    chain.invoke(inputs, config={"callbacks": [AgenticLensCallbackHandler()]})
+```
+
+LLM calls, tool calls, and retriever calls are tracked automatically as
+`llm_call`, `tool_call`, and `retriever` steps, with token usage extracted the
+same way `s.record(...)` does. See
+[docs/langchain-integration.md](docs/langchain-integration.md) for details on
+what is and is not tracked.
 
 ## CLI Reference
 

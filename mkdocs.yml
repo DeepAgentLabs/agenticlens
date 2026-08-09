@@ -15,6 +15,7 @@ nav:
   - Export Formats: export-formats.md
   - RAG Chunk Utility: rag-chunk-utility.md
   - Workflow Schema Spec: workflow-schema-spec.md
+  - LangChain Integration: langchain-integration.md
   - Trace and Comparison: trace-and-comparison.md
   - Evaluation and Release Gates: evaluation-and-release-gates.md
   - Multi-Agent Reference Workflows: multi-agent-reference-workflows.md

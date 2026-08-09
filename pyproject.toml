@@ -44,6 +44,9 @@ dev = [
 docs = [
   "mkdocs-material>=9.5",
 ]
+langchain = [
+  "langchain-core>=0.3",
+]
 langgraph = [
   "langgraph>=1.0,<2",
 ]
@@ -97,6 +100,12 @@ mypy_path = "src"
 [[tool.mypy.overrides]]
 module = ["jsonschema", "referencing", "referencing.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# langchain-core is an optional dependency (the `langchain` extra) whose own
+# transitive imports ship stubs newer than our target Python version.
+module = ["langchain_core", "langchain_core.*"]
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

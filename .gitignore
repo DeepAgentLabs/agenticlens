@@ -14,6 +14,11 @@ site/
 .env
 test/
 
+# Generated workflow reports from running examples/benchmarks locally
+/*_report.json
+/workflow.json
+/report.json
+
 # Local patent/provisional drafting artifacts
 docs/patents/
 tools/build_agenticlens_provisional.py

@@ -1,0 +1,138 @@
+{
+  "id": "c43030a5-eec9-4a0d-911f-456612f3149a",
+  "name": "Benchmark - LangGraph - Support Refund",
+  "start_time": "2026-07-15T00:01:39.404988Z",
+  "end_time": "2026-07-15T00:01:39.437796Z",
+  "steps": [
+    {
+      "id": "2e5839a4-c25c-4e36-977f-31ec0812d783",
+      "name": "LangGraph - Classify Ticket Intent",
+      "type": "planner",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 190,
+        "completion_tokens": 30,
+        "total_tokens": 220,
+        "latency": 0.00025860000096145086,
+        "ttft": null,
+        "cost": 4.649999999999999e-05
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?"
+      }
+    },
+    {
+      "id": "899a6eb8-abfd-4c02-8c8f-1bc4b2e40014",
+      "name": "LangGraph - Rewrite Query For Retrieval",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 240,
+        "completion_tokens": 40,
+        "total_tokens": 280,
+        "latency": 9.900000077323057e-05,
+        "ttft": null,
+        "cost": 5.9999999999999995e-05
+      },
+      "metadata": {
+        "prompt": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?"
+      }
+    },
+    {
+      "id": "78c5d4e3-55a6-4bbf-94ec-87fe1483e99c",
+      "name": "LangGraph - Retrieve Refund Policy",
+      "type": "retriever",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.001006700000289129,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "query": "refund eligibility delivered order opened package unused item refund processing time",
+        "chunk_count": 4,
+        "avg_tokens_per_chunk": 16,
+        "retrieved_doc_ids": [
+          "refund_002",
+          "refund_003",
+          "refund_001",
+          "shipping_001"
+        ]
+      }
+    },
+    {
+      "id": "be8d9918-765b-4b39-9ecc-2fdd7002d7b6",
+      "name": "LangGraph - Lookup Order",
+      "type": "tool_call",
+      "provider": null,
+      "model": null,
+      "metrics": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "latency": 0.0007781999993312638,
+        "ttft": null,
+        "cost": null
+      },
+      "metadata": {
+        "tool_name": "lookup_order",
+        "tool_args": {
+          "order_id": "A123"
+        },
+        "tool_result": {
+          "found": true,
+          "order_id": "A123",
+          "status": "delivered",
+          "delivered_days_ago": 12,
+          "package_opened": true,
+          "item_used": false,
+          "payment_method": "Visa ending 4242",
+          "tracking_updated_hours_ago": 24
+        }
+      }
+    },
+    {
+      "id": "86cbe2bd-8377-4eae-baf4-f7bb8b638e8d",
+      "name": "LangGraph - Refund Eligibility Check",
+      "type": "llm_call",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 780,
+        "completion_tokens": 110,
+        "total_tokens": 890,
+        "latency": 7.94000006862916e-05,
+        "ttft": null,
+        "cost": 0.000183
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window."
+      }
+    },
+    {
+      "id": "1da78f49-2fa0-4fbd-8f4f-7adb238cf0ca",
+      "name": "LangGraph - Generate Customer Reply",
+      "type": "final_response",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "metrics": {
+        "prompt_tokens": 920,
+        "completion_tokens": 150,
+        "total_tokens": 1070,
+        "latency": 4.649999755201861e-05,
+        "ttft": null,
+        "cost": 0.00022799999999999999
+      },
+      "metadata": {
+        "prompt": "- Items must be unused and in original packaging to qualify for a standard refund.\n- Opened items may require manual review unless the item is defective.\n- Customers can request a refund within 30 days of delivery.\n- Delivered orders are eligible for return review if the delivery date is within the return window."
+      }
+    }
+  ],
+  "chaos_events": []
+}

@@ -1,0 +1,31 @@
+[
+  {
+    "case_id": "refund_001",
+    "ticket": "My order A123 was delivered 12 days ago. I opened the package but did not use the item. Can I get a refund, and how long will it take?",
+    "order_id": "A123",
+    "expected_facts": [
+      "within 30 day refund window",
+      "opened package may require manual review",
+      "item was not used",
+      "refund may take 5 to 10 business days"
+    ]
+  },
+  {
+    "case_id": "refund_002",
+    "ticket": "My order B456 arrived 45 days ago. Can I return it?",
+    "order_id": "B456",
+    "expected_facts": [
+      "outside 30 day refund window",
+      "refund may not be eligible"
+    ]
+  },
+  {
+    "case_id": "tracking_001",
+    "ticket": "My tracking has not updated for 2 days. What should I do?",
+    "order_id": "C789",
+    "expected_facts": [
+      "tracking not updated for 48 hours",
+      "contact support"
+    ]
+  }
+]
