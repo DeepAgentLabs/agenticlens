@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/finding.schema.json",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/v2/finding.schema.json",
   "title": "AgenticLens Finding",
   "type": "object",
   "required": ["finding_id", "category", "title", "description", "severity", "confidence", "span_ids", "evidence"],

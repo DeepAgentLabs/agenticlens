@@ -1,3 +1,4 @@
+import json
 import runpy
 from pathlib import Path
 
@@ -37,6 +38,7 @@ from agenticlens.models.workflow import Workflow
 from agenticlens.profiler.context import completed_workflows
 from agenticlens.recommenders import RecommendationEngine
 from agenticlens.reports import render_trace, render_trace_markdown
+from agenticlens.validation import ConformanceReport, validate_aios_artifact
 
 app = typer.Typer(
     name="agenticlens",
@@ -146,6 +148,76 @@ def inspect_run(
     if save is not None:
         save.write_text(render_trace_markdown(run), encoding="utf-8")
         console.print(f"Saved trace report to {save}")
+
+
+@app.command()
+def validate(
+    artifact_file: Path = typer.Argument(..., help="AIOS workflow or run artifact JSON."),
+    version: str = typer.Option(
+        "0.4",
+        "--version",
+        help="AI Operations Specification version to validate against.",
+    ),
+    spec_root: Path | None = typer.Option(
+        None,
+        "--spec-root",
+        help="Path to the ai-operations-spec repository root.",
+    ),
+    save: Path | None = typer.Option(
+        None,
+        "--save",
+        help="Save the machine-readable validation report.",
+    ),
+) -> None:
+    """Validate an AIOS artifact against the draft JSON Schema."""
+    try:
+        report = validate_aios_artifact(
+            artifact_file,
+            spec_version=version,
+            mode="validate",
+            spec_root=spec_root,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]Unable to validate artifact:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    _render_aios_report(report, save)
+    if not report.schema_valid:
+        raise typer.Exit(code=2)
+
+
+@app.command()
+def conformance(
+    artifact_file: Path = typer.Argument(..., help="AIOS workflow or run artifact JSON."),
+    version: str = typer.Option(
+        "0.4",
+        "--version",
+        help="AI Operations Specification version to validate against.",
+    ),
+    spec_root: Path | None = typer.Option(
+        None,
+        "--spec-root",
+        help="Path to the ai-operations-spec repository root.",
+    ),
+    save: Path | None = typer.Option(
+        None,
+        "--save",
+        help="Save the machine-readable conformance report.",
+    ),
+) -> None:
+    """Run schema and semantic AIOS draft checks and report draft alignment."""
+    try:
+        report = validate_aios_artifact(
+            artifact_file,
+            spec_version=version,
+            mode="conformance",
+            spec_root=spec_root,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]Unable to check conformance:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    _render_aios_report(report, save)
+    if not report.aligned:
+        raise typer.Exit(code=2)
 
 
 @app.command()
@@ -357,6 +429,32 @@ def gate(
     for reason in decision.reasons:
         console.print(f"  • {reason}")
     raise typer.Exit(code=2)
+
+
+def _render_aios_report(report: ConformanceReport, save: Path | None) -> None:
+    table = Table(title=f"AIOS {report.mode.title()} · {report.artifact_type}")
+    table.add_column("Check")
+    table.add_column("Result")
+    table.add_row("Spec version", f"v{report.spec_version}-draft")
+    table.add_row("Schema", "pass" if report.schema_valid else "fail")
+    table.add_row(
+        "Semantics",
+        "pass" if report.semantic_valid else ("n/a" if report.mode == "validate" else "fail"),
+    )
+    table.add_row("Draft alignment", "pass" if report.aligned else "fail")
+    console.print(table)
+    console.print(report.draft_alignment_claim)
+    if report.issues:
+        console.print("[yellow]AIOS-defined issues:[/yellow]")
+        for issue in report.issues:
+            location = f" ({issue.location})" if issue.location else ""
+            console.print(f"  • {issue.code}: {issue.message}{location}")
+    else:
+        console.print("[green]No AIOS issues detected.[/green]")
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved report to {save}")
 
 
 if __name__ == "__main__":

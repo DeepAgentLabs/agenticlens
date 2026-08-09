@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
@@ -202,3 +203,50 @@ def test_duplicate_context_detection_groups_reused_inputs():
     findings = analyze_trace(recording.run, duplicated_context_threshold=2)
     assert groups == [[recording.run.spans[0].span_id, recording.run.spans[1].span_id]]
     assert any(finding.category == "context" for finding in findings)
+
+
+def test_trace_exports_to_otlp_when_configured() -> None:
+    with (
+        patch("agenticlens.exporters.otlp_trace_exporter.OTLPTraceExporter.export") as export,
+        trace("support-agent", otlp_endpoint="http://collector:4318/v1/traces") as recording,
+        recording.span("plan", SpanType.PLANNING),
+    ):
+        pass
+
+    export.assert_called_once()
+    exported_run = export.call_args.args[0]
+    assert exported_run.application_name == "support-agent"
+
+
+def test_trace_resets_context_when_otlp_export_fails() -> None:
+    with (
+        patch(
+            "agenticlens.exporters.otlp_trace_exporter.OTLPTraceExporter.export",
+            side_effect=ValueError("not-a-url"),
+        ),
+        trace("support-agent", otlp_endpoint="not-a-url") as recording,
+    ):
+        pass
+
+    assert recording.run.metadata["otlp_export_error"] == "not-a-url"
+
+    with trace("fresh-trace") as next_recording:
+        pass
+
+    assert next_recording.run.application_name == "fresh-trace"
+
+
+def test_trace_preserves_application_exception_when_otlp_export_fails() -> None:
+    recording = trace("support-agent", otlp_endpoint="not-a-url")
+    with (
+        patch(
+            "agenticlens.exporters.otlp_trace_exporter.OTLPTraceExporter.export",
+            side_effect=ValueError("not-a-url"),
+        ),
+        pytest.raises(RuntimeError, match="boom"),
+        recording,
+    ):
+        raise RuntimeError("boom")
+
+    assert recording.run.error_type == "RuntimeError"
+    assert recording.run.metadata["otlp_export_error"] == "not-a-url"

@@ -59,12 +59,21 @@ def _validate_json_schema(payload: Any, schema: dict[str, Any]) -> tuple[bool, s
         "number": (int, float),
         "integer": int,
         "boolean": bool,
+        "null": type(None),
     }
-    expected_python_type = type_map.get(expected_type) if expected_type else None
-    if expected_type and expected_python_type is None:
-        return False, f"Unsupported JSON schema type {expected_type!r}."
-    if expected_python_type is not None and not isinstance(payload, expected_python_type):
-        return False, f"Expected JSON type {expected_type!r}."
+    if isinstance(expected_type, list):
+        # Union type like ["string", "null"]
+        allowed = tuple(t for name in expected_type if (t := type_map.get(name)) is not None)
+        if not allowed:
+            return False, f"Unsupported JSON schema type {expected_type!r}."
+        if not isinstance(payload, allowed):
+            return False, f"Expected one of JSON types {expected_type!r}."
+    else:
+        expected_python_type = type_map.get(expected_type) if expected_type else None
+        if expected_type and expected_python_type is None:
+            return False, f"Unsupported JSON schema type {expected_type!r}."
+        if expected_python_type is not None and not isinstance(payload, expected_python_type):
+            return False, f"Expected JSON type {expected_type!r}."
     if isinstance(payload, dict):
         required = schema.get("required", [])
         missing = [name for name in required if name not in payload]
@@ -84,11 +93,11 @@ def _validate_json_schema(payload: Any, schema: dict[str, Any]) -> tuple[bool, s
     return True, "Output matches the configured JSON schema subset."
 
 
-def _turn_count(sample: EvaluationSample) -> int:
+def _turn_count(sample: EvaluationSample) -> int | None:
     metadata_turns = sample.trace.metadata.get("turn_count")
     if isinstance(metadata_turns, int) and metadata_turns > 0:
         return metadata_turns
-    return len(sample.trace.spans)
+    return None
 
 
 def _score_case(
@@ -245,7 +254,7 @@ def _score_case(
         )
     if case.max_turns is not None:
         turns = _turn_count(sample)
-        passed = turns <= case.max_turns
+        passed = turns is not None and turns <= case.max_turns
         scores.append(
             Score(
                 name="turn_count_threshold",
@@ -254,6 +263,11 @@ def _score_case(
                 explanation=(
                     f"Turn count {turns} {'meets' if passed else 'exceeds'} the "
                     f"{case.max_turns} turn limit."
+                    if turns is not None
+                    else (
+                        "Trace metadata is missing a positive integer turn_count, "
+                        "so the max_turns check could not be evaluated."
+                    )
                 ),
             )
         )

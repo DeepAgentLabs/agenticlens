@@ -186,8 +186,10 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Live Python and HTTP evaluation targets | Implemented, experimental |
 | Quality, tool-use, latency, and cost release gates | Implemented, experimental |
 | Standalone evaluation HTML report | Implemented, experimental |
+| AIOS draft validation and conformance CLI | Implemented, experimental |
+| OTLP/HTTP JSON trace export | Implemented, experimental |
 | Statistical significance testing | Planned |
-| Framework trace adapters and OpenTelemetry export | Planned |
+| Framework trace adapters | Planned |
 | Dashboard, ModelFit, and governance | Planned |
 
 ## Evaluation and Release Gates
@@ -211,6 +213,46 @@ agenticlens gate evaluation.json \
 The evaluation command produces machine-readable JSON and an optional
 standalone HTML report. The gate command returns exit status `2` when a
 configured release threshold fails, making it suitable for CI.
+
+## AIOS Validation and Conformance
+
+AgenticLens can validate AI Operations Specification draft workflow and run
+artifacts against the sibling `ai-operations-spec` schemas and semantic rules.
+
+```bash
+agenticlens validate workflow.json --version 0.4
+agenticlens conformance run.json --version 0.4 --spec-root ../ai-operations-spec
+```
+
+`validate` performs schema checks. `conformance` adds semantic graph and
+reference checks and reports draft alignment rather than stable conformance,
+because AIOS `v0.4` remains a draft.
+
+## OpenTelemetry Export
+
+Structured `trace()` runs can now emit OTLP/HTTP JSON spans when configured:
+
+```python
+from agenticlens import SpanType, trace
+
+with trace(
+    "support-agent",
+    otlp_endpoint="http://localhost:4318/v1/traces",
+) as recording:
+    with recording.span("planner", SpanType.PLANNING) as planner:
+        planner.record_tokens(input_tokens=120, output_tokens=30)
+```
+
+Or configure export through environment variables:
+
+```bash
+export AGENTICLENS_OTLP_TRACES_ENDPOINT=http://localhost:4318/v1/traces
+export AGENTICLENS_OTLP_HEADERS='Authorization=Bearer local-dev-token'
+export AGENTICLENS_OTLP_TIMEOUT_SECONDS=10
+```
+
+See `examples/operational_intelligence_demo.py` for a runnable local example
+that writes both an AgenticLens run artifact and an OTLP payload.
 
 Run a trusted live target directly:
 
@@ -621,12 +663,15 @@ regressions are detected. Invalid inputs or unreadable traces return exit code
 Versioned JSON Schemas are provided for:
 
 - run traces: `schemas/trace.schema.json`
-- deterministic findings: `schemas/finding.schema.json`
+- deterministic findings: `schemas/finding.schema.json` and `schemas/v2/finding.schema.json`
 - comparison reports: `schemas/report.schema.json`
 
 The schemas are included in wheel distributions under `agenticlens/schemas`.
 They allow external systems to validate and consume artifacts without depending
 on AgenticLens internal Python classes.
+
+For compatibility-sensitive integrations, prefer the versioned schema URLs
+published in each schema's `$id` instead of the unversioned convenience alias.
 
 | Artifact | Purpose |
 | --- | --- |
@@ -920,6 +965,12 @@ Other examples:
 - `examples/export_demo.py` — export to Markdown and Jira
 - `examples/live_evaluation_demo.py` — trusted live Python target for `evaluate-live`
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
+- `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` against
+  the shared evaluator contract
+- `examples/operational_intelligence_demo.py` — structured trace, OTLP export, and
+  AIOS conformance together
+- `examples/pitch_demo/` — offline LangGraph pitch demo tying tracing, evaluation,
+  and release gates together (see [docs/evaluation-and-release-gates.md](docs/evaluation-and-release-gates.md))
 
 Some examples call real provider APIs and require provider API keys.
 
@@ -1065,6 +1116,8 @@ uv run agenticlens gate evaluation.json --min-pass-rate 0.95
 | `analyze` | Run optimization recommenders against a workflow |
 | `inspect` | Render a run trace, span tree, distributions, and findings |
 | `compare` | Compare baseline and candidate trace files or directories |
+| `validate` | Run AIOS draft schema validation on a workflow or run artifact |
+| `conformance` | Run AIOS draft schema and semantic checks with draft-alignment reporting |
 | `evaluate` | Score recorded outputs and traces against a test suite |
 | `evaluate-live` | Run a trusted live Python or HTTP target against a suite |
 | `gate` | Enforce release thresholds from an evaluation report |
@@ -1078,14 +1131,15 @@ The `compare` command accepts either one JSON trace file or a directory of
 - Trace-span cost must currently be recorded by the caller.
 - Memory findings measure consumption, not semantic relevance or contribution.
 - Comparisons do not calculate confidence intervals or significance tests yet.
-- No built-in task-quality evaluator is available yet.
+- Built-in evaluators are deterministic; semantic, safety, and RAG-quality checks
+  rely on application-supplied `CallableEvaluator`/`LLMJudgeEvaluator` logic
+  rather than a bundled model-based judge.
 - Model-swap recommendations estimate cost and do not guarantee quality.
 - Live pricing uses a community-maintained feed that may lag provider changes.
 - Default redaction cannot guarantee removal of every domain-specific secret or
   personal identifier.
 - `evaluate-live` assumes trusted targets and suite definitions.
-- Framework adapters, OpenTelemetry export, and a local dashboard remain
-  planned.
+- Framework adapters and a local dashboard remain planned.
 
 ## Development
 
@@ -1139,8 +1193,6 @@ schemas/           versioned trace, finding, and report JSON Schemas
 
 Near-term priorities:
 
-- **OpenTelemetry export** — traces flow into Grafana/Jaeger/OTel-native systems
-- **AIOS conformance tooling** — validate workflows against normative spec rules
 - experiment manifests and confidence intervals
 - evaluation dataset management
 - automatic pricing resolution for research trace spans

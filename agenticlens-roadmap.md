@@ -11,9 +11,10 @@ forward from `v0.5` and `v1.0`.
 - **v0.2** ✅ Delivered in `0.3.0` — Trace and Comparison Foundation
   (hierarchical tracing, cyclic-parent detection, retry attribution,
   regression detection, baseline/candidate comparison, and Markdown reports)
-- **v0.2.x** 🚧 Planned — Evidence Provenance & Operational Intelligence
-  (`Evidence` objects, OTel export, import-layer enforcement, AIOS conformance
-  CLI)
+- **v0.2.x** ✅ Delivered in `0.4.0` — Evidence Provenance & Operational
+  Intelligence (`Evidence` objects, next-best-analysis guidance,
+  import-layer enforcement, OpenTelemetry trace export, and AIOS draft
+  validation/conformance CLI are delivered)
 - **v0.3** 🏗️ Mostly complete — Evaluation Foundation (evaluator framework,
   deterministic checks, custom/LLM-judge evaluators, release gates,
   `evaluate`/`gate` CLI, and live agent targets); judge calibration and
@@ -94,6 +95,46 @@ preferred where practical.
 
 Measured, estimated, projected, and inferred values must be distinguishable in
 reports and APIs.
+
+## Cross-Project Dependencies
+
+AgenticLens is intentionally package-first, but several roadmap items need
+cross-project coordination before they should be marked complete.
+
+- `ai-operations-spec`
+  Provides the normative artifact model and conformance rules for AIOS-aligned
+  validation, schema references, and interoperability claims.
+- `agentic-chaos`
+  Produces resilience/fault evidence that AgenticLens may analyze, summarize,
+  or validate as part of cross-tool workflows.
+- `deep-agentic-core-mcp`
+  Exposes AgenticLens capabilities through MCP and is a useful sibling check
+  for CLI/API behavior that is expected to be consumable by hosts and tools.
+
+For roadmap items with ecosystem impact, contributors should distinguish:
+
+- `Depends on`: a sibling repo or spec milestone that must exist first.
+- `Coordinate with`: sibling repos that should be updated or verified together.
+- `Validate in`: the sibling repos or fixtures that should be checked before
+  the roadmap item is marked done.
+
+## Definition of Done
+
+A roadmap item is done only when all applicable work is complete:
+
+- implementation is merged and usable through the intended Python API, CLI, or
+  artifact surface
+- tests or regression fixtures cover the behavior
+- user-facing examples and docs are added or updated
+- `README.md` and this roadmap are updated when the feature changes user
+  expectations or milestone status
+- schema/version compatibility is handled explicitly for any public contract
+  change
+- sibling-project dependencies and coordination checks are recorded for
+  ecosystem-facing work
+- release metadata (`pyproject.toml`, `src/agenticlens/__init__.py`,
+  `CHANGELOG.md`) is updated when the work is part of a release-ready change
+  set
 
 ## Current Capabilities
 
@@ -253,7 +294,7 @@ diagnostics, and baseline comparison.
 Make every finding and recommendation traceable to its source evidence, and add
 intelligent guidance for what analysis to run next.
 
-### Delivered so far
+### Delivered
 
 - first-class `Evidence` object on findings and recommendations (source
   step/span, timestamp, confidence, derived reasoning chain)
@@ -261,23 +302,22 @@ intelligent guidance for what analysis to run next.
   next based on workflow shape and current findings
 - import-layer enforcement in CI — prevent architectural drift as the package
   grows (e.g., `exporters/` must not import from `cli/`)
-
-### Remaining planned deliverables
-
 - OpenTelemetry trace export — let agenticlens traces flow into
-  Grafana/Jaeger/OTel-native systems
-- AIOS conformance tooling in the CLI — commands such as
+  Grafana/Jaeger/OTel-native systems via OTLP/HTTP JSON export
+- AIOS draft validation and conformance tooling in the CLI — commands such as
   `agenticlens validate workflow.json` and
   `agenticlens conformance --version 0.4 workflow.json`, with normative rules,
-  fixtures, and expected behavior defined by `ai-operations-spec`
+  fixtures, and expected behavior defined by `ai-operations-spec`, and
+  draft-alignment reporting that distinguishes AIOS-defined pass/fail rules
+  from AgenticLens-specific presentation
 
 ### Completion criteria
 
 - [x] every recommendation includes a provenance reference to its source spans
 - [x] next-step suggestions are generated from current findings
-- [ ] OTel spans are emitted for profiled workflows when configured
+- [x] OTel spans are emitted for profiled workflows when configured
 - [x] CI rejects forbidden cross-module imports
-- [ ] conformance reports clearly distinguish AIOS-defined pass/fail rules from
+- [x] conformance reports clearly distinguish AIOS-defined pass/fail rules from
       AgenticLens-specific presentation and CLI behavior
 
 ## v0.3 — Evaluation Foundation
@@ -321,6 +361,17 @@ contract rather than as separate subsystems.
 - judge calibration reports and statistical confidence intervals
 - evaluation dataset management
 - automatic framework event adapters beyond the LangGraph reference demo
+- structured judge verdict fields on `LLMJudgeEvaluator` — verdict
+  (agree/partially-agree/disagree), confidence score, and a factual-grounding
+  breakdown (unsupported claims, evidence missed), plus guidance to run the
+  judge on a different model than the one under evaluation to avoid
+  self-confirmation bias; modeled on `devops-open-agent`'s LLM-as-a-Judge
+  verifier output
+- cooldown-protected webhook notifications on `gate` threshold breaches
+  (generic webhook, Slack/Teams-shaped payload) so CI/scheduled `gate` runs
+  can alert without paging on every single run; modeled on
+  `devops-open-agent`'s per-user alert-cooldown pattern for budget and
+  investigation alerts
 
 ### Completion criteria
 

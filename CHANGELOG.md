@@ -16,6 +16,11 @@ This project follows [Semantic Versioning](https://semver.org/).
   provenance carried through analysis and reporting.
 - Duplicate-context detection, retry attribution, retry outcome
   classification, and next-best-analysis suggestions for structured traces.
+- AIOS draft validation and conformance commands in the CLI, including
+  `agenticlens validate` and `agenticlens conformance` backed by local
+  `ai-operations-spec` draft schemas and semantic checks.
+- OTLP/HTTP JSON trace export for structured runs, including optional
+  export-on-trace-completion support for configured endpoints.
 - Additional deterministic evaluation checks for JSON Schema validation,
   required output fields, required tool arguments, and turn-count thresholds.
 - `BusinessRuleEvaluator` and trusted live evaluation targets for Python and
@@ -29,6 +34,8 @@ This project follows [Semantic Versioning](https://semver.org/).
   untyped object, matching shipped runtime artifacts.
 - Trace analysis no longer mutates the input run while computing retry
   attribution.
+- AIOS schema resolution now uses the non-deprecated `referencing` registry
+  path instead of `jsonschema.RefResolver`.
 - Documentation, examples, and roadmap details now match the shipped trace,
   comparison, and evaluation feature surface.
 
