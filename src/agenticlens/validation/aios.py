@@ -22,7 +22,7 @@ _CYCLE_RELATIONSHIP_GROUPS: dict[str, set[str]] = {
 _FORMAT_CHECKER = FormatChecker()
 
 
-@_FORMAT_CHECKER.checks("date-time")
+@_FORMAT_CHECKER.checks("date-time")  # type: ignore[untyped-decorator]
 def _is_datetime_string(value: object) -> bool:
     parsed = _parse_timestamp(value)
     return parsed is not None and parsed.tzinfo is not None
