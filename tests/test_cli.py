@@ -91,7 +91,16 @@ def test_compare_can_enforce_min_samples(tmp_path):
 
 
 runner = CliRunner()
-SPEC_ROOT = Path(__file__).resolve().parents[2] / "ai-operations-spec"
+
+
+def _spec_root() -> Path:
+    sibling_repo = Path(__file__).resolve().parents[2] / "ai-operations-spec"
+    if sibling_repo.exists():
+        return sibling_repo
+    return Path(__file__).resolve().parent / "fixtures" / "ai-operations-spec"
+
+
+SPEC_ROOT = _spec_root()
 
 _PROFILE_SCRIPT = """
 from agenticlens import profile, step

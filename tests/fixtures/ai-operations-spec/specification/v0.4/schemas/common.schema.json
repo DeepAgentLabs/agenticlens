@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/ai-operations-spec/v0.4/common.schema.json",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": ".*\\S.*"
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "extension_name": {
+      "type": "string",
+      "pattern": "^(?!aiops(?:\\.|$))[a-z0-9]+(?:[_-][a-z0-9]+)*(?:\\.[a-z0-9]+(?:[_-][a-z0-9]+)*){2,}$"
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/extension_name"
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "workflow",
+            "run",
+            "request",
+            "step",
+            "agent",
+            "model_interaction",
+            "prompt",
+            "context",
+            "tool_invocation",
+            "rag_retrieval",
+            "memory_operation",
+            "evaluation",
+            "safety_signal",
+            "reliability_event",
+            "incident"
+          ]
+        },
+        "external": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "source",
+        "target"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "run-of",
+            "contains",
+            "parent-of",
+            "caused",
+            "follows",
+            "depends-on",
+            "performed-by",
+            "delegated-to",
+            "handed-off-to",
+            "observed-in",
+            "evaluates",
+            "signals-on",
+            "evidence-for"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/reference"
+        },
+        "target": {
+          "$ref": "#/$defs/reference"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "measurement": {
+      "type": "object",
+      "required": [
+        "name",
+        "value",
+        "kind"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "kind": {
+          "enum": [
+            "observed",
+            "estimated",
+            "derived"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "cost"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "then": {
+            "required": [
+              "currency"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "canonical_event_name": {
+      "enum": [
+        "aiops.run.started",
+        "aiops.run.completed",
+        "aiops.run.failed",
+        "aiops.run.cancelled",
+        "aiops.request.received",
+        "aiops.request.completed",
+        "aiops.request.rejected",
+        "aiops.step.started",
+        "aiops.step.completed",
+        "aiops.step.failed",
+        "aiops.step.cancelled",
+        "aiops.agent.started",
+        "aiops.agent.waiting",
+        "aiops.agent.completed",
+        "aiops.agent.failed",
+        "aiops.model.requested",
+        "aiops.model.responded",
+        "aiops.model.failed",
+        "aiops.prompt.rendered",
+        "aiops.context.assembled",
+        "aiops.tool.requested",
+        "aiops.tool.authorized",
+        "aiops.tool.completed",
+        "aiops.tool.failed",
+        "aiops.retrieval.started",
+        "aiops.retrieval.completed",
+        "aiops.retrieval.failed",
+        "aiops.memory.read",
+        "aiops.memory.written",
+        "aiops.memory.updated",
+        "aiops.memory.deleted",
+        "aiops.memory.failed",
+        "aiops.evaluation.completed",
+        "aiops.evaluation.failed",
+        "aiops.safety.detected",
+        "aiops.safety.reviewed",
+        "aiops.safety.mitigated",
+        "aiops.reliability.detected",
+        "aiops.reliability.recovered",
+        "aiops.incident.opened",
+        "aiops.incident.updated",
+        "aiops.incident.mitigated",
+        "aiops.incident.resolved"
+      ]
+    },
+    "event": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "event_name",
+        "occurred_at",
+        "object_id",
+        "object_type"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "event_name": {
+          "description": "Either a canonical aiops.* name from the draft catalog, or a reverse-domain namespaced extension event (e.g. io.deepagentlabs.agenticlens.custom_event). Extension names MUST NOT start with the aiops namespace.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/canonical_event_name"
+            },
+            {
+              "$ref": "#/$defs/extension_name"
+            }
+          ]
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/time"
+        },
+        "object_id": {
+          "$ref": "#/$defs/id"
+        },
+        "object_type": {
+          "enum": [
+            "run",
+            "request",
+            "step",
+            "agent",
+            "model_interaction",
+            "prompt",
+            "context",
+            "tool_invocation",
+            "rag_retrieval",
+            "memory_operation",
+            "evaluation",
+            "safety_signal",
+            "reliability_event",
+            "incident"
+          ]
+        },
+        "attributes": {
+          "type": "object"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
