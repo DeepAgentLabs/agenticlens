@@ -91,6 +91,7 @@ class Run(BaseModel):
         if len(ids) != len(set(ids)):
             raise ValueError("span_id values must be unique within a run")
         known = set(ids)
+        parents = {span.span_id: span.parent_span_id for span in self.spans}
         for span in self.spans:
             if span.parent_span_id is not None and span.parent_span_id not in known:
                 raise ValueError(
@@ -98,6 +99,14 @@ class Run(BaseModel):
                 )
             if span.parent_span_id == span.span_id:
                 raise ValueError(f"span {span.span_id} cannot be its own parent")
+        for span_id in ids:
+            seen: set[str] = set()
+            current: str | None = span_id
+            while current is not None:
+                if current in seen:
+                    raise ValueError(f"span tree contains a cycle involving {current}")
+                seen.add(current)
+                current = parents.get(current)
         return self
 
     @property
@@ -134,6 +143,15 @@ class MetricValue(BaseModel):
     attributes: dict[str, Any] = Field(default_factory=dict)
 
 
+class Evidence(BaseModel):
+    source: str
+    span_id: str | None = None
+    timestamp: datetime | None = None
+    confidence: float = Field(default=1.0, ge=0, le=1)
+    reasoning: str | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
 class Finding(BaseModel):
     finding_id: str = Field(default_factory=_uuid)
     category: str
@@ -142,4 +160,4 @@ class Finding(BaseModel):
     severity: str
     confidence: float = Field(ge=0, le=1)
     span_ids: list[str] = Field(default_factory=list)
-    evidence: dict[str, Any] = Field(default_factory=dict)
+    evidence: list[Evidence] = Field(default_factory=list)

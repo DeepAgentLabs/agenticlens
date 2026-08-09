@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
 
+from agenticlens.comparison.markdown import render_comparison_markdown
 from agenticlens.comparison.models import ComparisonReport
 
 
@@ -43,3 +44,7 @@ def export_comparison_csv(report: ComparisonReport, path: Path) -> None:
             )
         for name, baseline, candidate, delta in rows:
             writer.writerow([name, baseline, candidate, delta.absolute, delta.relative])
+
+
+def export_comparison_markdown(report: ComparisonReport, path: Path) -> None:
+    path.write_text(render_comparison_markdown(report), encoding="utf-8")

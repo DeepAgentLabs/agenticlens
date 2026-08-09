@@ -121,6 +121,14 @@ def compare_runs(
         "mean_latency_ms": latency_delta,
         "mean_cost_usd": cost_delta,
     }
+    observed_min = min(len(baseline_runs), len(candidate_runs))
+    minimum_sample_size = 5
+    guidance = None
+    if observed_min < minimum_sample_size:
+        guidance = (
+            f"Only {observed_min} run(s) were provided for the smaller cohort; "
+            f"collect at least {minimum_sample_size} runs per cohort for more stable comparisons."
+        )
     return ComparisonReport(
         baseline=baseline,
         candidate=candidate,
@@ -130,4 +138,6 @@ def compare_runs(
         mean_cost_usd_delta=cost_delta,
         regression_threshold=regression_threshold,
         regressions=[name for name, delta in deltas.items() if delta and delta.regressed],
+        minimum_sample_size=minimum_sample_size,
+        sample_size_guidance=guidance,
     )

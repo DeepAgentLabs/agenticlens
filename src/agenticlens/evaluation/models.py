@@ -19,10 +19,14 @@ class TestCase(BaseModel):
     input: Any = None
     expected_output: str | None = None
     expected_contains: list[str] = Field(default_factory=list)
+    output_json_schema: dict[str, Any] | None = None
+    required_output_fields: list[str] = Field(default_factory=list)
     required_tools: list[str] = Field(default_factory=list)
     forbidden_tools: list[str] = Field(default_factory=list)
+    required_tool_arguments: dict[str, list[str]] = Field(default_factory=dict)
     max_latency_ms: float | None = Field(default=None, gt=0)
     max_cost_usd: float | None = Field(default=None, ge=0)
+    max_turns: int | None = Field(default=None, gt=0)
     evaluators: list[EvaluatorConfig] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -33,10 +37,14 @@ class TestCase(BaseModel):
             (
                 self.expected_output is not None,
                 self.expected_contains,
+                self.output_json_schema is not None,
+                self.required_output_fields,
                 self.required_tools,
                 self.forbidden_tools,
+                self.required_tool_arguments,
                 self.max_latency_ms is not None,
                 self.max_cost_usd is not None,
+                self.max_turns is not None,
                 self.evaluators,
             )
         ):
@@ -105,3 +113,20 @@ class EvaluationReport(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     summary: EvaluationSummary
     cases: list[CaseEvaluation]
+
+
+class LiveTarget(BaseModel):
+    kind: str = Field(pattern="^(python|http)$")
+    timeout_seconds: float = Field(default=30.0, gt=0)
+
+
+class PythonTarget(LiveTarget):
+    kind: str = "python"
+    callable_path: str
+
+
+class HTTPTarget(LiveTarget):
+    kind: str = "http"
+    url: str
+    method: str = "POST"
+    headers: dict[str, str] = Field(default_factory=dict)

@@ -16,6 +16,9 @@ Each test case can define:
 
 - exact output or required output phrases
 - required and forbidden tool calls
+- required tool arguments
+- expected JSON output structure and required fields
+- maximum turn count
 - maximum end-to-end latency
 - maximum estimated cost
 - tags and application-specific metadata
@@ -86,7 +89,11 @@ loading arbitrary code.
 safety classifiers, RAG metrics, and internal services.
 `LLMJudgeEvaluator` identifies provider-supplied model judgments in reports
 while leaving model selection, credentials, prompts, retries, and structured
-output handling under application control.
+output handling under application control. See `examples/custom_llm_judge.py`
+for a complete, runnable registration example.
+
+`BusinessRuleEvaluator` is a named wrapper around trusted application logic for
+organization-specific pass/fail rules that do not need an LLM judge.
 
 ## Run an Evaluation
 
@@ -98,6 +105,60 @@ agenticlens evaluate suite.yaml samples.json \
 
 The JSON report is suitable for CI and further analysis. The standalone HTML
 report is suitable for demonstrations, release reviews, and team sharing.
+
+## Run a Trusted Live Target
+
+`evaluate-live` runs the same suite against a trusted live target instead of a
+pre-recorded sample file.
+
+Run a Python callable:
+
+```bash
+agenticlens evaluate-live suite.yaml \
+  --target-kind python \
+  --target examples/live_evaluation_demo.py:run_case \
+  --save evaluation-live.json
+```
+
+Run an HTTP target:
+
+```bash
+agenticlens evaluate-live suite.yaml \
+  --target-kind http \
+  --target http://localhost:8000/evaluate \
+  --save evaluation-live.json
+```
+
+Live targets are intentionally powerful developer-facing integrations. Python
+targets execute local code and HTTP targets can reach arbitrary URLs, so suite
+files and target definitions should be treated as trusted inputs.
+
+## Example Advanced Checks
+
+```yaml
+cases:
+  - id: support-answer
+    name: Structured support answer
+    input:
+      question: Where is my refund?
+    required_tools: ["lookup_refund"]
+    required_tool_arguments:
+      lookup_refund: ["order_id"]
+    output_json_schema:
+      type: object
+      required: ["answer", "meta"]
+      properties:
+        answer:
+          type: string
+        meta:
+          type: object
+          required: ["confidence"]
+    required_output_fields:
+      - meta.confidence
+    max_turns: 3
+    max_latency_ms: 1200
+    max_cost_usd: 0.02
+```
 
 ## Apply a Release Gate
 
@@ -112,6 +173,10 @@ agenticlens gate evaluation.json \
 
 The command exits with status `0` when every threshold passes, `2` when the
 release gate fails, and `1` when the report or configuration is invalid.
+
+`max_turns` requires `trace.metadata.turn_count` to be recorded as a positive
+integer. AgenticLens does not infer conversational turns from lower-level span
+types when that metadata is absent.
 
 ## Offline Pitch Demonstration
 

@@ -55,9 +55,12 @@ local, inspectable, and exportable so teams can compare workflows across version
 ## Documentation
 
 - [Workflow schema specification](workflow-schema-spec.md)
+- [AIOS validation and OTel export](aios-validation-and-otel.md)
 - [Export formats](export-formats.md)
 - [RAG chunk utility](rag-chunk-utility.md)
 - [Trace and comparison](trace-and-comparison.md)
+- [Evaluation and release gates](evaluation-and-release-gates.md)
+- [Multi-agent reference workflows](multi-agent-reference-workflows.md)
 - [Product roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/agenticlens-roadmap.md)
 - [Research roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Research_and_Development_Roadmap.md)
 
@@ -81,7 +84,8 @@ uv run agenticlens analyze workflow.json
 
 AgenticLens is early-stage open-source software. Workflow profiling, live and
 offline pricing, optimization recommendations, structured tracing, deterministic
-memory and retry findings, repeated-run comparison, CLI commands, and export
-formats are implemented. The trace and comparison APIs remain experimental.
-Evaluation suites, framework adapters, OpenTelemetry export, and the optional
-dashboard remain roadmap work.
+memory and retry findings, repeated-run comparison, evaluation suites, release
+gates, AIOS draft validation/conformance, OTLP trace export, CLI commands, and
+export formats are implemented. The trace, comparison, and evaluation APIs
+remain experimental. Framework adapters and the optional dashboard remain
+roadmap work.

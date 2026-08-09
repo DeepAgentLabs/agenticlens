@@ -1,0 +1,161 @@
+{
+  "spec_version": "0.4-draft",
+  "artifact_type": "run",
+  "id": "run-001",
+  "workflow_id": "customer-support",
+  "started_at": "2026-07-21T06:00:00Z",
+  "ended_at": "2026-07-21T06:00:02Z",
+  "status": "completed",
+  "requests": [
+    {
+      "id": "request-001",
+      "status": "completed"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-retrieve",
+      "category": "retrieval",
+      "status": "completed"
+    },
+    {
+      "id": "step-answer",
+      "category": "model",
+      "status": "completed"
+    }
+  ],
+  "agents": [
+    {
+      "id": "agent-support",
+      "name": "Support agent"
+    }
+  ],
+  "occurrences": [
+    {
+      "id": "retrieval-001",
+      "type": "rag_retrieval",
+      "status": "completed"
+    },
+    {
+      "id": "model-001",
+      "type": "model_interaction",
+      "status": "completed"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "eval-001",
+      "type": "evaluation",
+      "status": "passed",
+      "attributes": {
+        "criterion": "groundedness",
+        "score": 0.94
+      }
+    }
+  ],
+  "incidents": [],
+  "relationships": [
+    {
+      "id": "rel-run-of",
+      "type": "run-of",
+      "source": {
+        "id": "run-001",
+        "type": "run"
+      },
+      "target": {
+        "id": "customer-support",
+        "type": "workflow",
+        "external": true
+      }
+    },
+    {
+      "id": "rel-contains-retrieve",
+      "type": "contains",
+      "source": {
+        "id": "run-001",
+        "type": "run"
+      },
+      "target": {
+        "id": "step-retrieve",
+        "type": "step"
+      }
+    },
+    {
+      "id": "rel-contains-answer",
+      "type": "contains",
+      "source": {
+        "id": "run-001",
+        "type": "run"
+      },
+      "target": {
+        "id": "step-answer",
+        "type": "step"
+      }
+    },
+    {
+      "id": "rel-dependency",
+      "type": "depends-on",
+      "source": {
+        "id": "step-answer",
+        "type": "step"
+      },
+      "target": {
+        "id": "step-retrieve",
+        "type": "step"
+      }
+    },
+    {
+      "id": "rel-retrieval-step",
+      "type": "observed-in",
+      "source": {
+        "id": "retrieval-001",
+        "type": "rag_retrieval"
+      },
+      "target": {
+        "id": "step-retrieve",
+        "type": "step"
+      }
+    },
+    {
+      "id": "rel-model-step",
+      "type": "observed-in",
+      "source": {
+        "id": "model-001",
+        "type": "model_interaction"
+      },
+      "target": {
+        "id": "step-answer",
+        "type": "step"
+      }
+    },
+    {
+      "id": "rel-evaluation",
+      "type": "evaluates",
+      "source": {
+        "id": "eval-001",
+        "type": "evaluation"
+      },
+      "target": {
+        "id": "step-answer",
+        "type": "step"
+      }
+    }
+  ],
+  "events": [
+    {
+      "event_id": "event-1",
+      "event_name": "aiops.run.completed",
+      "occurred_at": "2026-07-21T06:00:02Z",
+      "object_id": "run-001",
+      "object_type": "run"
+    }
+  ],
+  "measurements": [
+    {
+      "name": "duration",
+      "value": 2000,
+      "unit": "ms",
+      "kind": "observed"
+    }
+  ]
+}

@@ -36,3 +36,5 @@ class ComparisonReport(BaseModel):
     mean_cost_usd_delta: MetricDelta | None = None
     regression_threshold: float
     regressions: list[str] = Field(default_factory=list)
+    minimum_sample_size: int = 5
+    sample_size_guidance: str | None = None
