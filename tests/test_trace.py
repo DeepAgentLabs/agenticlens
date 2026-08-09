@@ -216,3 +216,32 @@ def test_trace_exports_to_otlp_when_configured() -> None:
     export.assert_called_once()
     exported_run = export.call_args.args[0]
     assert exported_run.application_name == "support-agent"
+
+
+def test_trace_resets_context_when_otlp_export_fails() -> None:
+    with patch(
+        "agenticlens.exporters.otlp_trace_exporter.OTLPTraceExporter.export",
+        side_effect=ValueError("not-a-url"),
+    ):
+        with trace("support-agent", otlp_endpoint="not-a-url") as recording:
+            pass
+
+    assert recording.run.metadata["otlp_export_error"] == "not-a-url"
+
+    with trace("fresh-trace") as next_recording:
+        pass
+
+    assert next_recording.run.application_name == "fresh-trace"
+
+
+def test_trace_preserves_application_exception_when_otlp_export_fails() -> None:
+    recording = trace("support-agent", otlp_endpoint="not-a-url")
+    with patch(
+        "agenticlens.exporters.otlp_trace_exporter.OTLPTraceExporter.export",
+        side_effect=ValueError("not-a-url"),
+    ):
+        with pytest.raises(RuntimeError, match="boom"), recording:
+            raise RuntimeError("boom")
+
+    assert recording.run.error_type == "RuntimeError"
+    assert recording.run.metadata["otlp_export_error"] == "not-a-url"

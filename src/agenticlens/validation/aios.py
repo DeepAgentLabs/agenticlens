@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 from pydantic import BaseModel, Field
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
@@ -18,6 +19,13 @@ _CYCLE_RELATIONSHIP_GROUPS: dict[str, set[str]] = {
     "causal": {"caused", "depends-on"},
     "ordering": {"follows"},
 }
+_FORMAT_CHECKER = FormatChecker()
+
+
+@_FORMAT_CHECKER.checks("date-time")
+def _is_datetime_string(value: object) -> bool:
+    parsed = _parse_timestamp(value)
+    return parsed is not None and parsed.tzinfo is not None
 
 
 class ValidationIssue(BaseModel):
@@ -140,7 +148,11 @@ def _resolve_spec(
 def _schema_issues(payload: dict[str, Any], schema_path: Path) -> list[ValidationIssue]:
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     registry = _schema_registry(schema_path.parent)
-    validator = Draft202012Validator(schema, registry=registry)
+    validator = Draft202012Validator(
+        schema,
+        registry=registry,
+        format_checker=_FORMAT_CHECKER,
+    )
     issues: list[ValidationIssue] = []
     for error in sorted(validator.iter_errors(payload), key=lambda item: list(item.absolute_path)):
         location = "$"
@@ -229,18 +241,55 @@ def _unique_identity_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
 
 
 def _timestamp_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
-    started_at = payload.get("started_at")
-    ended_at = payload.get("ended_at")
-    if started_at is not None and ended_at is not None and ended_at < started_at:
-        return [
-            ValidationIssue(
-                code="semantic.invalid-time-range",
-                source="aios",
-                message="ended_at must not precede started_at.",
-                location="$",
+    issues: list[ValidationIssue] = []
+    issues.extend(
+        _time_range_issue(
+            started_at=payload.get("started_at"),
+            ended_at=payload.get("ended_at"),
+            location="$",
+        )
+    )
+    for index, step in enumerate(payload.get("steps", [])):
+        issues.extend(
+            _time_range_issue(
+                started_at=step.get("started_at"),
+                ended_at=step.get("ended_at"),
+                location=f"$.steps.{index}",
             )
-        ]
-    return []
+        )
+    return issues
+
+
+def _time_range_issue(
+    *,
+    started_at: Any,
+    ended_at: Any,
+    location: str,
+) -> list[ValidationIssue]:
+    if started_at is None or ended_at is None:
+        return []
+    started = _parse_timestamp(started_at)
+    ended = _parse_timestamp(ended_at)
+    if started is None or ended is None or ended >= started:
+        return []
+    return [
+        ValidationIssue(
+            code="semantic.invalid-time-range",
+            source="aios",
+            message="ended_at must not precede started_at.",
+            location=location,
+        )
+    ]
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
 
 
 def _relationship_resolution_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
@@ -444,8 +493,6 @@ def _object_index(payload: dict[str, Any]) -> dict[tuple[str, str], dict[str, An
     index: dict[tuple[str, str], dict[str, Any]] = {
         (payload["id"], payload["artifact_type"]): payload,
     }
-    if workflow_id := payload.get("workflow_id"):
-        index[(workflow_id, "workflow")] = {"id": workflow_id, "artifact_type": "workflow"}
     for request in payload.get("requests", []):
         index[(request["id"], "request")] = request
     for step in payload.get("steps", []):

@@ -179,17 +179,19 @@ class trace:  # noqa: N801
         self.run.task_success = exc_type is None
         if exc_type is not None:
             self.run.error_type = exc_type.__name__
-        if self.otlp_endpoint is not None:
-            try:
-                OTLPTraceExporter().export(
-                    self.run,
-                    self.otlp_endpoint,
-                    headers=self.otlp_headers,
-                    timeout=self.otlp_timeout_seconds or 10.0,
-                )
-            except OSError as export_error:
-                self.run.metadata["otlp_export_error"] = str(export_error)
-        _current_trace.reset(self._token)
+        try:
+            if self.otlp_endpoint is not None:
+                try:
+                    OTLPTraceExporter().export(
+                        self.run,
+                        self.otlp_endpoint,
+                        headers=self.otlp_headers,
+                        timeout=self.otlp_timeout_seconds or 10.0,
+                    )
+                except Exception as export_error:
+                    self.run.metadata["otlp_export_error"] = str(export_error)
+        finally:
+            _current_trace.reset(self._token)
         return False
 
 
