@@ -38,7 +38,7 @@ from agenticlens.models.workflow import Workflow
 from agenticlens.profiler.context import completed_workflows
 from agenticlens.recommenders import RecommendationEngine
 from agenticlens.reports import render_trace, render_trace_markdown
-from agenticlens.validation import validate_aios_artifact
+from agenticlens.validation import ConformanceReport, validate_aios_artifact
 
 app = typer.Typer(
     name="agenticlens",
@@ -431,7 +431,7 @@ def gate(
     raise typer.Exit(code=2)
 
 
-def _render_aios_report(report, save: Path | None) -> None:
+def _render_aios_report(report: ConformanceReport, save: Path | None) -> None:
     table = Table(title=f"AIOS {report.mode.title()} · {report.artifact_type}")
     table.add_column("Check")
     table.add_column("Result")

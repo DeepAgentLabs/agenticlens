@@ -91,6 +91,10 @@ def _artifact_type_for(payload: dict[str, Any]) -> str:
         raise ValueError(
             "artifact_type must be present in the JSON payload and be either 'run' or 'workflow'"
         )
+    if not isinstance(artifact_type, str):
+        raise ValueError(
+            "artifact_type must be present in the JSON payload and be either 'run' or 'workflow'"
+        )
     return artifact_type
 
 
