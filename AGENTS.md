@@ -65,6 +65,16 @@
 4. Add tests in `tests/`
 5. Every finding must include source evidence (step/span reference)
 
+## Feature Completion Expectations
+
+- Every behavior change must include tests.
+- User-facing features must include or update examples in `README.md`, `docs/`,
+  `examples/`, or test fixtures that demonstrate expected usage.
+- When a roadmap item or milestone meaningfully changes status, update
+  `README.md` and `agenticlens-roadmap.md` in the same change.
+- When work is packaged as a release-ready change, also update
+  `pyproject.toml`, `src/agenticlens/__init__.py`, and `CHANGELOG.md`.
+
 ## Schema Versioning
 
 - Schemas live in `schemas/` and are included in the wheel via `force-include`
