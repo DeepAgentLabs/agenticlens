@@ -207,7 +207,7 @@ def test_duplicate_context_detection_groups_reused_inputs():
 
 def test_trace_exports_to_otlp_when_configured() -> None:
     with (
-        patch("agenticlens.instrumentation.trace.OTLPTraceExporter.export") as export,
+        patch("agenticlens.exporters.otlp_trace_exporter.OTLPTraceExporter.export") as export,
         trace("support-agent", otlp_endpoint="http://collector:4318/v1/traces") as recording,
         recording.span("plan", SpanType.PLANNING),
     ):
