@@ -89,7 +89,8 @@ loading arbitrary code.
 safety classifiers, RAG metrics, and internal services.
 `LLMJudgeEvaluator` identifies provider-supplied model judgments in reports
 while leaving model selection, credentials, prompts, retries, and structured
-output handling under application control.
+output handling under application control. See `examples/custom_llm_judge.py`
+for a complete, runnable registration example.
 
 `BusinessRuleEvaluator` is a named wrapper around trusted application logic for
 organization-specific pass/fail rules that do not need an LLM judge.
@@ -172,6 +173,10 @@ agenticlens gate evaluation.json \
 
 The command exits with status `0` when every threshold passes, `2` when the
 release gate fails, and `1` when the report or configuration is invalid.
+
+`max_turns` requires `trace.metadata.turn_count` to be recorded as a positive
+integer. AgenticLens does not infer conversational turns from lower-level span
+types when that metadata is absent.
 
 ## Offline Pitch Demonstration
 
