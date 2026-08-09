@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenticlens"
-version = "0.3.0"
+version = "0.4.0"
 description = "Profile, analyze, and optimize token consumption in LLM-powered applications and agentic workflows."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -27,6 +27,8 @@ dependencies = [
   "typer>=0.12",
   "rich>=13.0",
   "pyyaml>=6.0",
+  "jsonschema>=4.23",
+  "referencing>=0.35",
 ]
 
 [project.optional-dependencies]
@@ -91,6 +93,10 @@ python_version = "3.10"
 strict = true
 packages = ["agenticlens"]
 mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["jsonschema", "referencing", "referencing.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

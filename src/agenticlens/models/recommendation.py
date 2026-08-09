@@ -3,6 +3,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from agenticlens.models.enums import Severity
+from agenticlens.models.trace import Evidence
 
 
 class Recommendation(BaseModel):
@@ -24,6 +25,7 @@ class Recommendation(BaseModel):
     estimated_monthly_savings: float | None = None
     confidence: float | None = None
     quality_risk: str | None = None
+    evidence: list[Evidence] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
     cost_savings: float | None = Field(
         default=None,
