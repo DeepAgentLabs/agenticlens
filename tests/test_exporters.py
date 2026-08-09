@@ -4,8 +4,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from agenticlens.exporters import CSVExporter, JiraExporter, JSONExporter, MarkdownExporter
-from agenticlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.exporters import (
+    CSVExporter,
+    JiraExporter,
+    JSONExporter,
+    MarkdownExporter,
+    OTLPTraceExporter,
+)
+from agenticlens.models import Metrics, Run, Span, SpanType, Step, StepType, Workflow
 from agenticlens.models.enums import Severity
 from agenticlens.models.recommendation import Recommendation
 
@@ -192,3 +198,53 @@ def test_exporters_work_without_recommendations(tmp_path: Path) -> None:
     csv_out = tmp_path / "steps.csv"
     CSVExporter().export(_sample_workflow(), csv_out)
     assert not (tmp_path / "steps_recommendations.csv").exists()
+
+
+def test_otlp_trace_exporter_builds_valid_payload() -> None:
+    run = Run(application_name="support-agent", trace_id="12345678-1234-5678-1234-567812345678")
+    run.spans.append(
+        Span(
+            span_id="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            parent_span_id="11111111-2222-3333-4444-555555555555",
+            name="lookup",
+            span_type=SpanType.TOOL_CALL,
+            started_at=datetime(2026, 8, 9, tzinfo=timezone.utc),
+            completed_at=datetime(2026, 8, 9, 0, 0, 1, tzinfo=timezone.utc),
+            input_tokens=4,
+            output_tokens=6,
+            attributes={"tool.name": "search"},
+        )
+    )
+
+    payload = OTLPTraceExporter().to_payload(run)
+    spans = payload["resourceSpans"][0]["scopeSpans"][0]["spans"]
+
+    assert len(spans) == 1
+    assert spans[0]["traceId"] == "12345678123456781234567812345678"
+    assert len(spans[0]["spanId"]) == 16
+    assert spans[0]["kind"] == 3
+    assert any(
+        attribute["key"] == "service.name"
+        for attribute in payload["resourceSpans"][0]["resource"]["attributes"]
+    )
+
+
+@patch("agenticlens.exporters.otlp_trace_exporter.urlopen")
+def test_otlp_trace_exporter_posts_json(mock_urlopen: MagicMock) -> None:
+    mock_response = MagicMock()
+    mock_response.__enter__.return_value = mock_response
+    mock_response.__exit__.return_value = False
+    mock_urlopen.return_value = mock_response
+
+    run = Run(application_name="support-agent")
+    exporter = OTLPTraceExporter()
+    exporter.export(
+        run,
+        "http://collector:4318/v1/traces",
+        headers={"Authorization": "Bearer token"},
+    )
+
+    request = mock_urlopen.call_args.args[0]
+    assert request.full_url == "http://collector:4318/v1/traces"
+    assert request.get_header("Content-type") == "application/json"
+    assert request.get_header("Authorization") == "Bearer token"

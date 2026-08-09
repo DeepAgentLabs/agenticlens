@@ -4,6 +4,41 @@ All notable changes to this project will be documented here.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## 0.4.0 - 2026-08-08
+
+### Added
+
+- Markdown trace and comparison reports, including CLI support via
+  `agenticlens inspect --save` and `agenticlens compare --format md`.
+- Minimum-sample guidance for repeated-run comparison, plus `--min-samples`
+  enforcement in the CLI for CI-friendly under-sampling checks.
+- First-class `Evidence` objects on findings and recommendations, with
+  provenance carried through analysis and reporting.
+- Duplicate-context detection, retry attribution, retry outcome
+  classification, and next-best-analysis suggestions for structured traces.
+- AIOS draft validation and conformance commands in the CLI, including
+  `agenticlens validate` and `agenticlens conformance` backed by local
+  `ai-operations-spec` draft schemas and semantic checks.
+- OTLP/HTTP JSON trace export for structured runs, including optional
+  export-on-trace-completion support for configured endpoints.
+- Additional deterministic evaluation checks for JSON Schema validation,
+  required output fields, required tool arguments, and turn-count thresholds.
+- `BusinessRuleEvaluator` and trusted live evaluation targets for Python and
+  HTTP workflows via `evaluate-live`.
+- Architecture import-layer enforcement tests and a runnable live-evaluation
+  example covering structured-output checks.
+
+### Changed
+
+- The finding schema now reflects evidence as structured arrays rather than an
+  untyped object, matching shipped runtime artifacts.
+- Trace analysis no longer mutates the input run while computing retry
+  attribution.
+- AIOS schema resolution now uses the non-deprecated `referencing` registry
+  path instead of `jsonschema.RefResolver`.
+- Documentation, examples, and roadmap details now match the shipped trace,
+  comparison, and evaluation feature surface.
+
 ## 0.3.0 - 2026-08-05
 
 ### Added

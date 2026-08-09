@@ -23,6 +23,10 @@ Input and output values are not captured by default. Explicit values recorded wi
 `record_io()` pass through the default secret, bearer-token, and email redactor. Supply a
 custom `redactor=` function to meet application-specific privacy requirements.
 
+If you also want the trace emitted to an OTLP/HTTP collector, pass
+`otlp_endpoint=...` to `trace()` or configure the OTLP environment variables
+documented in [AIOS validation and OTel export](aios-validation-and-otel.md).
+
 ## Inspect a run
 
 ```bash
@@ -30,8 +34,15 @@ agenticlens inspect run.json
 ```
 
 The report includes a span tree, raw token and latency distributions, retry and tool-call
-counts, and deterministic memory/retry findings. Findings cite the exact spans and
-measurements that triggered them.
+counts, deterministic findings, and next-best-analysis guidance when findings suggest
+an obvious follow-up. Findings cite the exact spans and measurements that triggered
+them.
+
+Save a Markdown trace report:
+
+```bash
+agenticlens inspect run.json --save trace-report.md
+```
 
 ## Compare repeated runs
 
@@ -47,6 +58,16 @@ Use `--format csv` for tabular export and `--fail-on-regression` in CI. Comparis
 success rate, mean/median/P95 values, standard deviation, coefficient of variation,
 cost per successful task, and relative regressions.
 
+Use `--format md` for a review-friendly Markdown summary and `--min-samples` when a
+comparison should fail under CI if either cohort is too small:
+
+```bash
+agenticlens compare results/baseline results/candidate \
+  --format md \
+  --save comparison.md \
+  --min-samples 5
+```
+
 The comparison is descriptive. It does not claim statistical significance or causal
 attribution, particularly for small or uncontrolled samples.
 
@@ -57,4 +78,5 @@ under `agenticlens/schemas` in wheel distributions:
 
 - `trace.schema.json`
 - `finding.schema.json`
+- `v2/finding.schema.json`
 - `report.schema.json`

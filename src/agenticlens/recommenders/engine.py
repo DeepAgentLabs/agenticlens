@@ -1,6 +1,7 @@
 from agenticlens.config.settings import RecommenderConfig
 from agenticlens.models.enums import Severity
 from agenticlens.models.recommendation import Recommendation
+from agenticlens.models.trace import Evidence
 from agenticlens.models.workflow import Workflow
 from agenticlens.recommenders.base import BaseRecommender
 from agenticlens.recommenders.chaos_impact import ChaosImpactRecommender
@@ -63,6 +64,8 @@ class RecommendationEngine:
             total_cost / total_tokens if total_cost is not None and total_tokens > 0 else None
         )
 
+        steps_by_id = {step.id: step for step in workflow.steps}
+        steps_by_name = {step.name: step for step in workflow.steps}
         enriched: list[Recommendation] = []
         for rec in recommendations:
             savings_pct = (
@@ -83,6 +86,24 @@ class RecommendationEngine:
             # graded by budget impact -- keep the severity they assigned themselves.
             if rec.tokens_saved > 0:
                 rec.severity = self._severity_for(savings_pct, usd_savings)
+            if not rec.evidence:
+                step = None
+                if rec.step_id:
+                    step = steps_by_id.get(rec.step_id)
+                elif rec.step_name:
+                    step = steps_by_name.get(rec.step_name)
+                rec.evidence = [
+                    Evidence(
+                        source="workflow.step" if step else "workflow.recommendation",
+                        span_id=step.id if step else rec.step_id,
+                        reasoning="Recommendation derived from profiled workflow evidence.",
+                        details={
+                            "step_name": step.name if step else rec.step_name,
+                            "step_type": step.type.value if step else rec.step_type,
+                            "optimization_type": rec.optimization_type,
+                        },
+                    )
+                ]
             enriched.append(rec)
 
         return sorted(

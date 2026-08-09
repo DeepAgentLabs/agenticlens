@@ -1,0 +1,156 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "support-agent"
+            }
+          },
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "agenticlens"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "0.4.0"
+            }
+          },
+          {
+            "key": "agenticlens.run_id",
+            "value": {
+              "stringValue": "2dcf4d96-806c-4885-88b0-971336dd7faa"
+            }
+          },
+          {
+            "key": "agenticlens.status",
+            "value": {
+              "stringValue": "succeeded"
+            }
+          },
+          {
+            "key": "agenticlens.task_success",
+            "value": {
+              "boolValue": true
+            }
+          },
+          {
+            "key": "agenticlens.metadata.environment",
+            "value": {
+              "stringValue": "demo"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "agenticlens",
+            "version": "0.4.0"
+          },
+          "spans": [
+            {
+              "traceId": "69693a18484d4b21b054f3f2d8cc7237",
+              "spanId": "83858dd918a10ecc",
+              "parentSpanId": "",
+              "name": "planner",
+              "kind": 1,
+              "startTimeUnixNano": "1786242593285069056",
+              "endTimeUnixNano": "1786242593285089024",
+              "attributes": [
+                {
+                  "key": "agenticlens.span_type",
+                  "value": {
+                    "stringValue": "planning"
+                  }
+                },
+                {
+                  "key": "agenticlens.input_tokens",
+                  "value": {
+                    "intValue": "120"
+                  }
+                },
+                {
+                  "key": "agenticlens.output_tokens",
+                  "value": {
+                    "intValue": "30"
+                  }
+                },
+                {
+                  "key": "agenticlens.total_tokens",
+                  "value": {
+                    "intValue": "150"
+                  }
+                },
+                {
+                  "key": "agenticlens.latency_ms",
+                  "value": {
+                    "doubleValue": 0.018534017726778984
+                  }
+                }
+              ],
+              "status": {
+                "code": 1
+              }
+            },
+            {
+              "traceId": "69693a18484d4b21b054f3f2d8cc7237",
+              "spanId": "12fda6948f3f7e3e",
+              "parentSpanId": "",
+              "name": "lookup",
+              "kind": 3,
+              "startTimeUnixNano": "1786242593285106944",
+              "endTimeUnixNano": "1786242593285118208",
+              "attributes": [
+                {
+                  "key": "agenticlens.span_type",
+                  "value": {
+                    "stringValue": "tool_call"
+                  }
+                },
+                {
+                  "key": "agenticlens.input_tokens",
+                  "value": {
+                    "intValue": "12"
+                  }
+                },
+                {
+                  "key": "agenticlens.output_tokens",
+                  "value": {
+                    "intValue": "6"
+                  }
+                },
+                {
+                  "key": "agenticlens.total_tokens",
+                  "value": {
+                    "intValue": "18"
+                  }
+                },
+                {
+                  "key": "agenticlens.latency_ms",
+                  "value": {
+                    "doubleValue": 0.0070229871198534966
+                  }
+                },
+                {
+                  "key": "tool.name",
+                  "value": {
+                    "stringValue": "knowledge-base-search"
+                  }
+                }
+              ],
+              "status": {
+                "code": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import json
 import runpy
 from pathlib import Path
 
@@ -16,15 +17,19 @@ from agenticlens.comparison import (
     compare_runs,
     export_comparison_csv,
     export_comparison_json,
+    export_comparison_markdown,
     load_runs,
 )
 from agenticlens.evaluation import (
     EvaluationReport,
     GateConfig,
+    HTTPTarget,
+    PythonTarget,
     evaluate_gate,
     evaluate_suite,
     load_samples,
     load_suite,
+    run_live_suite,
     save_html_report,
 )
 from agenticlens.exporters import CSVExporter, JSONExporter
@@ -32,7 +37,8 @@ from agenticlens.models.trace import Run
 from agenticlens.models.workflow import Workflow
 from agenticlens.profiler.context import completed_workflows
 from agenticlens.recommenders import RecommendationEngine
-from agenticlens.reports import render_trace
+from agenticlens.reports import render_trace, render_trace_markdown
+from agenticlens.validation import ConformanceReport, validate_aios_artifact
 
 app = typer.Typer(
     name="agenticlens",
@@ -134,9 +140,84 @@ def analyze(
 @app.command("inspect")
 def inspect_run(
     run_file: Path = typer.Argument(..., help="Path to a saved AgenticLens trace (JSON)."),
+    save: Path | None = typer.Option(None, "--save", help="Save a Markdown trace report."),
 ) -> None:
     """Inspect a validated run trace, span tree, and raw metric distributions."""
-    render_trace(console, _load_run(run_file))
+    run = _load_run(run_file)
+    render_trace(console, run)
+    if save is not None:
+        save.write_text(render_trace_markdown(run), encoding="utf-8")
+        console.print(f"Saved trace report to {save}")
+
+
+@app.command()
+def validate(
+    artifact_file: Path = typer.Argument(..., help="AIOS workflow or run artifact JSON."),
+    version: str = typer.Option(
+        "0.4",
+        "--version",
+        help="AI Operations Specification version to validate against.",
+    ),
+    spec_root: Path | None = typer.Option(
+        None,
+        "--spec-root",
+        help="Path to the ai-operations-spec repository root.",
+    ),
+    save: Path | None = typer.Option(
+        None,
+        "--save",
+        help="Save the machine-readable validation report.",
+    ),
+) -> None:
+    """Validate an AIOS artifact against the draft JSON Schema."""
+    try:
+        report = validate_aios_artifact(
+            artifact_file,
+            spec_version=version,
+            mode="validate",
+            spec_root=spec_root,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]Unable to validate artifact:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    _render_aios_report(report, save)
+    if not report.schema_valid:
+        raise typer.Exit(code=2)
+
+
+@app.command()
+def conformance(
+    artifact_file: Path = typer.Argument(..., help="AIOS workflow or run artifact JSON."),
+    version: str = typer.Option(
+        "0.4",
+        "--version",
+        help="AI Operations Specification version to validate against.",
+    ),
+    spec_root: Path | None = typer.Option(
+        None,
+        "--spec-root",
+        help="Path to the ai-operations-spec repository root.",
+    ),
+    save: Path | None = typer.Option(
+        None,
+        "--save",
+        help="Save the machine-readable conformance report.",
+    ),
+) -> None:
+    """Run schema and semantic AIOS draft checks and report draft alignment."""
+    try:
+        report = validate_aios_artifact(
+            artifact_file,
+            spec_version=version,
+            mode="conformance",
+            spec_root=spec_root,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]Unable to check conformance:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    _render_aios_report(report, save)
+    if not report.aligned:
+        raise typer.Exit(code=2)
 
 
 @app.command()
@@ -150,11 +231,20 @@ def compare(
         help="Relative degradation that counts as a regression.",
     ),
     save: Path | None = typer.Option(None, "--save", help="Save the comparison report."),
-    export_format: str = typer.Option("json", "--format", help="'json' or 'csv'."),
+    export_format: str = typer.Option("json", "--format", help="'json', 'csv', or 'md'."),
     fail_on_regression: bool = typer.Option(
         False,
         "--fail-on-regression",
         help="Return a non-zero exit status when regressions are detected.",
+    ),
+    min_samples: int | None = typer.Option(
+        None,
+        "--min-samples",
+        min=1,
+        help=(
+            "Require at least this many runs in both baseline and candidate cohorts. "
+            "Returns a non-zero exit status when the comparison is under-sampled."
+        ),
     ),
 ) -> None:
     """Compare repeated baseline and candidate traces."""
@@ -202,10 +292,22 @@ def compare(
             export_comparison_json(report, save)
         elif export_format == "csv":
             export_comparison_csv(report, save)
+        elif export_format == "md":
+            export_comparison_markdown(report, save)
         else:
             console.print(f"[red]Unknown export format:[/red] {export_format}")
             raise typer.Exit(code=1)
         console.print(f"Saved comparison to {save}")
+    if report.sample_size_guidance:
+        console.print(f"[yellow]{report.sample_size_guidance}[/yellow]")
+    if min_samples is not None:
+        observed_min = min(report.baseline.run_count, report.candidate.run_count)
+        if observed_min < min_samples:
+            console.print(
+                "[red]Comparison sample size requirement not met.[/red] "
+                f"Observed {observed_min} run(s); required at least {min_samples} per cohort."
+            )
+            raise typer.Exit(code=3)
     if fail_on_regression and report.regressions:
         raise typer.Exit(code=2)
 
@@ -255,6 +357,46 @@ def evaluate(
         console.print(f"Saved HTML report to {html}")
 
 
+@app.command("evaluate-live")
+def evaluate_live(
+    suite_file: Path = typer.Argument(..., help="YAML or JSON evaluation suite."),
+    target_kind: str = typer.Option(..., "--target-kind", help="'python' or 'http'."),
+    target: str = typer.Option(
+        ...,
+        "--target",
+        help="Python target as module:function or HTTP target as a URL.",
+    ),
+    save: Path = typer.Option(
+        Path("agenticlens-evaluation-live.json"),
+        "--save",
+        help="Save the machine-readable evaluation report.",
+    ),
+) -> None:
+    """Run one trusted live Python or HTTP target against an evaluation suite."""
+    try:
+        suite = load_suite(suite_file)
+        live_target = (
+            PythonTarget(callable_path=target)
+            if target_kind == "python"
+            else HTTPTarget(url=target)
+            if target_kind == "http"
+            else None
+        )
+        if live_target is None:
+            raise ValueError("target kind must be 'python' or 'http'")
+        result = run_live_suite(suite, live_target)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to run live evaluation:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    save.parent.mkdir(parents=True, exist_ok=True)
+    save.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    console.print(
+        "Live evaluation complete: "
+        f"{result.summary.passed_cases}/{result.summary.total_cases} cases passed."
+    )
+    console.print(f"Saved evaluation to {save}")
+
+
 @app.command()
 def gate(
     report_file: Path = typer.Argument(..., help="AgenticLens evaluation report JSON."),
@@ -287,6 +429,32 @@ def gate(
     for reason in decision.reasons:
         console.print(f"  • {reason}")
     raise typer.Exit(code=2)
+
+
+def _render_aios_report(report: ConformanceReport, save: Path | None) -> None:
+    table = Table(title=f"AIOS {report.mode.title()} · {report.artifact_type}")
+    table.add_column("Check")
+    table.add_column("Result")
+    table.add_row("Spec version", f"v{report.spec_version}-draft")
+    table.add_row("Schema", "pass" if report.schema_valid else "fail")
+    table.add_row(
+        "Semantics",
+        "pass" if report.semantic_valid else ("n/a" if report.mode == "validate" else "fail"),
+    )
+    table.add_row("Draft alignment", "pass" if report.aligned else "fail")
+    console.print(table)
+    console.print(report.draft_alignment_claim)
+    if report.issues:
+        console.print("[yellow]AIOS-defined issues:[/yellow]")
+        for issue in report.issues:
+            location = f" ({issue.location})" if issue.location else ""
+            console.print(f"  • {issue.code}: {issue.message}{location}")
+    else:
+        console.print("[green]No AIOS issues detected.[/green]")
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved report to {save}")
 
 
 if __name__ == "__main__":

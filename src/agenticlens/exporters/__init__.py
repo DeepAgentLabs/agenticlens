@@ -3,6 +3,7 @@ from agenticlens.exporters.csv_exporter import CSVExporter
 from agenticlens.exporters.jira_exporter import JiraExporter
 from agenticlens.exporters.json_exporter import JSONExporter
 from agenticlens.exporters.markdown_exporter import MarkdownExporter
+from agenticlens.exporters.otlp_trace_exporter import OTLPTraceExporter
 
 __all__ = [
     "BaseExporter",
@@ -10,4 +11,5 @@ __all__ = [
     "JiraExporter",
     "JSONExporter",
     "MarkdownExporter",
+    "OTLPTraceExporter",
 ]

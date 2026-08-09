@@ -1,4 +1,5 @@
 from agenticlens.evaluation.evaluators import (
+    BusinessRuleEvaluator,
     CallableEvaluator,
     EvaluationContext,
     Evaluator,
@@ -11,13 +12,17 @@ from agenticlens.evaluation.models import (
     EvaluationReport,
     EvaluationSample,
     EvaluatorConfig,
+    HTTPTarget,
+    LiveTarget,
+    PythonTarget,
     Score,
     TestCase,
     TestSuite,
 )
-from agenticlens.evaluation.runner import evaluate_suite, load_samples, load_suite
+from agenticlens.evaluation.runner import evaluate_suite, load_samples, load_suite, run_live_suite
 
 __all__ = [
+    "BusinessRuleEvaluator",
     "CallableEvaluator",
     "EvaluationContext",
     "EvaluationReport",
@@ -27,7 +32,10 @@ __all__ = [
     "EvaluatorRegistry",
     "GateConfig",
     "GateDecision",
+    "HTTPTarget",
     "LLMJudgeEvaluator",
+    "LiveTarget",
+    "PythonTarget",
     "Score",
     "TestCase",
     "TestSuite",
@@ -36,5 +44,6 @@ __all__ = [
     "load_samples",
     "load_suite",
     "render_html_report",
+    "run_live_suite",
     "save_html_report",
 ]
