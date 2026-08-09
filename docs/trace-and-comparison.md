@@ -23,6 +23,10 @@ Input and output values are not captured by default. Explicit values recorded wi
 `record_io()` pass through the default secret, bearer-token, and email redactor. Supply a
 custom `redactor=` function to meet application-specific privacy requirements.
 
+If you also want the trace emitted to an OTLP/HTTP collector, pass
+`otlp_endpoint=...` to `trace()` or configure the OTLP environment variables
+documented in [AIOS validation and OTel export](aios-validation-and-otel.md).
+
 ## Inspect a run
 
 ```bash
@@ -74,4 +78,5 @@ under `agenticlens/schemas` in wheel distributions:
 
 - `trace.schema.json`
 - `finding.schema.json`
+- `v2/finding.schema.json`
 - `report.schema.json`
