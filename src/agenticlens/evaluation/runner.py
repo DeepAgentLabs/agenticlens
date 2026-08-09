@@ -63,9 +63,7 @@ def _validate_json_schema(payload: Any, schema: dict[str, Any]) -> tuple[bool, s
     }
     if isinstance(expected_type, list):
         # Union type like ["string", "null"]
-        allowed = tuple(
-            t for name in expected_type if (t := type_map.get(name)) is not None
-        )
+        allowed = tuple(t for name in expected_type if (t := type_map.get(name)) is not None)
         if not allowed:
             return False, f"Unsupported JSON schema type {expected_type!r}."
         if not isinstance(payload, allowed):

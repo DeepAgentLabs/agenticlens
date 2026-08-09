@@ -142,7 +142,9 @@ class trace:  # noqa: N801
         )
         env_timeout = os.environ.get(OTLP_TIMEOUT_ENV_VAR)
         self.otlp_timeout_seconds = (
-            otlp_timeout_seconds if otlp_timeout_seconds is not None else float(env_timeout)
+            otlp_timeout_seconds
+            if otlp_timeout_seconds is not None
+            else float(env_timeout)
             if env_timeout
             else None
         )

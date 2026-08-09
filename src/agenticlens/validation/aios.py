@@ -89,8 +89,7 @@ def _artifact_type_for(payload: dict[str, Any]) -> str:
     artifact_type = payload.get("artifact_type")
     if artifact_type not in {_RUN_ARTIFACT, _WORKFLOW_ARTIFACT}:
         raise ValueError(
-            "artifact_type must be present in the JSON payload and be either "
-            "'run' or 'workflow'"
+            "artifact_type must be present in the JSON payload and be either 'run' or 'workflow'"
         )
     return artifact_type
 
@@ -284,8 +283,7 @@ def _step_membership_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
                     code="semantic.step-membership",
                     source="aios",
                     message=(
-                        f"Step {step_id!r} must appear in exactly one run "
-                        "contains relationship."
+                        f"Step {step_id!r} must appear in exactly one run contains relationship."
                     ),
                     location="$",
                 )
@@ -307,9 +305,9 @@ def _observed_in_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
             "rag_retrieval",
             "memory_operation",
         }:
-            observed_map[relationship["source"]["id"]] = observed_map.get(
-                relationship["source"]["id"], 0
-            ) + 1
+            observed_map[relationship["source"]["id"]] = (
+                observed_map.get(relationship["source"]["id"], 0) + 1
+            )
             if (
                 relationship["target"]["id"] not in step_ids
                 or relationship["target"]["type"] != "step"
@@ -373,8 +371,7 @@ def _workflow_link_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
             code="semantic.workflow-link",
             source="aios",
             message=(
-                "workflow_id requires a matching run-of relationship "
-                "to the workflow reference."
+                "workflow_id requires a matching run-of relationship to the workflow reference."
             ),
             location="$",
         )

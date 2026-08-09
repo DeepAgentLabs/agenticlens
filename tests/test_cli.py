@@ -345,4 +345,6 @@ def test_finding_schema_v2_artifact_exists() -> None:
     schema_path = Path("schemas/v2/finding.schema.json")
     assert schema_path.exists()
     data = json.loads(schema_path.read_text(encoding="utf-8"))
-    assert data["$id"] == "https://deepagentlabs.github.io/agenticlens/schemas/v2/finding.schema.json"
+    assert (
+        data["$id"] == "https://deepagentlabs.github.io/agenticlens/schemas/v2/finding.schema.json"
+    )
