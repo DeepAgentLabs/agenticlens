@@ -227,6 +227,62 @@ def test_evaluate_suite_supports_json_fields_tool_args_and_turn_thresholds() -> 
     }
 
 
+def test_evaluate_suite_supports_nullable_json_schema_types() -> None:
+    suite = EvaluationTestSuite(
+        name="schema",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="Nullable field",
+                output_json_schema={
+                    "type": "object",
+                    "required": ["answer", "reasoning"],
+                    "properties": {
+                        "answer": {"type": "string"},
+                        "reasoning": {"type": ["string", "null"]},
+                    },
+                },
+            )
+        ],
+    )
+
+    report = evaluate_suite(
+        suite,
+        [
+            EvaluationSample(
+                case_id="case-1",
+                output='{"answer":"42","reasoning":null}',
+                trace=make_run(),
+            )
+        ],
+    )
+
+    assert report.cases[0].passed
+    assert report.cases[0].scores[0].name == "json_schema"
+    assert report.cases[0].scores[0].passed
+
+
+def test_max_turns_requires_explicit_turn_count_metadata() -> None:
+    suite = EvaluationTestSuite(
+        name="turns",
+        version="1",
+        cases=[EvaluationTestCase(id="case-1", name="Turn gate", max_turns=1)],
+    )
+
+    report = evaluate_suite(
+        suite,
+        [EvaluationSample(case_id="case-1", output="ok", trace=make_run())],
+    )
+
+    assert not report.cases[0].passed
+    assert report.cases[0].scores[0].name == "turn_count_threshold"
+    assert report.cases[0].scores[0].explanation == (
+        "Trace metadata is missing a positive integer turn_count, "
+        "so the max_turns check could not be evaluated."
+    )
+
+
 def test_business_rule_evaluator_uses_business_rule_type() -> None:
     registry = EvaluatorRegistry()
     registry.register(
@@ -319,14 +375,14 @@ def test_run_live_suite_preserves_suite_case_id_when_target_returns_one(tmp_path
     assert report.cases[0].case_id == "case-1"
 
 
-def test_json_schema_reports_unsupported_type_gracefully() -> None:
+def test_json_schema_supports_null_type() -> None:
     suite = EvaluationTestSuite(
         name="schema",
         version="1",
         cases=[
             EvaluationTestCase(
                 id="case-1",
-                name="Unsupported type",
+                name="Null type",
                 output_json_schema={"type": "null"},
             )
         ],
@@ -336,5 +392,5 @@ def test_json_schema_reports_unsupported_type_gracefully() -> None:
         [EvaluationSample(case_id="case-1", output="null", trace=make_run())],
     )
 
-    assert not report.cases[0].passed
-    assert report.cases[0].scores[0].explanation == "Unsupported JSON schema type 'null'."
+    assert report.cases[0].passed
+    assert report.cases[0].scores[0].explanation == "Output matches the configured JSON schema subset."
