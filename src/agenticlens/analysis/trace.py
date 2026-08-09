@@ -61,7 +61,7 @@ def retry_attribution(run: Run) -> dict[str, dict[str, str | None]]:
     spans_by_id = {span.span_id: span for span in run.spans}
     for retry_span in (span for span in run.spans if span.span_type is SpanType.RETRY):
         triggering = spans_by_id.get(retry_span.parent_span_id or "")
-        if triggering is None:
+        if triggering is None or triggering.status.value != "failed":
             retry_index = run.spans.index(retry_span)
             triggering = next(
                 (
