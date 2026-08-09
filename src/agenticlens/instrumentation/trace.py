@@ -1,3 +1,4 @@
+import os
 import time
 from contextvars import ContextVar, Token
 from datetime import datetime, timezone
@@ -5,11 +6,15 @@ from pathlib import Path
 from types import TracebackType
 from typing import Any, Literal
 
+from agenticlens.exporters import OTLPTraceExporter
 from agenticlens.instrumentation.redaction import Redactor, redact_sensitive
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 
 _current_trace: ContextVar["trace | None"] = ContextVar("current_trace", default=None)
 _current_span: ContextVar[Span | None] = ContextVar("current_span", default=None)
+OTLP_ENDPOINT_ENV_VAR = "AGENTICLENS_OTLP_TRACES_ENDPOINT"
+OTLP_HEADERS_ENV_VAR = "AGENTICLENS_OTLP_HEADERS"
+OTLP_TIMEOUT_ENV_VAR = "AGENTICLENS_OTLP_TIMEOUT_SECONDS"
 
 
 class SpanHandle:
@@ -115,6 +120,9 @@ class trace:  # noqa: N801
         task_type: str | None = None,
         experiment_id: str | None = None,
         variant_id: str | None = None,
+        otlp_endpoint: str | None = None,
+        otlp_headers: dict[str, str] | None = None,
+        otlp_timeout_seconds: float | None = None,
         **metadata: Any,
     ) -> None:
         self.redactor = redactor
@@ -127,6 +135,16 @@ class trace:  # noqa: N801
             experiment_id=experiment_id,
             variant_id=variant_id,
             metadata=redactor(metadata),
+        )
+        self.otlp_endpoint = otlp_endpoint or os.environ.get(OTLP_ENDPOINT_ENV_VAR)
+        self.otlp_headers = otlp_headers or _parse_otlp_headers(
+            os.environ.get(OTLP_HEADERS_ENV_VAR)
+        )
+        env_timeout = os.environ.get(OTLP_TIMEOUT_ENV_VAR)
+        self.otlp_timeout_seconds = (
+            otlp_timeout_seconds if otlp_timeout_seconds is not None else float(env_timeout)
+            if env_timeout
+            else None
         )
         self._token: Token[trace | None] | None = None
 
@@ -159,5 +177,26 @@ class trace:  # noqa: N801
         self.run.task_success = exc_type is None
         if exc_type is not None:
             self.run.error_type = exc_type.__name__
+        if self.otlp_endpoint is not None:
+            try:
+                OTLPTraceExporter().export(
+                    self.run,
+                    self.otlp_endpoint,
+                    headers=self.otlp_headers,
+                    timeout=self.otlp_timeout_seconds or 10.0,
+                )
+            except OSError as export_error:
+                self.run.metadata["otlp_export_error"] = str(export_error)
         _current_trace.reset(self._token)
         return False
+
+
+def _parse_otlp_headers(raw: str | None) -> dict[str, str]:
+    if raw is None or not raw.strip():
+        return {}
+    headers: dict[str, str] = {}
+    for item in raw.split(","):
+        key, separator, value = item.partition("=")
+        if separator and key.strip():
+            headers[key.strip()] = value.strip()
+    return headers
