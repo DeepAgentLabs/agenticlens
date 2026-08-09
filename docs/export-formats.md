@@ -3,6 +3,9 @@
 AgenticLens supports exporting profiled workflow data in multiple formats.
 Below is a preview of what each format looks like with a sample workflow.
 
+For AIOS draft validation and OTLP trace export, see
+[AIOS validation and OTel export](aios-validation-and-otel.md).
+
 ---
 
 ## JSON
