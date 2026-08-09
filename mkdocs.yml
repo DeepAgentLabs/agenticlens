@@ -11,6 +11,7 @@ theme:
 
 nav:
   - Home: index.md
+  - AIOS Validation and OTel: aios-validation-and-otel.md
   - Export Formats: export-formats.md
   - RAG Chunk Utility: rag-chunk-utility.md
   - Workflow Schema Spec: workflow-schema-spec.md
