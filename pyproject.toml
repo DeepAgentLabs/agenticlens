@@ -1,5 +1,8 @@
 [build-system]
-requires = ["hatchling"]
+# Keep the isolated build backend on a metadata-2.4-compatible hatchling line.
+# Newer hatchling releases can emit Core Metadata 2.5, which current CI's
+# `twine check` rejects as an invalid distribution metadata version.
+requires = ["hatchling<1.27"]
 build-backend = "hatchling.build"
 
 [project]

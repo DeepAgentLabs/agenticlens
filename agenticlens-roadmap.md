@@ -104,6 +104,14 @@ cross-project coordination before they should be marked complete.
 - `ai-operations-spec`
   Provides the normative artifact model and conformance rules for AIOS-aligned
   validation, schema references, and interoperability claims.
+- `agentic-sidecar`
+  Coordinate with: both projects independently export to Semantica
+  (AgenticLens: trace/evidence; Sidecar: decision/governance) and must
+  agree on a shared correlation-ID contract linking a trace to the
+  decision(s) made against it before either export is considered
+  non-experimental. See the Provenance and Governance Export Guidance
+  section below and `agentic-sidecar`'s `ROADMAP.md` v0.6 deliverables for
+  the other half of this.
 - `agentic-chaos`
   Produces resilience/fault evidence that AgenticLens may analyze, summarize,
   or validate as part of cross-tool workflows.
@@ -601,9 +609,34 @@ Planned targets include:
 - MCP-hosted agents
 - OpenInference
 - OpenTelemetry and OTLP
+- Semantica, as a provenance- and audit-oriented export surface
 
 Integration packages must document coverage and any framework behavior that
 cannot be represented in the core schema.
+
+### Provenance and Governance Export Guidance
+
+AgenticLens owns trace/evidence export — what ran, what it cost, why it
+behaved that way. It does not own decision governance: `agentic-sidecar`
+owns the decision/governance side of that same Semantica export (allow,
+block, escalate, and why), so the two exports must agree on a shared
+compatibility shape — a common ID/correlation convention linking a trace to
+the decision(s) made against it — rather than each project inventing its
+own. This is tracked as a real coordination item, not just prose intent:
+see the `agentic-sidecar` entry under [Cross-Project
+Dependencies](#cross-project-dependencies) near the top of this document,
+and `agentic-sidecar`'s own `ROADMAP.md` (Cross-Project Dependencies and
+v0.6 deliverables), where the correlation-ID contract is defined,
+versioned, and tested before either project's Semantica export is
+considered non-experimental.
+
+- do not turn AgenticLens into a knowledge-graph or policy-engine runtime
+- do add provenance-aware evidence fields and lineage-friendly export shapes
+- do consider optional PROV-O, RDF, or JSON-LD export targets once the trace
+  and evaluation schemas are stable enough, with Semantica as one such
+  target
+- do keep any external audit or governance integration optional and
+  artifact-oriented rather than a runtime dependency
 
 ## Success Measures
 
