@@ -1,5 +1,60 @@
 ## AgenticLens Development Reference
 
+## Ecosystem Context
+
+### Role in DeepAgentLabs
+
+`agenticlens` is the observability, evaluation, and operational intelligence
+layer in DeepAgentLabs. It helps teams understand what ran, what the model and
+agent did, what context and tools were involved, what it cost, and whether the
+system performed well over time.
+
+### Owns
+
+- Runtime instrumentation, trace capture, analysis, evaluation, reporting, and
+  evidence-backed recommendations
+- The flagship Python reference implementation for emitting and working with AI
+  Operations Specification-compatible artifacts
+- Export surfaces and analysis workflows that turn raw traces into actionable
+  operational findings
+
+### Does Not Own
+
+- The normative definition of the shared contract — that belongs in
+  `ai-operations-spec`
+- Fault injection or resilience experimentation — that belongs in
+  `agentic-chaos`
+- Pre-action agent supervision and decision interception — that belongs in
+  `agentic-sidecar`
+- A generic MCP server or remote orchestration surface — that belongs in
+  `deep-agentic-core-mcp`
+
+### Integrates With
+
+- `ai-operations-spec` as the canonical object model and long-term
+  interoperability target
+- `agentic-chaos` for ingesting and analyzing resilience/failure evidence
+- `agentic-sidecar` when decision and escalation events need to become part of
+  the operational record
+- `deep-agentic-core-mcp` as a thin delivery surface for AgenticLens-powered
+  workflows and analysis tools
+
+### Current Roadmap Focus
+
+The next milestone centers on judge calibration, evaluation dataset management,
+and experiments/statistical comparison. New work here should deepen evidence
+quality and repeatable analysis, not drift into spec stewardship or chaos
+simulation.
+
+### Before You Build Here
+
+- If a change defines a cross-package object, event meaning, or schema, move it
+  to `ai-operations-spec` instead of making AgenticLens the de facto standard
+- Prefer consuming chaos, sidecar, or MCP artifacts through clean boundaries
+  rather than reimplementing sibling-package behavior here
+- Keep findings evidence-backed: this package should explain and evaluate what
+  happened, not become a policy engine or fault injector
+
 ## Build and Run
 
 - Install: `make install` (runs `uv sync --extra dev --extra docs`)
