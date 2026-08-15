@@ -26,6 +26,8 @@ system performed well over time.
   `agentic-chaos`
 - Pre-action agent supervision and decision interception — that belongs in
   `agentic-sidecar`
+- At the ecosystem-role level, `agentic-sidecar` is the **SUPERVISE** layer,
+  while its concrete functionality spans both supervision and governance.
 - A generic MCP server or remote orchestration surface — that belongs in
   `deep-agentic-core-mcp`
 
@@ -127,6 +129,9 @@ simulation.
   `examples/`, or test fixtures that demonstrate expected usage.
 - When a roadmap item or milestone meaningfully changes status, update
   `README.md` and `agenticlens-roadmap.md` in the same change.
+- If that milestone or release changes the public ecosystem story, also update
+  `/home/pramodbn27/PyPi Projects/.github/profile/README.md` and, when
+  relevant, `/home/pramodbn27/PyPi Projects/.github/profile/ROADMAP.md`.
 - When work is packaged as a release-ready change, also update
   `pyproject.toml`, `src/agenticlens/__init__.py`, and `CHANGELOG.md`.
 
@@ -144,5 +149,6 @@ Run `make check` before every push. It runs: lint → format-check → typecheck
 
 1. Bump version in `pyproject.toml`, `src/agenticlens/__init__.py`, and `CHANGELOG.md`
 2. Commit: `git commit -am "release: vX.Y.Z"`
-3. Tag: `git tag vX.Y.Z`
+3. Tag: create an annotated `vX.Y.Z` tag and use the latest `CHANGELOG.md`
+   release section as the tag description
 4. Push: `git push origin main --tags`

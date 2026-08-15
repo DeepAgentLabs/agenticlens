@@ -118,6 +118,11 @@ cross-project coordination before they should be marked complete.
 - `deep-agentic-core-mcp`
   Exposes AgenticLens capabilities through MCP and is a useful sibling check
   for CLI/API behavior that is expected to be consumable by hosts and tools.
+- `agenticops-control-tower`
+  Coordinate with: once Control Tower ships real inventory and control-plane
+  surfaces, AgenticLens findings, evaluation summaries, and readiness posture
+  should be centrally visible there without turning AgenticLens into a hosted
+  dashboard product.
 
 For roadmap items with ecosystem impact, contributors should distinguish:
 

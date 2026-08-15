@@ -130,6 +130,11 @@ AgenticLens remains package-first, local-first, framework-neutral, CI-friendly,
 and advisory-first. It does not require a hosted backend and does not
 automatically change production prompts, models, tools, or routing.
 
+That boundary matters in the broader DeepAgentLabs ecosystem: AgenticLens
+observes and evaluates, while `agenticops-control-tower` is the future
+operator-facing control plane above the package layer rather than a hosted
+requirement of AgenticLens itself.
+
 ## Step-Level Token Optimization
 
 AgenticLens is designed to make token waste visible at the level where engineers
