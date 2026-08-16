@@ -6,6 +6,17 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Released
 
+## 0.4.6 - 2026-08-16
+
+### Changed
+
+- Release automation is now tag-driven end to end: pushing `vX.Y.Z` publishes
+  to PyPI and automatically creates the matching GitHub Release using the
+  corresponding `CHANGELOG.md` section as the release body.
+- Release documentation now reflects the live workflow, including the
+  `PYPI_API_TOKEN`-based publish step and the automatic GitHub Release
+  creation.
+
 ## 0.4.5 - 2026-08-16
 
 ### Added
