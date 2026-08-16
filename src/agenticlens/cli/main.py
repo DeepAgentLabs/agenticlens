@@ -524,10 +524,7 @@ def judge_calibrate(
         value = f"{metric.value:.3f}"
         if metric.confidence_interval is not None:
             ci = metric.confidence_interval
-            value = (
-                f"{value} "
-                f"({ci.confidence_level:.0%} CI {ci.lower:.3f} to {ci.upper:.3f})"
-            )
+            value = f"{value} ({ci.confidence_level:.0%} CI {ci.lower:.3f} to {ci.upper:.3f})"
         table.add_row(metric.name, value, str(metric.sample_size))
     console.print(table)
     console.print(

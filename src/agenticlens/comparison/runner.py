@@ -16,6 +16,7 @@ def load_runs(path: Path) -> list[Run]:
         raise ValueError(f"No JSON traces found at {path}")
     return [Run.model_validate_json(file.read_text(encoding="utf-8")) for file in files]
 
+
 def _metrics(values: list[float]) -> MetricSummary:
     mean = statistics.fmean(values)
     deviation = statistics.stdev(values) if len(values) > 1 else 0.0
@@ -46,6 +47,7 @@ def summarize_runs(label: str, runs: list[Run]) -> RunGroupSummary:
         if total_cost is not None and successes
         else None,
     )
+
 
 def compare_runs(
     baseline_runs: list[Run],

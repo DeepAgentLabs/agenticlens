@@ -164,10 +164,7 @@ def run_experiment(
     trial_results_by_variant: dict[str, list[ExperimentTrialResult]] = {
         variant.id: [] for variant in manifest.variants
     }
-    targets_by_variant = {
-        variant.id: _target_for_variant(variant)
-        for variant in manifest.variants
-    }
+    targets_by_variant = {variant.id: _target_for_variant(variant) for variant in manifest.variants}
     for trial_index, variant in _work_items(manifest):
         try:
             report = run_live_suite(suite, targets_by_variant[variant.id])
@@ -258,9 +255,7 @@ def run_experiment(
         )
 
     baseline = next(
-        result
-        for result in variant_results
-        if result.variant_id == manifest.baseline_variant_id
+        result for result in variant_results if result.variant_id == manifest.baseline_variant_id
     )
     baseline_pass_rate = baseline.summary.pass_rate
     baseline_average_score = baseline.summary.average_score

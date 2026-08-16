@@ -444,16 +444,12 @@ def test_calibrate_judge_reports_error_and_agreement_metrics() -> None:
             EvaluationTestCase(
                 id="case-1",
                 name="Case one",
-                evaluators=[
-                    EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)
-                ],
+                evaluators=[EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)],
             ),
             EvaluationTestCase(
                 id="case-2",
                 name="Case two",
-                evaluators=[
-                    EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)
-                ],
+                evaluators=[EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)],
             ),
         ],
     )

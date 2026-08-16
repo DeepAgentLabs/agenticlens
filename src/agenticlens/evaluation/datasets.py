@@ -54,11 +54,7 @@ def dataset_to_samples(
     *,
     split: str | None = None,
 ) -> list[EvaluationSample]:
-    records = [
-        record
-        for record in dataset.records
-        if split is None or record.split == split
-    ]
+    records = [record for record in dataset.records if split is None or record.split == split]
     return [
         EvaluationSample(
             case_id=record.case_id,
@@ -121,11 +117,7 @@ def split_dataset(
     assignments: list[tuple[DatasetRecord, str]] = []
     for index, record in enumerate(shuffled):
         split_name = (
-            "train"
-            if index < train_end
-            else "validation"
-            if index < validation_end
-            else "test"
+            "train" if index < train_end else "validation" if index < validation_end else "test"
         )
         assignments.append((record, split_name))
 
@@ -134,12 +126,7 @@ def split_dataset(
         for record, split_name in assignments
     }
     return dataset.model_copy(
-        update={
-            "records": [
-                assigned_by_case[record.case_id]
-                for record in dataset.records
-            ]
-        }
+        update={"records": [assigned_by_case[record.case_id] for record in dataset.records]}
     )
 
 

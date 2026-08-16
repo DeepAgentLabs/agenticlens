@@ -35,11 +35,7 @@ def _mean_confidence_interval(
         )
     variance = sum((value - mean) ** 2 for value in values) / (len(values) - 1)
     margin = _z_value(confidence_level) * sqrt(variance / len(values))
-    upper = (
-        min(1.0, mean + margin)
-        if all(0 <= value <= 1 for value in values)
-        else mean + margin
-    )
+    upper = min(1.0, mean + margin) if all(0 <= value <= 1 for value in values) else mean + margin
     return ConfidenceInterval(
         lower=max(0.0, mean - margin),
         upper=upper,
@@ -61,11 +57,7 @@ def _wilson_interval(
     proportion = successes / total
     denominator = 1 + z2 / total
     center = (proportion + z2 / (2 * total)) / denominator
-    margin = (
-        z
-        * sqrt((proportion * (1 - proportion) + z2 / (4 * total)) / total)
-        / denominator
-    )
+    margin = z * sqrt((proportion * (1 - proportion) + z2 / (4 * total)) / total) / denominator
     return ConfidenceInterval(
         lower=max(0.0, center - margin),
         upper=min(1.0, center + margin),
@@ -105,9 +97,7 @@ def calibrate_judge(
             )
         )
         absolute_error = (
-            abs(score.value - label.expected_value)
-            if label.expected_value is not None
-            else None
+            abs(score.value - label.expected_value) if label.expected_value is not None else None
         )
         judge_verdict = score.metadata.get("judge_verdict")
         verdict_agreement = (
@@ -115,11 +105,7 @@ def calibrate_judge(
             if judge_verdict is not None and label.expected_verdict is not None
             else None
         )
-        pass_agreement = (
-            score.passed == expected_passed
-            if expected_passed is not None
-            else None
-        )
+        pass_agreement = score.passed == expected_passed if expected_passed is not None else None
         cases.append(
             CalibrationCase(
                 case_id=evaluated_case.case_id,
@@ -141,9 +127,7 @@ def calibrate_judge(
         )
 
     if not cases:
-        raise ValueError(
-            f"No labeled calibration cases were found for score {score_name!r}."
-        )
+        raise ValueError(f"No labeled calibration cases were found for score {score_name!r}.")
 
     judge_scores = [case.judge_score for case in cases]
     expected_scores = [case.expected_score for case in cases if case.expected_score is not None]
