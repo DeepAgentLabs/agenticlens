@@ -92,8 +92,7 @@ class DatasetLabel(BaseModel):
             and self.expected_verdict is None
         ):
             raise ValueError(
-                "dataset labels must define expected_value, expected_passed, "
-                "or expected_verdict"
+                "dataset labels must define expected_value, expected_passed, or expected_verdict"
             )
         return self
 
