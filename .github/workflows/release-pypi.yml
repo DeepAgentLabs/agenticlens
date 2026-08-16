@@ -1,14 +1,12 @@
 name: publish-pypi
 
 on:
-  release:
-    types: [published]
   push:
     tags:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -44,3 +42,50 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+  create-github-release:
+    runs-on: ubuntu-latest
+    needs: publish-pypi
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract changelog section
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+
+          tag = os.environ["RELEASE_TAG"]
+          version = tag.removeprefix("v")
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8").splitlines()
+
+          start = None
+          end = None
+          heading = f"## {version} - "
+          for index, line in enumerate(changelog):
+              if line.startswith(heading):
+                  start = index
+                  continue
+              if start is not None and line.startswith("## "):
+                  end = index
+                  break
+
+          if start is None:
+              raise SystemExit(
+                  f"Could not find CHANGELOG.md section for version {version}."
+              )
+
+          if end is None:
+              end = len(changelog)
+
+          section = "\n".join(changelog[start:end]).strip() + "\n"
+          Path("release-notes.md").write_text(section, encoding="utf-8")
+          PY
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md
+          generate_release_notes: false
