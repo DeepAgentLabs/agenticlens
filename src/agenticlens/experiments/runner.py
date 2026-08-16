@@ -9,6 +9,7 @@ import yaml
 from agenticlens.comparison.stats import metric_delta, percentile
 from agenticlens.evaluation import (
     ConfidenceInterval,
+    EvaluatorRegistry,
     HTTPTarget,
     PythonTarget,
     TestSuite,
@@ -122,6 +123,7 @@ def _pareto_frontier(variants: list[ExperimentVariantResult]) -> list[str]:
                 cost_strictly_better = other_cost.mean < candidate_cost.mean
             not_worse = (
                 other.summary.trial_success_rate >= candidate.summary.trial_success_rate
+                and other.summary.pass_rate.mean >= candidate.summary.pass_rate.mean
                 and other.summary.average_score.mean >= candidate.summary.average_score.mean
                 and (
                     other.summary.average_latency_ms.mean
@@ -131,6 +133,7 @@ def _pareto_frontier(variants: list[ExperimentVariantResult]) -> list[str]:
             )
             strictly_better = (
                 other.summary.trial_success_rate > candidate.summary.trial_success_rate
+                or other.summary.pass_rate.mean > candidate.summary.pass_rate.mean
                 or other.summary.average_score.mean > candidate.summary.average_score.mean
                 or other.summary.average_latency_ms.mean < candidate.summary.average_latency_ms.mean
                 or cost_strictly_better
@@ -158,6 +161,7 @@ def run_experiment(
     manifest: ExperimentManifest,
     suite: TestSuite,
     *,
+    registry: EvaluatorRegistry | None = None,
     confidence_level: float = 0.95,
     regression_threshold: float = 0.05,
 ) -> ExperimentReport:
@@ -167,7 +171,7 @@ def run_experiment(
     targets_by_variant = {variant.id: _target_for_variant(variant) for variant in manifest.variants}
     for trial_index, variant in _work_items(manifest):
         try:
-            report = run_live_suite(suite, targets_by_variant[variant.id])
+            report = run_live_suite(suite, targets_by_variant[variant.id], registry=registry)
         except Exception as exc:
             trial_results_by_variant[variant.id].append(
                 ExperimentTrialResult(

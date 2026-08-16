@@ -1,7 +1,16 @@
 import json
 from pathlib import Path
 
-from agenticlens.evaluation import load_suite
+from agenticlens.evaluation import (
+    EvaluationContext,
+    EvaluatorConfig,
+    EvaluatorRegistry,
+    LLMJudgeEvaluator,
+    Score,
+    load_suite,
+)
+from agenticlens.evaluation import TestCase as EvaluationTestCase
+from agenticlens.evaluation import TestSuite as EvaluationTestSuite
 from agenticlens.experiments import load_manifest, run_experiment
 
 
@@ -314,6 +323,167 @@ def test_run_experiment_uses_seeded_execution_order(tmp_path: Path) -> None:
     assert first_sequence == second_sequence
 
 
+def test_pareto_frontier_considers_mean_case_pass_rate(tmp_path: Path) -> None:
+    target_module = tmp_path / "targets.py"
+    suite_file = tmp_path / "suite.json"
+    manifest_file = tmp_path / "experiment.json"
+    target_module.write_text(
+        "\n".join(
+            [
+                "from datetime import datetime, timedelta, timezone",
+                "",
+                "def _result(values):",
+                "    started = datetime.now(timezone.utc)",
+                "    completed = started + timedelta(milliseconds=20)",
+                "    return {",
+                "        'output': values['output'],",
+                "        'trace': {",
+                "            'application_name': 'pareto-demo',",
+                "            'started_at': started.isoformat(),",
+                "            'completed_at': completed.isoformat(),",
+                "            'status': 'succeeded',",
+                "            'task_success': values['task_success'],",
+                "            'estimated_cost_usd': 0.001,",
+                "            'spans': [",
+                "                {",
+                "                    'name': 'demo-model',",
+                "                    'span_type': 'model_call',",
+                "                    'status': 'succeeded',",
+                "                    'estimated_cost_usd': 0.001,",
+                "                }",
+                "            ],",
+                "        },",
+                "    }",
+                "",
+                "def baseline(payload, *, case):",
+                "    if case.id == 'case-1':",
+                "        return _result({'output': 'ok', 'task_success': False})",
+                "    return _result({'output': 'bad', 'task_success': False})",
+                "",
+                "def candidate(payload, *, case):",
+                "    return _result({'output': 'bad', 'task_success': False})",
+                "",
+                "def candidate_two(payload, *, case):",
+                "    if case.id == 'case-1':",
+                "        return _result({'output': 'ok', 'task_success': False})",
+                "    return _result({'output': 'bad', 'task_success': False})",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    suite_file.write_text(
+        json.dumps(
+            {
+                "name": "pareto-suite",
+                "version": "1",
+                "cases": [
+                    {"id": "case-1", "name": "Case one", "expected_output": "ok"},
+                    {"id": "case-2", "name": "Case two", "expected_output": "ok"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    manifest_file.write_text(
+        json.dumps(
+            {
+                "name": "pareto-check",
+                "version": "0.4-draft",
+                "baseline_variant_id": "baseline",
+                "trial_count": 1,
+                "variants": [
+                    {
+                        "id": "baseline",
+                        "name": "Baseline",
+                        "target_kind": "python",
+                        "target": f"{target_module}:baseline",
+                    },
+                    {
+                        "id": "candidate",
+                        "name": "Candidate",
+                        "target_kind": "python",
+                        "target": f"{target_module}:candidate",
+                    },
+                    {
+                        "id": "candidate-two",
+                        "name": "Candidate two",
+                        "target_kind": "python",
+                        "target": f"{target_module}:candidate_two",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = run_experiment(load_manifest(manifest_file), load_suite(suite_file))
+
+    assert "candidate-two" in report.pareto_frontier_variant_ids
+    assert "candidate" not in report.pareto_frontier_variant_ids
+
+
+def test_run_experiment_forwards_evaluator_registry(tmp_path: Path) -> None:
+    target_module = tmp_path / "judge_targets.py"
+    target_module.write_text(
+        "\n".join(
+            [
+                "from datetime import datetime, timedelta, timezone",
+                "",
+                "def run_case(payload, *, case):",
+                "    started = datetime.now(timezone.utc)",
+                "    completed = started + timedelta(milliseconds=15)",
+                "    return {",
+                "        'output': 'ok',",
+                "        'trace': {",
+                "            'application_name': 'judge-experiment',",
+                "            'started_at': started.isoformat(),",
+                "            'completed_at': completed.isoformat(),",
+                "            'status': 'succeeded',",
+                "            'task_success': True,",
+                "            'spans': [],",
+                "        },",
+                "    }",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    suite = EvaluationTestSuite(
+        name="judge-experiment",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="Judged case",
+                evaluators=[EvaluatorConfig(name="quality_judge", threshold=0.8)],
+            )
+        ],
+    )
+
+    def judge(context: EvaluationContext) -> Score:
+        return Score(
+            name="answer_quality",
+            value=0.9,
+            passed=False,
+            explanation=f"Judge scored {context.sample.case_id}.",
+        )
+
+    registry = EvaluatorRegistry()
+    registry.register(LLMJudgeEvaluator("quality_judge", judge))
+
+    manifest = load_manifest(
+        _manifest_from_inline_targets(
+            tmp_path,
+            target_module,
+            suite_name="judge-experiment",
+            baseline_variant_id="baseline",
+        )
+    )
+    report = run_experiment(manifest, suite, registry=registry)
+
+    assert all(variant.summary.failed_trials == 0 for variant in report.variants)
+    assert report.variants[0].summary.average_score is not None
+
+
 def _write_manifest(
     tmp_path: Path,
     target_module: Path,
@@ -348,6 +518,48 @@ def _write_manifest(
                         "name": "Candidate two",
                         "target_kind": "python",
                         "target": f"{target_module}:candidate_two",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return manifest_file
+
+
+def _manifest_from_inline_targets(
+    tmp_path: Path,
+    target_module: Path,
+    *,
+    suite_name: str,
+    baseline_variant_id: str,
+) -> Path:
+    manifest_file = tmp_path / "tmp-inline-experiment.json"
+    manifest_file.write_text(
+        json.dumps(
+            {
+                "name": suite_name,
+                "version": "0.4-draft",
+                "baseline_variant_id": baseline_variant_id,
+                "trial_count": 1,
+                "variants": [
+                    {
+                        "id": "baseline",
+                        "name": "Baseline",
+                        "target_kind": "python",
+                        "target": f"{target_module}:run_case",
+                    },
+                    {
+                        "id": "candidate",
+                        "name": "Candidate",
+                        "target_kind": "python",
+                        "target": f"{target_module}:run_case",
+                    },
+                    {
+                        "id": "candidate-two",
+                        "name": "Candidate two",
+                        "target_kind": "python",
+                        "target": f"{target_module}:run_case",
                     },
                 ],
             }

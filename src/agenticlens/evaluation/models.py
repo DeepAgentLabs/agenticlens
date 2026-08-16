@@ -84,6 +84,19 @@ class DatasetLabel(BaseModel):
     notes: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def require_reference_judgment(self) -> "DatasetLabel":
+        if (
+            self.expected_value is None
+            and self.expected_passed is None
+            and self.expected_verdict is None
+        ):
+            raise ValueError(
+                "dataset labels must define expected_value, expected_passed, "
+                "or expected_verdict"
+            )
+        return self
+
 
 class DatasetRecord(BaseModel):
     case_id: str

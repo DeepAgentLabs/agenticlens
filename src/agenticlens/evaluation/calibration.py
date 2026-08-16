@@ -7,6 +7,7 @@ from agenticlens.evaluation.models import (
     CalibrationMetric,
     CalibrationReport,
     ConfidenceInterval,
+    DatasetRecord,
     EvaluationDataset,
     EvaluationReport,
 )
@@ -79,6 +80,8 @@ def calibrate_judge(
     for evaluated_case in report.cases:
         record = record_by_case.get(evaluated_case.case_id)
         if record is None:
+            continue
+        if not _matches_labeled_artifact(evaluated_case.output, evaluated_case.trace_id, record):
             continue
         label = find_dataset_label(record, score_name)
         if label is None:
@@ -216,3 +219,11 @@ def calibrate_judge(
         summary=metrics,
         cases=cases,
     )
+
+
+def _matches_labeled_artifact(
+    evaluated_output: str,
+    evaluated_trace_id: str,
+    record: DatasetRecord,
+) -> bool:
+    return evaluated_output == record.output and evaluated_trace_id == record.trace.trace_id
