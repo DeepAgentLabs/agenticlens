@@ -409,6 +409,7 @@ def test_judge_calibrate_command(tmp_path: Path) -> None:
                         "case_id": "case-1",
                         "output": "ok",
                         "trace": {
+                            "trace_id": "trace-1",
                             "application_name": "demo",
                             "started_at": "2026-08-15T00:00:00Z",
                             "completed_at": "2026-08-15T00:00:00Z",
@@ -429,6 +430,7 @@ def test_judge_calibrate_command(tmp_path: Path) -> None:
                         "case_id": "case-2",
                         "output": "ok",
                         "trace": {
+                            "trace_id": "trace-2",
                             "application_name": "demo",
                             "started_at": "2026-08-15T00:00:00Z",
                             "completed_at": "2026-08-15T00:00:00Z",
