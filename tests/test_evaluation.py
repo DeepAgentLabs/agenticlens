@@ -4,7 +4,10 @@ import pytest
 
 from agenticlens.evaluation import (
     BusinessRuleEvaluator,
+    DatasetLabel,
+    DatasetRecord,
     EvaluationContext,
+    EvaluationDataset,
     EvaluationSample,
     EvaluatorConfig,
     EvaluatorRegistry,
@@ -12,10 +15,15 @@ from agenticlens.evaluation import (
     LLMJudgeEvaluator,
     PythonTarget,
     Score,
+    calibrate_judge,
+    dataset_from_samples,
+    dataset_to_samples,
     evaluate_gate,
     evaluate_suite,
     render_html_report,
     run_live_suite,
+    split_dataset,
+    summarize_dataset,
 )
 from agenticlens.evaluation import (
     TestCase as EvaluationTestCase,
@@ -396,3 +404,104 @@ def test_json_schema_supports_null_type() -> None:
     assert report.cases[0].scores[0].explanation == (
         "Output matches the configured JSON schema subset."
     )
+
+
+def test_dataset_helpers_round_trip_samples_and_splits() -> None:
+    samples = [
+        EvaluationSample(case_id=f"case-{index}", output=str(index), trace=make_run())
+        for index in range(1, 7)
+    ]
+    dataset = dataset_from_samples(name="support", version="1", samples=samples)
+    summary = summarize_dataset(dataset)
+
+    assert summary.total_records == 6
+    assert dataset_to_samples(dataset)[0].case_id == "case-1"
+
+    split = split_dataset(dataset, train_ratio=0.5, validation_ratio=1 / 3, test_ratio=1 / 6)
+    split_summary = summarize_dataset(split)
+    assert split_summary.split_counts == {"test": 1, "train": 3, "validation": 2}
+
+
+def test_calibrate_judge_reports_error_and_agreement_metrics() -> None:
+    registry = EvaluatorRegistry()
+
+    def judge(context: EvaluationContext) -> Score:
+        value = 0.9 if context.case.id == "case-1" else 0.2
+        verdict = "agree" if value >= context.config.threshold else "disagree"
+        return Score(
+            name="answer_quality",
+            value=value,
+            passed=False,
+            explanation="Judge score",
+            metadata={"judge_verdict": verdict},
+        )
+
+    registry.register(LLMJudgeEvaluator("quality_judge", judge))
+    suite = EvaluationTestSuite(
+        name="judge-suite",
+        version="1",
+        cases=[
+            EvaluationTestCase(
+                id="case-1",
+                name="Case one",
+                evaluators=[
+                    EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)
+                ],
+            ),
+            EvaluationTestCase(
+                id="case-2",
+                name="Case two",
+                evaluators=[
+                    EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)
+                ],
+            ),
+        ],
+    )
+    report = evaluate_suite(
+        suite,
+        [
+            EvaluationSample(case_id="case-1", output="ok", trace=make_run()),
+            EvaluationSample(case_id="case-2", output="ok", trace=make_run()),
+        ],
+        registry=registry,
+    )
+    dataset = EvaluationDataset(
+        name="judge-labels",
+        version="2026-08-15",
+        records=[
+            DatasetRecord(
+                case_id="case-1",
+                output="ok",
+                trace=make_run(),
+                labels=[
+                    DatasetLabel(
+                        score_name="answer_quality",
+                        expected_value=1.0,
+                        expected_passed=True,
+                        expected_verdict="agree",
+                    )
+                ],
+            ),
+            DatasetRecord(
+                case_id="case-2",
+                output="ok",
+                trace=make_run(),
+                labels=[
+                    DatasetLabel(
+                        score_name="answer_quality",
+                        expected_value=0.0,
+                        expected_passed=False,
+                        expected_verdict="disagree",
+                    )
+                ],
+            ),
+        ],
+    )
+
+    calibration = calibrate_judge(report, dataset, score_name="answer_quality")
+
+    assert calibration.score_name == "answer_quality"
+    metrics = {metric.name: metric for metric in calibration.summary}
+    assert metrics["mean_absolute_error"].value == pytest.approx(0.15)
+    assert metrics["pass_rate_agreement"].value == 1.0
+    assert metrics["verdict_agreement"].value == 1.0
