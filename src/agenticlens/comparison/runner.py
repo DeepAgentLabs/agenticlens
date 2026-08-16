@@ -1,13 +1,12 @@
-import math
 import statistics
 from pathlib import Path
 
 from agenticlens.comparison.models import (
     ComparisonReport,
-    MetricDelta,
     MetricSummary,
     RunGroupSummary,
 )
+from agenticlens.comparison.stats import metric_delta, percentile
 from agenticlens.models.trace import Run, RunStatus
 
 
@@ -17,19 +16,6 @@ def load_runs(path: Path) -> list[Run]:
         raise ValueError(f"No JSON traces found at {path}")
     return [Run.model_validate_json(file.read_text(encoding="utf-8")) for file in files]
 
-
-def _percentile(values: list[float], percentile: float) -> float:
-    ordered = sorted(values)
-    if len(ordered) == 1:
-        return ordered[0]
-    index = (len(ordered) - 1) * percentile
-    lower = math.floor(index)
-    upper = math.ceil(index)
-    if lower == upper:
-        return ordered[lower]
-    return ordered[lower] + (ordered[upper] - ordered[lower]) * (index - lower)
-
-
 def _metrics(values: list[float]) -> MetricSummary:
     mean = statistics.fmean(values)
     deviation = statistics.stdev(values) if len(values) > 1 else 0.0
@@ -37,7 +23,7 @@ def _metrics(values: list[float]) -> MetricSummary:
         count=len(values),
         mean=mean,
         median=statistics.median(values),
-        p95=_percentile(values, 0.95),
+        p95=percentile(values, 0.95),
         standard_deviation=deviation,
         coefficient_of_variation=deviation / mean if mean else None,
     )
@@ -61,24 +47,6 @@ def summarize_runs(label: str, runs: list[Run]) -> RunGroupSummary:
         else None,
     )
 
-
-def _delta(
-    baseline: float,
-    candidate: float,
-    threshold: float,
-    *,
-    lower_is_better: bool,
-) -> MetricDelta:
-    absolute = candidate - baseline
-    relative = absolute / abs(baseline) if baseline else None
-    degradation = -relative if relative is not None and not lower_is_better else relative
-    return MetricDelta(
-        absolute=absolute,
-        relative=relative,
-        regressed=degradation is not None and degradation > threshold,
-    )
-
-
 def compare_runs(
     baseline_runs: list[Run],
     candidate_runs: list[Run],
@@ -89,19 +57,19 @@ def compare_runs(
 ) -> ComparisonReport:
     baseline = summarize_runs(baseline_label, baseline_runs)
     candidate = summarize_runs(candidate_label, candidate_runs)
-    success_delta = _delta(
+    success_delta = metric_delta(
         baseline.success_rate,
         candidate.success_rate,
         regression_threshold,
         lower_is_better=False,
     )
-    token_delta = _delta(
+    token_delta = metric_delta(
         baseline.tokens.mean,
         candidate.tokens.mean,
         regression_threshold,
         lower_is_better=True,
     )
-    latency_delta = _delta(
+    latency_delta = metric_delta(
         baseline.latency_ms.mean,
         candidate.latency_ms.mean,
         regression_threshold,
@@ -109,7 +77,7 @@ def compare_runs(
     )
     cost_delta = None
     if baseline.cost_usd is not None and candidate.cost_usd is not None:
-        cost_delta = _delta(
+        cost_delta = metric_delta(
             baseline.cost_usd.mean,
             candidate.cost_usd.mean,
             regression_threshold,
