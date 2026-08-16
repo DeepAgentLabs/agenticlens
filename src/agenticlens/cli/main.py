@@ -25,13 +25,20 @@ from agenticlens.evaluation import (
     GateConfig,
     HTTPTarget,
     PythonTarget,
+    calibrate_judge,
+    dataset_to_samples,
     evaluate_gate,
     evaluate_suite,
+    load_dataset,
     load_samples,
     load_suite,
     run_live_suite,
+    save_dataset,
     save_html_report,
+    split_dataset,
+    summarize_dataset,
 )
+from agenticlens.experiments import load_experiment_suite, load_manifest, run_experiment
 from agenticlens.exporters import CSVExporter, JSONExporter
 from agenticlens.models.trace import Run
 from agenticlens.models.workflow import Workflow
@@ -45,6 +52,10 @@ app = typer.Typer(
     help="Profile, analyze, and optimize token consumption in LLM-powered applications.",
     no_args_is_help=True,
 )
+dataset_app = typer.Typer(help="Manage versioned evaluation datasets.")
+experiment_app = typer.Typer(help="Run repeated multi-variant evaluation experiments.")
+app.add_typer(dataset_app, name="dataset")
+app.add_typer(experiment_app, name="experiment")
 console = Console()
 
 
@@ -357,6 +368,88 @@ def evaluate(
         console.print(f"Saved HTML report to {html}")
 
 
+@dataset_app.command("summary")
+def dataset_summary(
+    dataset_file: Path = typer.Argument(..., help="Evaluation dataset JSON or YAML."),
+) -> None:
+    """Summarize dataset size, split assignment, and available human labels."""
+    try:
+        dataset = load_dataset(dataset_file)
+        summary = summarize_dataset(dataset)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to summarize dataset:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    table = Table(title=f"Dataset · {dataset.name}")
+    table.add_column("Metric")
+    table.add_column("Value", justify="right")
+    table.add_row("Version", dataset.version)
+    table.add_row("Records", str(summary.total_records))
+    table.add_row("Labeled records", str(summary.labeled_records))
+    table.add_row("Total labels", str(summary.total_labels))
+    table.add_row(
+        "Splits",
+        ", ".join(f"{name}={count}" for name, count in sorted(summary.split_counts.items()))
+        or "none",
+    )
+    table.add_row(
+        "Label keys",
+        ", ".join(f"{name}={count}" for name, count in sorted(summary.label_counts.items()))
+        or "none",
+    )
+    table.add_row("Tags", ", ".join(summary.tags) or "none")
+    console.print(table)
+
+
+@dataset_app.command("split")
+def dataset_split(
+    dataset_file: Path = typer.Argument(..., help="Evaluation dataset JSON or YAML."),
+    save: Path = typer.Option(..., "--save", help="Save the updated dataset JSON file."),
+    train_ratio: float = typer.Option(0.7, min=0.0, max=1.0),
+    validation_ratio: float = typer.Option(0.15, min=0.0, max=1.0),
+    test_ratio: float = typer.Option(0.15, min=0.0, max=1.0),
+    seed: int = typer.Option(0, help="Random seed used for deterministic split assignment."),
+) -> None:
+    """Assign deterministic train, validation, and test splits to a dataset."""
+    try:
+        dataset = load_dataset(dataset_file)
+        updated = split_dataset(
+            dataset,
+            train_ratio=train_ratio,
+            validation_ratio=validation_ratio,
+            test_ratio=test_ratio,
+            seed=seed,
+        )
+        save_dataset(updated, save)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to split dataset:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    console.print(f"Saved dataset split to {save}")
+
+
+@dataset_app.command("export-samples")
+def dataset_export_samples(
+    dataset_file: Path = typer.Argument(..., help="Evaluation dataset JSON or YAML."),
+    save: Path = typer.Option(..., "--save", help="Save a samples JSON file."),
+    split: str | None = typer.Option(
+        None,
+        "--split",
+        help="Optional split filter: train, validation, or test.",
+    ),
+) -> None:
+    """Export evaluation samples from a versioned dataset artifact."""
+    try:
+        dataset = load_dataset(dataset_file)
+        samples = dataset_to_samples(dataset, split=split)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to export dataset samples:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    save.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"samples": [sample.model_dump(mode="json") for sample in samples]}
+    save.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    console.print(f"Saved {len(samples)} sample(s) to {save}")
+
+
 @app.command("evaluate-live")
 def evaluate_live(
     suite_file: Path = typer.Argument(..., help="YAML or JSON evaluation suite."),
@@ -395,6 +488,159 @@ def evaluate_live(
         f"{result.summary.passed_cases}/{result.summary.total_cases} cases passed."
     )
     console.print(f"Saved evaluation to {save}")
+
+
+@app.command("judge-calibrate")
+def judge_calibrate(
+    report_file: Path = typer.Argument(..., help="AgenticLens evaluation report JSON."),
+    dataset_file: Path = typer.Argument(..., help="Labeled evaluation dataset JSON or YAML."),
+    score_name: str = typer.Option(..., "--score-name", help="Judge score name to calibrate."),
+    confidence_level: float = typer.Option(0.95, "--confidence-level", min=0.5, max=0.999),
+    save: Path | None = typer.Option(
+        None,
+        "--save",
+        help="Optionally save the machine-readable calibration report.",
+    ),
+) -> None:
+    """Compare judge scores against labeled reference judgments and summarize agreement."""
+    try:
+        report = EvaluationReport.model_validate_json(report_file.read_text(encoding="utf-8"))
+        dataset = load_dataset(dataset_file)
+        calibration = calibrate_judge(
+            report,
+            dataset,
+            score_name=score_name,
+            confidence_level=confidence_level,
+        )
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to calibrate judge:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    table = Table(title=f"Judge Calibration · {calibration.score_name}")
+    table.add_column("Metric")
+    table.add_column("Value", justify="right")
+    table.add_column("Samples", justify="right")
+    for metric in calibration.summary:
+        value = f"{metric.value:.3f}"
+        if metric.confidence_interval is not None:
+            ci = metric.confidence_interval
+            value = (
+                f"{value} "
+                f"({ci.confidence_level:.0%} CI {ci.lower:.3f} to {ci.upper:.3f})"
+            )
+        table.add_row(metric.name, value, str(metric.sample_size))
+    console.print(table)
+    console.print(
+        f"Calibrated against {len(calibration.cases)} labeled case(s) "
+        f"from {calibration.dataset_name} {calibration.dataset_version}."
+    )
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(calibration.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved calibration report to {save}")
+
+
+@experiment_app.command("run")
+def experiment_run(
+    manifest_file: Path = typer.Argument(..., help="Experiment manifest JSON or YAML."),
+    suite_file: Path = typer.Argument(..., help="YAML or JSON evaluation suite."),
+    save: Path = typer.Option(
+        Path("agenticlens-experiment.json"),
+        "--save",
+        help="Save the machine-readable experiment report.",
+    ),
+    confidence_level: float = typer.Option(0.95, "--confidence-level", min=0.5, max=0.999),
+    regression_threshold: float = typer.Option(
+        0.05,
+        "--regression-threshold",
+        min=0.0,
+        help="Relative degradation threshold for baseline deltas.",
+    ),
+) -> None:
+    """Run repeated trials for three or more live variants against one suite."""
+    try:
+        manifest = load_manifest(manifest_file)
+        suite = load_experiment_suite(suite_file)
+        report = run_experiment(
+            manifest,
+            suite,
+            confidence_level=confidence_level,
+            regression_threshold=regression_threshold,
+        )
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to run experiment:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    summary_table = Table(title=f"Experiment · {report.experiment_name}")
+    summary_table.add_column("Variant")
+    summary_table.add_column("Trial success", justify="right")
+    summary_table.add_column("Completed", justify="right")
+    summary_table.add_column("Failed", justify="right")
+    summary_table.add_column("Mean pass rate", justify="right")
+    summary_table.add_column("Mean score", justify="right")
+    summary_table.add_column("Mean latency", justify="right")
+    summary_table.add_column("Mean cost", justify="right")
+    summary_table.add_column("Pareto", justify="center")
+    for variant in report.variants:
+        pass_rate = (
+            f"{variant.summary.pass_rate.mean:.1%}"
+            if variant.summary.pass_rate is not None
+            else "n/a"
+        )
+        average_score = (
+            f"{variant.summary.average_score.mean:.3f}"
+            if variant.summary.average_score is not None
+            else "n/a"
+        )
+        average_latency = (
+            f"{variant.summary.average_latency_ms.mean:.1f} ms"
+            if variant.summary.average_latency_ms is not None
+            else "n/a"
+        )
+        cost = (
+            f"${variant.summary.total_cost_usd.mean:.4f}"
+            if variant.summary.total_cost_usd is not None
+            else "n/a"
+        )
+        summary_table.add_row(
+            variant.variant_name,
+            f"{variant.summary.trial_success_rate:.1%}",
+            str(variant.summary.completed_trials),
+            str(variant.summary.failed_trials),
+            pass_rate,
+            average_score,
+            average_latency,
+            cost,
+            "yes" if variant.pareto_optimal else "no",
+        )
+    console.print(summary_table)
+
+    delta_table = Table(title=f"Baseline Deltas · {report.baseline_variant_id}")
+    delta_table.add_column("Variant")
+    delta_table.add_column("Pass rate", justify="right")
+    delta_table.add_column("Score", justify="right")
+    delta_table.add_column("Latency", justify="right")
+    delta_table.add_column("Cost", justify="right")
+    for comparison in report.comparisons:
+        cost_delta = (
+            f"{comparison.total_cost_usd_delta.absolute:+.4f}"
+            if comparison.total_cost_usd_delta is not None
+            else "n/a"
+        )
+        delta_table.add_row(
+            comparison.candidate_variant_id,
+            f"{comparison.pass_rate_delta.absolute:+.1%}",
+            f"{comparison.average_score_delta.absolute:+.3f}",
+            f"{comparison.average_latency_ms_delta.absolute:+.1f} ms",
+            cost_delta,
+        )
+    console.print(delta_table)
+    pareto_frontier = ", ".join(report.pareto_frontier_variant_ids) or "none"
+    console.print(f"Pareto frontier: {pareto_frontier} | Trials per variant: {report.trial_count}")
+
+    save.parent.mkdir(parents=True, exist_ok=True)
+    save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    console.print(f"Saved experiment report to {save}")
 
 
 @app.command()
