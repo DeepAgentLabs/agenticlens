@@ -15,11 +15,15 @@ forward from `v0.5` and `v1.0`.
   Intelligence (`Evidence` objects, next-best-analysis guidance,
   import-layer enforcement, OpenTelemetry trace export, and AIOS draft
   validation/conformance CLI are delivered)
-- **v0.3** 🏗️ Mostly complete — Evaluation Foundation (evaluator framework,
-  deterministic checks, custom/LLM-judge evaluators, release gates,
-  `evaluate`/`gate` CLI, and live agent targets); judge calibration and
-  dataset management still open
-- **v0.4** 🚧 Planned — Experiments and Statistical Comparison
+- **v0.3** ✅ Delivered in the current development line — Evaluation Foundation
+  (evaluator framework, deterministic checks, custom/LLM-as-a-Judge
+  evaluators,
+  release gates, `evaluate`/`gate` CLI, live agent targets, judge calibration,
+  and versioned evaluation dataset management)
+- **v0.4** 🚧 In progress — Experiments and Statistical Comparison
+  (initial experiment manifests, repeated multi-variant live trials,
+  confidence intervals, baseline deltas, and Pareto summaries are now in the
+  development line)
 - **v0.5** 🚧 Planned — Advanced Evaluation and Diagnosis (semantic/safety/RAG
   scoring partially pulled forward into `v0.3`)
 - **v0.6** 🚧 Planned — Test-Suite and Dataset Management
@@ -214,15 +218,20 @@ The following capabilities are implemented in the current development line.
 - a unified, provider-neutral evaluator contract (`Evaluator`, `EvaluationContext`,
   `Score`, `EvaluatorRegistry`)
 - built-in deterministic checks: exact match, required-substring match, required
-  and forbidden tool calls, latency threshold, cost threshold
-- custom evaluators via `CallableEvaluator`, and model-based judges via
-  `LLMJudgeEvaluator`, sharing one normalized score contract
-- evaluation against recorded samples and their AgenticLens traces (not yet
-  live Python or HTTP agent invocation)
+  and forbidden tool calls, JSON Schema validation, required output fields,
+  required tool arguments, turn-count threshold, latency threshold, and cost
+  threshold
+- custom evaluators via `CallableEvaluator`, `BusinessRuleEvaluator`, and
+  LLM-as-a-Judge evaluators via `LLMJudgeEvaluator`, sharing one normalized
+  score contract
+- evaluation against recorded samples and AgenticLens traces, plus trusted live
+  Python and HTTP targets via `evaluate-live`
 - JSON and standalone HTML evaluation reports
 - configurable release gates on pass rate, average score, failed-case count,
   average latency, and total cost, with CI-friendly exit codes
-- `evaluate` and `gate` CLI commands
+- `evaluate`, `evaluate-live`, and `gate` CLI commands
+- versioned evaluation dataset workflows via `agenticlens dataset ...`
+- judge calibration reports via `judge-calibrate`
 - a deterministic, offline LangGraph reference workflow demonstrating tracing,
   evaluation, and release-gate output together
 
@@ -349,42 +358,46 @@ suites.
   required tool arguments, turn-count threshold, latency threshold, and cost
   threshold
 - `CallableEvaluator` for custom Python rules, semantic, safety, and RAG
-  checks, `BusinessRuleEvaluator`, and `LLMJudgeEvaluator` for model-based
-  judgments, on one shared score contract
+  checks, `BusinessRuleEvaluator`, and `LLMJudgeEvaluator` for
+  LLM-as-a-Judge-style scoring, on one shared score contract
 - JSON and standalone HTML evaluation reports (HTML in place of the
   originally planned Markdown report)
 - configurable release gates (pass rate, average score, failed cases,
   latency, cost) with CI-friendly exit codes, via the `evaluate` and `gate`
   CLI commands
 - live Python and HTTP evaluation targets via `evaluate-live`
+- versioned evaluation datasets, deterministic dataset splitting, sample export,
+  and dataset summary CLI workflows via `agenticlens dataset ...`
+- judge calibration reports with agreement/error metrics and statistical
+  confidence intervals via `judge-calibrate`
 - a deterministic, offline LangGraph reference workflow demonstrating the
   full trace-to-evaluation-to-gate path
 
-This pulled forward parts of the semantic, safety, RAG, and LLM-judge scoring
+This pulled forward parts of the semantic, safety, RAG, and
+LLM-as-a-Judge scoring
 originally planned for [v0.5](#v05--advanced-evaluation-and-diagnosis), and
 part of the release-gate concept originally planned for
 [v1.0](#v10--production-and-enterprise-readiness), via the shared evaluator
 contract rather than as separate subsystems.
 
-### Remaining work
+### Follow-on work
 
-- built-in provider clients for LLM-judge calls (applications currently
+The core `v0.3` evaluation foundation is complete. The following items remain
+valuable follow-on enhancements for later milestones:
+
+- built-in provider clients for LLM-as-a-Judge calls (applications currently
   supply the model call themselves)
 - asynchronous and batched evaluation execution
-- judge calibration reports and statistical confidence intervals
-- evaluation dataset management
 - automatic framework event adapters beyond the LangGraph reference demo
-- structured judge verdict fields on `LLMJudgeEvaluator` — verdict
-  (agree/partially-agree/disagree), confidence score, and a factual-grounding
-  breakdown (unsupported claims, evidence missed), plus guidance to run the
-  judge on a different model than the one under evaluation to avoid
-  self-confirmation bias; modeled on `devops-open-agent`'s LLM-as-a-Judge
-  verifier output
+- richer structured judge verdict fields on `LLMJudgeEvaluator` metadata —
+  verdict (agree/partially-agree/disagree), confidence score, and a
+  factual-grounding breakdown (unsupported claims, evidence missed), plus
+  guidance to run the judge on a different model than the one under
+  evaluation to avoid self-confirmation bias
 - cooldown-protected webhook notifications on `gate` threshold breaches
   (generic webhook, Slack/Teams-shaped payload) so CI/scheduled `gate` runs
-  can alert without paging on every single run; modeled on
-  `devops-open-agent`'s per-user alert-cooldown pattern for budget and
-  investigation alerts
+  can alert without paging on every single run, with per-threshold cooldowns
+  for repeated budget, quality, or investigation alerts
 
 ### Completion criteria
 
@@ -393,6 +406,9 @@ contract rather than as separate subsystems.
       unavailable/omitted cost and latency data)
 - [x] failed cases retain trace-level evidence
 - [x] one Python agent and one HTTP agent can run the same suite live
+- [x] judge calibration reports provide agreement/error metrics with
+      confidence intervals
+- [x] versioned evaluation datasets can be managed and split locally
 
 ## v0.4 — Experiments and Statistical Comparison
 
@@ -421,6 +437,15 @@ repeated trials.
 - regression reports include minimum-sample warnings
 - quality, cost, latency, and reliability are shown together
 
+### Current implementation status
+
+- experiment manifests can define three or more live Python or HTTP variants
+- repeated suite trials are aggregated into per-variant stability summaries
+- confidence intervals, baseline deltas, and Pareto-frontier summaries are
+  available through `agenticlens experiment run`
+- pass@k, prompt/retrieval/memory-specific comparison, heatmaps, and HTML/CSV
+  experiment reports remain planned
+
 ## v0.5 — Advanced Evaluation and Diagnosis
 
 ### Objective
@@ -430,7 +455,7 @@ recorded evidence.
 
 ### Planned deliverables
 
-- model-based judge interface
+- LLM-as-a-Judge interface
 - judge prompt and model versioning
 - groundedness, relevance, completeness, and citation evaluators
 - tool-trajectory and agent-goal evaluators
