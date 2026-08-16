@@ -4,6 +4,36 @@ All notable changes to this project will be documented here.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+## 0.4.5 - 2026-08-16
+
+### Added
+
+- Versioned evaluation dataset artifacts with local summary, deterministic
+  split management, and sample export CLI workflows via
+  `agenticlens dataset ...`.
+- Judge calibration reports with score error metrics, pass/verdict agreement,
+  and confidence intervals via `agenticlens judge-calibrate`.
+- Multi-variant experiment manifests with repeated live trials, baseline deltas,
+  confidence intervals, and Pareto summaries via `agenticlens experiment run`.
+- Runnable local examples for dataset splitting, judge calibration, and
+  repeated multi-variant experiment flows via
+  `examples/dataset_and_calibration_demo.py` and
+  `examples/experiment_runner_demo.py`.
+
+### Changed
+
+- Evaluation documentation and roadmap status now reflect completion of the
+  `v0.3` evaluation-foundation milestone.
+- Experiment execution now preserves partial results when individual live
+  trials fail, records per-trial failures, and uses seeded execution ordering
+  when `random_seed` is provided.
+- Regression detection now treats zero baselines correctly for cost and other
+  tracked metrics through a shared comparison helper.
+- Example traces now record cost on spans, so evaluation and experiment demos
+  surface non-null cost summaries and deltas.
+
 ## 0.4.0 - 2026-08-08
 
 ### Added
@@ -45,7 +75,7 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 - Structured run-and-span tracing with payload redaction, trace inspection, raw metric
   distributions, and versioned trace, finding, and report JSON Schemas.
-- A unified evaluation framework for deterministic, semantic, safety, RAG, LLM-judge,
+- A unified evaluation framework for deterministic, semantic, safety, RAG, LLM-as-a-Judge,
   tool-behavior, latency, and cost scoring, with JSON and standalone HTML reports.
 - Configurable release gates that enforce evaluation pass rate, score, failed-case,
   latency, and cost thresholds with CI-friendly exit codes.

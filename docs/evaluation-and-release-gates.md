@@ -23,7 +23,8 @@ Each test case can define:
 - maximum estimated cost
 - tags and application-specific metadata
 
-Built-in checks are deterministic. Custom evaluators and model-based judges use
+Built-in checks are deterministic. Custom evaluators and LLM-as-a-Judge
+evaluators use
 the same normalized score contract. A case passes only when every required
 check reaches its configured threshold. The report includes per-check evidence,
 aggregate pass rate, average score, latency, and total cost.
@@ -87,13 +88,14 @@ loading arbitrary code.
 
 `CallableEvaluator` supports Python rules, semantic similarity functions,
 safety classifiers, RAG metrics, and internal services.
-`LLMJudgeEvaluator` identifies provider-supplied model judgments in reports
+`LLMJudgeEvaluator` identifies provider-supplied LLM-as-a-Judge results in reports
 while leaving model selection, credentials, prompts, retries, and structured
 output handling under application control. See `examples/custom_llm_judge.py`
 for a complete, runnable registration example.
 
 `BusinessRuleEvaluator` is a named wrapper around trusted application logic for
-organization-specific pass/fail rules that do not need an LLM judge.
+organization-specific pass/fail rules that do not need an LLM-as-a-Judge
+evaluator.
 
 ## Run an Evaluation
 
@@ -105,6 +107,40 @@ agenticlens evaluate suite.yaml samples.json \
 
 The JSON report is suitable for CI and further analysis. The standalone HTML
 report is suitable for demonstrations, release reviews, and team sharing.
+
+## Versioned Evaluation Datasets
+
+AgenticLens can also store evaluation samples as a versioned dataset artifact
+that carries split assignments, tags, and human labels for judge calibration.
+
+Summarize a dataset:
+
+```bash
+agenticlens dataset summary dataset.json
+```
+
+Assign deterministic train, validation, and test splits:
+
+```bash
+agenticlens dataset split dataset.json \
+  --save dataset-split.json \
+  --train-ratio 0.7 \
+  --validation-ratio 0.15 \
+  --test-ratio 0.15 \
+  --seed 7
+```
+
+Export a split back to a plain `samples.json` artifact for evaluation:
+
+```bash
+agenticlens dataset export-samples dataset-split.json \
+  --split test \
+  --save samples-test.json
+```
+
+See `examples/dataset_and_calibration_demo.py` for a complete local example that
+creates a dataset from samples, assigns splits, runs evaluation, and calibrates
+judge labels end to end.
 
 ## Run a Trusted Live Target
 
@@ -178,6 +214,30 @@ release gate fails, and `1` when the report or configuration is invalid.
 integer. AgenticLens does not infer conversational turns from lower-level span
 types when that metadata is absent.
 
+## Judge Calibration
+
+When a dataset includes human labels for a judge score, AgenticLens can compare
+the judge's output against those labels and report:
+
+- mean judge score and mean expected score
+- mean absolute error and root mean squared error
+- pass/fail agreement and verdict agreement
+- statistical confidence intervals for mean and agreement metrics
+
+```bash
+agenticlens judge-calibrate evaluation.json dataset.json \
+  --score-name answer_quality \
+  --confidence-level 0.95 \
+  --save calibration.json
+```
+
+See `examples/experiment_runner_demo.py` for a runnable multi-variant experiment
+manifest example using the same evaluation layer for repeated live trials.
+
+Labels live alongside each dataset record and can include an expected score,
+expected pass/fail decision, expected verdict string, optional threshold, and
+free-form reviewer notes.
+
 ## Offline Pitch Demonstration
 
 The repository includes a deterministic LangGraph supervisor demonstration
@@ -193,8 +253,7 @@ performs real graph execution but does not require an API key or network access.
 
 ## Scope
 
-The framework supports deterministic checks and synchronous custom or
-model-based evaluators. Built-in provider clients, asynchronous and batched
-evaluation, judge calibration, statistical confidence intervals, dataset
-management, and automatic framework event adapters remain roadmap
-capabilities.
+The framework supports deterministic checks, synchronous custom or model-based
+evaluators, versioned local datasets, and judge calibration against human
+labels. Built-in provider clients, asynchronous and batched evaluation, and
+automatic framework event adapters remain future roadmap capabilities.

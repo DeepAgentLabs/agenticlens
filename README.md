@@ -93,7 +93,8 @@ use, required tool arguments, structured JSON output, required output fields,
 turn counts, latency, and cost. The resulting evidence can be exported as JSON,
 rendered as a standalone HTML report, and enforced as a release gate in CI.
 Trusted live Python and HTTP targets can also be executed directly against the
-same suite.
+same suite. Versioned evaluation datasets, split management, sample export, and
+judge-calibration reports are available for local evaluation workflows.
 
 ## Architecture
 
@@ -187,10 +188,13 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Memory and retry overhead findings | Implemented, experimental |
 | Repeated-run regression comparison | Implemented, experimental |
 | Unified evaluator SDK and versioned test suites | Implemented, experimental |
-| Provider-neutral custom and LLM-judge adapters | Implemented, experimental |
+| Provider-neutral custom and LLM-as-a-Judge adapters | Implemented, experimental |
 | Live Python and HTTP evaluation targets | Implemented, experimental |
 | Quality, tool-use, latency, and cost release gates | Implemented, experimental |
 | Standalone evaluation HTML report | Implemented, experimental |
+| Versioned evaluation dataset management | Implemented, experimental |
+| Judge calibration with confidence intervals | Implemented, experimental |
+| Multi-variant repeated experiment runner | Implemented, experimental |
 | AIOS draft validation and conformance CLI | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | Statistical significance testing | Planned |
@@ -218,6 +222,17 @@ agenticlens gate evaluation.json \
 The evaluation command produces machine-readable JSON and an optional
 standalone HTML report. The gate command returns exit status `2` when a
 configured release threshold fails, making it suitable for CI.
+
+AgenticLens can also manage local evaluation datasets and calibrate human
+labeled judge scores:
+
+```bash
+agenticlens dataset summary dataset.json
+agenticlens dataset split dataset.json --save dataset-split.json --seed 7
+agenticlens dataset export-samples dataset-split.json --split test --save samples-test.json
+agenticlens judge-calibrate evaluation.json dataset.json --score-name answer_quality
+agenticlens experiment run experiment.yaml suite.yaml --save experiment-report.json
+```
 
 ## AIOS Validation and Conformance
 
@@ -758,7 +773,7 @@ These runtime objects emit AI-native events such as `workflow.run`,
 | Costing | User overrides, cached live LiteLLM pricing, bundled fallback pricing |
 | Recommendations | Repeated prompts, excessive chunks, low-utility chunks, long history, duplicate tool calls |
 | Budget impact | Dollar-per-run and monthly savings projections |
-| CLI | `profile`, `report`, `analyze`, `inspect`, `compare`, `evaluate`, `evaluate-live`, and `gate` |
+| CLI | `profile`, `report`, `analyze`, `inspect`, `compare`, `evaluate`, `evaluate-live`, `experiment run`, and `gate` |
 | Export | Workflow reports, run traces, JSON, CSV, Markdown, and Jira |
 | Schemas | Versioned trace, finding, and comparison-report JSON Schemas |
 | Tooling | pytest, Ruff, mypy, GitHub Actions |
@@ -969,8 +984,12 @@ Other examples:
 - `examples/reference_workflows/langgraph_supervisor.py` — offline LangGraph supervisor
 - `examples/export_demo.py` — export to Markdown and Jira
 - `examples/live_evaluation_demo.py` — trusted live Python target for `evaluate-live`
+- `examples/dataset_and_calibration_demo.py` — dataset splitting, judge labels,
+  evaluation, and calibration together
+- `examples/experiment_runner_demo.py` — repeated multi-variant experiment manifest
+  and comparison flow
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
-- `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` against
+- `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` for
   the shared evaluator contract
 - `examples/operational_intelligence_demo.py` — structured trace, OTLP export, and
   AIOS conformance together
@@ -1125,6 +1144,7 @@ uv run agenticlens gate evaluation.json --min-pass-rate 0.95
 | `conformance` | Run AIOS draft schema and semantic checks with draft-alignment reporting |
 | `evaluate` | Score recorded outputs and traces against a test suite |
 | `evaluate-live` | Run a trusted live Python or HTTP target against a suite |
+| `experiment run` | Run repeated live trials for 3+ variants against one suite |
 | `gate` | Enforce release thresholds from an evaluation report |
 
 The `compare` command accepts either one JSON trace file or a directory of
@@ -1138,7 +1158,7 @@ The `compare` command accepts either one JSON trace file or a directory of
 - Comparisons do not calculate confidence intervals or significance tests yet.
 - Built-in evaluators are deterministic; semantic, safety, and RAG-quality checks
   rely on application-supplied `CallableEvaluator`/`LLMJudgeEvaluator` logic
-  rather than a bundled model-based judge.
+  rather than a bundled LLM-as-a-Judge provider.
 - Model-swap recommendations estimate cost and do not guarantee quality.
 - Live pricing uses a community-maintained feed that may lag provider changes.
 - Default redaction cannot guarantee removal of every domain-specific secret or
@@ -1199,7 +1219,7 @@ schemas/           versioned trace, finding, and report JSON Schemas
 Near-term priorities:
 
 - experiment manifests and confidence intervals
-- evaluation dataset management
+- richer dataset curation workflows beyond versioned local dataset artifacts
 - automatic pricing resolution for research trace spans
 - prompt caching opportunity detection
 - integrations for LangChain, LangGraph, LiteLLM, and OpenAI Agents SDK

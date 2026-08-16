@@ -1,3 +1,12 @@
+from agenticlens.evaluation.calibration import calibrate_judge
+from agenticlens.evaluation.datasets import (
+    dataset_from_samples,
+    dataset_to_samples,
+    load_dataset,
+    save_dataset,
+    split_dataset,
+    summarize_dataset,
+)
 from agenticlens.evaluation.evaluators import (
     BusinessRuleEvaluator,
     CallableEvaluator,
@@ -9,6 +18,14 @@ from agenticlens.evaluation.evaluators import (
 from agenticlens.evaluation.gate import GateConfig, GateDecision, evaluate_gate
 from agenticlens.evaluation.html_report import render_html_report, save_html_report
 from agenticlens.evaluation.models import (
+    CalibrationCase,
+    CalibrationMetric,
+    CalibrationReport,
+    ConfidenceInterval,
+    DatasetLabel,
+    DatasetRecord,
+    DatasetSummary,
+    EvaluationDataset,
     EvaluationReport,
     EvaluationSample,
     EvaluatorConfig,
@@ -23,8 +40,16 @@ from agenticlens.evaluation.runner import evaluate_suite, load_samples, load_sui
 
 __all__ = [
     "BusinessRuleEvaluator",
+    "CalibrationCase",
+    "CalibrationMetric",
+    "CalibrationReport",
     "CallableEvaluator",
+    "ConfidenceInterval",
+    "DatasetLabel",
+    "DatasetRecord",
+    "DatasetSummary",
     "EvaluationContext",
+    "EvaluationDataset",
     "EvaluationReport",
     "EvaluationSample",
     "Evaluator",
@@ -39,11 +64,18 @@ __all__ = [
     "Score",
     "TestCase",
     "TestSuite",
+    "calibrate_judge",
+    "dataset_from_samples",
+    "dataset_to_samples",
     "evaluate_gate",
     "evaluate_suite",
+    "load_dataset",
     "load_samples",
     "load_suite",
     "render_html_report",
     "run_live_suite",
+    "save_dataset",
     "save_html_report",
+    "split_dataset",
+    "summarize_dataset",
 ]
