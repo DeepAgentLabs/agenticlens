@@ -39,6 +39,16 @@ The product idea is simple:
 
 `instrument the AI runtime once, export everywhere`
 
+Development continues with judge calibration and dataset management, followed
+by experiments and statistical comparison. The
+[open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
+tracks reproducible examples, artifact interoperability, independent validation,
+governance, and onboarding alongside those features. These are planned goals,
+not a claim of AAIF acceptance or completed independent validation.
+
+The [code-backed roadmap audit](ROADMAP_AUDIT.md) records implemented, partial,
+and missing features with source/test evidence and open acceptance gates.
+
 ## Contents
 
 - [Why AgenticLens?](#why-agenticlens)
@@ -638,6 +648,75 @@ cost_per_successful_task = total_recorded_cost / successful_runs
 | Larger model | $0.06 | 100% | $0.06 |
 
 Here, the larger model costs more per attempt but less per successful task.
+
+### Evaluation correctness and compatibility (unreleased)
+
+- Structured-output checks use JSON Schema Draft 2020-12, including enum,
+  numeric limits, composition, and embedded references. Invalid schemas and
+  unsupported dialects raise configuration errors. External references are not
+  fetched. The format keyword retains its standard annotation-only behavior.
+- Duplicate or unknown sample IDs raise errors before scoring; missing samples
+  still produce failed cases. NaN and Infinity are rejected as invalid JSON.
+- Cost totals are unavailable if any span/case is unpriced. Set
+  estimated_cost_usd=0.0 explicitly for free spans. Cost gates reject incomplete
+  reports; comparison cost metrics are unavailable for incompletely priced groups.
+- Explicit task_success overrides execution status in comparisons. Status is
+  used only when task_success is absent.
+
+For example, an output of 0 now fails a schema with type=integer and minimum=1.
+A successful execution with task_success=False counts as a failed task.
+An evaluation containing costs 0.01 and null has total_cost_usd=null and fails
+a configured cost gate. Existing reports can retain old totals; regenerate them
+for corrected per-span costs and comparison results.
+
+These fixes preserve the report field shapes but intentionally tighten behavior.
+Schema-dependent applications may now fail checks that were previously ignored.
+
+### Judge calibration against human labels
+
+Compare one saved `llm_judge` score with a versioned reference dataset, without
+making new model calls:
+
+```bash
+agenticlens calibrate evaluation.json labels.json --evaluator quality --save calibration.json
+```
+
+`labels.json` must match the evaluation report's suite name/version and contain
+exactly one boolean label for every case:
+
+```json
+{
+  "name": "support-human-review",
+  "version": "1",
+  "suite_name": "support",
+  "suite_version": "1",
+  "labels": [
+    {"case_id": "case-1", "passed": true},
+    {"case_id": "case-2", "passed": false}
+  ]
+}
+```
+
+The selected score name must occur exactly once per case and have type
+`llm_judge`. Calibration uses its saved `passed` verdict, preserving the
+evaluation threshold. Python users can call
+`calibrate_judge(report, CalibrationDataset.model_validate_json(labels_text), evaluator="quality")`
+from `agenticlens.evaluation`.
+
+The JSON report includes agreement, a two-sided 95% Wilson interval, true/false
+accepts and rejects, and per-case verdicts with trace IDs. It retains dataset
+and suite versions. Fewer than 30 cases produces an exploratory-evidence
+warning; one-class references also produce a warning. Neither warning is an
+automatic quality gate.
+
+This is verdict agreement reporting, not probability calibration, automatic
+threshold tuning, or proof that human labels are correct. Use independently
+reviewed, representative cases; correlated examples and judge-assisted labels
+can overstate reliability. Do not mix judge models/prompts or threshold settings
+within a calibration run; retain that configuration with the source evaluation
+report. The interval assumes independent cases. See the
+[NIST Wilson interval reference](https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm).
+Dataset lifecycle management and broader statistical calibration remain planned.
 
 ## Using Regression Checks in CI
 

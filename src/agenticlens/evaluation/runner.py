@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from jsonschema import Draft202012Validator, SchemaError
+from referencing import Registry
+from referencing.exceptions import Unresolvable
 
 from agenticlens.evaluation.evaluators import EvaluationContext, EvaluatorRegistry
 from agenticlens.evaluation.models import (
@@ -50,47 +53,31 @@ def _lookup_path(payload: Any, dotted_path: str) -> tuple[bool, Any]:
     return True, current
 
 
+def _schema_validator(schema: dict[str, Any]) -> Any:
+    dialect = schema.get("$schema", "https://json-schema.org/draft/2020-12/schema")
+    if dialect != "https://json-schema.org/draft/2020-12/schema":
+        raise ValueError("output_json_schema supports JSON Schema Draft 2020-12 only")
+    try:
+        Draft202012Validator.check_schema(schema)
+    except SchemaError as exc:
+        raise ValueError(f"Invalid output_json_schema: {exc.message}") from exc
+    # Resolve embedded references only; never fetch schemas from the network.
+    return Draft202012Validator(schema, registry=Registry())
+
+
 def _validate_json_schema(payload: Any, schema: dict[str, Any]) -> tuple[bool, str]:
-    expected_type = schema.get("type")
-    type_map: dict[str, type[Any] | tuple[type[Any], ...]] = {
-        "object": dict,
-        "array": list,
-        "string": str,
-        "number": (int, float),
-        "integer": int,
-        "boolean": bool,
-        "null": type(None),
-    }
-    if isinstance(expected_type, list):
-        # Union type like ["string", "null"]
-        allowed = tuple(t for name in expected_type if (t := type_map.get(name)) is not None)
-        if not allowed:
-            return False, f"Unsupported JSON schema type {expected_type!r}."
-        if not isinstance(payload, allowed):
-            return False, f"Expected one of JSON types {expected_type!r}."
-    else:
-        expected_python_type = type_map.get(expected_type) if expected_type else None
-        if expected_type and expected_python_type is None:
-            return False, f"Unsupported JSON schema type {expected_type!r}."
-        if expected_python_type is not None and not isinstance(payload, expected_python_type):
-            return False, f"Expected JSON type {expected_type!r}."
-    if isinstance(payload, dict):
-        required = schema.get("required", [])
-        missing = [name for name in required if name not in payload]
-        if missing:
-            return False, f"Missing required JSON fields: {', '.join(missing)}."
-        properties = schema.get("properties", {})
-        for key, subschema in properties.items():
-            if key in payload:
-                valid, reason = _validate_json_schema(payload[key], subschema)
-                if not valid:
-                    return False, f"Field {key!r}: {reason}"
-    if isinstance(payload, list) and "items" in schema:
-        for item in payload:
-            valid, reason = _validate_json_schema(item, schema["items"])
-            if not valid:
-                return False, reason
-    return True, "Output matches the configured JSON schema subset."
+    validator = _schema_validator(schema)
+    try:
+        error = next(validator.iter_errors(payload), None)
+    except Unresolvable as exc:
+        raise ValueError(f"Unresolvable output_json_schema reference: {exc}") from exc
+    if error is not None:
+        return False, f"Output violates JSON Schema at {error.json_path}: {error.message}"
+    return True, "Output matches the configured JSON Schema Draft 2020-12."
+
+
+def _reject_json_constant(value: str) -> Any:
+    raise ValueError(f"Non-finite JSON constant {value} is not allowed")
 
 
 def _turn_count(sample: EvaluationSample) -> int | None:
@@ -135,8 +122,8 @@ def _score_case(
     output_json_error: str | None = None
     if case.output_json_schema is not None or case.required_output_fields:
         try:
-            parsed_output = json.loads(output)
-        except json.JSONDecodeError as exc:
+            parsed_output = json.loads(output, parse_constant=_reject_json_constant)
+        except ValueError as exc:
             output_json_error = str(exc)
     if case.output_json_schema is not None:
         if output_json_error is not None:
@@ -287,7 +274,7 @@ def _score_case(
 
 def _load_python_callable(callable_path: str) -> Any:
     """Load a trusted Python live target from module:function or path.py:function."""
-    module_name, _, attr_path = callable_path.partition(":")
+    module_name, _, attr_path = callable_path.rpartition(":")
     if not module_name or not attr_path:
         raise ValueError("python target callable_path must be in module:function format")
     try:
@@ -352,7 +339,20 @@ def evaluate_suite(
     *,
     registry: EvaluatorRegistry | None = None,
 ) -> EvaluationReport:
-    by_case = {sample.case_id: sample for sample in samples}
+    case_ids = [case.id for case in suite.cases]
+    if not case_ids or len(case_ids) != len(set(case_ids)):
+        raise ValueError("suite must contain nonempty, unique case IDs")
+    for case in suite.cases:
+        if case.output_json_schema is not None:
+            _schema_validator(case.output_json_schema)
+    by_case: dict[str, EvaluationSample] = {}
+    expected = set(case_ids)
+    for supplied in samples:
+        if supplied.case_id in by_case:
+            raise ValueError(f"Duplicate sample case ID: {supplied.case_id!r}")
+        if supplied.case_id not in expected:
+            raise ValueError(f"Unknown sample case ID: {supplied.case_id!r}")
+        by_case[supplied.case_id] = supplied
     results: list[CaseEvaluation] = []
     for case in suite.cases:
         sample = by_case.get(case.id)
@@ -402,7 +402,7 @@ def evaluate_suite(
             failed_cases=len(results) - passed,
             pass_rate=passed / len(results),
             average_score=sum(all_scores) / len(all_scores),
-            total_cost_usd=sum(costs) if costs else None,
+            total_cost_usd=sum(costs) if len(costs) == len(results) else None,
             average_latency_ms=sum(result.latency_ms for result in results) / len(results),
         ),
         cases=results,

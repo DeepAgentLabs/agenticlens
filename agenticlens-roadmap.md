@@ -1,5 +1,22 @@
 # AgenticLens Product Roadmap
 
+## Correctness follow-up (unreleased)
+
+The four verified audit gaps are fixed: structured-output validation now uses
+Draft 2020-12; duplicate/unknown samples are rejected; incomplete span/case/run
+costs remain unavailable; explicit task outcomes override execution status.
+Regression evidence: [correctness tests](tests/test_evaluation_correctness.py).
+Evaluator-version enforcement, Python target timeouts, and HTML gate-status
+semantics remain open.
+
+## Implementation Audit
+
+The [2026-09-11 implementation audit](ROADMAP_AUDIT.md) maps this roadmap to
+source and tests. Core v0.2/v0.2.x capabilities exist, but milestone acceptance
+still has open evidence and provenance gates. Later milestones contain partial
+building blocks; planned scope is not a claim of completion. Calibration is
+implemented locally and unreleased.
+
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0`
@@ -15,15 +32,11 @@ forward from `v0.5` and `v1.0`.
   Intelligence (`Evidence` objects, next-best-analysis guidance,
   import-layer enforcement, OpenTelemetry trace export, and AIOS draft
   validation/conformance CLI are delivered)
-- **v0.3** ✅ Delivered in the current development line — Evaluation Foundation
-  (evaluator framework, deterministic checks, custom/LLM-as-a-Judge
-  evaluators,
-  release gates, `evaluate`/`gate` CLI, live agent targets, judge calibration,
-  and versioned evaluation dataset management)
-- **v0.4** 🚧 In progress — Experiments and Statistical Comparison
-  (initial experiment manifests, repeated multi-variant live trials,
-  confidence intervals, baseline deltas, and Pareto summaries are now in the
-  development line)
+- **v0.3** 🏗️ Mostly complete — Evaluation Foundation (evaluator framework,
+  deterministic checks, custom/LLM-judge evaluators, release gates,
+  `evaluate`/`gate` CLI, and live agent targets); judge calibration and
+  dataset management still open; offline verdict-agreement calibration is implemented in the development line
+- **v0.4** 🚧 Planned — Experiments and Statistical Comparison
 - **v0.5** 🚧 Planned — Advanced Evaluation and Diagnosis (semantic/safety/RAG
   scoring partially pulled forward into `v0.3`)
 - **v0.6** 🚧 Planned — Test-Suite and Dataset Management
@@ -153,6 +166,76 @@ A roadmap item is done only when all applicable work is complete:
   `CHANGELOG.md`) is updated when the work is part of a release-ready change
   set
 
+## Open-Source Readiness Alongside Feature Delivery
+
+Continue the existing feature sequence: finish remaining v0.3 evaluation work,
+then build v0.4 experiments and statistical comparison. This plan accompanies
+those milestones without changing shipped feature status.
+
+These are AgenticLens delivery goals informed by AAIF guidance, not a claim of
+AAIF acceptance. Track implementation, independent validation, and foundation
+admission separately; pending external review does not erase a shipped feature.
+
+### Delivery evidence for each upcoming milestone
+
+- Publish a runnable example with sanitized inputs, expected outputs, package
+  versions, and commands that work from a clean installation.
+- Link regression tests and passing release checks; document limitations,
+  failure behavior, and public API/schema compatibility impact.
+- For model-based evaluation, record model/judge configuration, dataset version,
+  trial counts, and uncertainty. Distinguish replay of saved results from live
+  model calls whose outputs may vary.
+- For interoperability, record producer, consumer, artifact version, mapping
+  losses, and validation results. Keep normative AIOS rules in
+  `ai-operations-spec` and label draft alignment explicitly.
+- Update release and security support documentation when supported behavior or
+  versions change. Include privacy/redaction checks where captured data or
+  outbound integrations change.
+
+### First six months of readiness work
+
+Windows start when maintainers adopt this plan and are planning targets, not
+promised release dates. All items remain open until linked evidence is recorded
+here or in a linked public tracking issue.
+
+| Window | Feature alignment | Deliverable and acceptance evidence |
+| --- | --- | --- |
+| Months 1-2 | Remaining v0.3 work | Reproducible calibration and versioned-dataset examples with disagreement, uncertainty, and limitations; measure instrumentation overhead still open under v0.2. |
+| Months 1-2 | Project maintenance | Review licensing and dependency notices; publish maintainer-reviewed governance covering decisions, maintainer admission/removal, disputes, and governance changes; document maintainer responsibilities and verify onboarding and private security reporting. |
+| Months 3-4 | v0.4 experiments | Repeatable comparison of at least three variants with saved inputs/results, trial settings, uncertainty, and minimum-sample warnings, matching milestone completion criteria. |
+| Months 3-4 | Artifact interoperability | One producer-to-validation-to-consumer workflow using a documented AIOS draft snapshot; add supported mappings/export behavior if needed, record unsupported fields, and check valid/invalid fixtures against spec-owned rules. Existing validation tooling alone does not prove a native AIOS exporter. |
+| Months 5-6 | Independent validation | Seek artifact or workflow reviews from two unaffiliated external teams; record versions, reproduction steps, findings, and resulting issues with permission. Sibling repositories count as integration evidence, not independent adoption. |
+| Months 5-6 | Community and adoption | Publish a readiness review covering external usage evidence, contributor/maintainer participation, release cadence, unresolved gaps, and the next six-month priorities. Record missing evidence explicitly. |
+
+### Readiness tracking
+
+- [ ] Governance and maintainer responsibilities published and reviewed.
+- [ ] Licensing, dependency notices, onboarding, and security reporting reviewed.
+- [ ] Milestone examples reproduce from a clean installation.
+- [ ] Instrumentation overhead measured with a documented workload/environment.
+- [ ] Artifact interoperability demonstrated with versioned fixtures.
+- [ ] Independent feedback from two unaffiliated teams recorded and triaged.
+- [ ] External usage and contributor participation documented without equating
+      downloads, stars, or sibling integrations with production adoption.
+- [ ] Six-month readiness review published with evidence links and open gaps.
+
+### AAIF context
+
+AAIF's [submission guidance](https://aaif.io/submit-a-project) emphasizes
+implementation quality, community, governance, security, and a 6-12 month roadmap.
+Its [September 1, 2026 Sandbox announcement](https://aaif.io/blog/aaif-sandbox-phase)
+describes entry for working implementations with early interest or a credible
+thesis and an active maintainer. Growth progression includes production use by
+two unaffiliated organizations, contributions from two or more organizations
+over six months, and a TC-sponsor-approved growth plan.
+
+The [published lifecycle policy](https://github.com/aaif/project-proposals/blob/main/governance/project-lifecycle-policy.md)
+reviewed on September 10, 2026 still describes the older Growth/Impact entry
+model. Recheck current policy and intake guidance before preparing an application.
+Our external review targets do not establish those production-use or contributor
+requirements. Formal submission, a charter, and asset contribution are separate
+maintainer decisions.
+
 ## Current Capabilities
 
 The following capabilities are implemented in the current development line.
@@ -218,14 +301,11 @@ The following capabilities are implemented in the current development line.
 - a unified, provider-neutral evaluator contract (`Evaluator`, `EvaluationContext`,
   `Score`, `EvaluatorRegistry`)
 - built-in deterministic checks: exact match, required-substring match, required
-  and forbidden tool calls, JSON Schema validation, required output fields,
-  required tool arguments, turn-count threshold, latency threshold, and cost
-  threshold
-- custom evaluators via `CallableEvaluator`, `BusinessRuleEvaluator`, and
-  LLM-as-a-Judge evaluators via `LLMJudgeEvaluator`, sharing one normalized
-  score contract
-- evaluation against recorded samples and AgenticLens traces, plus trusted live
-  Python and HTTP targets via `evaluate-live`
+  and forbidden tool calls, latency threshold, cost threshold
+- custom evaluators via `CallableEvaluator`, and model-based judges via
+  `LLMJudgeEvaluator`, sharing one normalized score contract
+- evaluation against recorded samples and traces, plus synchronous live Python
+  and HTTP targets; dedicated HTTP parity regression coverage remains open
 - JSON and standalone HTML evaluation reports
 - configurable release gates on pass rate, average score, failed-case count,
   average latency, and total cost, with CI-friendly exit codes
@@ -335,9 +415,10 @@ intelligent guidance for what analysis to run next.
 
 ### Completion criteria
 
-- [x] every recommendation includes a provenance reference to its source spans
+- [ ] every recommendation has resolvable source-span provenance; the engine
+      currently permits generic workflow evidence without a span ID
 - [x] next-step suggestions are generated from current findings
-- [x] OTel spans are emitted for profiled workflows when configured
+- [x] structured trace() runs emit OTLP spans when configured
 - [x] CI rejects forbidden cross-module imports
 - [x] conformance reports clearly distinguish AIOS-defined pass/fail rules from
       AgenticLens-specific presentation and CLI behavior
@@ -354,12 +435,13 @@ suites.
 - `TestCase` and `TestSuite` models with versioned YAML/JSON loading
 - `Evaluator`, `EvaluationContext`, `Score`, and `EvaluatorRegistry` interfaces
 - built-in deterministic checks: exact match, required-substring match,
-  required/forbidden tools, JSON Schema validation, required fields,
+  required/forbidden tools, JSON Schema Draft 2020-12 validation, required fields,
   required tool arguments, turn-count threshold, latency threshold, and cost
   threshold
-- `CallableEvaluator` for custom Python rules, semantic, safety, and RAG
-  checks, `BusinessRuleEvaluator`, and `LLMJudgeEvaluator` for
-  LLM-as-a-Judge-style scoring, on one shared score contract
+- `CallableEvaluator` for application-supplied rules (including semantic,
+  safety, or RAG logic), `BusinessRuleEvaluator`, and `LLMJudgeEvaluator`
+  for application-supplied judge calls; these are extension points, not a
+  built-in semantic/safety/RAG evaluator suite
 - JSON and standalone HTML evaluation reports (HTML in place of the
   originally planned Markdown report)
 - configurable release gates (pass rate, average score, failed cases,
@@ -373,8 +455,13 @@ suites.
 - a deterministic, offline LangGraph reference workflow demonstrating the
   full trace-to-evaluation-to-gate path
 
-This pulled forward parts of the semantic, safety, RAG, and
-LLM-as-a-Judge scoring
+### Added in the development line (unreleased)
+
+- Offline judge/reference verdict agreement via the Python API and calibrate CLI,
+  with versioned labels, exact case matching, 95% Wilson agreement intervals,
+  confusion counts, and trace-linked cases.
+
+This pulled forward parts of the semantic, safety, RAG, and LLM-judge scoring
 originally planned for [v0.5](#v05--advanced-evaluation-and-diagnosis), and
 part of the release-gate concept originally planned for
 [v1.0](#v10--production-and-enterprise-readiness), via the shared evaluator
@@ -388,6 +475,8 @@ valuable follow-on enhancements for later milestones:
 - built-in provider clients for LLM-as-a-Judge calls (applications currently
   supply the model call themselves)
 - asynchronous and batched evaluation execution
+- broader judge calibration (probability calibration and threshold tuning) and statistical intervals beyond verdict agreement
+- evaluation dataset management
 - automatic framework event adapters beyond the LangGraph reference demo
 - richer structured judge verdict fields on `LLMJudgeEvaluator` metadata —
   verdict (agree/partially-agree/disagree), confidence score, and a
@@ -401,14 +490,14 @@ valuable follow-on enhancements for later milestones:
 
 ### Completion criteria
 
-- [x] every score identifies its evaluator and version
-- [x] reports distinguish measured and estimated values (evaluated scores vs.
-      unavailable/omitted cost and latency data)
-- [x] failed cases retain trace-level evidence
-- [x] one Python agent and one HTTP agent can run the same suite live
-- [x] judge calibration reports provide agreement/error metrics with
-      confidence intervals
-- [x] versioned evaluation datasets can be managed and split locally
+- [ ] every score identifies its evaluator and version; names/types exist,
+      but evaluator version is not a required field
+- [ ] reports preserve measured/estimated provenance and cost completeness;
+      incomplete totals are now unavailable; full measured/estimated provenance remains open
+- [ ] failed cases retain sufficient trace-level evidence; sampled cases carry
+      trace IDs, but missing samples produce empty IDs
+- [ ] verify Python/HTTP same-suite parity with dedicated regression tests;
+      both code paths exist, but current target tests cover Python
 
 ## v0.4 — Experiments and Statistical Comparison
 

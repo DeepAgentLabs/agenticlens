@@ -1,11 +1,8 @@
-from agenticlens.evaluation.calibration import calibrate_judge
-from agenticlens.evaluation.datasets import (
-    dataset_from_samples,
-    dataset_to_samples,
-    load_dataset,
-    save_dataset,
-    split_dataset,
-    summarize_dataset,
+from agenticlens.evaluation.calibration import (
+    CalibrationDataset,
+    CalibrationReport,
+    ReferenceLabel,
+    calibrate_judge,
 )
 from agenticlens.evaluation.evaluators import (
     BusinessRuleEvaluator,
@@ -39,6 +36,10 @@ from agenticlens.evaluation.models import (
 from agenticlens.evaluation.runner import evaluate_suite, load_samples, load_suite, run_live_suite
 
 __all__ = [
+    "CalibrationDataset",
+    "CalibrationReport",
+    "ReferenceLabel",
+    "calibrate_judge",
     "BusinessRuleEvaluator",
     "CalibrationCase",
     "CalibrationMetric",

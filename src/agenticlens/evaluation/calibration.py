@@ -1,229 +1,136 @@
+"""Offline judge agreement against a versioned, human-labelled reference set."""
+
 from math import sqrt
-from statistics import NormalDist
+from typing import Literal
 
-from agenticlens.evaluation.datasets import find_dataset_label
-from agenticlens.evaluation.models import (
-    CalibrationCase,
-    CalibrationMetric,
-    CalibrationReport,
-    ConfidenceInterval,
-    DatasetRecord,
-    EvaluationDataset,
-    EvaluationReport,
-)
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, model_validator
+
+from agenticlens.evaluation.models import EvaluationReport
 
 
-def _z_value(confidence_level: float) -> float:
-    if not 0 < confidence_level < 1:
-        raise ValueError("confidence_level must be between 0 and 1")
-    return NormalDist().inv_cdf(0.5 + confidence_level / 2)
+class ReferenceLabel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str = Field(min_length=1)
+    passed: StrictBool
 
 
-def _mean_confidence_interval(
-    values: list[float],
-    *,
-    confidence_level: float,
-) -> ConfidenceInterval | None:
-    if not values:
-        return None
-    mean = sum(values) / len(values)
-    if len(values) == 1:
-        return ConfidenceInterval(
-            lower=mean,
-            upper=mean,
-            confidence_level=confidence_level,
-            method="normal_single_sample",
-        )
-    variance = sum((value - mean) ** 2 for value in values) / (len(values) - 1)
-    margin = _z_value(confidence_level) * sqrt(variance / len(values))
-    upper = min(1.0, mean + margin) if all(0 <= value <= 1 for value in values) else mean + margin
-    return ConfidenceInterval(
-        lower=max(0.0, mean - margin),
-        upper=upper,
-        confidence_level=confidence_level,
-        method="normal_approximation",
-    )
+class CalibrationDataset(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1)
+    version: str = Field(min_length=1)
+    suite_name: str = Field(min_length=1)
+    suite_version: str = Field(min_length=1)
+    labels: list[ReferenceLabel] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def unique_labels(self) -> "CalibrationDataset":
+        ids = [label.case_id for label in self.labels]
+        if len(ids) != len(set(ids)):
+            raise ValueError("reference case IDs must be unique")
+        return self
 
 
-def _wilson_interval(
-    successes: int,
-    total: int,
-    *,
-    confidence_level: float,
-) -> ConfidenceInterval | None:
-    if total <= 0:
-        return None
-    z = _z_value(confidence_level)
-    z2 = z**2
-    proportion = successes / total
-    denominator = 1 + z2 / total
-    center = (proportion + z2 / (2 * total)) / denominator
-    margin = z * sqrt((proportion * (1 - proportion) + z2 / (4 * total)) / total) / denominator
-    return ConfidenceInterval(
-        lower=max(0.0, center - margin),
-        upper=min(1.0, center + margin),
-        confidence_level=confidence_level,
-        method="wilson_score",
-    )
+class CalibrationCase(BaseModel):
+    case_id: str
+    trace_id: str
+    judge_value: float
+    judge_passed: bool
+    reference_passed: bool
+    agreed: bool
+
+
+class CalibrationReport(BaseModel):
+    schema_version: Literal["1.0"] = "1.0"
+    dataset_name: str
+    dataset_version: str
+    suite_name: str
+    suite_version: str
+    evaluator: str
+    sample_count: int
+    agreement_rate: float
+    confidence_level: float = Field(default=0.95, ge=0.95, le=0.95)
+    interval_method: Literal["wilson"] = "wilson"
+    agreement_interval: tuple[float, float]
+    true_accepts: int
+    true_rejects: int
+    false_accepts: int
+    false_rejects: int
+    cases: list[CalibrationCase]
+    warnings: list[str]
 
 
 def calibrate_judge(
     report: EvaluationReport,
-    dataset: EvaluationDataset,
+    dataset: CalibrationDataset,
     *,
-    score_name: str,
-    confidence_level: float = 0.95,
+    evaluator: str,
 ) -> CalibrationReport:
-    record_by_case = {record.case_id: record for record in dataset.records}
+    """Compare saved llm_judge verdicts; require exact case and suite matching.
+
+    Uses Score.passed (the recorded threshold decision), not an assumed 0.5
+    threshold. The Wilson interval assumes independent representative cases;
+    this measures verdict agreement, not probabilistic confidence calibration.
+    """
+    if not evaluator.strip():
+        raise ValueError("evaluator must not be empty")
+    if (report.suite_name, report.suite_version) != (dataset.suite_name, dataset.suite_version):
+        raise ValueError("reference dataset must match the report suite name and version")
+    case_map = {case.case_id: case for case in report.cases}
+    if len(case_map) != len(report.cases):
+        raise ValueError("report case IDs must be unique")
+    if set(case_map) != {label.case_id for label in dataset.labels}:
+        raise ValueError("reference labels must exactly match report case IDs")
     cases: list[CalibrationCase] = []
-
-    for evaluated_case in report.cases:
-        record = record_by_case.get(evaluated_case.case_id)
-        if record is None:
-            continue
-        if not _matches_labeled_artifact(evaluated_case.output, evaluated_case.trace_id, record):
-            continue
-        label = find_dataset_label(record, score_name)
-        if label is None:
-            continue
-        score = next((item for item in evaluated_case.scores if item.name == score_name), None)
-        if score is None:
-            continue
-
-        expected_passed = (
-            label.expected_passed
-            if label.expected_passed is not None
-            else (
-                label.expected_value >= label.threshold
-                if label.expected_value is not None and label.threshold is not None
-                else None
+    for label in dataset.labels:
+        case = case_map[label.case_id]
+        scores = [score for score in case.scores if score.name == evaluator]
+        if len(scores) != 1 or scores[0].evaluator_type != "llm_judge":
+            raise ValueError(
+                f"case {label.case_id!r} must have exactly one llm_judge score named {evaluator!r}"
             )
-        )
-        absolute_error = (
-            abs(score.value - label.expected_value) if label.expected_value is not None else None
-        )
-        judge_verdict = score.metadata.get("judge_verdict")
-        verdict_agreement = (
-            judge_verdict == label.expected_verdict
-            if judge_verdict is not None and label.expected_verdict is not None
-            else None
-        )
-        pass_agreement = score.passed == expected_passed if expected_passed is not None else None
+        score = scores[0]
         cases.append(
             CalibrationCase(
-                case_id=evaluated_case.case_id,
-                case_name=evaluated_case.case_name,
-                judge_score=score.value,
-                expected_score=label.expected_value,
-                absolute_error=absolute_error,
+                case_id=case.case_id,
+                trace_id=case.trace_id,
+                judge_value=score.value,
                 judge_passed=score.passed,
-                expected_passed=expected_passed,
-                pass_agreement=pass_agreement,
-                judge_verdict=judge_verdict if isinstance(judge_verdict, str) else None,
-                expected_verdict=label.expected_verdict,
-                verdict_agreement=verdict_agreement,
-                metadata={
-                    "score_explanation": score.explanation,
-                    **({"label_notes": label.notes} if label.notes else {}),
-                },
+                reference_passed=label.passed,
+                agreed=score.passed == label.passed,
             )
         )
-
-    if not cases:
-        raise ValueError(f"No labeled calibration cases were found for score {score_name!r}.")
-
-    judge_scores = [case.judge_score for case in cases]
-    expected_scores = [case.expected_score for case in cases if case.expected_score is not None]
-    absolute_errors = [case.absolute_error for case in cases if case.absolute_error is not None]
-    squared_errors = [case.absolute_error**2 for case in cases if case.absolute_error is not None]
-    pass_agreements = [case.pass_agreement for case in cases if case.pass_agreement is not None]
-    verdict_agreements = [
-        case.verdict_agreement for case in cases if case.verdict_agreement is not None
+    n = len(cases)
+    agreement = sum(case.agreed for case in cases) / n
+    # Two-sided 95% Wilson score interval (NIST/SEMATECH handbook, prc241).
+    z = 1.959963984540054
+    denominator = 1 + z * z / n
+    center = (agreement + z * z / (2 * n)) / denominator
+    radius = z * sqrt(agreement * (1 - agreement) / n + z * z / (4 * n * n)) / denominator
+    warnings = [
+        "Agreement is against supplied reference labels, not proof of judge correctness.",
+        "The 95% Wilson interval assumes independent, representative cases.",
     ]
-
-    metrics = [
-        CalibrationMetric(
-            name="mean_judge_score",
-            value=sum(judge_scores) / len(judge_scores),
-            sample_size=len(judge_scores),
-            confidence_interval=_mean_confidence_interval(
-                judge_scores, confidence_level=confidence_level
-            ),
-        ),
-    ]
-    if expected_scores:
-        metrics.append(
-            CalibrationMetric(
-                name="mean_expected_score",
-                value=sum(expected_scores) / len(expected_scores),
-                sample_size=len(expected_scores),
-                confidence_interval=_mean_confidence_interval(
-                    expected_scores, confidence_level=confidence_level
-                ),
-            )
+    if n < 30:
+        warnings.append("Fewer than 30 cases: treat this as exploratory evidence.")
+    if len({case.reference_passed for case in cases}) == 1:
+        warnings.append(
+            "References contain only one class; both error directions are not assessed."
         )
-    if absolute_errors:
-        metrics.append(
-            CalibrationMetric(
-                name="mean_absolute_error",
-                value=sum(absolute_errors) / len(absolute_errors),
-                sample_size=len(absolute_errors),
-                confidence_interval=_mean_confidence_interval(
-                    absolute_errors, confidence_level=confidence_level
-                ),
-            )
-        )
-        metrics.append(
-            CalibrationMetric(
-                name="root_mean_squared_error",
-                value=sqrt(sum(squared_errors) / len(squared_errors)),
-                sample_size=len(squared_errors),
-            )
-        )
-    if pass_agreements:
-        agreement_count = sum(1 for item in pass_agreements if item)
-        metrics.append(
-            CalibrationMetric(
-                name="pass_rate_agreement",
-                value=agreement_count / len(pass_agreements),
-                sample_size=len(pass_agreements),
-                confidence_interval=_wilson_interval(
-                    agreement_count,
-                    len(pass_agreements),
-                    confidence_level=confidence_level,
-                ),
-            )
-        )
-    if verdict_agreements:
-        agreement_count = sum(1 for item in verdict_agreements if item)
-        metrics.append(
-            CalibrationMetric(
-                name="verdict_agreement",
-                value=agreement_count / len(verdict_agreements),
-                sample_size=len(verdict_agreements),
-                confidence_interval=_wilson_interval(
-                    agreement_count,
-                    len(verdict_agreements),
-                    confidence_level=confidence_level,
-                ),
-            )
-        )
-
     return CalibrationReport(
-        suite_name=report.suite_name,
-        suite_version=report.suite_version,
         dataset_name=dataset.name,
         dataset_version=dataset.version,
-        score_name=score_name,
-        confidence_level=confidence_level,
-        summary=metrics,
+        suite_name=report.suite_name,
+        suite_version=report.suite_version,
+        evaluator=evaluator,
+        sample_count=n,
+        agreement_rate=agreement,
+        agreement_interval=(max(0.0, center - radius), min(1.0, center + radius)),
+        true_accepts=sum(c.judge_passed and c.reference_passed for c in cases),
+        true_rejects=sum(not c.judge_passed and not c.reference_passed for c in cases),
+        false_accepts=sum(c.judge_passed and not c.reference_passed for c in cases),
+        false_rejects=sum(not c.judge_passed and c.reference_passed for c in cases),
         cases=cases,
+        warnings=warnings,
     )
-
-
-def _matches_labeled_artifact(
-    evaluated_output: str,
-    evaluated_trace_id: str,
-    record: DatasetRecord,
-) -> bool:
-    return evaluated_output == record.output and evaluated_trace_id == record.trace.trace_id

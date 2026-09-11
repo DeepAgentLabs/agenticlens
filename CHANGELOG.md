@@ -4,46 +4,21 @@ All notable changes to this project will be documented here.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
-## Released
+## Unreleased
 
-## 0.4.6 - 2026-08-16
+### Fixed
 
-### Changed
-
-- Release automation is now tag-driven end to end: pushing `vX.Y.Z` publishes
-  to PyPI and automatically creates the matching GitHub Release using the
-  corresponding `CHANGELOG.md` section as the release body.
-- Release documentation now reflects the live workflow, including the
-  `PYPI_API_TOKEN`-based publish step and the automatic GitHub Release
-  creation.
-
-## 0.4.5 - 2026-08-16
+- Enforce Draft 2020-12 structured-output constraints and reject invalid schema
+  configurations, remote reference resolution, and non-JSON NaN/Infinity.
+- Reject duplicate/unknown evaluation samples rather than silently replacing
+  evidence or ignoring inputs.
+- Keep incomplete span/case/run cost aggregates unavailable and reject incomplete
+  report cost gates; explicit zero costs remain valid.
+- Respect explicit task outcomes in comparison success metrics.
 
 ### Added
 
-- Versioned evaluation dataset artifacts with local summary, deterministic
-  split management, and sample export CLI workflows via
-  `agenticlens dataset ...`.
-- Judge calibration reports with score error metrics, pass/verdict agreement,
-  and confidence intervals via `agenticlens judge-calibrate`.
-- Multi-variant experiment manifests with repeated live trials, baseline deltas,
-  confidence intervals, and Pareto summaries via `agenticlens experiment run`.
-- Runnable local examples for dataset splitting, judge calibration, and
-  repeated multi-variant experiment flows via
-  `examples/dataset_and_calibration_demo.py` and
-  `examples/experiment_runner_demo.py`.
-
-### Changed
-
-- Evaluation documentation and roadmap status now reflect completion of the
-  `v0.3` evaluation-foundation milestone.
-- Experiment execution now preserves partial results when individual live
-  trials fail, records per-trial failures, and uses seeded execution ordering
-  when `random_seed` is provided.
-- Regression detection now treats zero baselines correctly for cost and other
-  tracked metrics through a shared comparison helper.
-- Example traces now record cost on spans, so evaluation and experiment demos
-  surface non-null cost summaries and deltas.
+- Offline judge calibration API and CLI with versioned human labels, exact case matching, agreement confidence intervals, confusion counts, and trace-linked verdict evidence.
 
 ## 0.4.0 - 2026-08-08
 

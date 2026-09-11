@@ -132,7 +132,7 @@ class Run(BaseModel):
         costs = [
             span.estimated_cost_usd for span in self.spans if span.estimated_cost_usd is not None
         ]
-        return sum(costs) if costs else None
+        return sum(costs) if costs and len(costs) == len(self.spans) else None
 
 
 class MetricValue(BaseModel):
