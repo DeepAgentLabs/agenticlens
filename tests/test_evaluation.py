@@ -394,5 +394,5 @@ def test_json_schema_supports_null_type() -> None:
 
     assert report.cases[0].passed
     assert report.cases[0].scores[0].explanation == (
-        "Output matches the configured JSON schema subset."
+        "Output matches the configured JSON Schema Draft 2020-12."
     )

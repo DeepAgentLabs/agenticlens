@@ -1,7 +1,12 @@
 # AgenticLens Roadmap
 
+See the [implementation audit](ROADMAP_AUDIT.md) for evidence-backed status and
+remaining acceptance gaps across every product milestone.
+
 The canonical AgenticLens product roadmap is maintained in
 [agenticlens-roadmap.md](agenticlens-roadmap.md).
+
+It also includes a six-month [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery) covering reproducibility, interoperability, independent validation, governance, and onboarding.
 
 The separate
 [research and development roadmap](AgenticLens_Research_and_Development_Roadmap.md)

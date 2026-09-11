@@ -21,10 +21,12 @@ from agenticlens.comparison import (
     load_runs,
 )
 from agenticlens.evaluation import (
+    CalibrationDataset,
     EvaluationReport,
     GateConfig,
     HTTPTarget,
     PythonTarget,
+    calibrate_judge,
     evaluate_gate,
     evaluate_suite,
     load_samples,
@@ -459,3 +461,31 @@ def _render_aios_report(report: ConformanceReport, save: Path | None) -> None:
 
 if __name__ == "__main__":
     app()
+
+
+@app.command("calibrate")
+def calibrate(
+    report_file: Path = typer.Argument(..., help="Saved evaluation report JSON."),
+    labels_file: Path = typer.Argument(..., help="Versioned reference labels JSON."),
+    evaluator: str = typer.Option(..., "--evaluator", help="Exact llm_judge score name."),
+    save: Path = typer.Option(Path("agenticlens-calibration.json"), "--save"),
+) -> None:
+    """Compare saved judge verdicts with human reference labels."""
+    try:
+        report = EvaluationReport.model_validate_json(report_file.read_text(encoding="utf-8"))
+        labels = CalibrationDataset.model_validate_json(labels_file.read_text(encoding="utf-8"))
+        result = calibrate_judge(report, labels, evaluator=evaluator)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to calibrate judge:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    low, high = result.agreement_interval
+    console.print(
+        f"Agreement: {result.agreement_rate:.1%} "
+        f"(95% Wilson interval: {low:.1%}-{high:.1%}; n={result.sample_count})"
+    )
+    console.print(f"False accepts: {result.false_accepts}; false rejects: {result.false_rejects}")
+    for warning in result.warnings:
+        console.print(warning)
+    console.print(f"Saved calibration to {save}")

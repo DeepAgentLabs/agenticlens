@@ -4,6 +4,22 @@ All notable changes to this project will be documented here.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+
+- Enforce Draft 2020-12 structured-output constraints and reject invalid schema
+  configurations, remote reference resolution, and non-JSON NaN/Infinity.
+- Reject duplicate/unknown evaluation samples rather than silently replacing
+  evidence or ignoring inputs.
+- Keep incomplete span/case/run cost aggregates unavailable and reject incomplete
+  report cost gates; explicit zero costs remain valid.
+- Respect explicit task outcomes in comparison success metrics.
+
+### Added
+
+- Offline judge calibration API and CLI with versioned human labels, exact case matching, agreement confidence intervals, confusion counts, and trace-linked verdict evidence.
+
 ## 0.4.0 - 2026-08-08
 
 ### Added

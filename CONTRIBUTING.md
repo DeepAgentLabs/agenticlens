@@ -40,6 +40,14 @@ pytest
 7. Keep PRs focused — one concern per pull request.
 8. Write clear commit messages describing *why*, not just *what*.
 
+## Milestone delivery evidence
+
+Include the applicable [delivery evidence](agenticlens-roadmap.md#delivery-evidence-for-each-upcoming-milestone):
+reproducible inputs and expected outputs, compatibility notes, and limitations.
+Interoperability contributions should identify artifact versions and mapping
+losses. External workflow reviews and sanitized reproduction cases are welcome;
+record independent validation separately from implementation completion.
+
 ## Good contributions
 
 - New LLM provider integrations (pricing data, token counting)

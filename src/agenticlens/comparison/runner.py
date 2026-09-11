@@ -46,16 +46,19 @@ def _metrics(values: list[float]) -> MetricSummary:
 def summarize_runs(label: str, runs: list[Run]) -> RunGroupSummary:
     if not runs:
         raise ValueError("At least one run is required")
-    successes = sum(run.task_success is True or run.status is RunStatus.SUCCEEDED for run in runs)
+    successes = sum(
+        run.task_success if run.task_success is not None else run.status is RunStatus.SUCCEEDED
+        for run in runs
+    )
     costs = [run.estimated_cost_usd for run in runs if run.estimated_cost_usd is not None]
-    total_cost = sum(costs) if costs else None
+    total_cost = sum(costs) if len(costs) == len(runs) else None
     return RunGroupSummary(
         label=label,
         run_count=len(runs),
         success_rate=successes / len(runs),
         tokens=_metrics([float(run.total_tokens) for run in runs]),
         latency_ms=_metrics([run.total_latency_ms for run in runs]),
-        cost_usd=_metrics(costs) if costs else None,
+        cost_usd=_metrics(costs) if len(costs) == len(runs) else None,
         cost_per_successful_task=total_cost / successes
         if total_cost is not None and successes
         else None,

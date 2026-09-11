@@ -37,8 +37,12 @@ def evaluate_gate(report: EvaluationReport, config: GateConfig) -> GateDecision:
             f"{config.max_average_latency_ms:.1f} ms."
         )
     if config.max_total_cost_usd is not None:
-        if summary.total_cost_usd is None:
-            reasons.append("Total cost is unavailable.")
+        if (
+            summary.total_cost_usd is None
+            or len(report.cases) != summary.total_cases
+            or any(case.cost_usd is None for case in report.cases)
+        ):
+            reasons.append("Total cost is unavailable or incomplete.")
         elif summary.total_cost_usd > config.max_total_cost_usd:
             reasons.append(
                 f"Total cost ${summary.total_cost_usd:.6f} exceeds "
