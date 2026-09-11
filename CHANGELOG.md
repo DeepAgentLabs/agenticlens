@@ -61,7 +61,7 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 - Structured run-and-span tracing with payload redaction, trace inspection, raw metric
   distributions, and versioned trace, finding, and report JSON Schemas.
-- A unified evaluation framework for deterministic, semantic, safety, RAG, LLM-judge,
+- A unified evaluation framework for deterministic, semantic, safety, RAG, LLM-as-a-Judge,
   tool-behavior, latency, and cost scoring, with JSON and standalone HTML reports.
 - Configurable release gates that enforce evaluation pass rate, score, failed-case,
   latency, and cost thresholds with CI-friendly exit codes.

@@ -130,8 +130,8 @@ simulation.
 - When a roadmap item or milestone meaningfully changes status, update
   `README.md` and `agenticlens-roadmap.md` in the same change.
 - If that milestone or release changes the public ecosystem story, also update
-  `/home/pramodbn27/PyPi Projects/.github/profile/README.md` and, when
-  relevant, `/home/pramodbn27/PyPi Projects/.github/profile/ROADMAP.md`.
+  the shared org-profile docs in the `.github` repository:
+  `profile/README.md` and, when relevant, `profile/ROADMAP.md`.
 - When work is packaged as a release-ready change, also update
   `pyproject.toml`, `src/agenticlens/__init__.py`, and `CHANGELOG.md`.
 
@@ -147,8 +147,33 @@ Run `make check` before every push. It runs: lint → format-check → typecheck
 
 ## Release
 
-1. Bump version in `pyproject.toml`, `src/agenticlens/__init__.py`, and `CHANGELOG.md`
-2. Commit: `git commit -am "release: vX.Y.Z"`
-3. Tag: create an annotated `vX.Y.Z` tag and use the latest `CHANGELOG.md`
-   release section as the tag description
-4. Push: `git push origin main --tags`
+Two phases, split by the merge to `main` — bumping happens before, and the
+tag-driven release automation happens after.
+
+**1. Pre-release (on the feature branch, before merge):** Bump version in
+`pyproject.toml`, `src/agenticlens/__init__.py`, and `CHANGELOG.md` (a
+dated release section under `[Unreleased]`). Commit as part of the
+branch's normal history; goes in with the rest of the PR.
+
+**2. Release (on `main`, once that branch has merged):** plain `git`, no
+manual `gh release` step required.
+
+1. Pull the merge commit on `main`.
+2. Tag: create an annotated `vX.Y.Z` tag pointing at the merge commit,
+   using the `CHANGELOG.md` release section for that version as the tag
+   message:
+   `git tag -a vX.Y.Z -F <file-with-that-section> --cleanup=verbatim`.
+   `--cleanup=verbatim` is required — git's default cleanup silently strips
+   lines starting with `#`, which would eat the changelog's `###` headers.
+3. Push the tag: `git push origin vX.Y.Z`.
+
+That tag push is the release trigger. `release-pypi.yml` runs automatically
+and does both of the following from the same tag:
+
+- publishes the package to PyPI using `PYPI_API_TOKEN`
+- creates the GitHub Release object for `vX.Y.Z`
+
+The GitHub Release title is the tag name, and its body is copied from the
+matching `CHANGELOG.md` section so the changelog, tag, PyPI release, and
+GitHub Releases page stay aligned. (`release-testpypi.yml` is a separate,
+manual `workflow_dispatch` staging flow — unaffected.)

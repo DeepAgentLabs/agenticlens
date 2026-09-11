@@ -309,7 +309,9 @@ The following capabilities are implemented in the current development line.
 - JSON and standalone HTML evaluation reports
 - configurable release gates on pass rate, average score, failed-case count,
   average latency, and total cost, with CI-friendly exit codes
-- `evaluate` and `gate` CLI commands
+- `evaluate`, `evaluate-live`, and `gate` CLI commands
+- versioned evaluation dataset workflows via `agenticlens dataset ...`
+- judge calibration reports via `judge-calibrate`
 - a deterministic, offline LangGraph reference workflow demonstrating tracing,
   evaluation, and release-gate output together
 
@@ -446,6 +448,10 @@ suites.
   latency, cost) with CI-friendly exit codes, via the `evaluate` and `gate`
   CLI commands
 - live Python and HTTP evaluation targets via `evaluate-live`
+- versioned evaluation datasets, deterministic dataset splitting, sample export,
+  and dataset summary CLI workflows via `agenticlens dataset ...`
+- judge calibration reports with agreement/error metrics and statistical
+  confidence intervals via `judge-calibrate`
 - a deterministic, offline LangGraph reference workflow demonstrating the
   full trace-to-evaluation-to-gate path
 
@@ -461,25 +467,26 @@ part of the release-gate concept originally planned for
 [v1.0](#v10--production-and-enterprise-readiness), via the shared evaluator
 contract rather than as separate subsystems.
 
-### Remaining work
+### Follow-on work
 
-- built-in provider clients for LLM-judge calls (applications currently
+The core `v0.3` evaluation foundation is complete. The following items remain
+valuable follow-on enhancements for later milestones:
+
+- built-in provider clients for LLM-as-a-Judge calls (applications currently
   supply the model call themselves)
 - asynchronous and batched evaluation execution
 - broader judge calibration (probability calibration and threshold tuning) and statistical intervals beyond verdict agreement
 - evaluation dataset management
 - automatic framework event adapters beyond the LangGraph reference demo
-- structured judge verdict fields on `LLMJudgeEvaluator` — verdict
-  (agree/partially-agree/disagree), confidence score, and a factual-grounding
-  breakdown (unsupported claims, evidence missed), plus guidance to run the
-  judge on a different model than the one under evaluation to avoid
-  self-confirmation bias; modeled on `devops-open-agent`'s LLM-as-a-Judge
-  verifier output
+- richer structured judge verdict fields on `LLMJudgeEvaluator` metadata —
+  verdict (agree/partially-agree/disagree), confidence score, and a
+  factual-grounding breakdown (unsupported claims, evidence missed), plus
+  guidance to run the judge on a different model than the one under
+  evaluation to avoid self-confirmation bias
 - cooldown-protected webhook notifications on `gate` threshold breaches
   (generic webhook, Slack/Teams-shaped payload) so CI/scheduled `gate` runs
-  can alert without paging on every single run; modeled on
-  `devops-open-agent`'s per-user alert-cooldown pattern for budget and
-  investigation alerts
+  can alert without paging on every single run, with per-threshold cooldowns
+  for repeated budget, quality, or investigation alerts
 
 ### Completion criteria
 
@@ -519,6 +526,15 @@ repeated trials.
 - regression reports include minimum-sample warnings
 - quality, cost, latency, and reliability are shown together
 
+### Current implementation status
+
+- experiment manifests can define three or more live Python or HTTP variants
+- repeated suite trials are aggregated into per-variant stability summaries
+- confidence intervals, baseline deltas, and Pareto-frontier summaries are
+  available through `agenticlens experiment run`
+- pass@k, prompt/retrieval/memory-specific comparison, heatmaps, and HTML/CSV
+  experiment reports remain planned
+
 ## v0.5 — Advanced Evaluation and Diagnosis
 
 ### Objective
@@ -528,7 +544,7 @@ recorded evidence.
 
 ### Planned deliverables
 
-- model-based judge interface
+- LLM-as-a-Judge interface
 - judge prompt and model versioning
 - groundedness, relevance, completeness, and citation evaluators
 - tool-trajectory and agent-goal evaluators

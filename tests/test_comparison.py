@@ -77,3 +77,14 @@ def test_comparison_adds_minimum_sample_guidance_and_markdown():
     assert report.sample_size_guidance is not None
     markdown = render_comparison_markdown(report)
     assert "Sample Size Guidance" in markdown
+
+
+def test_compare_flags_zero_baseline_cost_regression() -> None:
+    baseline = [_run(success=True, tokens=100, latency_ms=100, cost=0.0)]
+    candidate = [_run(success=True, tokens=100, latency_ms=100, cost=0.05)]
+
+    report = compare_runs(baseline, candidate, regression_threshold=0.05)
+
+    assert report.mean_cost_usd_delta is not None
+    assert report.mean_cost_usd_delta.regressed
+    assert "mean_cost_usd" in report.regressions
