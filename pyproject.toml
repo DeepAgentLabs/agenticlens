@@ -32,7 +32,7 @@ dependencies = [
   "pyyaml>=6.0",
   "jsonschema>=4.23",
   "referencing>=0.35",
-  "agentic-evals>=0.1,<1",
+  "agentic-evals>=0.1.1,<1",
 ]
 
 [project.optional-dependencies]
@@ -117,6 +117,3 @@ addopts = "-ra --cov=agenticlens --cov-report=term-missing"
 
 [tool.coverage.run]
 source = ["src/agenticlens"]
-
-[tool.uv.sources]
-agentic-evals = { path = "../agentic-evals", editable = true }
