@@ -3,9 +3,11 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
+from agenticlens.api.store import PersistentTraceStore
 from agenticlens.cli.main import app
 from agenticlens.exporters import JSONExporter
 from agenticlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.models.trace import Run
 
 
 def test_inspect_trace(tmp_path):
@@ -31,6 +33,19 @@ def test_inspect_trace_can_save_markdown(tmp_path):
     assert result.exit_code == 0
     assert markdown_file.exists()
     assert "Trace Report" in markdown_file.read_text(encoding="utf-8")
+
+
+def test_inspect_trace_can_save_html(tmp_path):
+    trace_file = tmp_path / "trace.json"
+    html_file = tmp_path / "trace.html"
+    trace_file.write_text(
+        '{"application_name":"demo","status":"succeeded","spans":[]}',
+        encoding="utf-8",
+    )
+    result = CliRunner().invoke(app, ["inspect", str(trace_file), "--html", str(html_file)])
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "AgenticLens" in html_file.read_text(encoding="utf-8")
 
 
 def test_compare_trace_directories(tmp_path):
@@ -233,6 +248,216 @@ def test_cli_analyze_no_recommendations(tmp_path: Path) -> None:
     assert "no optimization suggestions" in result.output.lower()
 
 
+def test_cli_analyze_can_save_html(tmp_path: Path) -> None:
+    from datetime import datetime, timezone
+
+    workflow = Workflow(name="Tool Workflow", start_time=datetime.now(timezone.utc))
+    for name in ("Lookup", "Lookup (retry)"):
+        workflow.steps.append(
+            Step(
+                name=name,
+                type=StepType.TOOL_CALL,
+                metrics=Metrics(prompt_tokens=100, completion_tokens=20, total_tokens=120),
+                metadata={"tool_name": "lookup_order", "tool_args": {"order_id": "A123"}},
+            )
+        )
+    out = tmp_path / "workflow.json"
+    html_file = tmp_path / "dashboard.html"
+    JSONExporter().export(workflow, out)
+
+    result = runner.invoke(app, ["analyze", str(out), "--html", str(html_file)])
+
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "Waste findings" in html_file.read_text(encoding="utf-8")
+
+
+def test_compare_can_save_html(tmp_path: Path) -> None:
+    baseline = tmp_path / "baseline"
+    candidate = tmp_path / "candidate"
+    baseline.mkdir()
+    candidate.mkdir()
+    payload = '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}'
+    (baseline / "run.json").write_text(payload, encoding="utf-8")
+    (candidate / "run.json").write_text(payload, encoding="utf-8")
+    html_file = tmp_path / "dashboard.html"
+
+    result = CliRunner().invoke(
+        app, ["compare", str(baseline), str(candidate), "--html", str(html_file)]
+    )
+
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "Baseline vs. candidate" in html_file.read_text(encoding="utf-8")
+
+
+def test_dashboard_command_requires_at_least_one_input() -> None:
+    result = runner.invoke(app, ["dashboard"])
+    assert result.exit_code == 1
+    assert "provide at least one" in result.output.lower()
+
+
+def test_dashboard_command_combines_workflow_and_run(tmp_path: Path) -> None:
+    workflow_file = tmp_path / "workflow.json"
+    run_file = tmp_path / "run.json"
+    html_file = tmp_path / "dashboard.html"
+    JSONExporter().export(_sample_workflow(), workflow_file)
+    run_file.write_text(
+        '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}',
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "dashboard",
+            "--workflow",
+            str(workflow_file),
+            "--run",
+            str(run_file),
+            "--save",
+            str(html_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "AgenticLens" in html_file.read_text(encoding="utf-8")
+
+
+def test_import_otlp_writes_run_files_and_prints_summary(tmp_path: Path) -> None:
+    otlp_file = tmp_path / "export.json"
+    save_dir = tmp_path / "imported"
+    otlp_file.write_text(
+        json.dumps(
+            {
+                "resourceSpans": [
+                    {
+                        "resource": {
+                            "attributes": [
+                                {"key": "service.name", "value": {"stringValue": "support-agent"}}
+                            ]
+                        },
+                        "scopeSpans": [
+                            {
+                                "scope": {"name": "vendor"},
+                                "spans": [
+                                    {
+                                        "traceId": "a" * 32,
+                                        "spanId": "1" * 16,
+                                        "parentSpanId": "",
+                                        "name": "chat",
+                                        "kind": 3,
+                                        "startTimeUnixNano": "1700000000000000000",
+                                        "endTimeUnixNano": "1700000000500000000",
+                                        "attributes": [
+                                            {
+                                                "key": "gen_ai.operation.name",
+                                                "value": {"stringValue": "chat"},
+                                            },
+                                            {
+                                                "key": "gen_ai.usage.input_tokens",
+                                                "value": {"intValue": "120"},
+                                            },
+                                        ],
+                                        "status": {"code": 1},
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["import-otlp", str(otlp_file), "--save-dir", str(save_dir)])
+
+    assert result.exit_code == 0
+    assert "support-agent" in result.output
+    saved = save_dir / f"{'a' * 32}.json"
+    assert saved.exists()
+    assert "support-agent" in saved.read_text(encoding="utf-8")
+
+
+def test_import_otlp_without_save_dir_is_a_dry_run(tmp_path: Path) -> None:
+    otlp_file = tmp_path / "export.json"
+    otlp_file.write_text(json.dumps({"resourceSpans": []}), encoding="utf-8")
+
+    result = runner.invoke(app, ["import-otlp", str(otlp_file)])
+
+    assert result.exit_code == 0
+    assert "No traces found" in result.output
+
+
+def test_import_otlp_rejects_malformed_payload(tmp_path: Path) -> None:
+    otlp_file = tmp_path / "not-otlp.json"
+    otlp_file.write_text(json.dumps({"hello": "world"}), encoding="utf-8")
+
+    result = runner.invoke(app, ["import-otlp", str(otlp_file)])
+
+    assert result.exit_code == 1
+    assert "unable to import" in result.output.lower()
+
+
+def test_history_from_run_json_directory(tmp_path: Path) -> None:
+    run_dir = tmp_path / "runs"
+    run_dir.mkdir()
+    (run_dir / "one.json").write_text(
+        Run(application_name="support-bot", status="succeeded", spans=[]).model_dump_json(),
+        encoding="utf-8",
+    )
+    save_file = tmp_path / "history.html"
+
+    result = runner.invoke(app, ["history", str(run_dir), "--save", str(save_file)])
+
+    assert result.exit_code == 0
+    assert "support-bot" in result.output
+    assert save_file.exists()
+    assert "support-bot" in save_file.read_text(encoding="utf-8")
+
+
+def test_history_from_db_file(tmp_path: Path) -> None:
+    db_path = tmp_path / "traces.db"
+    PersistentTraceStore(db_path).add(Run(application_name="billing-bot", spans=[]))
+
+    result = runner.invoke(app, ["history", str(db_path)])
+
+    assert result.exit_code == 0
+    assert "billing-bot" in result.output
+
+
+def test_history_detects_sqlite_db_regardless_of_extension(tmp_path: Path) -> None:
+    db_path = tmp_path / "traces.sqlite"
+    PersistentTraceStore(db_path).add(Run(application_name="billing-bot", spans=[]))
+
+    result = runner.invoke(app, ["history", str(db_path)])
+
+    assert result.exit_code == 0
+    assert "billing-bot" in result.output
+
+
+def test_history_reports_no_traces_found_for_empty_db(tmp_path: Path) -> None:
+    db_path = tmp_path / "empty.db"
+    PersistentTraceStore(db_path)  # create the (empty) db file, add nothing
+
+    result = runner.invoke(app, ["history", str(db_path)])
+
+    assert result.exit_code == 0
+    assert "No traces found" in result.output
+
+
+def test_history_rejects_directory_with_no_run_json(tmp_path: Path) -> None:
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+
+    result = runner.invoke(app, ["history", str(empty_dir)])
+
+    assert result.exit_code == 1
+    assert "unable to load runs" in result.output.lower()
+
+
 def test_evaluate_live_python_target(tmp_path: Path) -> None:
     suite_file = tmp_path / "suite.json"
     report_file = tmp_path / "evaluation.json"
@@ -334,138 +559,6 @@ def test_dataset_summary_split_and_export_samples(tmp_path: Path) -> None:
     payload = json.loads(export_file.read_text(encoding="utf-8"))
     assert "samples" in payload
     assert len(payload["samples"]) >= 1
-
-
-def test_judge_calibrate_command(tmp_path: Path) -> None:
-    report_file = tmp_path / "evaluation.json"
-    dataset_file = tmp_path / "dataset.json"
-    report_file.write_text(
-        json.dumps(
-            {
-                "suite_name": "judge-suite",
-                "suite_version": "1",
-                "summary": {
-                    "total_cases": 2,
-                    "passed_cases": 2,
-                    "failed_cases": 0,
-                    "pass_rate": 1.0,
-                    "average_score": 0.85,
-                    "total_cost_usd": 0.002,
-                    "average_latency_ms": 100.0,
-                },
-                "cases": [
-                    {
-                        "case_id": "case-1",
-                        "case_name": "Case one",
-                        "passed": True,
-                        "scores": [
-                            {
-                                "name": "answer_quality",
-                                "value": 0.9,
-                                "passed": True,
-                                "required": True,
-                                "explanation": "Strong",
-                                "evaluator_type": "llm_judge",
-                                "metadata": {"judge_verdict": "agree"},
-                            }
-                        ],
-                        "output": "ok",
-                        "trace_id": "trace-1",
-                        "latency_ms": 100.0,
-                        "cost_usd": 0.001,
-                    },
-                    {
-                        "case_id": "case-2",
-                        "case_name": "Case two",
-                        "passed": False,
-                        "scores": [
-                            {
-                                "name": "answer_quality",
-                                "value": 0.2,
-                                "passed": False,
-                                "required": True,
-                                "explanation": "Weak",
-                                "evaluator_type": "llm_judge",
-                                "metadata": {"judge_verdict": "disagree"},
-                            }
-                        ],
-                        "output": "ok",
-                        "trace_id": "trace-2",
-                        "latency_ms": 100.0,
-                        "cost_usd": 0.001,
-                    },
-                ],
-            }
-        ),
-        encoding="utf-8",
-    )
-    dataset_file.write_text(
-        json.dumps(
-            {
-                "name": "judge-labels",
-                "version": "2026-08-15",
-                "records": [
-                    {
-                        "case_id": "case-1",
-                        "output": "ok",
-                        "trace": {
-                            "trace_id": "trace-1",
-                            "application_name": "demo",
-                            "started_at": "2026-08-15T00:00:00Z",
-                            "completed_at": "2026-08-15T00:00:00Z",
-                            "status": "succeeded",
-                            "task_success": True,
-                            "spans": [],
-                        },
-                        "labels": [
-                            {
-                                "score_name": "answer_quality",
-                                "expected_value": 1.0,
-                                "expected_passed": True,
-                                "expected_verdict": "agree",
-                            }
-                        ],
-                    },
-                    {
-                        "case_id": "case-2",
-                        "output": "ok",
-                        "trace": {
-                            "trace_id": "trace-2",
-                            "application_name": "demo",
-                            "started_at": "2026-08-15T00:00:00Z",
-                            "completed_at": "2026-08-15T00:00:00Z",
-                            "status": "succeeded",
-                            "task_success": True,
-                            "spans": [],
-                        },
-                        "labels": [
-                            {
-                                "score_name": "answer_quality",
-                                "expected_value": 0.0,
-                                "expected_passed": False,
-                                "expected_verdict": "disagree",
-                            }
-                        ],
-                    },
-                ],
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    result = runner.invoke(
-        app,
-        [
-            "judge-calibrate",
-            str(report_file),
-            str(dataset_file),
-            "--score-name",
-            "answer_quality",
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert "pass_rate_agreement" in result.output
 
 
 def test_experiment_run_command(tmp_path: Path) -> None:

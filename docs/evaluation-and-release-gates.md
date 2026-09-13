@@ -216,27 +216,29 @@ types when that metadata is absent.
 
 ## Judge Calibration
 
-When a dataset includes human labels for a judge score, AgenticLens can compare
-the judge's output against those labels and report:
+Given a versioned, human-labeled reference set (a `CalibrationDataset`: a flat
+list of `{case_id, passed}` reference judgments, distinct from the richer
+`EvaluationDataset` records used by `agenticlens dataset`), AgenticLens can
+compare one `llm_judge` evaluator's saved verdicts against those labels and
+report:
 
-- mean judge score and mean expected score
-- mean absolute error and root mean squared error
-- pass/fail agreement and verdict agreement
-- statistical confidence intervals for mean and agreement metrics
+- agreement rate with a 95% Wilson confidence interval
+- true/false accept and true/false reject confusion counts
+- trace-linked evidence for every compared case
 
 ```bash
-agenticlens judge-calibrate evaluation.json dataset.json \
-  --score-name answer_quality \
-  --confidence-level 0.95 \
+agenticlens calibrate evaluation.json labels.json \
+  --evaluator answer_quality \
   --save calibration.json
 ```
 
+Case ids in the reference set must exactly match the report's case ids, and
+the report's suite name/version must match the reference set's — a mismatch
+raises rather than silently comparing misaligned evidence. Uses each case's
+already-recorded `Score.passed` decision, not a re-derived 0.5 threshold.
+
 See `examples/experiment_runner_demo.py` for a runnable multi-variant experiment
 manifest example using the same evaluation layer for repeated live trials.
-
-Labels live alongside each dataset record and can include an expected score,
-expected pass/fail decision, expected verdict string, optional threshold, and
-free-form reviewer notes.
 
 ## Offline Pitch Demonstration
 

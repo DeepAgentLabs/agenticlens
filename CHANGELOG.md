@@ -6,6 +6,8 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.5.0 - 2026-09-13
+
 ### Fixed
 
 - Enforce Draft 2020-12 structured-output constraints and reject invalid schema
@@ -15,10 +17,54 @@ This project follows [Semantic Versioning](https://semver.org/).
 - Keep incomplete span/case/run cost aggregates unavailable and reject incomplete
   report cost gates; explicit zero costs remain valid.
 - Respect explicit task outcomes in comparison success metrics.
+- Export and re-import a failed run's `error_type` via OTLP instead of
+  silently dropping it (the exporter never wrote it as a resource
+  attribute, so even a native AgenticLens round-trip lost it).
 
 ### Added
 
 - Offline judge calibration API and CLI with versioned human labels, exact case matching, agreement confidence intervals, confusion counts, and trace-linked verdict evidence.
+- Standalone HTML dashboard renderer (`agenticlens.reports.render_dashboard_html`/
+  `save_dashboard_html`) combining an agent timeline, cost-by-workflow-area
+  breakdown, waste findings, a release gate, and a baseline-vs-candidate
+  comparison from whichever artifacts are supplied. Wired into `analyze`,
+  `inspect`, and `compare` via a new `--html` option, plus a new `dashboard`
+  command that composes several already-saved artifacts into one page. No
+  external fonts or network requests; renders fully offline.
+- OTLP/OpenTelemetry ingestion adapter (`agenticlens.adapters.otlp`, new
+  `import-otlp` CLI command) converting OTLP/HTTP JSON trace exports —
+  including third-party exports that follow the OpenTelemetry GenAI
+  semantic conventions (`gen_ai.*`, with legacy attribute names supported)
+  and exports AgenticLens never produced itself — into AgenticLens run
+  files. Field mapping prefers AgenticLens's own attributes, falls back to
+  GenAI semconv, and never fabricates a value; unrecognized attributes are
+  preserved rather than discarded. Zero new dependencies.
+- Live OTLP/HTTP receiver and real-time dashboard (`agenticlens.api`, new
+  `serve-otlp` CLI command), behind a new optional `agenticlens[api]` extra
+  (FastAPI + uvicorn — **a dependency-surface change**, opt-in only, the
+  base package still requires neither). Reuses the OTLP adapter's
+  conversion and the dashboard renderer's rendering directly. Bounded
+  in-memory trace store (default cap 200, FIFO eviction); binds to
+  `127.0.0.1` by default and ships with no authentication — documented as
+  a stated limitation, not a silent gap. Live refresh is plain polling, not
+  websockets/SSE.
+- Persistent local trace history: `PersistentTraceStore`
+  (`agenticlens.api.store`), a stdlib-`sqlite3`-backed drop-in for the
+  in-memory trace store — zero new dependency. `serve-otlp --db PATH` uses
+  it instead of memory-only storage, so traces survive a restart. A new
+  cross-trace `render_history_html` view (`GET /history` on the receiver,
+  and a new offline `agenticlens history` CLI command against a `--db`
+  file or a directory of run JSON) shows aggregate tokens/cost/error-rate/
+  p95-latency across recent traces instead of one trace at a time; cost
+  aggregates note "N of M traces priced" rather than fabricating a total.
+
+### Fixed (evaluation module wiring)
+
+- `agenticlens.evaluation` failed to import `load_dataset`, `save_dataset`,
+  `split_dataset`, `summarize_dataset`, `dataset_from_samples`, and
+  `dataset_to_samples` from `agenticlens.evaluation.datasets`, breaking every
+  CLI command (the whole `agenticlens.cli.main` module failed at import time)
+  and the `dataset export-samples` command specifically.
 
 ## 0.4.0 - 2026-08-08
 

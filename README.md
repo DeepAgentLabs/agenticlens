@@ -207,9 +207,13 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Multi-variant repeated experiment runner | Implemented, experimental |
 | AIOS draft validation and conformance CLI | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
+| OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
+| Live OTLP receiver + real-time dashboard (optional `[api]` extra, `serve-otlp`) | Implemented, experimental |
+| Persistent local trace history (`--db`, `/history`, `agenticlens history`) | Implemented, experimental |
+| Local HTML dashboard (timeline, cost, findings, gate, comparison) | Implemented, experimental |
 | Statistical significance testing | Planned |
-| Framework trace adapters | Planned |
-| Dashboard, ModelFit, and governance | Planned |
+| Framework trace adapters (native LangChain/LangGraph instrumentation, not already-OTel data) | Planned |
+| ModelFit and governance | Planned |
 
 ## Evaluation and Release Gates
 
@@ -233,16 +237,52 @@ The evaluation command produces machine-readable JSON and an optional
 standalone HTML report. The gate command returns exit status `2` when a
 configured release threshold fails, making it suitable for CI.
 
-AgenticLens can also manage local evaluation datasets and calibrate human
-labeled judge scores:
+AgenticLens can also manage local evaluation datasets:
 
 ```bash
 agenticlens dataset summary dataset.json
 agenticlens dataset split dataset.json --save dataset-split.json --seed 7
 agenticlens dataset export-samples dataset-split.json --split test --save samples-test.json
-agenticlens judge-calibrate evaluation.json dataset.json --score-name answer_quality
 agenticlens experiment run experiment.yaml suite.yaml --save experiment-report.json
 ```
+
+... and calibrate an `llm_judge` evaluator's verdicts against a versioned,
+human-labeled reference set (`labels.json`: a `CalibrationDataset` of bare
+`{case_id, passed}` reference labels — a different, simpler shape than the
+`dataset.json` above):
+
+```bash
+agenticlens calibrate evaluation.json labels.json --evaluator answer_quality --save calibration.json
+```
+
+Reports agreement rate with a 95% Wilson confidence interval plus a
+true/false accept/reject confusion breakdown; requires exact case-id and
+suite-name/version matching between the report and the reference set.
+
+## Dashboard Report
+
+`analyze`, `inspect`, and `compare` can each render their own standalone HTML
+view (`--html`), and `dashboard` composes several already-saved artifacts
+(workflow, run trace, evaluation report, comparison report) into one page —
+an agent timeline, cost-by-workflow-area breakdown, waste findings, a release
+gate, and a baseline-vs-candidate comparison, whichever inputs are present:
+
+```bash
+agenticlens analyze workflow.json --html analyze.html
+agenticlens inspect run.json --html inspect.html
+agenticlens compare baseline/ candidate/ --html compare.html
+
+agenticlens dashboard \
+  --workflow workflow.json \
+  --run run.json \
+  --evaluation agenticlens-evaluation.json \
+  --comparison comparison.json \
+  --save agenticlens-dashboard.html
+```
+
+The dashboard is a single self-contained HTML file with no external
+requests (fonts, CDNs, or otherwise) and no data leaves the machine — the
+same local-first posture as the rest of AgenticLens.
 
 ## AIOS Validation and Conformance
 
@@ -283,6 +323,119 @@ export AGENTICLENS_OTLP_TIMEOUT_SECONDS=10
 
 See `examples/operational_intelligence_demo.py` for a runnable local example
 that writes both an AgenticLens run artifact and an OTLP payload.
+
+## OpenTelemetry Ingestion
+
+The inverse of the export above: convert OTLP/HTTP JSON trace exports —
+from an OTel Collector's file exporter, another vendor's trace dump, or
+AgenticLens's own OTLP export — into AgenticLens run files that flow
+straight into `inspect`, `dashboard`, `compare`, and `evaluate`:
+
+```bash
+agenticlens import-otlp otlp-export.json --save-dir imported-runs/
+agenticlens dashboard --run imported-runs/<trace-id>.json --save report.html
+```
+
+Every field prefers AgenticLens's own `agenticlens.*` attributes (a perfect
+round-trip with the exporter above), falls back to the OpenTelemetry GenAI
+semantic convention (`gen_ai.*`, including legacy names such as
+`gen_ai.usage.prompt_tokens` and `gen_ai.system`), and never fabricates a
+value it cannot find — an unpriced span stays unpriced rather than showing
+`$0.00`. Any attribute the adapter doesn't recognize is preserved verbatim on
+the span rather than discarded, so pointing this at a real production
+collector export is safe: nothing is silently dropped, and nothing is
+silently invented. `--save-dir` is optional — without it, `import-otlp`
+prints a summary table as a dry run and writes nothing.
+
+`import-otlp` is for offline/CI use — export a file, convert it, move on.
+For watching traces arrive live, see the receiver below.
+
+### What survives ingestion, and what doesn't
+
+Pure OpenTelemetry GenAI-semconv data (no `agenticlens.*` attributes layered
+on top) round-trips some fields perfectly and structurally cannot carry
+others — this is a ceiling in what the OTel spec currently standardizes, not
+a shortcoming of the adapter:
+
+| Survives cleanly | Structurally invisible to pure OTel |
+|---|---|
+| `trace_id`/`span_id`/`parent_span_id`, timestamps, latency | **Cost** — no standardized cost attribute exists; every pure-OTel import shows cost as unavailable, never `$0.00` |
+| `input_tokens`/`output_tokens` (`gen_ai.usage.*`) | **Retry attempt number** — no OTel concept, so retry-attribution features can't use pure OTel data |
+| `model_name`, `provider`, `tool_name`, `agent_name` | **7 of 11 span types**: `retrieval`, `planning`, `memory_read`, `memory_write`, `validation`, `retry`, `final_response` — only `model_call`, `tool_call`, and `delegation` map from `gen_ai.operation.name`; everything else becomes `custom` |
+| `error_type`/`error_message` (via the standard OTel exception event) | Run-level `task_success`, `experiment_id`, `variant_id`, `task_id`/`task_type`, `framework` — AgenticLens-specific product concepts with no OTel equivalent |
+| `application_name` (via `service.name`) | |
+
+The fix, when you control the source: emit the matching `agenticlens.*`
+attribute alongside the standard `gen_ai.*` ones (e.g. an explicit
+`agenticlens.span_type` on a retrieval span, or `agenticlens.estimated_cost_usd`
+on a priced call) — the adapter always prefers those first. That gets you
+full native fidelity without giving up your existing OTel instrumentation.
+
+## Live OTLP Receiver
+
+Behind an optional extra (`pip install agenticlens[api]`, adding FastAPI and
+uvicorn — nothing in the base package requires them). Runs a real OTLP/HTTP
+endpoint an OTel Collector's `otlphttp` exporter can be pointed at directly,
+plus a real-time HTML dashboard that shows traces as they land:
+
+```bash
+pip install 'agenticlens[api]'
+agenticlens serve-otlp --port 4318 --save-dir live-runs/
+```
+
+- `POST http://localhost:4318/v1/traces` — the endpoint to give your
+  Collector or SDK's OTLP/HTTP exporter. Reuses the exact same conversion as
+  `import-otlp` (same field-mapping rules, same never-fabricate guarantee).
+- `http://localhost:4318/` — the live dashboard: the most recently received
+  trace's timeline and cost breakdown, auto-refreshing, with a nav strip to
+  switch between recent traces.
+- `--save-dir` (optional) also writes every received trace to disk as
+  `<trace_id>.json`, so a live session still leaves a permanent artifact
+  trail rather than being purely ephemeral.
+- The in-memory store is capped (`--max-traces`, default 200) and evicts the
+  oldest trace first — bounded by construction, not by discipline.
+
+**Security note:** this endpoint has no built-in authentication and binds to
+`127.0.0.1` by default on purpose. It's meant for local/dev visibility or
+inside a network you already trust. Anything reachable beyond localhost
+needs your own auth/network controls in front of it — this command does not
+provide any.
+
+The live refresh is plain polling (the page reloads every few seconds), not
+a websocket/SSE push — a deliberate simplicity choice for this first
+version, and the natural next upgrade if that latency ever matters.
+
+### Persistent history (cross-trace view)
+
+By default the receiver's store is in-memory only — restart it and every
+trace is gone. `--db` turns that into a durable local store, and `/history`
+gives you the cross-trace view a single-trace dashboard can't: aggregate
+tokens/cost, error rate, and p95 latency across recent traces, not just one
+at a time.
+
+```bash
+agenticlens serve-otlp --port 4318 --db traces.db --save-dir live-runs/
+```
+
+- `--db PATH` — persists every received trace to a local SQLite file
+  (Python's stdlib `sqlite3`, no new dependency, no change to the `[api]`
+  extra) instead of memory-only. Traces survive a restart.
+- `http://localhost:4318/history` — aggregate stats (total traces, total
+  tokens, total cost — or "N of M traces priced" when only some are, never
+  a fabricated `$0.00`) plus a row per recent trace, linking back to its
+  own live dashboard.
+- `--max-persisted N` caps the persistent store (unbounded by default —
+  the whole point of `--db` is not throwing history away); kept separate
+  from `--max-traces`, which still governs the in-memory path.
+- View history offline, without running the receiver at all:
+
+  ```bash
+  agenticlens history traces.db --save history.html
+  agenticlens history live-runs/ --save history.html   # or a --save-dir of run JSON
+  ```
+
+Alerting was deliberately left out — this is local visibility for a human
+watching a dashboard, not a paging system.
 
 Run a trusted live target directly:
 

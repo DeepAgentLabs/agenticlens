@@ -1,8 +1,17 @@
 from agenticlens.evaluation.calibration import (
+    CalibrationCase,
     CalibrationDataset,
     CalibrationReport,
     ReferenceLabel,
     calibrate_judge,
+)
+from agenticlens.evaluation.datasets import (
+    dataset_from_samples,
+    dataset_to_samples,
+    load_dataset,
+    save_dataset,
+    split_dataset,
+    summarize_dataset,
 )
 from agenticlens.evaluation.evaluators import (
     BusinessRuleEvaluator,
@@ -15,9 +24,6 @@ from agenticlens.evaluation.evaluators import (
 from agenticlens.evaluation.gate import GateConfig, GateDecision, evaluate_gate
 from agenticlens.evaluation.html_report import render_html_report, save_html_report
 from agenticlens.evaluation.models import (
-    CalibrationCase,
-    CalibrationMetric,
-    CalibrationReport,
     ConfidenceInterval,
     DatasetLabel,
     DatasetRecord,
@@ -36,13 +42,9 @@ from agenticlens.evaluation.models import (
 from agenticlens.evaluation.runner import evaluate_suite, load_samples, load_suite, run_live_suite
 
 __all__ = [
-    "CalibrationDataset",
-    "CalibrationReport",
-    "ReferenceLabel",
-    "calibrate_judge",
     "BusinessRuleEvaluator",
     "CalibrationCase",
-    "CalibrationMetric",
+    "CalibrationDataset",
     "CalibrationReport",
     "CallableEvaluator",
     "ConfidenceInterval",
@@ -62,6 +64,7 @@ __all__ = [
     "LLMJudgeEvaluator",
     "LiveTarget",
     "PythonTarget",
+    "ReferenceLabel",
     "Score",
     "TestCase",
     "TestSuite",

@@ -181,41 +181,6 @@ class ConfidenceInterval(BaseModel):
     method: str
 
 
-class CalibrationMetric(BaseModel):
-    name: str
-    value: float
-    sample_size: int = Field(ge=1)
-    confidence_interval: ConfidenceInterval | None = None
-
-
-class CalibrationCase(BaseModel):
-    case_id: str
-    case_name: str
-    judge_score: float = Field(ge=0, le=1)
-    expected_score: float | None = Field(default=None, ge=0, le=1)
-    absolute_error: float | None = Field(default=None, ge=0)
-    judge_passed: bool
-    expected_passed: bool | None = None
-    pass_agreement: bool | None = None
-    judge_verdict: str | None = None
-    expected_verdict: str | None = None
-    verdict_agreement: bool | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class CalibrationReport(BaseModel):
-    schema_version: str = "1.0"
-    suite_name: str
-    suite_version: str
-    dataset_name: str
-    dataset_version: str
-    score_name: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    confidence_level: float = Field(gt=0, lt=1)
-    summary: list[CalibrationMetric]
-    cases: list[CalibrationCase]
-
-
 class LiveTarget(BaseModel):
     kind: str = Field(pattern="^(python|http)$")
     timeout_seconds: float = Field(default=30.0, gt=0)

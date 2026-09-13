@@ -6,6 +6,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from agenticlens.adapters import load_otlp_export, safe_trace_filename
+from agenticlens.api.store import PersistentTraceStore
 from agenticlens.cli.render import (
     render_agent_summary,
     render_recommendations,
@@ -14,6 +16,7 @@ from agenticlens.cli.render import (
     render_token_optimization,
 )
 from agenticlens.comparison import (
+    ComparisonReport,
     compare_runs,
     export_comparison_csv,
     export_comparison_json,
@@ -27,6 +30,7 @@ from agenticlens.evaluation import (
     HTTPTarget,
     PythonTarget,
     calibrate_judge,
+    dataset_to_samples,
     evaluate_gate,
     evaluate_suite,
     load_dataset,
@@ -44,7 +48,12 @@ from agenticlens.models.trace import Run
 from agenticlens.models.workflow import Workflow
 from agenticlens.profiler.context import completed_workflows
 from agenticlens.recommenders import RecommendationEngine
-from agenticlens.reports import render_trace, render_trace_markdown
+from agenticlens.reports import (
+    render_history_html,
+    render_trace,
+    render_trace_markdown,
+    save_dashboard_html,
+)
 from agenticlens.validation import ConformanceReport, validate_aios_artifact
 
 app = typer.Typer(
@@ -133,6 +142,9 @@ def report(
 @app.command()
 def analyze(
     workflow_file: Path = typer.Argument(..., help="Path to a saved workflow (JSON)."),
+    html: Path | None = typer.Option(
+        None, "--html", help="Also render a standalone HTML dashboard (cost + findings)."
+    ),
 ) -> None:
     """Run the recommendation engine against a saved workflow."""
     workflow = _load_workflow(workflow_file)
@@ -146,12 +158,18 @@ def analyze(
     console.print()
     cost_savings = RecommendationEngine.estimated_cost_savings(recommendations)
     render_recommendations(console, recommendations, savings_pct, workflow, cost_savings)
+    if html is not None:
+        save_dashboard_html(html, workflow=workflow, recommendations=recommendations)
+        console.print(f"\nSaved HTML dashboard to {html}")
 
 
 @app.command("inspect")
 def inspect_run(
     run_file: Path = typer.Argument(..., help="Path to a saved AgenticLens trace (JSON)."),
     save: Path | None = typer.Option(None, "--save", help="Save a Markdown trace report."),
+    html: Path | None = typer.Option(
+        None, "--html", help="Also render a standalone HTML dashboard (agent timeline)."
+    ),
 ) -> None:
     """Inspect a validated run trace, span tree, and raw metric distributions."""
     run = _load_run(run_file)
@@ -159,6 +177,9 @@ def inspect_run(
     if save is not None:
         save.write_text(render_trace_markdown(run), encoding="utf-8")
         console.print(f"Saved trace report to {save}")
+    if html is not None:
+        save_dashboard_html(html, run=run)
+        console.print(f"Saved HTML dashboard to {html}")
 
 
 @app.command()
@@ -257,6 +278,9 @@ def compare(
             "Returns a non-zero exit status when the comparison is under-sampled."
         ),
     ),
+    html: Path | None = typer.Option(
+        None, "--html", help="Also render a standalone HTML dashboard (comparison strip)."
+    ),
 ) -> None:
     """Compare repeated baseline and candidate traces."""
     try:
@@ -309,6 +333,9 @@ def compare(
             console.print(f"[red]Unknown export format:[/red] {export_format}")
             raise typer.Exit(code=1)
         console.print(f"Saved comparison to {save}")
+    if html is not None:
+        save_dashboard_html(html, comparison=report)
+        console.print(f"Saved HTML dashboard to {html}")
     if report.sample_size_guidance:
         console.print(f"[yellow]{report.sample_size_guidance}[/yellow]")
     if min_samples is not None:
@@ -321,6 +348,166 @@ def compare(
             raise typer.Exit(code=3)
     if fail_on_regression and report.regressions:
         raise typer.Exit(code=2)
+
+
+@app.command("import-otlp")
+def import_otlp(
+    source: Path = typer.Argument(..., help="OTLP/HTTP JSON export file, or a directory of them."),
+    save_dir: Path | None = typer.Option(
+        None, "--save-dir", help="Write one <trace_id>.json AgenticLens run file per trace here."
+    ),
+) -> None:
+    """Convert OTLP/HTTP JSON trace exports into AgenticLens run files."""
+    try:
+        runs = load_otlp_export(source)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]Unable to import OTLP export:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    if not runs:
+        console.print("[yellow]No traces found in the OTLP export.[/yellow]")
+        return
+
+    table = Table(title="Imported OTLP Traces")
+    table.add_column("Trace ID")
+    table.add_column("Application")
+    table.add_column("Spans", justify="right")
+    table.add_column("Tokens", justify="right")
+    table.add_column("Cost", justify="right")
+    for run in runs:
+        cost = "unavailable" if run.estimated_cost_usd is None else f"${run.estimated_cost_usd:.4f}"
+        table.add_row(
+            run.trace_id, run.application_name, str(len(run.spans)), str(run.total_tokens), cost
+        )
+    console.print(table)
+
+    if save_dir is not None:
+        save_dir.mkdir(parents=True, exist_ok=True)
+        for run in runs:
+            out = save_dir / f"{safe_trace_filename(run.trace_id)}.json"
+            out.write_text(run.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved {len(runs)} run(s) to {save_dir}")
+
+
+@app.command("serve-otlp")
+def serve_otlp(
+    host: str = typer.Option(
+        "127.0.0.1",
+        "--host",
+        help="Bind address. Stays localhost by default: this endpoint has no built-in auth.",
+    ),
+    port: int = typer.Option(4318, "--port", help="OTLP/HTTP's conventional port."),
+    save_dir: Path | None = typer.Option(
+        None, "--save-dir", help="Also persist every received trace as <trace_id>.json here."
+    ),
+    max_traces: int = typer.Option(
+        200, "--max-traces", min=1, help="Most recent in-memory traces kept before evicting."
+    ),
+    db: Path | None = typer.Option(
+        None,
+        "--db",
+        help="Persist traces to a SQLite file here instead of memory-only. "
+        "Traces survive a restart; view them anytime with `agenticlens history`.",
+    ),
+    max_persisted: int | None = typer.Option(
+        None,
+        "--max-persisted",
+        min=1,
+        help="Cap on traces kept in --db before evicting the oldest. Unbounded by default.",
+    ),
+) -> None:
+    """Run a live OTLP/HTTP receiver with a real-time dashboard. Requires `agenticlens[api]`."""
+    try:
+        import uvicorn
+
+        from agenticlens.api.http import create_app
+        from agenticlens.api.store import LiveTraceStore
+    except ImportError as exc:
+        console.print(
+            "[red]The live receiver needs the optional `api` extra.[/red] "
+            "Install it with: pip install 'agenticlens[api]'"
+        )
+        raise typer.Exit(code=1) from exc
+
+    store = (
+        PersistentTraceStore(db, max_traces=max_persisted)
+        if db is not None
+        else LiveTraceStore(max_traces=max_traces)
+    )
+    app_instance = create_app(store, save_dir=save_dir)
+    console.print(f"OTLP endpoint: http://{host}:{port}/v1/traces")
+    console.print(f"Live dashboard: http://{host}:{port}/")
+    console.print(f"Trace history: http://{host}:{port}/history")
+    if save_dir is not None:
+        console.print(f"Persisting received traces as JSON to {save_dir}")
+    if db is not None:
+        console.print(f"Persisting traces to {db} (survives a restart)")
+    uvicorn.run(app_instance, host=host, port=port, log_level="warning")
+
+
+_SQLITE_MAGIC = b"SQLite format 3\x00"
+
+
+def _is_sqlite_file(path: Path) -> bool:
+    """Sniff the SQLite file header instead of trusting a `.db` extension.
+
+    `serve-otlp --db` accepts any filename (`traces.sqlite`, extensionless,
+    etc.) so `history` must detect the format from content, not a suffix
+    convention nothing enforces.
+    """
+    try:
+        with path.open("rb") as handle:
+            return handle.read(len(_SQLITE_MAGIC)) == _SQLITE_MAGIC
+    except OSError:
+        return False
+
+
+@app.command("history")
+def history(
+    source: Path = typer.Argument(
+        ..., help="A `--db` SQLite file, or a directory/file of AgenticLens run JSON."
+    ),
+    save: Path | None = typer.Option(
+        None, "--save", help="Write the rendered HTML history page here."
+    ),
+) -> None:
+    """Render a cross-trace history view from a --db file or a run-JSON directory."""
+    if source.is_file() and _is_sqlite_file(source):
+        runs = PersistentTraceStore(source).list_recent()
+    else:
+        try:
+            runs = load_runs(source)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            console.print(f"[red]Unable to load runs:[/red] {exc}")
+            raise typer.Exit(code=1) from exc
+
+    if not runs:
+        console.print("[yellow]No traces found.[/yellow]")
+        return
+
+    table = Table(title="Trace History")
+    table.add_column("Trace ID")
+    table.add_column("Application")
+    table.add_column("Status")
+    table.add_column("Spans", justify="right")
+    table.add_column("Tokens", justify="right")
+    table.add_column("Cost", justify="right")
+    for run in runs:
+        cost = "unavailable" if run.estimated_cost_usd is None else f"${run.estimated_cost_usd:.4f}"
+        table.add_row(
+            run.trace_id,
+            run.application_name,
+            run.status.value,
+            str(len(run.spans)),
+            str(run.total_tokens),
+            cost,
+        )
+    console.print(table)
+
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(render_history_html(runs), encoding="utf-8")
+        console.print(f"Saved HTML history to {save}")
 
 
 @app.command()
@@ -490,53 +677,6 @@ def evaluate_live(
     console.print(f"Saved evaluation to {save}")
 
 
-@app.command("judge-calibrate")
-def judge_calibrate(
-    report_file: Path = typer.Argument(..., help="AgenticLens evaluation report JSON."),
-    dataset_file: Path = typer.Argument(..., help="Labeled evaluation dataset JSON or YAML."),
-    score_name: str = typer.Option(..., "--score-name", help="Judge score name to calibrate."),
-    confidence_level: float = typer.Option(0.95, "--confidence-level", min=0.5, max=0.999),
-    save: Path | None = typer.Option(
-        None,
-        "--save",
-        help="Optionally save the machine-readable calibration report.",
-    ),
-) -> None:
-    """Compare judge scores against labeled reference judgments and summarize agreement."""
-    try:
-        report = EvaluationReport.model_validate_json(report_file.read_text(encoding="utf-8"))
-        dataset = load_dataset(dataset_file)
-        calibration = calibrate_judge(
-            report,
-            dataset,
-            score_name=score_name,
-            confidence_level=confidence_level,
-        )
-    except (OSError, ValueError) as exc:
-        console.print(f"[red]Unable to calibrate judge:[/red] {exc}")
-        raise typer.Exit(code=1) from exc
-
-    table = Table(title=f"Judge Calibration · {calibration.score_name}")
-    table.add_column("Metric")
-    table.add_column("Value", justify="right")
-    table.add_column("Samples", justify="right")
-    for metric in calibration.summary:
-        value = f"{metric.value:.3f}"
-        if metric.confidence_interval is not None:
-            ci = metric.confidence_interval
-            value = f"{value} ({ci.confidence_level:.0%} CI {ci.lower:.3f} to {ci.upper:.3f})"
-        table.add_row(metric.name, value, str(metric.sample_size))
-    console.print(table)
-    console.print(
-        f"Calibrated against {len(calibration.cases)} labeled case(s) "
-        f"from {calibration.dataset_name} {calibration.dataset_version}."
-    )
-    if save is not None:
-        save.parent.mkdir(parents=True, exist_ok=True)
-        save.write_text(calibration.model_dump_json(indent=2), encoding="utf-8")
-        console.print(f"Saved calibration report to {save}")
-
-
 @experiment_app.command("run")
 def experiment_run(
     manifest_file: Path = typer.Argument(..., help="Experiment manifest JSON or YAML."),
@@ -672,6 +812,87 @@ def gate(
     for reason in decision.reasons:
         console.print(f"  • {reason}")
     raise typer.Exit(code=2)
+
+
+@app.command()
+def dashboard(
+    workflow_file: Path | None = typer.Option(
+        None, "--workflow", help="Saved workflow JSON (from `profile --save`)."
+    ),
+    run_file: Path | None = typer.Option(
+        None, "--run", help="Saved run trace JSON (from the trace API)."
+    ),
+    evaluation_file: Path | None = typer.Option(
+        None, "--evaluation", help="Saved evaluation report JSON (from `evaluate --save`)."
+    ),
+    comparison_file: Path | None = typer.Option(
+        None,
+        "--comparison",
+        help="Saved comparison report JSON (from `compare --save --format json`).",
+    ),
+    min_pass_rate: float = typer.Option(1.0, min=0.0, max=1.0),
+    min_average_score: float = typer.Option(1.0, min=0.0, max=1.0),
+    max_failed_cases: int = typer.Option(0, min=0),
+    max_average_latency_ms: float | None = typer.Option(None, min=0.0),
+    max_total_cost_usd: float | None = typer.Option(None, min=0.0),
+    save: Path = typer.Option(Path("agenticlens-dashboard.html"), "--save"),
+) -> None:
+    """Combine a workflow, run, evaluation report, and/or comparison into one HTML dashboard."""
+    no_inputs = (
+        workflow_file is None
+        and run_file is None
+        and evaluation_file is None
+        and comparison_file is None
+    )
+    if no_inputs:
+        console.print(
+            "[red]Provide at least one of --workflow, --run, --evaluation, --comparison.[/red]"
+        )
+        raise typer.Exit(code=1)
+
+    try:
+        workflow = _load_workflow(workflow_file) if workflow_file is not None else None
+        run = _load_run(run_file) if run_file is not None else None
+        evaluation = (
+            EvaluationReport.model_validate_json(evaluation_file.read_text(encoding="utf-8"))
+            if evaluation_file is not None
+            else None
+        )
+        comparison = (
+            ComparisonReport.model_validate_json(comparison_file.read_text(encoding="utf-8"))
+            if comparison_file is not None
+            else None
+        )
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to build dashboard:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    recommendations = RecommendationEngine().run(workflow) if workflow is not None else None
+    gate_decision = (
+        evaluate_gate(
+            evaluation,
+            GateConfig(
+                min_pass_rate=min_pass_rate,
+                min_average_score=min_average_score,
+                max_failed_cases=max_failed_cases,
+                max_average_latency_ms=max_average_latency_ms,
+                max_total_cost_usd=max_total_cost_usd,
+            ),
+        )
+        if evaluation is not None
+        else None
+    )
+
+    save_dashboard_html(
+        save,
+        workflow=workflow,
+        recommendations=recommendations,
+        run=run,
+        evaluation=evaluation,
+        gate=gate_decision,
+        comparison=comparison,
+    )
+    console.print(f"Saved HTML dashboard to {save}")
 
 
 def _render_aios_report(report: ConformanceReport, save: Path | None) -> None:

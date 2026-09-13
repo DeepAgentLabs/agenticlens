@@ -311,7 +311,7 @@ The following capabilities are implemented in the current development line.
   average latency, and total cost, with CI-friendly exit codes
 - `evaluate`, `evaluate-live`, and `gate` CLI commands
 - versioned evaluation dataset workflows via `agenticlens dataset ...`
-- judge calibration reports via `judge-calibrate`
+- judge calibration reports via `calibrate`
 - a deterministic, offline LangGraph reference workflow demonstrating tracing,
   evaluation, and release-gate output together
 
@@ -450,8 +450,8 @@ suites.
 - live Python and HTTP evaluation targets via `evaluate-live`
 - versioned evaluation datasets, deterministic dataset splitting, sample export,
   and dataset summary CLI workflows via `agenticlens dataset ...`
-- judge calibration reports with agreement/error metrics and statistical
-  confidence intervals via `judge-calibrate`
+- judge calibration reports with a Wilson-interval agreement rate and
+  confusion counts via `calibrate`
 - a deterministic, offline LangGraph reference workflow demonstrating the
   full trace-to-evaluation-to-gate path
 

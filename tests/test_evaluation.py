@@ -5,10 +5,7 @@ import pytest
 from agenticlens.evaluation import (
     BusinessRuleEvaluator,
     DatasetLabel,
-    DatasetRecord,
     EvaluationContext,
-    EvaluationDataset,
-    EvaluationReport,
     EvaluationSample,
     EvaluatorConfig,
     EvaluatorRegistry,
@@ -16,7 +13,6 @@ from agenticlens.evaluation import (
     LLMJudgeEvaluator,
     PythonTarget,
     Score,
-    calibrate_judge,
     dataset_from_samples,
     dataset_to_samples,
     evaluate_gate,
@@ -423,154 +419,9 @@ def test_dataset_helpers_round_trip_samples_and_splits() -> None:
     assert split_summary.split_counts == {"test": 1, "train": 3, "validation": 2}
 
 
-def test_calibrate_judge_reports_error_and_agreement_metrics() -> None:
-    registry = EvaluatorRegistry()
-    case_one_run = make_run()
-    case_two_run = make_run()
-
-    def judge(context: EvaluationContext) -> Score:
-        value = 0.9 if context.case.id == "case-1" else 0.2
-        verdict = "agree" if value >= context.config.threshold else "disagree"
-        return Score(
-            name="answer_quality",
-            value=value,
-            passed=False,
-            explanation="Judge score",
-            metadata={"judge_verdict": verdict},
-        )
-
-    registry.register(LLMJudgeEvaluator("quality_judge", judge))
-    suite = EvaluationTestSuite(
-        name="judge-suite",
-        version="1",
-        cases=[
-            EvaluationTestCase(
-                id="case-1",
-                name="Case one",
-                evaluators=[EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)],
-            ),
-            EvaluationTestCase(
-                id="case-2",
-                name="Case two",
-                evaluators=[EvaluatorConfig(name="quality_judge", threshold=0.8, required=True)],
-            ),
-        ],
-    )
-    report = evaluate_suite(
-        suite,
-        [
-            EvaluationSample(case_id="case-1", output="ok", trace=case_one_run),
-            EvaluationSample(case_id="case-2", output="ok", trace=case_two_run),
-        ],
-        registry=registry,
-    )
-    dataset = EvaluationDataset(
-        name="judge-labels",
-        version="2026-08-15",
-        records=[
-            DatasetRecord(
-                case_id="case-1",
-                output="ok",
-                trace=case_one_run,
-                labels=[
-                    DatasetLabel(
-                        score_name="answer_quality",
-                        expected_value=1.0,
-                        expected_passed=True,
-                        expected_verdict="agree",
-                    )
-                ],
-            ),
-            DatasetRecord(
-                case_id="case-2",
-                output="ok",
-                trace=case_two_run,
-                labels=[
-                    DatasetLabel(
-                        score_name="answer_quality",
-                        expected_value=0.0,
-                        expected_passed=False,
-                        expected_verdict="disagree",
-                    )
-                ],
-            ),
-        ],
-    )
-
-    calibration = calibrate_judge(report, dataset, score_name="answer_quality")
-
-    assert calibration.score_name == "answer_quality"
-    metrics = {metric.name: metric for metric in calibration.summary}
-    assert metrics["mean_absolute_error"].value == pytest.approx(0.15)
-    assert metrics["pass_rate_agreement"].value == 1.0
-    assert metrics["verdict_agreement"].value == 1.0
-
-
 def test_dataset_label_requires_reference_judgment() -> None:
     with pytest.raises(
         ValueError,
         match="must define expected_value, expected_passed, or expected_verdict",
     ):
         DatasetLabel(score_name="answer_quality")
-
-
-def test_calibrate_judge_requires_matching_labeled_artifact() -> None:
-    report = EvaluationReport.model_validate(
-        {
-            "suite_name": "judge-suite",
-            "suite_version": "1",
-            "summary": {
-                "total_cases": 1,
-                "passed_cases": 1,
-                "failed_cases": 0,
-                "pass_rate": 1.0,
-                "average_score": 0.9,
-                "total_cost_usd": 0.001,
-                "average_latency_ms": 100.0,
-            },
-            "cases": [
-                {
-                    "case_id": "case-1",
-                    "case_name": "Case one",
-                    "passed": True,
-                    "scores": [
-                        {
-                            "name": "answer_quality",
-                            "value": 0.9,
-                            "passed": True,
-                            "required": True,
-                            "explanation": "Strong",
-                            "evaluator_type": "llm_judge",
-                            "metadata": {"judge_verdict": "agree"},
-                        }
-                    ],
-                    "output": "new output",
-                    "trace_id": "new-trace",
-                    "latency_ms": 100.0,
-                    "cost_usd": 0.001,
-                }
-            ],
-        }
-    )
-    dataset = EvaluationDataset(
-        name="judge-labels",
-        version="2026-08-16",
-        records=[
-            DatasetRecord(
-                case_id="case-1",
-                output="old output",
-                trace=make_run(),
-                labels=[
-                    DatasetLabel(
-                        score_name="answer_quality",
-                        expected_value=1.0,
-                        expected_passed=True,
-                        expected_verdict="agree",
-                    )
-                ],
-            )
-        ],
-    )
-
-    with pytest.raises(ValueError, match="No labeled calibration cases were found"):
-        calibrate_judge(report, dataset, score_name="answer_quality")
