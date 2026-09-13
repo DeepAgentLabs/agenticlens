@@ -6,6 +6,8 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.5.0 - 2026-09-13
+
 ### Fixed
 
 - Enforce Draft 2020-12 structured-output constraints and reject invalid schema
