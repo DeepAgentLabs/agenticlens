@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from agenticlens.adapters import load_otlp_export, parse_otlp_payload
+from agenticlens.adapters import load_otlp_export, parse_otlp_payload, safe_trace_filename
 from agenticlens.exporters import OTLPTraceExporter
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 
@@ -49,6 +49,40 @@ def _payload(resource_attrs: list[dict], spans: list[dict]) -> dict:
             }
         ]
     }
+
+
+@pytest.mark.parametrize(
+    "trace_id",
+    ["../../etc/passwd", "/etc/passwd", "..", ".", "a/b\\c", "C:\\evil", ""],
+)
+def test_safe_trace_filename_never_escapes_or_traverses(trace_id: str) -> None:
+    safe = safe_trace_filename(trace_id)
+
+    assert "/" not in safe
+    assert "\\" not in safe
+    assert safe not in ("", ".", "..")
+
+
+def test_honors_exported_run_status_over_span_inference() -> None:
+    payload = _payload(
+        [
+            _string_attr("service.name", "task-runner"),
+            _string_attr("agenticlens.status", "failed"),
+        ],
+        [
+            _otlp_span(
+                trace_id="f" * 32,
+                span_id="1" * 16,
+                name="chat",
+                attributes=[_string_attr("gen_ai.operation.name", "chat")],
+                status_code=1,  # every individual span still succeeded
+            )
+        ],
+    )
+
+    [imported] = parse_otlp_payload(payload)
+
+    assert imported.status is RunStatus.FAILED
 
 
 def test_round_trips_an_agenticlens_exported_run() -> None:

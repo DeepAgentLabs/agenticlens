@@ -15,9 +15,9 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
-from agenticlens.adapters.otlp import parse_otlp_payload
+from agenticlens.adapters.otlp import parse_otlp_payload, safe_trace_filename
 from agenticlens.api.store import LiveTraceStore, TraceStore
-from agenticlens.models.trace import Run
+from agenticlens.models.trace import Run, RunStatus
 from agenticlens.reports.dashboard import render_dashboard_html, render_history_html
 
 _REFRESH_SCRIPT = "<script>setTimeout(() => location.reload(), 4000);</script>"
@@ -43,10 +43,13 @@ def create_app(
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
         for run in runs:
+            existing = live_store.get(run.trace_id)
+            if existing is not None:
+                run = _merge_runs(existing, run)
             live_store.add(run)
             if save_dir is not None:
                 save_dir.mkdir(parents=True, exist_ok=True)
-                (save_dir / f"{run.trace_id}.json").write_text(
+                (save_dir / f"{safe_trace_filename(run.trace_id)}.json").write_text(
                     run.model_dump_json(indent=2), encoding="utf-8"
                 )
         return {}
@@ -88,6 +91,39 @@ def create_app(
         )
 
     return app
+
+
+def _merge_runs(existing: Run, incoming: Run) -> Run:
+    """Combine a later OTLP batch's spans into an already-stored trace.
+
+    A single trace can arrive across multiple POSTs (batching exporters,
+    long-lived agent traces spanning minutes) — treating a repeat trace_id
+    as a merge rather than a wholesale replace is what keeps earlier spans
+    from silently disappearing. Span ids that appear in both batches take
+    the incoming version (e.g. a span whose end/status was only known once
+    it completed in a later batch). Note: a parent/child link that spans
+    two different batches was already flattened to no-parent at build time
+    (each batch only knows its own span ids) — this merge doesn't attempt
+    to re-stitch that; it only stops spans from being lost.
+    """
+    merged_spans = {span.span_id: span for span in existing.spans}
+    merged_spans.update({span.span_id: span for span in incoming.spans})
+    completed_candidates = [
+        c for c in (existing.completed_at, incoming.completed_at) if c is not None
+    ]
+    status = (
+        RunStatus.FAILED
+        if RunStatus.FAILED in (existing.status, incoming.status)
+        else incoming.status
+    )
+    return existing.model_copy(
+        update={
+            "spans": list(merged_spans.values()),
+            "started_at": min(existing.started_at, incoming.started_at),
+            "completed_at": max(completed_candidates) if completed_candidates else None,
+            "status": status,
+        }
+    )
 
 
 def _summary(run: Run) -> dict[str, Any]:

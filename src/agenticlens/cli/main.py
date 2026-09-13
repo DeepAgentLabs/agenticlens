@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from agenticlens.adapters import load_otlp_export
+from agenticlens.adapters import load_otlp_export, safe_trace_filename
 from agenticlens.api.store import PersistentTraceStore
 from agenticlens.cli.render import (
     render_agent_summary,
@@ -384,7 +384,7 @@ def import_otlp(
     if save_dir is not None:
         save_dir.mkdir(parents=True, exist_ok=True)
         for run in runs:
-            out = save_dir / f"{run.trace_id}.json"
+            out = save_dir / f"{safe_trace_filename(run.trace_id)}.json"
             out.write_text(run.model_dump_json(indent=2), encoding="utf-8")
         console.print(f"Saved {len(runs)} run(s) to {save_dir}")
 
@@ -445,6 +445,23 @@ def serve_otlp(
     uvicorn.run(app_instance, host=host, port=port, log_level="warning")
 
 
+_SQLITE_MAGIC = b"SQLite format 3\x00"
+
+
+def _is_sqlite_file(path: Path) -> bool:
+    """Sniff the SQLite file header instead of trusting a `.db` extension.
+
+    `serve-otlp --db` accepts any filename (`traces.sqlite`, extensionless,
+    etc.) so `history` must detect the format from content, not a suffix
+    convention nothing enforces.
+    """
+    try:
+        with path.open("rb") as handle:
+            return handle.read(len(_SQLITE_MAGIC)) == _SQLITE_MAGIC
+    except OSError:
+        return False
+
+
 @app.command("history")
 def history(
     source: Path = typer.Argument(
@@ -455,7 +472,7 @@ def history(
     ),
 ) -> None:
     """Render a cross-trace history view from a --db file or a run-JSON directory."""
-    if source.suffix == ".db":
+    if source.is_file() and _is_sqlite_file(source):
         runs = PersistentTraceStore(source).list_recent()
     else:
         try:
@@ -658,53 +675,6 @@ def evaluate_live(
         f"{result.summary.passed_cases}/{result.summary.total_cases} cases passed."
     )
     console.print(f"Saved evaluation to {save}")
-
-
-@app.command("judge-calibrate")
-def judge_calibrate(
-    report_file: Path = typer.Argument(..., help="AgenticLens evaluation report JSON."),
-    dataset_file: Path = typer.Argument(..., help="Labeled evaluation dataset JSON or YAML."),
-    score_name: str = typer.Option(..., "--score-name", help="Judge score name to calibrate."),
-    confidence_level: float = typer.Option(0.95, "--confidence-level", min=0.5, max=0.999),
-    save: Path | None = typer.Option(
-        None,
-        "--save",
-        help="Optionally save the machine-readable calibration report.",
-    ),
-) -> None:
-    """Compare judge scores against labeled reference judgments and summarize agreement."""
-    try:
-        report = EvaluationReport.model_validate_json(report_file.read_text(encoding="utf-8"))
-        dataset = load_dataset(dataset_file)
-        calibration = calibrate_judge(
-            report,
-            dataset,
-            score_name=score_name,
-            confidence_level=confidence_level,
-        )
-    except (OSError, ValueError) as exc:
-        console.print(f"[red]Unable to calibrate judge:[/red] {exc}")
-        raise typer.Exit(code=1) from exc
-
-    table = Table(title=f"Judge Calibration · {calibration.score_name}")
-    table.add_column("Metric")
-    table.add_column("Value", justify="right")
-    table.add_column("Samples", justify="right")
-    for metric in calibration.summary:
-        value = f"{metric.value:.3f}"
-        if metric.confidence_interval is not None:
-            ci = metric.confidence_interval
-            value = f"{value} ({ci.confidence_level:.0%} CI {ci.lower:.3f} to {ci.upper:.3f})"
-        table.add_row(metric.name, value, str(metric.sample_size))
-    console.print(table)
-    console.print(
-        f"Calibrated against {len(calibration.cases)} labeled case(s) "
-        f"from {calibration.dataset_name} {calibration.dataset_version}."
-    )
-    if save is not None:
-        save.parent.mkdir(parents=True, exist_ok=True)
-        save.write_text(calibration.model_dump_json(indent=2), encoding="utf-8")
-        console.print(f"Saved calibration report to {save}")
 
 
 @experiment_app.command("run")

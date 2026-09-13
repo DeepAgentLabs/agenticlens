@@ -237,16 +237,27 @@ The evaluation command produces machine-readable JSON and an optional
 standalone HTML report. The gate command returns exit status `2` when a
 configured release threshold fails, making it suitable for CI.
 
-AgenticLens can also manage local evaluation datasets and calibrate human
-labeled judge scores:
+AgenticLens can also manage local evaluation datasets:
 
 ```bash
 agenticlens dataset summary dataset.json
 agenticlens dataset split dataset.json --save dataset-split.json --seed 7
 agenticlens dataset export-samples dataset-split.json --split test --save samples-test.json
-agenticlens judge-calibrate evaluation.json dataset.json --score-name answer_quality
 agenticlens experiment run experiment.yaml suite.yaml --save experiment-report.json
 ```
+
+... and calibrate an `llm_judge` evaluator's verdicts against a versioned,
+human-labeled reference set (`labels.json`: a `CalibrationDataset` of bare
+`{case_id, passed}` reference labels — a different, simpler shape than the
+`dataset.json` above):
+
+```bash
+agenticlens calibrate evaluation.json labels.json --evaluator answer_quality --save calibration.json
+```
+
+Reports agreement rate with a 95% Wilson confidence interval plus a
+true/false accept/reject confusion breakdown; requires exact case-id and
+suite-name/version matching between the report and the reference set.
 
 ## Dashboard Report
 

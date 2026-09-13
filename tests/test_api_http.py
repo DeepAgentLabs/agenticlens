@@ -143,6 +143,34 @@ def test_healthz() -> None:
     assert client.get("/healthz").json() == {"status": "ok"}
 
 
+def test_save_dir_sanitizes_a_path_traversal_trace_id(tmp_path) -> None:
+    client = TestClient(create_app(LiveTraceStore(), save_dir=tmp_path))
+    outside = tmp_path.parent / "escaped.json"
+
+    client.post("/v1/traces", json=_otlp_payload("../escaped"))
+
+    assert not outside.exists()
+    # the sanitized trace id still lands safely inside save_dir
+    assert any(tmp_path.iterdir())
+
+
+def test_spans_merge_across_multiple_posts_for_same_trace() -> None:
+    client = TestClient(create_app(LiveTraceStore()))
+    trace_id = "h" * 32
+    first = _otlp_payload(trace_id)
+    client.post("/v1/traces", json=first)
+
+    second = _otlp_payload(trace_id)
+    second_span = second["resourceSpans"][0]["scopeSpans"][0]["spans"][0]
+    second_span["spanId"] = "2" * 16
+    second_span["name"] = "second span"
+    client.post("/v1/traces", json=second)
+
+    detail = client.get(f"/v1/traces/{trace_id}").json()
+    span_names = {span["name"] for span in detail["spans"]}
+    assert span_names == {"chat gpt-4o-mini", "second span"}
+
+
 def test_history_shows_placeholder_when_store_is_empty() -> None:
     client = TestClient(create_app(LiveTraceStore()))
 

@@ -430,6 +430,16 @@ def test_history_from_db_file(tmp_path: Path) -> None:
     assert "billing-bot" in result.output
 
 
+def test_history_detects_sqlite_db_regardless_of_extension(tmp_path: Path) -> None:
+    db_path = tmp_path / "traces.sqlite"
+    PersistentTraceStore(db_path).add(Run(application_name="billing-bot", spans=[]))
+
+    result = runner.invoke(app, ["history", str(db_path)])
+
+    assert result.exit_code == 0
+    assert "billing-bot" in result.output
+
+
 def test_history_reports_no_traces_found_for_empty_db(tmp_path: Path) -> None:
     db_path = tmp_path / "empty.db"
     PersistentTraceStore(db_path)  # create the (empty) db file, add nothing
@@ -551,138 +561,6 @@ def test_dataset_summary_split_and_export_samples(tmp_path: Path) -> None:
     payload = json.loads(export_file.read_text(encoding="utf-8"))
     assert "samples" in payload
     assert len(payload["samples"]) >= 1
-
-
-def test_judge_calibrate_command(tmp_path: Path) -> None:
-    report_file = tmp_path / "evaluation.json"
-    dataset_file = tmp_path / "dataset.json"
-    report_file.write_text(
-        json.dumps(
-            {
-                "suite_name": "judge-suite",
-                "suite_version": "1",
-                "summary": {
-                    "total_cases": 2,
-                    "passed_cases": 2,
-                    "failed_cases": 0,
-                    "pass_rate": 1.0,
-                    "average_score": 0.85,
-                    "total_cost_usd": 0.002,
-                    "average_latency_ms": 100.0,
-                },
-                "cases": [
-                    {
-                        "case_id": "case-1",
-                        "case_name": "Case one",
-                        "passed": True,
-                        "scores": [
-                            {
-                                "name": "answer_quality",
-                                "value": 0.9,
-                                "passed": True,
-                                "required": True,
-                                "explanation": "Strong",
-                                "evaluator_type": "llm_judge",
-                                "metadata": {"judge_verdict": "agree"},
-                            }
-                        ],
-                        "output": "ok",
-                        "trace_id": "trace-1",
-                        "latency_ms": 100.0,
-                        "cost_usd": 0.001,
-                    },
-                    {
-                        "case_id": "case-2",
-                        "case_name": "Case two",
-                        "passed": False,
-                        "scores": [
-                            {
-                                "name": "answer_quality",
-                                "value": 0.2,
-                                "passed": False,
-                                "required": True,
-                                "explanation": "Weak",
-                                "evaluator_type": "llm_judge",
-                                "metadata": {"judge_verdict": "disagree"},
-                            }
-                        ],
-                        "output": "ok",
-                        "trace_id": "trace-2",
-                        "latency_ms": 100.0,
-                        "cost_usd": 0.001,
-                    },
-                ],
-            }
-        ),
-        encoding="utf-8",
-    )
-    dataset_file.write_text(
-        json.dumps(
-            {
-                "name": "judge-labels",
-                "version": "2026-08-15",
-                "records": [
-                    {
-                        "case_id": "case-1",
-                        "output": "ok",
-                        "trace": {
-                            "trace_id": "trace-1",
-                            "application_name": "demo",
-                            "started_at": "2026-08-15T00:00:00Z",
-                            "completed_at": "2026-08-15T00:00:00Z",
-                            "status": "succeeded",
-                            "task_success": True,
-                            "spans": [],
-                        },
-                        "labels": [
-                            {
-                                "score_name": "answer_quality",
-                                "expected_value": 1.0,
-                                "expected_passed": True,
-                                "expected_verdict": "agree",
-                            }
-                        ],
-                    },
-                    {
-                        "case_id": "case-2",
-                        "output": "ok",
-                        "trace": {
-                            "trace_id": "trace-2",
-                            "application_name": "demo",
-                            "started_at": "2026-08-15T00:00:00Z",
-                            "completed_at": "2026-08-15T00:00:00Z",
-                            "status": "succeeded",
-                            "task_success": True,
-                            "spans": [],
-                        },
-                        "labels": [
-                            {
-                                "score_name": "answer_quality",
-                                "expected_value": 0.0,
-                                "expected_passed": False,
-                                "expected_verdict": "disagree",
-                            }
-                        ],
-                    },
-                ],
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    result = runner.invoke(
-        app,
-        [
-            "judge-calibrate",
-            str(report_file),
-            str(dataset_file),
-            "--score-name",
-            "answer_quality",
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert "pass_rate_agreement" in result.output
 
 
 def test_experiment_run_command(tmp_path: Path) -> None:

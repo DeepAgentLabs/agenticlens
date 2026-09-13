@@ -12,6 +12,8 @@ Any attribute not consumed by a mapping is preserved verbatim on
 """
 
 import json
+import re
+from contextlib import suppress
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -19,6 +21,20 @@ from typing import Any
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 
 _OTLP_STATUS_ERROR = 2
+_UNSAFE_FILENAME_CHARS = re.compile(r"[^A-Za-z0-9_-]")
+
+
+def safe_trace_filename(trace_id: str) -> str:
+    """Turn an arbitrary, untrusted trace id into a safe `<name>.json` stem.
+
+    A `traceId` is an opaque string from whoever sent the OTLP payload —
+    never trust it as a path component. Every character outside
+    `[A-Za-z0-9_-]` (path separators, `..`, a leading `/` that would make it
+    absolute, etc.) is replaced, so the result can never escape a configured
+    save directory or collide with an unrelated absolute path.
+    """
+    safe = _UNSAFE_FILENAME_CHARS.sub("_", trace_id)
+    return safe or "unknown-trace"
 
 _GEN_AI_OPERATION_TO_SPAN_TYPE: dict[str, SpanType] = {
     "chat": SpanType.MODEL_CALL,
@@ -89,6 +105,10 @@ def _build_run(
         if any(span.status is RunStatus.FAILED for span in spans)
         else RunStatus.SUCCEEDED
     )
+    raw_status = resource_attrs.get("agenticlens.status")
+    if isinstance(raw_status, str):
+        with suppress(ValueError):
+            status = RunStatus(raw_status)  # falls back to span-derived inference if invalid
 
     run_kwargs: dict[str, Any] = {
         "trace_id": trace_id,
