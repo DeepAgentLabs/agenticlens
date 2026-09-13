@@ -19,6 +19,38 @@ This project follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 - Offline judge calibration API and CLI with versioned human labels, exact case matching, agreement confidence intervals, confusion counts, and trace-linked verdict evidence.
+- Standalone HTML dashboard renderer (`agenticlens.reports.render_dashboard_html`/
+  `save_dashboard_html`) combining an agent timeline, cost-by-workflow-area
+  breakdown, waste findings, a release gate, and a baseline-vs-candidate
+  comparison from whichever artifacts are supplied. Wired into `analyze`,
+  `inspect`, and `compare` via a new `--html` option, plus a new `dashboard`
+  command that composes several already-saved artifacts into one page. No
+  external fonts or network requests; renders fully offline.
+- OTLP/OpenTelemetry ingestion adapter (`agenticlens.adapters.otlp`, new
+  `import-otlp` CLI command) converting OTLP/HTTP JSON trace exports —
+  including third-party exports that follow the OpenTelemetry GenAI
+  semantic conventions (`gen_ai.*`, with legacy attribute names supported)
+  and exports AgenticLens never produced itself — into AgenticLens run
+  files. Field mapping prefers AgenticLens's own attributes, falls back to
+  GenAI semconv, and never fabricates a value; unrecognized attributes are
+  preserved rather than discarded. Zero new dependencies.
+- Live OTLP/HTTP receiver and real-time dashboard (`agenticlens.api`, new
+  `serve-otlp` CLI command), behind a new optional `agenticlens[api]` extra
+  (FastAPI + uvicorn — **a dependency-surface change**, opt-in only, the
+  base package still requires neither). Reuses the OTLP adapter's
+  conversion and the dashboard renderer's rendering directly. Bounded
+  in-memory trace store (default cap 200, FIFO eviction); binds to
+  `127.0.0.1` by default and ships with no authentication — documented as
+  a stated limitation, not a silent gap. Live refresh is plain polling, not
+  websockets/SSE.
+
+### Fixed (evaluation module wiring)
+
+- `agenticlens.evaluation` failed to import `load_dataset`, `save_dataset`,
+  `split_dataset`, `summarize_dataset`, `dataset_from_samples`, and
+  `dataset_to_samples` from `agenticlens.evaluation.datasets`, breaking every
+  CLI command (the whole `agenticlens.cli.main` module failed at import time)
+  and the `dataset export-samples` command specifically.
 
 ## 0.4.0 - 2026-08-08
 

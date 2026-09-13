@@ -33,6 +33,19 @@ def test_inspect_trace_can_save_markdown(tmp_path):
     assert "Trace Report" in markdown_file.read_text(encoding="utf-8")
 
 
+def test_inspect_trace_can_save_html(tmp_path):
+    trace_file = tmp_path / "trace.json"
+    html_file = tmp_path / "trace.html"
+    trace_file.write_text(
+        '{"application_name":"demo","status":"succeeded","spans":[]}',
+        encoding="utf-8",
+    )
+    result = CliRunner().invoke(app, ["inspect", str(trace_file), "--html", str(html_file)])
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "AgenticLens" in html_file.read_text(encoding="utf-8")
+
+
 def test_compare_trace_directories(tmp_path):
     baseline = tmp_path / "baseline"
     candidate = tmp_path / "candidate"
@@ -231,6 +244,161 @@ def test_cli_analyze_no_recommendations(tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert "no optimization suggestions" in result.output.lower()
+
+
+def test_cli_analyze_can_save_html(tmp_path: Path) -> None:
+    from datetime import datetime, timezone
+
+    workflow = Workflow(name="Tool Workflow", start_time=datetime.now(timezone.utc))
+    for name in ("Lookup", "Lookup (retry)"):
+        workflow.steps.append(
+            Step(
+                name=name,
+                type=StepType.TOOL_CALL,
+                metrics=Metrics(prompt_tokens=100, completion_tokens=20, total_tokens=120),
+                metadata={"tool_name": "lookup_order", "tool_args": {"order_id": "A123"}},
+            )
+        )
+    out = tmp_path / "workflow.json"
+    html_file = tmp_path / "dashboard.html"
+    JSONExporter().export(workflow, out)
+
+    result = runner.invoke(app, ["analyze", str(out), "--html", str(html_file)])
+
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "Waste findings" in html_file.read_text(encoding="utf-8")
+
+
+def test_compare_can_save_html(tmp_path: Path) -> None:
+    baseline = tmp_path / "baseline"
+    candidate = tmp_path / "candidate"
+    baseline.mkdir()
+    candidate.mkdir()
+    payload = '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}'
+    (baseline / "run.json").write_text(payload, encoding="utf-8")
+    (candidate / "run.json").write_text(payload, encoding="utf-8")
+    html_file = tmp_path / "dashboard.html"
+
+    result = CliRunner().invoke(
+        app, ["compare", str(baseline), str(candidate), "--html", str(html_file)]
+    )
+
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "Baseline vs. candidate" in html_file.read_text(encoding="utf-8")
+
+
+def test_dashboard_command_requires_at_least_one_input() -> None:
+    result = runner.invoke(app, ["dashboard"])
+    assert result.exit_code == 1
+    assert "provide at least one" in result.output.lower()
+
+
+def test_dashboard_command_combines_workflow_and_run(tmp_path: Path) -> None:
+    workflow_file = tmp_path / "workflow.json"
+    run_file = tmp_path / "run.json"
+    html_file = tmp_path / "dashboard.html"
+    JSONExporter().export(_sample_workflow(), workflow_file)
+    run_file.write_text(
+        '{"application_name":"demo","status":"succeeded","task_success":true,"spans":[]}',
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "dashboard",
+            "--workflow",
+            str(workflow_file),
+            "--run",
+            str(run_file),
+            "--save",
+            str(html_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert html_file.exists()
+    assert "AgenticLens" in html_file.read_text(encoding="utf-8")
+
+
+def test_import_otlp_writes_run_files_and_prints_summary(tmp_path: Path) -> None:
+    otlp_file = tmp_path / "export.json"
+    save_dir = tmp_path / "imported"
+    otlp_file.write_text(
+        json.dumps(
+            {
+                "resourceSpans": [
+                    {
+                        "resource": {
+                            "attributes": [
+                                {"key": "service.name", "value": {"stringValue": "support-agent"}}
+                            ]
+                        },
+                        "scopeSpans": [
+                            {
+                                "scope": {"name": "vendor"},
+                                "spans": [
+                                    {
+                                        "traceId": "a" * 32,
+                                        "spanId": "1" * 16,
+                                        "parentSpanId": "",
+                                        "name": "chat",
+                                        "kind": 3,
+                                        "startTimeUnixNano": "1700000000000000000",
+                                        "endTimeUnixNano": "1700000000500000000",
+                                        "attributes": [
+                                            {
+                                                "key": "gen_ai.operation.name",
+                                                "value": {"stringValue": "chat"},
+                                            },
+                                            {
+                                                "key": "gen_ai.usage.input_tokens",
+                                                "value": {"intValue": "120"},
+                                            },
+                                        ],
+                                        "status": {"code": 1},
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app, ["import-otlp", str(otlp_file), "--save-dir", str(save_dir)]
+    )
+
+    assert result.exit_code == 0
+    assert "support-agent" in result.output
+    saved = save_dir / f"{'a' * 32}.json"
+    assert saved.exists()
+    assert "support-agent" in saved.read_text(encoding="utf-8")
+
+
+def test_import_otlp_without_save_dir_is_a_dry_run(tmp_path: Path) -> None:
+    otlp_file = tmp_path / "export.json"
+    otlp_file.write_text(json.dumps({"resourceSpans": []}), encoding="utf-8")
+
+    result = runner.invoke(app, ["import-otlp", str(otlp_file)])
+
+    assert result.exit_code == 0
+    assert "No traces found" in result.output
+
+
+def test_import_otlp_rejects_malformed_payload(tmp_path: Path) -> None:
+    otlp_file = tmp_path / "not-otlp.json"
+    otlp_file.write_text(json.dumps({"hello": "world"}), encoding="utf-8")
+
+    result = runner.invoke(app, ["import-otlp", str(otlp_file)])
+
+    assert result.exit_code == 1
+    assert "unable to import" in result.output.lower()
 
 
 def test_evaluate_live_python_target(tmp_path: Path) -> None:

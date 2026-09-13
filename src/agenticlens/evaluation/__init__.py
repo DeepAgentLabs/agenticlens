@@ -4,6 +4,14 @@ from agenticlens.evaluation.calibration import (
     ReferenceLabel,
     calibrate_judge,
 )
+from agenticlens.evaluation.datasets import (
+    dataset_from_samples,
+    dataset_to_samples,
+    load_dataset,
+    save_dataset,
+    split_dataset,
+    summarize_dataset,
+)
 from agenticlens.evaluation.evaluators import (
     BusinessRuleEvaluator,
     CallableEvaluator,
