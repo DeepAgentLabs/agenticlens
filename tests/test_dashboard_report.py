@@ -104,9 +104,7 @@ def _evaluation(*, failed: bool = False) -> EvaluationReport:
                 case_id="case-1",
                 case_name="Case one",
                 passed=True,
-                scores=[
-                    Score(name="answer_quality", value=0.95, passed=True, explanation="Good.")
-                ],
+                scores=[Score(name="answer_quality", value=0.95, passed=True, explanation="Good.")],
                 output="ok",
                 trace_id="trace-1",
                 latency_ms=4820,

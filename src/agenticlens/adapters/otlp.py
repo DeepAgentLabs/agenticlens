@@ -36,6 +36,7 @@ def safe_trace_filename(trace_id: str) -> str:
     safe = _UNSAFE_FILENAME_CHARS.sub("_", trace_id)
     return safe or "unknown-trace"
 
+
 _GEN_AI_OPERATION_TO_SPAN_TYPE: dict[str, SpanType] = {
     "chat": SpanType.MODEL_CALL,
     "generate_content": SpanType.MODEL_CALL,

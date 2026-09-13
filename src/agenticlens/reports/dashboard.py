@@ -121,7 +121,11 @@ def _render_stats(
     if run is not None:
         cost, tokens, latency_ms = run.estimated_cost_usd, run.total_tokens, run.total_latency_ms
     elif workflow is not None:
-        cost, tokens, latency_ms = workflow.total_cost, workflow.total_tokens, workflow.latency * 1000
+        cost, tokens, latency_ms = (
+            workflow.total_cost,
+            workflow.total_tokens,
+            workflow.latency * 1000,
+        )
     else:
         cost, tokens, latency_ms = None, None, None
 
@@ -173,8 +177,7 @@ def _axis_row(total_ms: float) -> str:
         for pct in (0.0, 50.0, 100.0)
     )
     return (
-        '<div class="tl-axis"><div></div>'
-        f'<div class="tl-axis-track">{marks}</div><div></div></div>'
+        f'<div class="tl-axis"><div></div><div class="tl-axis-track">{marks}</div><div></div></div>'
     )
 
 
@@ -301,7 +304,9 @@ def _render_cost_breakdown(rows: list[_CostRow]) -> str:
     body: list[str] = []
     for label, slot, cost, tokens in rows:
         raw_value = cost if use_cost else float(tokens)
-        width_pct = 0.0 if not max_value else max(2.0, min(100.0, (raw_value or 0.0) / max_value * 100))
+        width_pct = (
+            0.0 if not max_value else max(2.0, min(100.0, (raw_value or 0.0) / max_value * 100))
+        )
         display = _fmt_usd(cost) if use_cost else f"{tokens:,} tok"
         body.append(
             '<div class="cost-row">'
@@ -826,8 +831,7 @@ def render_history_html(
     heading = title or "Trace history"
     if not runs:
         body_html = (
-            '<div class="panel"><p class="panel-note-line">'
-            "No traces recorded yet.</p></div>"
+            '<div class="panel"><p class="panel-note-line">No traces recorded yet.</p></div>'
         )
         return _page(heading, "", None, body_html, tagline="AgenticLens history")
 
@@ -859,7 +863,7 @@ def _render_history_stats(runs: list[Run]) -> str:
 
 def _history_row(run: Run, trace_link_base: str | None) -> str:
     short_id = run.trace_id[:12]
-    label = f"{escape(run.application_name)} · <span class=\"mono\">{escape(short_id)}</span>"
+    label = f'{escape(run.application_name)} · <span class="mono">{escape(short_id)}</span>'
     identity = (
         f'<a href="{escape(trace_link_base)}{escape(run.trace_id)}">{label}</a>'
         if trace_link_base
@@ -883,7 +887,7 @@ def _render_history_rows(runs: list[Run], trace_link_base: str | None) -> str:
     return (
         '<div class="panel">'
         '<div class="panel-head"><h2 class="panel-title">Recent traces</h2>'
-        f"<span class=\"panel-note\">{len(runs)} trace(s)</span></div>"
+        f'<span class="panel-note">{len(runs)} trace(s)</span></div>'
         f'<div role="table" aria-label="Recent traces">{rows}</div>'
         "</div>"
     )

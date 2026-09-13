@@ -372,9 +372,7 @@ def test_import_otlp_writes_run_files_and_prints_summary(tmp_path: Path) -> None
         encoding="utf-8",
     )
 
-    result = runner.invoke(
-        app, ["import-otlp", str(otlp_file), "--save-dir", str(save_dir)]
-    )
+    result = runner.invoke(app, ["import-otlp", str(otlp_file), "--save-dir", str(save_dir)])
 
     assert result.exit_code == 0
     assert "support-agent" in result.output

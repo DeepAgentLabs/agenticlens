@@ -141,9 +141,11 @@ def _summary(run: Run) -> dict[str, Any]:
 def _nav_strip(recent: list[Run], selected_trace_id: str) -> str:
     items = []
     for run in recent:
-        active = ' style="font-weight:700;text-decoration:underline"' if (
-            run.trace_id == selected_trace_id
-        ) else ""
+        active = (
+            ' style="font-weight:700;text-decoration:underline"'
+            if (run.trace_id == selected_trace_id)
+            else ""
+        )
         items.append(
             f'<a href="/?trace_id={escape(run.trace_id)}"{active}>'
             f"{escape(run.application_name)} · {escape(run.trace_id[:8])}</a>"
