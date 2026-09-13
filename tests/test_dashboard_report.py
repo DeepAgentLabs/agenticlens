@@ -14,7 +14,7 @@ from agenticlens.models import Metrics, Step, StepType, Workflow
 from agenticlens.models.enums import Severity
 from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
-from agenticlens.reports import render_dashboard_html, save_dashboard_html
+from agenticlens.reports import render_dashboard_html, render_history_html, save_dashboard_html
 
 
 def _run() -> Run:
@@ -204,3 +204,66 @@ def test_save_dashboard_html_writes_file(tmp_path) -> None:
 
     assert out.exists()
     assert "Agent timeline" in out.read_text(encoding="utf-8")
+
+
+def _priced_run(trace_id: str, application_name: str, *, cost: float | None) -> Run:
+    started = datetime.now(timezone.utc)
+    return Run(
+        trace_id=trace_id,
+        application_name=application_name,
+        started_at=started,
+        completed_at=started + timedelta(milliseconds=100),
+        status=RunStatus.SUCCEEDED,
+        spans=[
+            Span(
+                name="call",
+                span_type=SpanType.MODEL_CALL,
+                started_at=started,
+                latency_ms=100,
+                input_tokens=10,
+                output_tokens=5,
+                estimated_cost_usd=cost,
+            )
+        ],
+    )
+
+
+def test_render_history_html_renders_placeholder_for_empty_list() -> None:
+    html = render_history_html([])
+
+    assert "No traces recorded yet" in html
+
+
+def test_render_history_html_renders_aggregate_stats_and_rows() -> None:
+    runs = [
+        _priced_run("trace-1", "support-bot", cost=0.01),
+        _priced_run("trace-2", "billing-bot", cost=0.02),
+    ]
+
+    html = render_history_html(runs)
+
+    assert "Total traces" in html
+    assert "support-bot" in html
+    assert "billing-bot" in html
+    assert "P95 latency" in html
+
+
+def test_render_history_html_notes_partial_pricing() -> None:
+    runs = [
+        _priced_run("trace-1", "support-bot", cost=0.01),
+        _priced_run("trace-2", "billing-bot", cost=None),
+    ]
+
+    html = render_history_html(runs)
+
+    assert "1 of 2 traces priced" in html
+
+
+def test_render_history_html_links_trace_ids_only_when_base_given() -> None:
+    runs = [_priced_run("trace-1", "support-bot", cost=0.01)]
+
+    without_link = render_history_html(runs)
+    with_link = render_history_html(runs, trace_link_base="/?trace_id=")
+
+    assert '<a href="/?trace_id=trace-1"' not in without_link
+    assert '<a href="/?trace_id=trace-1"' in with_link

@@ -71,7 +71,7 @@ not every possible behavior of an entire milestone.
 | CLI | [commands](src/agenticlens/cli/main.py), [trace rendering](src/agenticlens/reports/trace.py) | [test_cli.py](tests/test_cli.py), [test_trace_reports.py](tests/test_trace_reports.py) |
 | DASH | [dashboard renderer](src/agenticlens/reports/dashboard.py) | [test_dashboard_report.py](tests/test_dashboard_report.py), [test_cli.py](tests/test_cli.py) |
 | OTLP-IN | [OTLP ingestion adapter](src/agenticlens/adapters/otlp.py) | [test_adapters_otlp.py](tests/test_adapters_otlp.py), [test_cli.py](tests/test_cli.py) |
-| OTLP-LIVE | [live receiver + store](src/agenticlens/api) | [test_api_store.py](tests/test_api_store.py), [test_api_http.py](tests/test_api_http.py) |
+| OTLP-LIVE | [live receiver + store](src/agenticlens/api) (`LiveTraceStore` and `PersistentTraceStore`, `GET /history`) | [test_api_store.py](tests/test_api_store.py), [test_api_http.py](tests/test_api_http.py) |
 
 ## v0.2 Trace and Comparison Foundation
 
@@ -89,8 +89,9 @@ not every possible behavior of an entire milestone.
 | Versioned research schemas | I | [schemas](schemas) exist; universal validation is a separate acceptance claim |
 | Instrumentation overhead measurement | M | No reproducible overhead benchmark found |
 | Local HTML dashboard combining trace, cost, findings, gate, and comparison | I | DASH; `analyze`/`inspect`/`compare --html` and the `dashboard` command render conditionally on whichever artifacts are supplied, offline, no external requests |
-| OTLP/OpenTelemetry ingestion (file/batch) into `Run`/`Span`, including third-party GenAI-semconv exports | I | OTLP-IN; `import-otlp` CLI |
+| OTLP/OpenTelemetry ingestion (file/batch) into `Run`/`Span`, including third-party GenAI-semconv exports | I | OTLP-IN; `import-otlp` CLI; fidelity is bounded by the OTel GenAI spec itself — cost and 7 of 11 `SpanType` values (retrieval, planning, final_response, etc.) have no standardized attribute and are only recovered when the source also emits `agenticlens.*` attributes (see README's ingestion fidelity table) |
 | Live OTLP/HTTP receiver with a real-time dashboard | I | OTLP-LIVE; `serve-otlp` CLI, behind the optional `[api]` extra; opt-in only, no authentication, binds to localhost by default, plain-polling refresh (not SSE/websocket) |
+| Persistent local trace history and cross-trace aggregate view | I | OTLP-LIVE; `serve-otlp --db` (stdlib `sqlite3`, no new dependency), `GET /history`, and the offline `agenticlens history` CLI command; unbounded by default, no alerting (explicitly out of scope for local visibility) |
 
 Acceptance: saved-run comparisons and privacy defaults have code/tests.
 Compatibility is exercised by existing profiler tests, not certified across all

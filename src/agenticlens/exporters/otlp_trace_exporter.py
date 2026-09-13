@@ -69,6 +69,7 @@ class OTLPTraceExporter:
             ("agenticlens.task_type", run.task_type),
             ("agenticlens.experiment_id", run.experiment_id),
             ("agenticlens.variant_id", run.variant_id),
+            ("agenticlens.error_type", run.error_type),
         ):
             if value is not None:
                 attributes.append(_string_attribute(key, value))

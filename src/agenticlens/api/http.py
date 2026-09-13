@@ -16,15 +16,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from agenticlens.adapters.otlp import parse_otlp_payload
-from agenticlens.api.store import LiveTraceStore
+from agenticlens.api.store import LiveTraceStore, TraceStore
 from agenticlens.models.trace import Run
-from agenticlens.reports.dashboard import render_dashboard_html
+from agenticlens.reports.dashboard import render_dashboard_html, render_history_html
 
 _REFRESH_SCRIPT = "<script>setTimeout(() => location.reload(), 4000);</script>"
 
 
 def create_app(
-    store: LiveTraceStore | None = None,
+    store: TraceStore | None = None,
     *,
     save_dir: Path | None = None,
 ) -> FastAPI:
@@ -79,6 +79,14 @@ def create_app(
             extra_header_html=nav_html + _REFRESH_SCRIPT,
         )
 
+    @app.get("/history", response_class=HTMLResponse)
+    def history() -> str:
+        return render_history_html(
+            live_store.list_recent(),
+            title="Trace history",
+            trace_link_base="/?trace_id=",
+        )
+
     return app
 
 
@@ -108,6 +116,7 @@ def _nav_strip(recent: list[Run], selected_trace_id: str) -> str:
         '<div style="padding:10px 0;display:flex;gap:14px;flex-wrap:wrap;'
         'font-size:12.5px;border-bottom:1px solid var(--border);margin-bottom:14px">'
         f"<strong>Live traces:</strong> {' · '.join(items)}"
+        ' · <a href="/history">History</a>'
         "</div>"
     )
 

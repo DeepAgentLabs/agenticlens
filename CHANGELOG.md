@@ -15,6 +15,9 @@ This project follows [Semantic Versioning](https://semver.org/).
 - Keep incomplete span/case/run cost aggregates unavailable and reject incomplete
   report cost gates; explicit zero costs remain valid.
 - Respect explicit task outcomes in comparison success metrics.
+- Export and re-import a failed run's `error_type` via OTLP instead of
+  silently dropping it (the exporter never wrote it as a resource
+  attribute, so even a native AgenticLens round-trip lost it).
 
 ### Added
 
@@ -43,6 +46,15 @@ This project follows [Semantic Versioning](https://semver.org/).
   `127.0.0.1` by default and ships with no authentication — documented as
   a stated limitation, not a silent gap. Live refresh is plain polling, not
   websockets/SSE.
+- Persistent local trace history: `PersistentTraceStore`
+  (`agenticlens.api.store`), a stdlib-`sqlite3`-backed drop-in for the
+  in-memory trace store — zero new dependency. `serve-otlp --db PATH` uses
+  it instead of memory-only storage, so traces survive a restart. A new
+  cross-trace `render_history_html` view (`GET /history` on the receiver,
+  and a new offline `agenticlens history` CLI command against a `--db`
+  file or a directory of run JSON) shows aggregate tokens/cost/error-rate/
+  p95-latency across recent traces instead of one trace at a time; cost
+  aggregates note "N of M traces priced" rather than fabricating a total.
 
 ### Fixed (evaluation module wiring)
 

@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.table import Table
 
 from agenticlens.adapters import load_otlp_export
+from agenticlens.api.store import PersistentTraceStore
 from agenticlens.cli.render import (
     render_agent_summary,
     render_recommendations,
@@ -47,7 +48,12 @@ from agenticlens.models.trace import Run
 from agenticlens.models.workflow import Workflow
 from agenticlens.profiler.context import completed_workflows
 from agenticlens.recommenders import RecommendationEngine
-from agenticlens.reports import render_trace, render_trace_markdown, save_dashboard_html
+from agenticlens.reports import (
+    render_history_html,
+    render_trace,
+    render_trace_markdown,
+    save_dashboard_html,
+)
 from agenticlens.validation import ConformanceReport, validate_aios_artifact
 
 app = typer.Typer(
@@ -395,7 +401,19 @@ def serve_otlp(
         None, "--save-dir", help="Also persist every received trace as <trace_id>.json here."
     ),
     max_traces: int = typer.Option(
-        200, "--max-traces", min=1, help="Most recent traces kept in memory before evicting."
+        200, "--max-traces", min=1, help="Most recent in-memory traces kept before evicting."
+    ),
+    db: Path | None = typer.Option(
+        None,
+        "--db",
+        help="Persist traces to a SQLite file here instead of memory-only. "
+        "Traces survive a restart; view them anytime with `agenticlens history`.",
+    ),
+    max_persisted: int | None = typer.Option(
+        None,
+        "--max-persisted",
+        min=1,
+        help="Cap on traces kept in --db before evicting the oldest. Unbounded by default.",
     ),
 ) -> None:
     """Run a live OTLP/HTTP receiver with a real-time dashboard. Requires `agenticlens[api]`."""
@@ -411,12 +429,68 @@ def serve_otlp(
         )
         raise typer.Exit(code=1) from exc
 
-    app_instance = create_app(LiveTraceStore(max_traces=max_traces), save_dir=save_dir)
+    store = (
+        PersistentTraceStore(db, max_traces=max_persisted)
+        if db is not None
+        else LiveTraceStore(max_traces=max_traces)
+    )
+    app_instance = create_app(store, save_dir=save_dir)
     console.print(f"OTLP endpoint: http://{host}:{port}/v1/traces")
     console.print(f"Live dashboard: http://{host}:{port}/")
+    console.print(f"Trace history: http://{host}:{port}/history")
     if save_dir is not None:
-        console.print(f"Persisting received traces to {save_dir}")
+        console.print(f"Persisting received traces as JSON to {save_dir}")
+    if db is not None:
+        console.print(f"Persisting traces to {db} (survives a restart)")
     uvicorn.run(app_instance, host=host, port=port, log_level="warning")
+
+
+@app.command("history")
+def history(
+    source: Path = typer.Argument(
+        ..., help="A `--db` SQLite file, or a directory/file of AgenticLens run JSON."
+    ),
+    save: Path | None = typer.Option(
+        None, "--save", help="Write the rendered HTML history page here."
+    ),
+) -> None:
+    """Render a cross-trace history view from a --db file or a run-JSON directory."""
+    if source.suffix == ".db":
+        runs = PersistentTraceStore(source).list_recent()
+    else:
+        try:
+            runs = load_runs(source)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            console.print(f"[red]Unable to load runs:[/red] {exc}")
+            raise typer.Exit(code=1) from exc
+
+    if not runs:
+        console.print("[yellow]No traces found.[/yellow]")
+        return
+
+    table = Table(title="Trace History")
+    table.add_column("Trace ID")
+    table.add_column("Application")
+    table.add_column("Status")
+    table.add_column("Spans", justify="right")
+    table.add_column("Tokens", justify="right")
+    table.add_column("Cost", justify="right")
+    for run in runs:
+        cost = "unavailable" if run.estimated_cost_usd is None else f"${run.estimated_cost_usd:.4f}"
+        table.add_row(
+            run.trace_id,
+            run.application_name,
+            run.status.value,
+            str(len(run.spans)),
+            str(run.total_tokens),
+            cost,
+        )
+    console.print(table)
+
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(render_history_html(runs), encoding="utf-8")
+        console.print(f"Saved HTML history to {save}")
 
 
 @app.command()

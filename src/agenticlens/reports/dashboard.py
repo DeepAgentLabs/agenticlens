@@ -11,12 +11,13 @@ from html import escape
 from pathlib import Path
 
 from agenticlens.comparison.models import ComparisonReport, MetricDelta
+from agenticlens.comparison.stats import percentile
 from agenticlens.evaluation.gate import GateDecision
 from agenticlens.evaluation.models import EvaluationReport
 from agenticlens.models.enums import Severity, StepType
 from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.step import Step
-from agenticlens.models.trace import Run, Span, SpanType
+from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 from agenticlens.models.workflow import Workflow
 
 # ---------------------------------------------------------------------------
@@ -759,7 +760,19 @@ def render_dashboard_html(
 
     stats_html = _render_stats(workflow, run, recommendations)
     comparison_html = _render_comparison(comparison)
+    body_html = f"{stats_html}{content}{comparison_html}"
 
+    return _page(heading, meta_html, extra_header_html, body_html)
+
+
+def _page(
+    heading: str,
+    meta_html: str,
+    extra_header_html: str | None,
+    body_html: str,
+    *,
+    tagline: str = "AgenticLens dashboard",
+) -> str:
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -779,21 +792,101 @@ def render_dashboard_html(
       </svg>
       <div>
         <div class="brand-name">{escape(heading)}</div>
-        <div class="brand-tag">AgenticLens dashboard</div>
+        <div class="brand-tag">{escape(tagline)}</div>
       </div>
     </div>
     <div class="run-meta">{meta_html}</div>
   </header>
   {extra_header_html or ""}
-  {stats_html}
-  {content}
-  {comparison_html}
+  {body_html}
   <footer>
     <span>Rendered locally by AgenticLens — no hosted backend, no data egress.</span>
   </footer>
 </div>
 </body>
 </html>"""
+
+
+def render_history_html(
+    runs: list[Run],
+    *,
+    title: str | None = None,
+    trace_link_base: str | None = None,
+) -> str:
+    """Render a cross-trace history view: aggregate stats + a row per trace.
+
+    Unlike `render_dashboard_html`, an empty ``runs`` list is a valid input
+    (renders a placeholder) rather than a `ValueError` — a fresh trace store
+    legitimately has nothing in it yet.
+
+    ``trace_link_base`` is prefixed to each trace id to build that row's
+    link (e.g. ``"/?trace_id="`` for the live receiver); omit it to render
+    plain text, for offline/standalone history pages with nowhere to link.
+    """
+    heading = title or "Trace history"
+    if not runs:
+        body_html = (
+            '<div class="panel"><p class="panel-note-line">'
+            "No traces recorded yet.</p></div>"
+        )
+        return _page(heading, "", None, body_html, tagline="AgenticLens history")
+
+    meta_html = f'<dl><dt>Traces</dt><dd class="mono">{len(runs)}</dd></dl>'
+    body_html = _render_history_stats(runs) + _render_history_rows(runs, trace_link_base)
+    return _page(heading, meta_html, None, body_html, tagline="AgenticLens history")
+
+
+def _render_history_stats(runs: list[Run]) -> str:
+    total_tokens = sum(run.total_tokens for run in runs)
+    priced = [run.estimated_cost_usd for run in runs if run.estimated_cost_usd is not None]
+    cost_sub = None if len(priced) == len(runs) else f"{len(priced)} of {len(runs)} traces priced"
+    failed = sum(1 for run in runs if run.status is RunStatus.FAILED)
+    error_rate = failed / len(runs)
+    latencies = [run.total_latency_ms for run in runs if run.completed_at is not None]
+    p95_latency = percentile(latencies, 0.95) if latencies else None
+
+    tiles = [
+        _stat_tile("Total traces", _fmt_int(len(runs))),
+        _stat_tile("Total tokens", _fmt_int(total_tokens)),
+        _stat_tile(
+            "Total cost", _fmt_usd(sum(priced)) if priced else "—", sub=cost_sub, accent=True
+        ),
+        _stat_tile("Error rate", f"{error_rate * 100:.1f}%"),
+        _stat_tile("P95 latency", _fmt_ms(p95_latency)),
+    ]
+    return f'<section class="stat-strip">{"".join(tiles)}</section>'
+
+
+def _history_row(run: Run, trace_link_base: str | None) -> str:
+    short_id = run.trace_id[:12]
+    label = f"{escape(run.application_name)} · <span class=\"mono\">{escape(short_id)}</span>"
+    identity = (
+        f'<a href="{escape(trace_link_base)}{escape(run.trace_id)}">{label}</a>'
+        if trace_link_base
+        else label
+    )
+    cost = _fmt_usd(run.estimated_cost_usd) if run.estimated_cost_usd is not None else "—"
+    started = run.started_at.isoformat(timespec="seconds")
+
+    return (
+        '<div class="tl-row">'
+        f'<div class="tl-id"><div><div class="tl-name">{identity}</div>'
+        f'<div class="tl-agent">{escape(run.status.value)} · {started}</div></div></div>'
+        f'<div class="tl-figs">{len(run.spans)} span(s) · {run.total_tokens:,} tok · {cost}'
+        f' · <span class="mono">{_fmt_ms(run.total_latency_ms)}</span></div>'
+        "</div>"
+    )
+
+
+def _render_history_rows(runs: list[Run], trace_link_base: str | None) -> str:
+    rows = "".join(_history_row(run, trace_link_base) for run in runs)
+    return (
+        '<div class="panel">'
+        '<div class="panel-head"><h2 class="panel-title">Recent traces</h2>'
+        f"<span class=\"panel-note\">{len(runs)} trace(s)</span></div>"
+        f'<div role="table" aria-label="Recent traces">{rows}</div>'
+        "</div>"
+    )
 
 
 def save_dashboard_html(

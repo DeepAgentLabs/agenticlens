@@ -110,6 +110,7 @@ def _build_run(
         ("task_type", "agenticlens.task_type"),
         ("experiment_id", "agenticlens.experiment_id"),
         ("variant_id", "agenticlens.variant_id"),
+        ("error_type", "agenticlens.error_type"),
     ):
         if key in resource_attrs:
             run_kwargs[field] = resource_attrs[key]
@@ -129,6 +130,7 @@ def _build_run(
         "agenticlens.experiment_id",
         "agenticlens.variant_id",
         "agenticlens.task_success",
+        "agenticlens.error_type",
     }
     for key, value in resource_attrs.items():
         if key.startswith("agenticlens.metadata."):

@@ -98,6 +98,32 @@ def test_round_trips_an_agenticlens_exported_run() -> None:
     assert by_name["lookup_order"].tool_name == "lookup_order"
 
 
+def test_round_trips_run_level_error_type() -> None:
+    started = datetime.now(timezone.utc)
+    run = Run(
+        application_name="support-agent",
+        started_at=started,
+        completed_at=started + timedelta(milliseconds=500),
+        status=RunStatus.FAILED,
+        error_type="ToolTimeoutError",
+        spans=[
+            Span(
+                name="lookup_order",
+                span_type=SpanType.TOOL_CALL,
+                tool_name="lookup_order",
+                started_at=started,
+                latency_ms=50,
+                status=RunStatus.FAILED,
+            ),
+        ],
+    )
+
+    payload = OTLPTraceExporter().to_payload(run)
+    [imported] = parse_otlp_payload(payload)
+
+    assert imported.error_type == "ToolTimeoutError"
+
+
 def test_imports_third_party_genai_payload_split_across_resource_spans() -> None:
     trace_id = "a" * 32
     chat_span = _otlp_span(

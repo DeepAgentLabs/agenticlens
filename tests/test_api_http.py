@@ -141,3 +141,23 @@ def test_healthz() -> None:
     client = TestClient(create_app(LiveTraceStore()))
 
     assert client.get("/healthz").json() == {"status": "ok"}
+
+
+def test_history_shows_placeholder_when_store_is_empty() -> None:
+    client = TestClient(create_app(LiveTraceStore()))
+
+    response = client.get("/history")
+
+    assert response.status_code == 200
+    assert "No traces recorded yet" in response.text
+
+
+def test_history_lists_posted_traces() -> None:
+    client = TestClient(create_app(LiveTraceStore()))
+    client.post("/v1/traces", json=_otlp_payload("g" * 32, application_name="history-agent"))
+
+    response = client.get("/history")
+
+    assert response.status_code == 200
+    assert "history-agent" in response.text
+    assert f'href="/?trace_id={"g" * 32}"' in response.text

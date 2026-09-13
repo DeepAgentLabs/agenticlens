@@ -209,6 +209,7 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
 | Live OTLP receiver + real-time dashboard (optional `[api]` extra, `serve-otlp`) | Implemented, experimental |
+| Persistent local trace history (`--db`, `/history`, `agenticlens history`) | Implemented, experimental |
 | Local HTML dashboard (timeline, cost, findings, gate, comparison) | Implemented, experimental |
 | Statistical significance testing | Planned |
 | Framework trace adapters (native LangChain/LangGraph instrumentation, not already-OTel data) | Planned |
@@ -338,6 +339,27 @@ prints a summary table as a dry run and writes nothing.
 `import-otlp` is for offline/CI use — export a file, convert it, move on.
 For watching traces arrive live, see the receiver below.
 
+### What survives ingestion, and what doesn't
+
+Pure OpenTelemetry GenAI-semconv data (no `agenticlens.*` attributes layered
+on top) round-trips some fields perfectly and structurally cannot carry
+others — this is a ceiling in what the OTel spec currently standardizes, not
+a shortcoming of the adapter:
+
+| Survives cleanly | Structurally invisible to pure OTel |
+|---|---|
+| `trace_id`/`span_id`/`parent_span_id`, timestamps, latency | **Cost** — no standardized cost attribute exists; every pure-OTel import shows cost as unavailable, never `$0.00` |
+| `input_tokens`/`output_tokens` (`gen_ai.usage.*`) | **Retry attempt number** — no OTel concept, so retry-attribution features can't use pure OTel data |
+| `model_name`, `provider`, `tool_name`, `agent_name` | **7 of 11 span types**: `retrieval`, `planning`, `memory_read`, `memory_write`, `validation`, `retry`, `final_response` — only `model_call`, `tool_call`, and `delegation` map from `gen_ai.operation.name`; everything else becomes `custom` |
+| `error_type`/`error_message` (via the standard OTel exception event) | Run-level `task_success`, `experiment_id`, `variant_id`, `task_id`/`task_type`, `framework` — AgenticLens-specific product concepts with no OTel equivalent |
+| `application_name` (via `service.name`) | |
+
+The fix, when you control the source: emit the matching `agenticlens.*`
+attribute alongside the standard `gen_ai.*` ones (e.g. an explicit
+`agenticlens.span_type` on a retrieval span, or `agenticlens.estimated_cost_usd`
+on a priced call) — the adapter always prefers those first. That gets you
+full native fidelity without giving up your existing OTel instrumentation.
+
 ## Live OTLP Receiver
 
 Behind an optional extra (`pip install agenticlens[api]`, adding FastAPI and
@@ -371,6 +393,38 @@ provide any.
 The live refresh is plain polling (the page reloads every few seconds), not
 a websocket/SSE push — a deliberate simplicity choice for this first
 version, and the natural next upgrade if that latency ever matters.
+
+### Persistent history (cross-trace view)
+
+By default the receiver's store is in-memory only — restart it and every
+trace is gone. `--db` turns that into a durable local store, and `/history`
+gives you the cross-trace view a single-trace dashboard can't: aggregate
+tokens/cost, error rate, and p95 latency across recent traces, not just one
+at a time.
+
+```bash
+agenticlens serve-otlp --port 4318 --db traces.db --save-dir live-runs/
+```
+
+- `--db PATH` — persists every received trace to a local SQLite file
+  (Python's stdlib `sqlite3`, no new dependency, no change to the `[api]`
+  extra) instead of memory-only. Traces survive a restart.
+- `http://localhost:4318/history` — aggregate stats (total traces, total
+  tokens, total cost — or "N of M traces priced" when only some are, never
+  a fabricated `$0.00`) plus a row per recent trace, linking back to its
+  own live dashboard.
+- `--max-persisted N` caps the persistent store (unbounded by default —
+  the whole point of `--db` is not throwing history away); kept separate
+  from `--max-traces`, which still governs the in-memory path.
+- View history offline, without running the receiver at all:
+
+  ```bash
+  agenticlens history traces.db --save history.html
+  agenticlens history live-runs/ --save history.html   # or a --save-dir of run JSON
+  ```
+
+Alerting was deliberately left out — this is local visibility for a human
+watching a dashboard, not a paging system.
 
 Run a trusted live target directly:
 

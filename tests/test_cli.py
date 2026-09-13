@@ -3,9 +3,11 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
+from agenticlens.api.store import PersistentTraceStore
 from agenticlens.cli.main import app
 from agenticlens.exporters import JSONExporter
 from agenticlens.models import Metrics, Step, StepType, Workflow
+from agenticlens.models.trace import Run
 
 
 def test_inspect_trace(tmp_path):
@@ -399,6 +401,53 @@ def test_import_otlp_rejects_malformed_payload(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "unable to import" in result.output.lower()
+
+
+def test_history_from_run_json_directory(tmp_path: Path) -> None:
+    run_dir = tmp_path / "runs"
+    run_dir.mkdir()
+    (run_dir / "one.json").write_text(
+        Run(application_name="support-bot", status="succeeded", spans=[]).model_dump_json(),
+        encoding="utf-8",
+    )
+    save_file = tmp_path / "history.html"
+
+    result = runner.invoke(app, ["history", str(run_dir), "--save", str(save_file)])
+
+    assert result.exit_code == 0
+    assert "support-bot" in result.output
+    assert save_file.exists()
+    assert "support-bot" in save_file.read_text(encoding="utf-8")
+
+
+def test_history_from_db_file(tmp_path: Path) -> None:
+    db_path = tmp_path / "traces.db"
+    PersistentTraceStore(db_path).add(Run(application_name="billing-bot", spans=[]))
+
+    result = runner.invoke(app, ["history", str(db_path)])
+
+    assert result.exit_code == 0
+    assert "billing-bot" in result.output
+
+
+def test_history_reports_no_traces_found_for_empty_db(tmp_path: Path) -> None:
+    db_path = tmp_path / "empty.db"
+    PersistentTraceStore(db_path)  # create the (empty) db file, add nothing
+
+    result = runner.invoke(app, ["history", str(db_path)])
+
+    assert result.exit_code == 0
+    assert "No traces found" in result.output
+
+
+def test_history_rejects_directory_with_no_run_json(tmp_path: Path) -> None:
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+
+    result = runner.invoke(app, ["history", str(empty_dir)])
+
+    assert result.exit_code == 1
+    assert "unable to load runs" in result.output.lower()
 
 
 def test_evaluate_live_python_target(tmp_path: Path) -> None:
