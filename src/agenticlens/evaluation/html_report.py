@@ -1,7 +1,7 @@
 from html import escape
 from pathlib import Path
 
-from agenticlens.evaluation.models import EvaluationReport
+from agentic_evals import EvaluationReport
 
 
 def render_html_report(report: EvaluationReport) -> str:

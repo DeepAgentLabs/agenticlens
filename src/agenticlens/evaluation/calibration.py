@@ -3,9 +3,8 @@
 from math import sqrt
 from typing import Literal
 
+from agentic_evals import EvaluationReport
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, model_validator
-
-from agenticlens.evaluation.models import EvaluationReport
 
 
 class ReferenceLabel(BaseModel):

@@ -15,10 +15,38 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "agentic-evals"
+version = "0.1.0"
+source = { editable = "../agentic-evals" }
+dependencies = [
+    { name = "jsonschema" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+    { name = "referencing" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
+    { name = "pydantic", specifier = ">=2.0,<3" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5.0" },
+    { name = "pyyaml", specifier = ">=6.0,<7" },
+    { name = "referencing", specifier = ">=0.35" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
+    { name = "twine", marker = "extra == 'dev'", specifier = ">=5.1" },
+    { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
+]
+provides-extras = ["dev"]
+
+[[package]]
 name = "agenticlens"
 version = "0.5.0"
 source = { editable = "." }
 dependencies = [
+    { name = "agentic-evals" },
     { name = "jsonschema" },
     { name = "pydantic" },
     { name = "pyyaml" },
@@ -56,6 +84,7 @@ multi-agent = [
 
 [package.metadata]
 requires-dist = [
+    { name = "agentic-evals", editable = "../agentic-evals" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
     { name = "fastapi", marker = "extra == 'dev'", specifier = ">=0.115,<1" },

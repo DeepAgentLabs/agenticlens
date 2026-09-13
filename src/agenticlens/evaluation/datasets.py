@@ -3,13 +3,13 @@ import random
 from pathlib import Path
 
 import yaml
+from agentic_evals import EvaluationSample
 
 from agenticlens.evaluation.models import (
     DatasetLabel,
     DatasetRecord,
     DatasetSummary,
     EvaluationDataset,
-    EvaluationSample,
 )
 
 

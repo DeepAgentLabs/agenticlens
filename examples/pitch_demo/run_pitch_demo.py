@@ -12,6 +12,7 @@ from agenticlens.evaluation import (
     evaluate_suite,
     load_suite,
     save_html_report,
+    to_eval_trace,
 )
 
 
@@ -25,7 +26,7 @@ def main() -> None:
     sample = EvaluationSample(
         case_id="regional-case-total",
         output=state["answer"],
-        trace=recording.run,
+        trace=to_eval_trace(recording.run),
     )
     (output_dir / "samples.json").write_text(
         json.dumps({"samples": [sample.model_dump(mode="json")]}, indent=2),

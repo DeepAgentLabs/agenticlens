@@ -18,19 +18,11 @@ def _write_target_module(path: Path) -> None:
     path.write_text(
         "\n".join(
             [
-                "from datetime import datetime, timedelta, timezone",
-                "",
                 "def _result(output, latency_ms, cost):",
-                "    started = datetime.now(timezone.utc)",
-                "    completed = started + timedelta(milliseconds=latency_ms)",
                 "    return {",
                 "        'output': output,",
                 "        'trace': {",
-                "            'application_name': 'experiment-target',",
-                "            'started_at': started.isoformat(),",
-                "            'completed_at': completed.isoformat(),",
-                "            'status': 'succeeded',",
-                "            'task_success': output == 'ok',",
+                "            'total_latency_ms': latency_ms,",
                 "            'estimated_cost_usd': cost,",
                 "            'spans': [],",
                 "        },",

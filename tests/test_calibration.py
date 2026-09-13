@@ -5,13 +5,8 @@ from pydantic import ValidationError
 from typer.testing import CliRunner
 
 from agenticlens.cli.main import app
+from agenticlens.evaluation import CaseEvaluation, EvaluationReport, EvaluationSummary, Score
 from agenticlens.evaluation.calibration import CalibrationDataset, calibrate_judge
-from agenticlens.evaluation.models import (
-    CaseEvaluation,
-    EvaluationReport,
-    EvaluationSummary,
-    Score,
-)
 
 
 def make_inputs(verdicts=(True, False, True, False), labels=(True, False, False, True)):

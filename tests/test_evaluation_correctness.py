@@ -5,9 +5,15 @@ from typer.testing import CliRunner
 
 from agenticlens.cli.main import app
 from agenticlens.comparison.runner import compare_runs, summarize_runs
-from agenticlens.evaluation import EvaluationSample, GateConfig, evaluate_gate, evaluate_suite
-from agenticlens.evaluation.models import TestCase as Case
-from agenticlens.evaluation.models import TestSuite as Suite
+from agenticlens.evaluation import (
+    EvaluationSample,
+    GateConfig,
+    evaluate_gate,
+    evaluate_suite,
+    to_eval_trace,
+)
+from agenticlens.evaluation import TestCase as Case
+from agenticlens.evaluation import TestSuite as Suite
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 
 
@@ -23,7 +29,9 @@ def score_output(schema, output):
     suite = Suite(
         name="structured", version="1", cases=[Case(id="a", name="a", output_json_schema=schema)]
     )
-    return evaluate_suite(suite, [EvaluationSample(case_id="a", output=output, trace=make_run())])
+    return evaluate_suite(
+        suite, [EvaluationSample(case_id="a", output=output, trace=to_eval_trace(make_run()))]
+    )
 
 
 @pytest.mark.parametrize(
@@ -83,7 +91,11 @@ def test_rejects_ambiguous_sample_identity(ids, match):
     suite = Suite(name="s", version="1", cases=[Case(id="a", name="a", expected_output="ok")])
     with pytest.raises(ValueError, match=match):
         evaluate_suite(
-            suite, [EvaluationSample(case_id=i, output="ok", trace=make_run()) for i in ids]
+            suite,
+            [
+                EvaluationSample(case_id=i, output="ok", trace=to_eval_trace(make_run()))
+                for i in ids
+            ],
         )
 
 
@@ -103,7 +115,7 @@ def test_cost_gate_requires_complete_costs(costs, expected):
         cases=[Case(id=str(i), name=str(i), expected_output="ok") for i in range(2)],
     )
     samples = [
-        EvaluationSample(case_id=str(i), output="ok", trace=make_run(cost))
+        EvaluationSample(case_id=str(i), output="ok", trace=to_eval_trace(make_run(cost)))
         for i, cost in enumerate(costs)
     ]
     result = evaluate_suite(suite, samples)
@@ -120,7 +132,8 @@ def test_missing_sample_keeps_total_unknown():
         name="s", version="1", cases=[Case(id=i, name=i, expected_output="ok") for i in ("a", "b")]
     )
     result = evaluate_suite(
-        suite, [EvaluationSample(case_id="a", output="ok", trace=make_run(0.1))]
+        suite,
+        [EvaluationSample(case_id="a", output="ok", trace=to_eval_trace(make_run(0.1)))],
     )
     assert result.summary.failed_cases == 1
     assert result.summary.total_cost_usd is None
@@ -131,7 +144,9 @@ def test_unpriced_span_makes_trace_and_case_cost_unknown():
     run.spans.append(Span(name="other", span_type=SpanType.TOOL_CALL))
     assert run.estimated_cost_usd is None
     suite = Suite(name="s", version="1", cases=[Case(id="a", name="a", max_cost_usd=1)])
-    result = evaluate_suite(suite, [EvaluationSample(case_id="a", output="ok", trace=run)])
+    result = evaluate_suite(
+        suite, [EvaluationSample(case_id="a", output="ok", trace=to_eval_trace(run))]
+    )
     assert not result.cases[0].passed
     run.spans[-1].estimated_cost_usd = 0.0
     assert run.estimated_cost_usd == 0.1
@@ -164,7 +179,7 @@ def test_incomplete_costs_do_not_produce_comparison_or_cost_per_success():
 
 def test_cli_rejects_duplicate_samples_without_writing_report(tmp_path):
     suite = Suite(name="s", version="1", cases=[Case(id="a", name="a", expected_output="ok")])
-    sample = EvaluationSample(case_id="a", output="ok", trace=make_run())
+    sample = EvaluationSample(case_id="a", output="ok", trace=to_eval_trace(make_run()))
     source, data, out = [tmp_path / name for name in ("suite.json", "samples.json", "out.json")]
     source.write_text(suite.model_dump_json(), encoding="utf-8")
     data.write_text(json.dumps([sample.model_dump(mode="json")] * 2), encoding="utf-8")
@@ -183,8 +198,8 @@ def test_cost_gate_rejects_legacy_partial_summary():
     result = evaluate_suite(
         suite,
         [
-            EvaluationSample(case_id="a", output="ok", trace=make_run(0.01)),
-            EvaluationSample(case_id="b", output="ok", trace=make_run(None)),
+            EvaluationSample(case_id="a", output="ok", trace=to_eval_trace(make_run(0.01))),
+            EvaluationSample(case_id="b", output="ok", trace=to_eval_trace(make_run(None))),
         ],
     )
     result.summary.total_cost_usd = 0.01  # Older reports summed only known cases.
