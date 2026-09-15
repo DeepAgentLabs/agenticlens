@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "suite_name": "Multi-agent support workflow",
   "suite_version": "1.0",
-  "created_at": "2026-07-30T07:16:44.522087Z",
+  "created_at": "2026-09-13T06:35:57.579925Z",
   "summary": {
     "total_cases": 1,
     "passed_cases": 1,
@@ -10,7 +10,7 @@
     "pass_rate": 1.0,
     "average_score": 1.0,
     "total_cost_usd": null,
-    "average_latency_ms": 7.889
+    "average_latency_ms": 9.828999999999999
   },
   "cases": [
     {
@@ -59,14 +59,14 @@
           "value": 1.0,
           "passed": true,
           "required": true,
-          "explanation": "Latency 7.9 ms meets the 2000.0 ms limit.",
+          "explanation": "Latency 9.8 ms meets the 2000.0 ms limit.",
           "evaluator_type": "deterministic",
           "metadata": {}
         }
       ],
       "output": "Reference data: North region resolved 18 cases and South region resolved 24. The combined number of resolved cases is 42.",
-      "trace_id": "1c56e9c0-41ce-44c3-9a15-a7ea150dd129",
-      "latency_ms": 7.889,
+      "trace_id": "0948798a-2b97-4dd6-a91e-c307c2062737",
+      "latency_ms": 9.828999999999999,
       "cost_usd": null
     }
   ]

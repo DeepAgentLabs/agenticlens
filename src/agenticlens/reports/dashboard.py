@@ -10,10 +10,11 @@ from datetime import datetime
 from html import escape
 from pathlib import Path
 
+from agentic_evals import EvaluationReport
+from agentic_evals.gate import GateDecision
+
 from agenticlens.comparison.models import ComparisonReport, MetricDelta
 from agenticlens.comparison.stats import percentile
-from agenticlens.evaluation.gate import GateDecision
-from agenticlens.evaluation.models import EvaluationReport
 from agenticlens.models.enums import Severity, StepType
 from agenticlens.models.recommendation import Recommendation
 from agenticlens.models.step import Step

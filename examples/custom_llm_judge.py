@@ -1,6 +1,7 @@
 """Provider-neutral LLM judge integration using the AgenticLens evaluator contract."""
 
 from agenticlens.evaluation import (
+    EvalTrace,
     EvaluationContext,
     EvaluationSample,
     EvaluatorConfig,
@@ -11,7 +12,6 @@ from agenticlens.evaluation import (
     TestSuite,
     evaluate_suite,
 )
-from agenticlens.models.trace import Run, RunStatus
 
 
 def call_your_model(context: EvaluationContext) -> Score:
@@ -50,11 +50,7 @@ suite = TestSuite(
 sample = EvaluationSample(
     case_id="answer",
     output="The combined total is 42.",
-    trace=Run(
-        application_name="custom-judge-example",
-        status=RunStatus.SUCCEEDED,
-        task_success=True,
-    ),
+    trace=EvalTrace(trace_id="custom-judge-example"),
 )
 report = evaluate_suite(suite, [sample], registry=registry)
 print(report.model_dump_json(indent=2))

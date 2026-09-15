@@ -8,8 +8,14 @@ from agenticlens.comparison.models import (
     MetricSummary,
     RunGroupSummary,
 )
-from agenticlens.evaluation import EvaluationReport, GateConfig, evaluate_gate
-from agenticlens.evaluation.models import CaseEvaluation, EvaluationSummary, Score
+from agenticlens.evaluation import (
+    CaseEvaluation,
+    EvaluationReport,
+    EvaluationSummary,
+    GateConfig,
+    Score,
+    evaluate_gate,
+)
 from agenticlens.models import Metrics, Step, StepType, Workflow
 from agenticlens.models.enums import Severity
 from agenticlens.models.recommendation import Recommendation

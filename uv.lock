@@ -15,10 +15,26 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "agentic-evals"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jsonschema" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+    { name = "referencing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/80/7ab292f584e4ec1aa9138fd01fa7f1b60378a2d01cd9c7d13bd85716659d/agentic_evals-0.1.1.tar.gz", hash = "sha256:28a200ad134133aae638bf95db14fc679c9b9b25b551a99db72cd13e2c459656", size = 135779, upload-time = "2026-09-13T07:25:08.502Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e3/4e/f7eefc52c574ef42baf2d4139ea94e58bd340dab5b00b0bf79283ae5c58b/agentic_evals-0.1.1-py3-none-any.whl", hash = "sha256:3f714c96fd4aa0bb8c6579280c457629ab733978b6ed5cd6ea5e6f67336c27e9", size = 14117, upload-time = "2026-09-13T07:25:07.19Z" },
+]
+
+[[package]]
 name = "agenticlens"
 version = "0.5.0"
 source = { editable = "." }
 dependencies = [
+    { name = "agentic-evals" },
     { name = "jsonschema" },
     { name = "pydantic" },
     { name = "pyyaml" },
@@ -56,6 +72,7 @@ multi-agent = [
 
 [package.metadata]
 requires-dist = [
+    { name = "agentic-evals", specifier = ">=0.1.1,<1" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
     { name = "fastapi", marker = "extra == 'dev'", specifier = ">=0.115,<1" },

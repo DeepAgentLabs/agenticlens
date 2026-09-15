@@ -4,12 +4,14 @@ from datetime import datetime, timedelta, timezone
 
 from agenticlens import Run, RunStatus, Span, SpanType
 from agenticlens.evaluation import (
+    CalibrationDataset,
     DatasetLabel,
     EvaluationContext,
     EvaluationSample,
     EvaluatorConfig,
     EvaluatorRegistry,
     LLMJudgeEvaluator,
+    ReferenceLabel,
     Score,
     TestCase,
     TestSuite,
@@ -19,6 +21,7 @@ from agenticlens.evaluation import (
     evaluate_suite,
     split_dataset,
     summarize_dataset,
+    to_eval_trace,
 )
 
 
@@ -112,22 +115,22 @@ def main() -> None:
         EvaluationSample(
             case_id="refund-1",
             output="Your refund is in progress and should settle within 5 business days.",
-            trace=_run(latency_ms=35, cost=0.0012),
+            trace=to_eval_trace(_run(latency_ms=35, cost=0.0012)),
         ),
         EvaluationSample(
             case_id="shipping-1",
             output="Shipping usually takes 2 to 3 business days.",
-            trace=_run(latency_ms=28, cost=0.0010),
+            trace=to_eval_trace(_run(latency_ms=28, cost=0.0010)),
         ),
         EvaluationSample(
             case_id="refund-2",
             output="The refund has been approved and is now queued for payout.",
-            trace=_run(latency_ms=31, cost=0.0011),
+            trace=to_eval_trace(_run(latency_ms=31, cost=0.0011)),
         ),
         EvaluationSample(
             case_id="policy-1",
             output="Gift cards are final sale and cannot be returned.",
-            trace=_run(latency_ms=24, cost=0.0009),
+            trace=to_eval_trace(_run(latency_ms=24, cost=0.0009)),
         ),
     ]
 
@@ -185,7 +188,23 @@ def main() -> None:
     registry = EvaluatorRegistry()
     registry.register(LLMJudgeEvaluator("answer_quality_judge", _judge))
     report = evaluate_suite(suite, dataset_to_samples(split), registry=registry)
-    calibration = calibrate_judge(report, split, score_name="answer_quality")
+
+    # calibrate_judge() compares llm_judge verdicts (evaluator="answer_quality",
+    # the Score.name _judge() sets above -- not the registry key it's
+    # registered under) against a versioned, human-labeled reference set -- a
+    # simpler, flat {case_id, passed} shape than the richer EvaluationDataset
+    # used for the split above.
+    calibration_dataset = CalibrationDataset(
+        name=split.name,
+        version=split.version,
+        suite_name=suite.name,
+        suite_version=suite.version,
+        labels=[
+            ReferenceLabel(case_id=record.case_id, passed=bool(record.labels[0].expected_passed))
+            for record in split.records
+        ],
+    )
+    calibration = calibrate_judge(report, calibration_dataset, evaluator="answer_quality")
 
     print("Dataset summary:")
     print(summary.model_dump_json(indent=2))
