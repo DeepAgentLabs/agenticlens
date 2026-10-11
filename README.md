@@ -1487,3 +1487,20 @@ This project follows [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 ## License
 
 AgenticLens is released under the MIT License. See [LICENSE](LICENSE).
+
+## Control Tower integration boundary
+
+AgenticOps Control Tower owns deployment registration, heartbeat, fleet
+inventory and operator workflows. AgenticLens owns observability and analysis;
+Agentic Evals owns scoring and release-gate computation; Agentic Sidecar owns
+decision supervision (SUPERVISE); Agentic Chaos owns fault injection and
+resilience experiments. AI Operations Specification owns shared semantics and
+is currently draft.
+
+Tower's native artifact readers consume existing producer outputs using an
+explicit deployment/evidence link. They do not change producer behavior or
+convert a failed run, failed gate, blocked action or injected fault into fleet
+health. This link is a Tower-local contract, not a normative AIOS schema.
+See [Control Tower's evidence contract](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/main/docs/ecosystem-alignment.md).
+Remote collection and operator posture views remain planned; these local
+readers do not establish end-to-end integration or stable AIOS conformance.

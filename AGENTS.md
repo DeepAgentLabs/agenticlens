@@ -11,7 +11,7 @@ system performed well over time.
 
 ### Owns
 
-- Runtime instrumentation, trace capture, analysis, evaluation, reporting, and
+- Runtime instrumentation, trace capture, analysis, evaluation workflows, reporting, and
   evidence-backed recommendations
 - The flagship Python reference implementation for emitting and working with AI
   Operations Specification-compatible artifacts
@@ -19,6 +19,9 @@ system performed well over time.
   operational findings
 
 ### Does Not Own
+
+- Standalone scoring and release-gate computation — those belong in
+  `agentic-evals`, which Lens composes for evaluation workflows
 
 - The normative definition of the shared contract — that belongs in
   `ai-operations-spec`
@@ -28,10 +31,14 @@ system performed well over time.
   `agentic-sidecar`
 - At the ecosystem-role level, `agentic-sidecar` is the **SUPERVISE** layer,
   while its concrete functionality spans both supervision and governance.
-- A generic MCP server or remote orchestration surface — that belongs in
-  `deep-agentic-core-mcp`
+- Fleet inventory and control-plane orchestration — those belong in
+  `agenticops-control-tower`; MCP-native access belongs in `deep-agentic-core-mcp`
 
 ### Integrates With
+
+- `agenticops-control-tower` as a consumer of explicitly attributed native
+  evidence; its deployment health remains separate from producer outcomes
+- `agentic-evals` for standalone scoring/report and release-gate boundaries
 
 - `ai-operations-spec` as the canonical object model and long-term
   interoperability target
