@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from agentic_evals import (
+    BUILTIN_EVALUATOR,
     BusinessRuleEvaluator,
     CallableEvaluator,
     CaseEvaluation,
@@ -35,7 +36,10 @@ from agenticlens.evaluation.calibration import (
     CalibrationDataset,
     CalibrationReport,
     ReferenceLabel,
+    ThresholdPoint,
+    ThresholdTuningReport,
     calibrate_judge,
+    tune_judge_threshold,
 )
 from agenticlens.evaluation.datasets import (
     dataset_from_samples,
@@ -45,13 +49,33 @@ from agenticlens.evaluation.datasets import (
     split_dataset,
     summarize_dataset,
 )
+from agenticlens.evaluation.evidence import (
+    CostCoverage,
+    EvidenceAudit,
+    EvidenceIssue,
+    audit_report,
+)
 from agenticlens.evaluation.html_report import render_html_report, save_html_report
+from agenticlens.evaluation.judging import (
+    DEFAULT_VERDICT_VALUES,
+    JudgeVerdict,
+    evaluated_model,
+    judge_verdict,
+    structured_judge,
+)
 from agenticlens.evaluation.models import (
     ConfidenceInterval,
     DatasetLabel,
     DatasetRecord,
     DatasetSummary,
     EvaluationDataset,
+)
+from agenticlens.evaluation.notifications import (
+    Breach,
+    NotificationResult,
+    breached_thresholds,
+    build_payload,
+    notify_gate_breach,
 )
 
 
@@ -70,19 +94,28 @@ def run_live_suite(
     target: LiveTarget,
     *,
     registry: EvaluatorRegistry | None = None,
+    max_workers: int = 1,
 ) -> EvaluationReport:
     """`agentic_evals.run_live_suite`, normalizing legacy `Run`-shaped traces.
 
     Live-target callables/HTTP endpoints (see `examples/live_evaluation_demo.py`)
     may still return AgenticLens's `Run`-shaped trace rather than
-    `EvalTrace`'s shape -- see `to_eval_trace_dict()`.
+    `EvalTrace`'s shape -- see `to_eval_trace_dict()`. `max_workers` above 1
+    calls the target for several cases concurrently; case order is preserved.
     """
     return _agentic_evals_run_live_suite(
-        suite, target, registry=registry, trace_adapter=to_eval_trace_dict
+        suite,
+        target,
+        registry=registry,
+        trace_adapter=to_eval_trace_dict,
+        max_workers=max_workers,
     )
 
 
 __all__ = [
+    "BUILTIN_EVALUATOR",
+    "DEFAULT_VERDICT_VALUES",
+    "Breach",
     "BusinessRuleEvaluator",
     "CalibrationCase",
     "CalibrationDataset",
@@ -90,6 +123,7 @@ __all__ = [
     "CallableEvaluator",
     "CaseEvaluation",
     "ConfidenceInterval",
+    "CostCoverage",
     "DatasetLabel",
     "DatasetRecord",
     "DatasetSummary",
@@ -103,29 +137,43 @@ __all__ = [
     "Evaluator",
     "EvaluatorConfig",
     "EvaluatorRegistry",
+    "EvidenceAudit",
+    "EvidenceIssue",
     "GateConfig",
     "GateDecision",
     "HTTPTarget",
+    "JudgeVerdict",
     "LLMJudgeEvaluator",
     "LiveTarget",
+    "NotificationResult",
     "PythonTarget",
     "ReferenceLabel",
     "Score",
     "TestCase",
     "TestSuite",
+    "ThresholdPoint",
+    "ThresholdTuningReport",
+    "audit_report",
+    "breached_thresholds",
+    "build_payload",
     "calibrate_judge",
     "dataset_from_samples",
     "dataset_to_samples",
     "evaluate_gate",
     "evaluate_suite",
+    "evaluated_model",
+    "judge_verdict",
     "load_dataset",
     "load_samples",
     "load_suite",
+    "notify_gate_breach",
     "render_html_report",
     "run_live_suite",
     "save_dataset",
     "save_html_report",
     "split_dataset",
+    "structured_judge",
     "summarize_dataset",
     "to_eval_trace",
+    "tune_judge_threshold",
 ]
