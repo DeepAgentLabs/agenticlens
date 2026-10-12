@@ -75,6 +75,8 @@ Completes roadmap milestones v0.3 (Evaluation Foundation) and v0.4
 
 - Trace payloads in `EvalTrace` shape that omit `total_latency_ms` were
   treated as AgenticLens `Run` payloads, dropping their trace-level cost.
+- `Run`-shaped trace payloads with `Z`-suffixed UTC timestamps failed to
+  parse on Python 3.10.
 
 ## 0.5.0 - 2026-09-13
 
