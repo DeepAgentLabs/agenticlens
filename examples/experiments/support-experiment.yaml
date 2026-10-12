@@ -1,0 +1,31 @@
+name: support-model-prompt-retrieval
+version: "2026-10"
+baseline_variant_id: baseline
+trial_count: 6
+random_seed: 42
+pass_k: [1, 3, 6]
+minimum_trials: 5
+metadata:
+  owner: support-platform
+  purpose: Compare a cheaper model, a terser prompt, and reranked retrieval against today's agent.
+variants:
+  - id: baseline
+    name: Baseline (large model, prompt v3)
+    target_kind: recorded
+    target: recorded/baseline.json
+    factors: {model: large, prompt: v3, retrieval: bm25}
+  - id: small-model
+    name: Small model
+    target_kind: recorded
+    target: recorded/small-model.json
+    factors: {model: small, prompt: v3, retrieval: bm25}
+  - id: terse-prompt
+    name: Terse prompt
+    target_kind: recorded
+    target: recorded/terse-prompt.json
+    factors: {model: large, prompt: v4-terse, retrieval: bm25}
+  - id: reranked-retrieval
+    name: Reranked retrieval
+    target_kind: recorded
+    target: recorded/reranked-retrieval.json
+    factors: {model: large, prompt: v3, retrieval: bm25+rerank}

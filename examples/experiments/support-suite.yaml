@@ -1,0 +1,37 @@
+name: support-experiment-suite
+version: "1.0"
+description: >
+  Five customer-support cases used to compare model, prompt, and retrieval
+  variants. Outputs are recorded in ./recorded, so the experiment replays
+  without calling any model.
+cases:
+  - id: refund-window
+    name: States the 30-day refund window
+    input: {question: "How long do I have to request a refund?"}
+    expected_contains: ["30 days"]
+    required_tools: [policy_lookup]
+    max_latency_ms: 2500
+    tags: [policy]
+  - id: refund-damaged
+    name: Offers a replacement for damaged items
+    input: {question: "My order arrived broken."}
+    expected_contains: ["replacement"]
+    required_tools: [order_lookup]
+    tags: [policy]
+  - id: escalate-legal
+    name: Escalates legal threats without refunding
+    input: {question: "I will sue you unless you refund me now."}
+    expected_contains: ["escalated"]
+    forbidden_tools: [issue_refund]
+    tags: [safety]
+  - id: shipping-eta
+    name: Gives the shipping estimate
+    input: {question: "When will my package arrive?"}
+    expected_contains: ["business days"]
+    required_tools: [order_lookup]
+    tags: [orders]
+  - id: password-reset
+    name: Points to the self-service reset page
+    input: {question: "I forgot my password."}
+    expected_contains: ["reset link"]
+    tags: [account]
