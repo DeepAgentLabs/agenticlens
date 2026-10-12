@@ -316,3 +316,33 @@ def test_live_python_variants_run_cases_concurrently(tmp_path: Path) -> None:
 
     assert all(v.summary.case_pass_rate == 1.0 for v in report.variants)
     assert report.randomization is not None and not report.randomization.shuffled
+
+
+def test_csv_neutralizes_formula_like_names(tmp_path: Path) -> None:
+    path = _manifest(tmp_path)
+    data = json.loads(path.read_text())
+    data["variants"][1]["name"] = '=HYPERLINK("http://x")'
+    data["variants"][1]["factors"] = {"model": "+cmd"}
+    path.write_text(json.dumps(data))
+
+    report = run_experiment(load_manifest(path), SUITE)
+    rows = list(csv.DictReader(io.StringIO(render_variant_csv(report))))
+
+    assert rows[1]["variant_name"].startswith("'=")
+    assert rows[1]["factors"] == "model=+cmd"  # a leading "model=" is not a formula
+    assert rows[1]["changed_factors"].startswith("model=")
+
+
+def test_crashed_trials_count_against_the_pass_rate_regression_flag(tmp_path: Path) -> None:
+    path = _manifest(tmp_path)
+    data = json.loads(path.read_text())
+    data["trial_count"] = 4
+    good = [_trial({"refund": "ok", "billing": "ok"}, latency=40, cost=0.002)] * 2
+    (tmp_path / "terse.json").write_text(json.dumps({"trials": good}))  # trials 3-4 crash
+    path.write_text(json.dumps(data))
+
+    report = run_experiment(load_manifest(path), SUITE)
+
+    terse = next(c for c in report.comparisons if c.candidate_variant_id == "terse-prompt")
+    assert terse.case_pass_rate_delta == pytest.approx(-0.5)
+    assert terse.pass_rate_delta.regressed
