@@ -117,7 +117,7 @@
       ]
     ]
   },
-  "created_at": "2026-10-12T20:51:30.919589Z",
+  "created_at": "2026-10-12T21:04:28.082303Z",
   "variants": [
     {
       "variant_id": "baseline",
@@ -137,7 +137,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917958Z",
+            "created_at": "2026-10-12T21:04:28.080857Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -442,7 +442,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917018Z",
+            "created_at": "2026-10-12T21:04:28.079943Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -747,7 +747,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917443Z",
+            "created_at": "2026-10-12T21:04:28.080364Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -1052,7 +1052,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.918038Z",
+            "created_at": "2026-10-12T21:04:28.080933Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -1357,7 +1357,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917603Z",
+            "created_at": "2026-10-12T21:04:28.080515Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -1662,7 +1662,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.915765Z",
+            "created_at": "2026-10-12T21:04:28.078772Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -2170,7 +2170,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917285Z",
+            "created_at": "2026-10-12T21:04:28.080205Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -2475,7 +2475,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917764Z",
+            "created_at": "2026-10-12T21:04:28.080671Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 2,
@@ -2780,7 +2780,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917881Z",
+            "created_at": "2026-10-12T21:04:28.080776Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -3085,7 +3085,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917366Z",
+            "created_at": "2026-10-12T21:04:28.080282Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -3390,7 +3390,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916542Z",
+            "created_at": "2026-10-12T21:04:28.079513Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -3695,7 +3695,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916740Z",
+            "created_at": "2026-10-12T21:04:28.079701Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -4204,7 +4204,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917098Z",
+            "created_at": "2026-10-12T21:04:28.080022Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -4509,7 +4509,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916260Z",
+            "created_at": "2026-10-12T21:04:28.079249Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -4814,7 +4814,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916854Z",
+            "created_at": "2026-10-12T21:04:28.079780Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -5119,7 +5119,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.915411Z",
+            "created_at": "2026-10-12T21:04:28.078430Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -5424,7 +5424,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916933Z",
+            "created_at": "2026-10-12T21:04:28.079862Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -5729,7 +5729,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916624Z",
+            "created_at": "2026-10-12T21:04:28.079592Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 2,
@@ -6238,7 +6238,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916054Z",
+            "created_at": "2026-10-12T21:04:28.079054Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -6543,7 +6543,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917687Z",
+            "created_at": "2026-10-12T21:04:28.080592Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -6848,7 +6848,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.918116Z",
+            "created_at": "2026-10-12T21:04:28.081013Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -7153,7 +7153,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917179Z",
+            "created_at": "2026-10-12T21:04:28.080099Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -7458,7 +7458,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.917527Z",
+            "created_at": "2026-10-12T21:04:28.080438Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -7763,7 +7763,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T20:51:30.916172Z",
+            "created_at": "2026-10-12T21:04:28.079166Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -8258,8 +8258,8 @@
       "baseline_variant_id": "baseline",
       "candidate_variant_id": "small-model",
       "pass_rate_delta": {
-        "absolute": -0.19999999999999996,
-        "relative": -0.22222222222222215,
+        "absolute": -0.20000000000000007,
+        "relative": -0.2222222222222223,
         "regressed": true
       },
       "average_score_delta": {
@@ -8297,8 +8297,8 @@
       "baseline_variant_id": "baseline",
       "candidate_variant_id": "terse-prompt",
       "pass_rate_delta": {
-        "absolute": -0.19999999999999996,
-        "relative": -0.22222222222222215,
+        "absolute": -0.20000000000000007,
+        "relative": -0.2222222222222223,
         "regressed": true
       },
       "average_score_delta": {

@@ -370,8 +370,13 @@ def _compare(
     return ExperimentComparison(
         baseline_variant_id=baseline.variant_id,
         candidate_variant_id=candidate.variant_id,
+        # Case-level rates count crashed trials as failed attempts, so the
+        # regression flag agrees with the case pass-rate delta shown in reports.
         pass_rate_delta=metric_delta(
-            base.pass_rate.mean, cand.pass_rate.mean, regression_threshold, lower_is_better=False
+            base.case_pass_rate if base.case_pass_rate is not None else base.pass_rate.mean,
+            cand.case_pass_rate if cand.case_pass_rate is not None else cand.pass_rate.mean,
+            regression_threshold,
+            lower_is_better=False,
         ),
         average_score_delta=metric_delta(
             base.average_score.mean,
