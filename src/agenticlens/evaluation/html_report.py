@@ -58,7 +58,12 @@ def render_html_report(report: EvaluationReport) -> str:
             </article>
             """
         )
-    status = "READY" if summary.failed_cases == 0 else "REVIEW"
+    # Case outcome only: a release decision needs `evaluate_gate` thresholds.
+    status = (
+        "ALL CASES PASSED"
+        if summary.failed_cases == 0
+        else f"{summary.failed_cases} CASE{'S' if summary.failed_cases != 1 else ''} FAILED"
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -91,7 +96,7 @@ def render_html_report(report: EvaluationReport) -> str:
 <body><main>
   <header><div><div class="eyebrow">AGENTICLENS · EVALUATION REPORT</div>
     <h1>{escape(report.suite_name)}</h1><div>{escape(report.suite_version)}</div></div>
-    <div class="release">RELEASE STATUS · {status}</div></header>
+    <div class="release" title="Case outcomes only; run agenticlens gate for a release decision">CASE RESULT · {status}</div></header>
   <section class="cards">
     <div class="card"><span>Pass rate</span><strong>{summary.pass_rate:.1%}</strong></div>
     <div class="card"><span>Average score</span><strong>{summary.average_score:.3f}</strong></div>

@@ -178,3 +178,10 @@ def test_eval_trace_payload_without_latency_keeps_its_cost() -> None:
     assert to_eval_trace_dict(payload) is payload
     run_like = {"trace_id": "t", "spans": [{"span_type": "tool_call", "estimated_cost_usd": 0.2}]}
     assert to_eval_trace_dict(run_like)["estimated_cost_usd"] == 0.2
+
+
+def test_html_status_reports_case_outcome_not_a_release_decision() -> None:
+    sample = EvaluationSample(case_id="a", output="bad", trace=to_eval_trace(_run()))
+    html = render_html_report(evaluate_suite(_suite("a", "b"), [sample]))
+    assert "CASE RESULT · 2 CASES FAILED" in html
+    assert "RELEASE STATUS" not in html and "READY" not in html
