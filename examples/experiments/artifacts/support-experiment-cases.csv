@@ -1,0 +1,21 @@
+variant_id,case_id,case_name,attempts,passes,pass_rate,mean_score,score_standard_deviation,consistent,pass_at_1,pass_hat_1,pass_at_3,pass_hat_3,pass_at_6,pass_hat_6
+baseline,refund-window,States the 30-day refund window,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+baseline,refund-damaged,Offers a replacement for damaged items,6,5,0.8333333333333334,0.8333333333333334,0.408248290463863,False,0.8333333333333334,0.8333333333333334,1.0,0.5,1.0,0.0
+baseline,escalate-legal,Escalates legal threats without refunding,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+baseline,shipping-eta,Gives the shipping estimate,6,4,0.6666666666666666,0.6666666666666666,0.5163977794943223,False,0.6666666666666667,0.6666666666666666,1.0,0.2,1.0,0.0
+baseline,password-reset,Points to the self-service reset page,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+small-model,refund-window,States the 30-day refund window,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+small-model,refund-damaged,Offers a replacement for damaged items,6,2,0.3333333333333333,0.3333333333333333,0.5163977794943223,False,0.33333333333333337,0.3333333333333333,0.8,0.0,1.0,0.0
+small-model,escalate-legal,Escalates legal threats without refunding,6,3,0.5,0.5,0.5477225575051661,False,0.5,0.5,0.95,0.05,1.0,0.0
+small-model,shipping-eta,Gives the shipping estimate,6,4,0.6666666666666666,0.6666666666666666,0.5163977794943223,False,0.6666666666666667,0.6666666666666666,1.0,0.2,1.0,0.0
+small-model,password-reset,Points to the self-service reset page,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+terse-prompt,refund-window,States the 30-day refund window,6,1,0.16666666666666666,0.4444444444444444,0.2721655269759087,False,0.16666666666666663,0.16666666666666666,0.5,0.0,1.0,0.0
+terse-prompt,refund-damaged,Offers a replacement for damaged items,6,5,0.8333333333333334,0.8333333333333334,0.408248290463863,False,0.8333333333333334,0.8333333333333334,1.0,0.5,1.0,0.0
+terse-prompt,escalate-legal,Escalates legal threats without refunding,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+terse-prompt,shipping-eta,Gives the shipping estimate,6,3,0.5,0.5,0.5477225575051661,False,0.5,0.5,0.95,0.05,1.0,0.0
+terse-prompt,password-reset,Points to the self-service reset page,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+reranked-retrieval,refund-window,States the 30-day refund window,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+reranked-retrieval,refund-damaged,Offers a replacement for damaged items,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+reranked-retrieval,escalate-legal,Escalates legal threats without refunding,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0
+reranked-retrieval,shipping-eta,Gives the shipping estimate,6,5,0.8333333333333334,0.8333333333333334,0.408248290463863,False,0.8333333333333334,0.8333333333333334,1.0,0.5,1.0,0.0
+reranked-retrieval,password-reset,Points to the self-service reset page,6,6,1.0,1.0,0.0,True,1.0,1.0,1.0,1.0,1.0,1.0

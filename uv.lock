@@ -16,7 +16,7 @@ resolution-markers = [
 
 [[package]]
 name = "agentic-evals"
-version = "0.1.1"
+version = "0.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -24,14 +24,14 @@ dependencies = [
     { name = "pyyaml" },
     { name = "referencing" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e4/80/7ab292f584e4ec1aa9138fd01fa7f1b60378a2d01cd9c7d13bd85716659d/agentic_evals-0.1.1.tar.gz", hash = "sha256:28a200ad134133aae638bf95db14fc679c9b9b25b551a99db72cd13e2c459656", size = 135779, upload-time = "2026-09-13T07:25:08.502Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/de/c4/8904c6f55178a79b67d3b564968c92c3d912b8f26d6255e52e9e5413a40b/agentic_evals-0.7.1.tar.gz", hash = "sha256:c78b16d51977fd61678fa7a115fa2871eef5376ff2337b65e086dde25467323c", size = 283028, upload-time = "2026-10-12T20:44:09.331Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/4e/f7eefc52c574ef42baf2d4139ea94e58bd340dab5b00b0bf79283ae5c58b/agentic_evals-0.1.1-py3-none-any.whl", hash = "sha256:3f714c96fd4aa0bb8c6579280c457629ab733978b6ed5cd6ea5e6f67336c27e9", size = 14117, upload-time = "2026-09-13T07:25:07.19Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/b7/ad6d5678a10d5ae060b9ce292d188c92e67a6029987570175a6fa78c9d17/agentic_evals-0.7.1-py3-none-any.whl", hash = "sha256:e41e4b6b4f7cb50b9845afc4217f5e2516556edc107ffef431fad75044dc8fc5", size = 76781, upload-time = "2026-10-12T20:44:07.976Z" },
 ]
 
 [[package]]
 name = "agenticlens"
-version = "0.5.0"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "agentic-evals" },
@@ -72,7 +72,7 @@ multi-agent = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agentic-evals", specifier = ">=0.1.1,<1" },
+    { name = "agentic-evals", specifier = ">=0.7.1,<1" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
     { name = "fastapi", marker = "extra == 'dev'", specifier = ">=0.115,<1" },

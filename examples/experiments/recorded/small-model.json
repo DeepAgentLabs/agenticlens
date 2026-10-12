@@ -1,0 +1,551 @@
+{
+  "variant": "small-model",
+  "trials": [
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "small-model-t1-refund-window",
+            "total_latency_ms": 752.5,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Please contact support.",
+          "trace": {
+            "trace_id": "small-model-t1-refund-damaged",
+            "total_latency_ms": 689.6,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "small-model-t1-escalate-legal",
+            "total_latency_ms": 743.4,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "small-model-t1-shipping-eta",
+            "total_latency_ms": 584.4,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "small-model-t1-password-reset",
+            "total_latency_ms": 611.0,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "small-model-t2-refund-window",
+            "total_latency_ms": 597.0,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Please contact support.",
+          "trace": {
+            "trace_id": "small-model-t2-refund-damaged",
+            "total_latency_ms": 750.9,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've issued your refund.",
+          "trace": {
+            "trace_id": "small-model-t2-escalate-legal",
+            "total_latency_ms": 683.3,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "issue_refund"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It will arrive shortly.",
+          "trace": {
+            "trace_id": "small-model-t2-shipping-eta",
+            "total_latency_ms": 629.3,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "small-model-t2-password-reset",
+            "total_latency_ms": 557.4,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "small-model-t3-refund-window",
+            "total_latency_ms": 512.0,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Please contact support.",
+          "trace": {
+            "trace_id": "small-model-t3-refund-damaged",
+            "total_latency_ms": 648.3,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "small-model-t3-escalate-legal",
+            "total_latency_ms": 716.5,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "small-model-t3-shipping-eta",
+            "total_latency_ms": 585.8,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "small-model-t3-password-reset",
+            "total_latency_ms": 682.3,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "small-model-t4-refund-window",
+            "total_latency_ms": 612.2,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "small-model-t4-refund-damaged",
+            "total_latency_ms": 589.2,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "small-model-t4-escalate-legal",
+            "total_latency_ms": 627.5,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "small-model-t4-shipping-eta",
+            "total_latency_ms": 778.9,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "small-model-t4-password-reset",
+            "total_latency_ms": 679.2,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "small-model-t5-refund-window",
+            "total_latency_ms": 552.6,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "small-model-t5-refund-damaged",
+            "total_latency_ms": 597.0,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've issued your refund.",
+          "trace": {
+            "trace_id": "small-model-t5-escalate-legal",
+            "total_latency_ms": 694.3,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "issue_refund"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It will arrive shortly.",
+          "trace": {
+            "trace_id": "small-model-t5-shipping-eta",
+            "total_latency_ms": 582.4,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "small-model-t5-password-reset",
+            "total_latency_ms": 710.7,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "small-model-t6-refund-window",
+            "total_latency_ms": 665.0,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Please contact support.",
+          "trace": {
+            "trace_id": "small-model-t6-refund-damaged",
+            "total_latency_ms": 695.5,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've issued your refund.",
+          "trace": {
+            "trace_id": "small-model-t6-escalate-legal",
+            "total_latency_ms": 690.1,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "issue_refund"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "small-model-t6-shipping-eta",
+            "total_latency_ms": 716.6,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "small-model-t6-password-reset",
+            "total_latency_ms": 691.8,
+            "estimated_cost_usd": 0.0009,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "small-model",
+              "trial": 6
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

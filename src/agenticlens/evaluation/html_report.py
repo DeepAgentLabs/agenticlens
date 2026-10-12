@@ -1,17 +1,46 @@
 from html import escape
 from pathlib import Path
 
-from agentic_evals import EvaluationReport
+from agentic_evals import CaseEvaluation, EvaluationReport, Score
+
+
+def _evaluator_label(score: Score) -> str:
+    if not score.evaluator:
+        return ""
+    version = score.evaluator_version or "unversioned"
+    return f' <span class="evaluator">{escape(score.evaluator)}@{escape(version)}</span>'
+
+
+def _score_class(score: Score) -> str:
+    return "skip" if score.skipped else "pass" if score.passed else "fail"
+
+
+def _case_cost(case: CaseEvaluation) -> str:
+    if case.cost_usd is None:
+        return "Unavailable"
+    source = f" ({escape(case.cost_source)})" if case.cost_source else ""
+    return f"${case.cost_usd:.6f}{source}"
+
+
+def _trace_label(case: CaseEvaluation) -> str:
+    if not case.sample_available:
+        return "no sample supplied"
+    return f"trace {escape(case.trace_id or 'missing')}"
 
 
 def render_html_report(report: EvaluationReport) -> str:
     summary = report.summary
     cost = "Unavailable" if summary.total_cost_usd is None else f"${summary.total_cost_usd:.6f}"
+    sources = ", ".join(f"{escape(k)} {v}" for k, v in summary.cost_sources.items())
+    coverage = f"{summary.priced_cases}/{summary.total_cases} priced" + (
+        f" · {sources}" if sources else ""
+    )
     rows = []
     for case in report.cases:
         score_items = "".join(
-            f'<li class="{"pass" if score.passed else "fail"}">'
-            f"<strong>{escape(score.name)}</strong>: {escape(score.explanation)}</li>"
+            f'<li class="{_score_class(score)}">'
+            f"<strong>{escape(score.name)}</strong>{_evaluator_label(score)}: "
+            f"{escape(score.explanation)}</li>"
             for score in case.scores
         )
         rows.append(
@@ -21,17 +50,20 @@ def render_html_report(report: EvaluationReport) -> str:
                 <div><span class="badge {"pass-bg" if case.passed else "fail-bg"}">
                   {"PASS" if case.passed else "FAIL"}
                 </span><h3>{escape(case.case_name)}</h3></div>
-                <div class="metrics">{case.latency_ms:.1f} ms ·
-                  {"Unavailable" if case.cost_usd is None else f"${case.cost_usd:.6f}"}
-                </div>
+                <div class="metrics">{case.latency_ms:.1f} ms · {_case_cost(case)}</div>
               </div>
-              <p class="case-id">{escape(case.case_id)} · trace {escape(case.trace_id or "missing")}</p>
+              <p class="case-id">{escape(case.case_id)} · {_trace_label(case)}</p>
               <pre>{escape(case.output or "No output supplied.")}</pre>
               <ul>{score_items}</ul>
             </article>
             """
         )
-    status = "READY" if summary.failed_cases == 0 else "REVIEW"
+    # Case outcome only: a release decision needs `evaluate_gate` thresholds.
+    status = (
+        "ALL CASES PASSED"
+        if summary.failed_cases == 0
+        else f"{summary.failed_cases} CASE{'S' if summary.failed_cases != 1 else ''} FAILED"
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -54,7 +86,8 @@ def render_html_report(report: EvaluationReport) -> str:
     .case {{ margin:14px 0 }} .case-heading {{ display:flex; justify-content:space-between; gap:12px }}
     .badge {{ border-radius:99px; padding:5px 9px; font-size:11px; font-weight:900 }}
     .pass-bg {{ background:#153f34; color:var(--green) }} .fail-bg {{ background:#4b202b; color:var(--red) }}
-    .pass {{ color:var(--green) }} .fail {{ color:var(--red) }}
+    .pass {{ color:var(--green) }} .fail {{ color:var(--red) }} .skip {{ color:var(--muted) }}
+    .evaluator {{ color:var(--muted); font-size:12px }} .card small {{ color:var(--muted) }}
     pre {{ white-space:pre-wrap; background:#07111f; border-radius:9px; padding:13px; color:#cfe0f6 }}
     li {{ margin:7px 0 }} footer {{ color:var(--muted); margin-top:30px }}
     @media(max-width:760px) {{ .cards {{ grid-template-columns:1fr 1fr }} header {{ display:block }} }}
@@ -63,12 +96,12 @@ def render_html_report(report: EvaluationReport) -> str:
 <body><main>
   <header><div><div class="eyebrow">AGENTICLENS · EVALUATION REPORT</div>
     <h1>{escape(report.suite_name)}</h1><div>{escape(report.suite_version)}</div></div>
-    <div class="release">RELEASE STATUS · {status}</div></header>
+    <div class="release" title="Case outcomes only; run agenticlens gate for a release decision">CASE RESULT · {status}</div></header>
   <section class="cards">
     <div class="card"><span>Pass rate</span><strong>{summary.pass_rate:.1%}</strong></div>
     <div class="card"><span>Average score</span><strong>{summary.average_score:.3f}</strong></div>
     <div class="card"><span>Average latency</span><strong>{summary.average_latency_ms:.1f} ms</strong></div>
-    <div class="card"><span>Total cost</span><strong>{cost}</strong></div>
+    <div class="card"><span>Total cost</span><strong>{cost}</strong><small>{coverage}</small></div>
   </section>
   <h2>Test cases</h2>{"".join(rows)}
   <footer>Generated by AgenticLens · {report.created_at.isoformat()}</footer>

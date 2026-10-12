@@ -1,0 +1,539 @@
+{
+  "variant": "terse-prompt",
+  "trials": [
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund soon.",
+          "trace": {
+            "trace_id": "terse-prompt-t1-refund-window",
+            "total_latency_ms": 1031.6,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "terse-prompt-t1-refund-damaged",
+            "total_latency_ms": 1136.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "terse-prompt-t1-escalate-legal",
+            "total_latency_ms": 992.4,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It will arrive shortly.",
+          "trace": {
+            "trace_id": "terse-prompt-t1-shipping-eta",
+            "total_latency_ms": 990.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 1
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "terse-prompt-t1-password-reset",
+            "total_latency_ms": 1175.1,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund soon.",
+          "trace": {
+            "trace_id": "terse-prompt-t2-refund-window",
+            "total_latency_ms": 1123.4,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "terse-prompt-t2-refund-damaged",
+            "total_latency_ms": 948.4,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "terse-prompt-t2-escalate-legal",
+            "total_latency_ms": 1034.2,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "terse-prompt-t2-shipping-eta",
+            "total_latency_ms": 943.6,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 2
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "terse-prompt-t2-password-reset",
+            "total_latency_ms": 1133.7,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund within 30 days.",
+          "trace": {
+            "trace_id": "terse-prompt-t3-refund-window",
+            "total_latency_ms": 1273.4,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "policy_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "terse-prompt-t3-refund-damaged",
+            "total_latency_ms": 974.8,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "terse-prompt-t3-escalate-legal",
+            "total_latency_ms": 1208.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "terse-prompt-t3-shipping-eta",
+            "total_latency_ms": 1053.3,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 3
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "terse-prompt-t3-password-reset",
+            "total_latency_ms": 1240.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund soon.",
+          "trace": {
+            "trace_id": "terse-prompt-t4-refund-window",
+            "total_latency_ms": 1204.1,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "terse-prompt-t4-refund-damaged",
+            "total_latency_ms": 1240.0,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "terse-prompt-t4-escalate-legal",
+            "total_latency_ms": 1043.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It arrives in 3-5 business days.",
+          "trace": {
+            "trace_id": "terse-prompt-t4-shipping-eta",
+            "total_latency_ms": 1144.5,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 4
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "terse-prompt-t4-password-reset",
+            "total_latency_ms": 1086.8,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund soon.",
+          "trace": {
+            "trace_id": "terse-prompt-t5-refund-window",
+            "total_latency_ms": 1172.8,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Sorry! I've arranged a replacement.",
+          "trace": {
+            "trace_id": "terse-prompt-t5-refund-damaged",
+            "total_latency_ms": 862.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "order_lookup"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "terse-prompt-t5-escalate-legal",
+            "total_latency_ms": 972.6,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It will arrive shortly.",
+          "trace": {
+            "trace_id": "terse-prompt-t5-shipping-eta",
+            "total_latency_ms": 1113.9,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 5
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "terse-prompt-t5-password-reset",
+            "total_latency_ms": 1178.1,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "samples": [
+        {
+          "case_id": "refund-window",
+          "output": "You can request a refund soon.",
+          "trace": {
+            "trace_id": "terse-prompt-t6-refund-window",
+            "total_latency_ms": 1266.0,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "refund-damaged",
+          "output": "Please contact support.",
+          "trace": {
+            "trace_id": "terse-prompt-t6-refund-damaged",
+            "total_latency_ms": 1272.8,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "escalate-legal",
+          "output": "I've escalated this to our legal team.",
+          "trace": {
+            "trace_id": "terse-prompt-t6-escalate-legal",
+            "total_latency_ms": 1212.6,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [
+              {
+                "tool_name": "handoff"
+              }
+            ],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "shipping-eta",
+          "output": "It will arrive shortly.",
+          "trace": {
+            "trace_id": "terse-prompt-t6-shipping-eta",
+            "total_latency_ms": 1129.5,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 6
+            }
+          }
+        },
+        {
+          "case_id": "password-reset",
+          "output": "Use the reset link on the sign-in page.",
+          "trace": {
+            "trace_id": "terse-prompt-t6-password-reset",
+            "total_latency_ms": 1344.0,
+            "estimated_cost_usd": 0.0031,
+            "cost_source": "estimated",
+            "spans": [],
+            "metadata": {
+              "variant": "terse-prompt",
+              "trial": 6
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

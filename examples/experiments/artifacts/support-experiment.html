@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Experiment Report — support-model-prompt-retrieval</title>
+  <style>
+    :root { --bg:#f7f8fb; --panel:#fff; --text:#16202e; --muted:#5d6b7e; --line:#dfe4ec;
+      --good:#18794e; --bad:#c2253c; --accent:#2557d6; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0b1220;
+      --panel:#121c2e; --text:#e6edf7; --muted:#9aa9bf; --line:#26354d; --good:#45d39a;
+      --bad:#ff7286; --accent:#79a6ff; } }
+    :root[data-theme="dark"] { --bg:#0b1220; --panel:#121c2e; --text:#e6edf7; --muted:#9aa9bf;
+      --line:#26354d; --good:#45d39a; --bad:#ff7286; --accent:#79a6ff; }
+    * { box-sizing:border-box }
+    body { margin:0; background:var(--bg); color:var(--text);
+      font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1180px; margin:auto; padding:32px 16px 64px; }
+    h1 { margin:4px 0 } h2 { margin-top:36px }
+    .eyebrow,.muted,small { color:var(--muted) } small { display:block; font-size:12px }
+    .scroll { overflow-x:auto }
+    table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line);
+      border-radius:10px; overflow:hidden }
+    th,td { text-align:left; padding:9px 11px; border-bottom:1px solid var(--line); vertical-align:top }
+    th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted) }
+    .tag { font-size:11px; padding:1px 7px; border-radius:99px; border:1px solid var(--line) }
+    .tag.base { color:var(--accent) } .tag.pareto { color:var(--good) }
+    .good { color:var(--good) } .bad { color:var(--bad) }
+    .heatmap td.heat { color:#fff; text-align:center; font-weight:700; min-width:64px }
+    .heatmap td.heat small { color:#fffc } .heatmap td.flaky { outline:2px dashed #fff8; outline-offset:-4px }
+    ul { margin:6px 0 0; padding-left:18px }
+    .meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:16px }
+    .meta div { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px }
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">AGENTICLENS · EXPERIMENT REPORT</div>
+  <h1>support-model-prompt-retrieval</h1>
+  <div class="muted">Experiment 2026-10 · suite support-experiment-suite 1.0</div>
+  <section class="meta">
+    <div><small>Trials per variant</small><strong>6</strong></div>
+    <div><small>Baseline</small><strong>baseline</strong></div>
+    <div><small>Confidence level</small><strong>95%</strong></div>
+    <div><small>Regression threshold</small><strong>5%</strong></div>
+    <div><small>Random seed</small><strong>42</strong></div>
+    <div><small>Minimum trials</small><strong>5</strong></div>
+  </section>
+  <h2>Warnings</h2><ul class="bad"><li>Case-level pass-rate intervals and p-values treat each case attempt as independent; attempts on the same case are correlated, so read them as approximate.</li></ul>
+  <h2>Quality, cost, latency, and reliability</h2>
+  <div class="scroll"><table><tr><th>Variant</th><th>Case pass rate</th><th>Mean score</th><th>Mean latency</th><th>Mean cost / trial</th><th>Reliability</th><th>Consistency</th></tr><tr>
+  <td><strong>Baseline (large model, prompt v3)</strong> <span class="tag base">baseline</span><span class="tag pareto">pareto</span><br><small>baseline · model=large, prompt=v3, retrieval=bm25</small></td>
+  <td>90.0% <small>74.4%–96.5%</small></td>
+  <td>0.900</td>
+  <td>1380.4 ms</td>
+  <td>$0.0210<br><small>6/6 trials priced</small></td>
+  <td>50.0%<br><small>6/6 completed</small></td>
+  <td>60.0%<br><small>2 flaky</small></td>
+</tr><tr>
+  <td><strong>Small model</strong> <span class="tag pareto">pareto</span><br><small>small-model · model=small, prompt=v3, retrieval=bm25</small></td>
+  <td>70.0% <small>52.1%–83.3%</small></td>
+  <td>0.700</td>
+  <td>654.2 ms</td>
+  <td>$0.0045<br><small>6/6 trials priced</small></td>
+  <td>16.7%<br><small>6/6 completed</small></td>
+  <td>40.0%<br><small>3 flaky</small></td>
+</tr><tr>
+  <td><strong>Terse prompt</strong> <br><small>terse-prompt · model=large, prompt=v4-terse, retrieval=bm25</small></td>
+  <td>70.0% <small>52.1%–83.3%</small></td>
+  <td>0.700</td>
+  <td>1116.9 ms</td>
+  <td>$0.0155<br><small>6/6 trials priced</small></td>
+  <td>16.7%<br><small>6/6 completed</small></td>
+  <td>40.0%<br><small>3 flaky</small></td>
+</tr><tr>
+  <td><strong>Reranked retrieval</strong> <span class="tag pareto">pareto</span><br><small>reranked-retrieval · model=large, prompt=v3, retrieval=bm25+rerank</small></td>
+  <td>96.7% <small>83.3%–99.4%</small></td>
+  <td>0.967</td>
+  <td>1706.3 ms</td>
+  <td>$0.0240<br><small>6/6 trials priced</small></td>
+  <td>83.3%<br><small>6/6 completed</small></td>
+  <td>80.0%<br><small>1 flaky</small></td>
+</tr></table></div>
+  <h2>pass@k and pass^k</h2>
+  <p class="muted">pass@k: chance at least one of k attempts passes. pass^k: chance all k attempts pass. Averaged over cases.</p>
+  <div class="scroll"><table><tr><th>Variant</th><th>pass@1</th><th>pass^1</th><th>pass@3</th><th>pass^3</th><th>pass@6</th><th>pass^6</th></tr><tr><td>Baseline (large model, prompt v3)</td><td>90.0%</td><td>90.0%</td><td>100.0%</td><td>74.0%</td><td>100.0%</td><td>60.0%</td></tr><tr><td>Small model</td><td>70.0%</td><td>70.0%</td><td>95.0%</td><td>45.0%</td><td>100.0%</td><td>40.0%</td></tr><tr><td>Terse prompt</td><td>70.0%</td><td>70.0%</td><td>89.0%</td><td>51.0%</td><td>100.0%</td><td>40.0%</td></tr><tr><td>Reranked retrieval</td><td>96.7%</td><td>96.7%</td><td>100.0%</td><td>90.0%</td><td>100.0%</td><td>80.0%</td></tr></table></div>
+  <h2>Against the baseline</h2>
+  <div class="scroll"><table><tr><th>Candidate</th><th>Case pass rate Δ</th><th>Score Δ</th><th>Latency Δ</th><th>Cost Δ</th><th>Regressions</th></tr><tr>
+  <td><strong>small-model</strong><br><small>model: large → small</small></td>
+  <td>-20.0%<br><small>not significant (p=0.053)</small></td>
+  <td>-0.200</td>
+  <td>-726.1 ms</td>
+  <td>-0.0165</td>
+  <td class="bad">pass rate, score<br><small>2 case(s) regressed · 0 improved</small></td>
+</tr><tr>
+  <td><strong>terse-prompt</strong><br><small>prompt: v3 → v4-terse</small></td>
+  <td>-20.0%<br><small>not significant (p=0.053)</small></td>
+  <td>-0.200</td>
+  <td>-263.5 ms</td>
+  <td>-0.0055</td>
+  <td class="bad">pass rate, score<br><small>2 case(s) regressed · 0 improved</small></td>
+</tr><tr>
+  <td><strong>reranked-retrieval</strong><br><small>retrieval: bm25 → bm25+rerank</small></td>
+  <td>+6.7%<br><small>not significant (p=0.301)</small></td>
+  <td>+0.067</td>
+  <td>+325.9 ms</td>
+  <td>+0.0030</td>
+  <td class="bad">latency, cost<br><small>0 case(s) regressed · 2 improved</small></td>
+</tr></table></div>
+  <h2>Test-level heatmap</h2>
+  <p class="muted">Each cell: passes/attempts and mean score; colour follows mean score. Dashed cells are flaky (mixed outcomes).</p>
+  <div class="scroll"><table class="heatmap"><tr><th></th><th title="States the 30-day refund window">refund-window</th><th title="Offers a replacement for damaged items">refund-damaged</th><th title="Escalates legal threats without refunding">escalate-legal</th><th title="Gives the shipping estimate">shipping-eta</th><th title="Points to the self-service reset page">password-reset</th></tr><tr><th>Baseline (large model, prompt v3)</th><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat flaky" style="background:hsl(108 62% 38%)" title="pass rate 83%, mean score 0.833">5/6<small>0.83</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat flaky" style="background:hsl(87 62% 38%)" title="pass rate 67%, mean score 0.667">4/6<small>0.67</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td></tr><tr><th>Small model</th><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat flaky" style="background:hsl(43 62% 38%)" title="pass rate 33%, mean score 0.333">2/6<small>0.33</small></td><td class="heat flaky" style="background:hsl(65 62% 38%)" title="pass rate 50%, mean score 0.500">3/6<small>0.50</small></td><td class="heat flaky" style="background:hsl(87 62% 38%)" title="pass rate 67%, mean score 0.667">4/6<small>0.67</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td></tr><tr><th>Terse prompt</th><td class="heat flaky" style="background:hsl(58 62% 38%)" title="pass rate 17%, mean score 0.444">1/6<small>0.44</small></td><td class="heat flaky" style="background:hsl(108 62% 38%)" title="pass rate 83%, mean score 0.833">5/6<small>0.83</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat flaky" style="background:hsl(65 62% 38%)" title="pass rate 50%, mean score 0.500">3/6<small>0.50</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td></tr><tr><th>Reranked retrieval</th><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td><td class="heat flaky" style="background:hsl(108 62% 38%)" title="pass rate 83%, mean score 0.833">5/6<small>0.83</small></td><td class="heat" style="background:hsl(130 62% 38%)" title="pass rate 100%, mean score 1.000">6/6<small>1.00</small></td></tr></table></div>
+  <h2>Factor levels</h2>
+  <p class="muted">Variants sharing a factor value, averaged. Only factors with at least two values are shown.</p>
+  <div class="scroll"><table><tr><th>Factor</th><th>Value</th><th>Variants</th><th>Pass rate</th><th>Score</th><th>Latency</th><th>Cost</th><th>Reliability</th></tr><tr><td>model</td><td>large</td><td>baseline, terse-prompt, reranked-retrieval</td><td>85.6%</td><td>0.856</td><td>1401.2 ms</td><td>$0.0202</td><td>50.0%</td></tr><tr><td>model</td><td>small</td><td>small-model</td><td>70.0%</td><td>0.700</td><td>654.2 ms</td><td>$0.0045</td><td>16.7%</td></tr><tr><td>prompt</td><td>v3</td><td>baseline, small-model, reranked-retrieval</td><td>85.6%</td><td>0.856</td><td>1247.0 ms</td><td>$0.0165</td><td>50.0%</td></tr><tr><td>prompt</td><td>v4-terse</td><td>terse-prompt</td><td>70.0%</td><td>0.700</td><td>1116.9 ms</td><td>$0.0155</td><td>16.7%</td></tr><tr><td>retrieval</td><td>bm25</td><td>baseline, small-model, terse-prompt</td><td>76.7%</td><td>0.767</td><td>1050.5 ms</td><td>$0.0137</td><td>27.8%</td></tr><tr><td>retrieval</td><td>bm25+rerank</td><td>reranked-retrieval</td><td>96.7%</td><td>0.967</td><td>1706.3 ms</td><td>$0.0240</td><td>83.3%</td></tr></table></div>
+  <h2>Randomization</h2>
+  <p class="muted">Execution order: terse-prompt#4, baseline#6, reranked-retrieval#1, reranked-retrieval#6, terse-prompt#2, small-model#5, terse-prompt#6, small-model#6, terse-prompt#3, terse-prompt#5, baseline#2, terse-prompt#1, reranked-retrieval#4, small-model#1, small-model#4, baseline#3, reranked-retrieval#5, baseline#5, reranked-retrieval#2, small-model#2, small-model#3, baseline#1, baseline#4, reranked-retrieval#3</p>
+  <p class="muted">Generated by AgenticLens · 2026-10-12T21:04:28.082303+00:00</p>
+</main></body></html>

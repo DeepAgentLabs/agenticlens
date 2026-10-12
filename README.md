@@ -39,8 +39,12 @@ The product idea is simple:
 
 `instrument the AI runtime once, export everywhere`
 
-Development continues with judge calibration and dataset management, followed
-by experiments and statistical comparison. The
+Release 0.6.0 completes the v0.3 evaluation foundation (evaluator versions on
+every score, evidence audits, structured judge verdicts, threshold tuning, gate
+alerts) and v0.4 experiments and statistical comparison (pass@k, pass^k,
+confidence intervals, significance tests, factor comparison, heatmaps, and
+HTML/CSV reports). Development continues with advanced evaluation and diagnosis
+(v0.5). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
@@ -61,6 +65,7 @@ and missing features with source/test evidence and open acceptance gates.
 - [Memory and Retry Diagnostics](#memory-and-retry-diagnostics)
 - [Repeated-Run Comparison](#repeated-run-comparison)
 - [Evaluation and Release Gates](#evaluation-and-release-gates)
+- [Experiments and Statistical Comparison](#experiments-and-statistical-comparison)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -204,14 +209,21 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Standalone evaluation HTML report | Implemented, experimental |
 | Versioned evaluation dataset management | Implemented, experimental |
 | Judge calibration with confidence intervals | Implemented, experimental |
-| Multi-variant repeated experiment runner | Implemented, experimental |
+| Judge pass-threshold tuning against human labels | Implemented, experimental |
+| Structured judge verdicts (verdict, confidence, grounding breakdown) | Implemented, experimental |
+| Evidence audit: evaluator versions, failed-case traces, cost provenance | Implemented, experimental |
+| Cooldown-protected gate webhook alerts (generic, Slack, Teams) | Implemented, experimental |
+| Concurrent live evaluation (`--max-workers`) with Python/HTTP parity tests | Implemented, experimental |
+| Multi-variant repeated experiment runner (live or recorded replay) | Implemented, experimental |
+| Experiment statistics: pass@k, pass^k, Wilson intervals, significance tests | Implemented, experimental |
+| Factor comparison (model, prompt, retrieval, memory, retry policy) | Implemented, experimental |
+| Experiment HTML report with test-level heatmap, and CSV exports | Implemented, experimental |
 | AIOS draft validation and conformance CLI | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
 | Live OTLP receiver + real-time dashboard (optional `[api]` extra, `serve-otlp`) | Implemented, experimental |
 | Persistent local trace history (`--db`, `/history`, `agenticlens history`) | Implemented, experimental |
 | Local HTML dashboard (timeline, cost, findings, gate, comparison) | Implemented, experimental |
-| Statistical significance testing | Planned |
 | Framework trace adapters (native LangChain/LangGraph instrumentation, not already-OTel data) | Planned |
 | ModelFit and governance | Planned |
 
@@ -243,7 +255,6 @@ AgenticLens can also manage local evaluation datasets:
 agenticlens dataset summary dataset.json
 agenticlens dataset split dataset.json --save dataset-split.json --seed 7
 agenticlens dataset export-samples dataset-split.json --split test --save samples-test.json
-agenticlens experiment run experiment.yaml suite.yaml --save experiment-report.json
 ```
 
 ... and calibrate an `llm_judge` evaluator's verdicts against a versioned,
@@ -257,7 +268,140 @@ agenticlens calibrate evaluation.json labels.json --evaluator answer_quality --s
 
 Reports agreement rate with a 95% Wilson confidence interval plus a
 true/false accept/reject confusion breakdown; requires exact case-id and
-suite-name/version matching between the report and the reference set.
+suite-name/version matching between the report and the reference set. Add
+`--tune-threshold tuning.json` to sweep pass thresholds over the saved judge
+values and recommend the one with the best balanced accuracy.
+
+### Evidence behind every score
+
+Every score names the evaluator that produced it and that evaluator's version
+(`Score.evaluator`, `Score.evaluator_version`, from `agentic-evals` 0.7.1).
+Built-in checks are attributed to `agentic_evals.builtin` at the installed
+package version; registered evaluators to their registry name and declared
+`version=`. Each case also records whether its cost was `measured` or
+`estimated`, and whether a sample existed at all.
+
+`evaluate` prints an evidence audit after the summary, and can save it or fail
+on gaps:
+
+```bash
+agenticlens evaluate suite.yaml samples.json --audit audit.json --strict-evidence
+```
+
+`--strict-evidence` exits with code `3` when a score's evaluator has no
+version, or a failed case has no trace to inspect. Incomplete cost data and
+cost without a stated provenance are listed but do not block unless you call
+`audit_report(report, require_complete_cost=True, require_cost_source=True)`.
+
+### Structured judge verdicts
+
+`structured_judge()` wraps a judge function that returns a `JudgeVerdict`
+(`agree` / `partially_agree` / `disagree`, a confidence, unsupported claims,
+and missed evidence) and keeps every field on the score's metadata:
+
+```python
+from agenticlens.evaluation import JudgeVerdict, EvaluatorRegistry, structured_judge
+
+def grounding(context) -> JudgeVerdict:
+    ...  # call your judge model here
+    return JudgeVerdict(verdict="partially_agree", confidence=0.7,
+                        unsupported_claims=["refund in 2 days"])
+
+registry = EvaluatorRegistry()
+registry.register(structured_judge("grounding", grounding,
+                                   judge_model="judge-model-b", version="grounding-v2"))
+```
+
+When the judge model matches the model under evaluation (from case or trace
+metadata), the score is skipped as self-confirmation unless you pass
+`allow_self_judging=True`, which flags it instead.
+
+### Alerts on gate failures
+
+```bash
+agenticlens gate evaluation.json --min-pass-rate 0.95 \
+  --notify-webhook "$SLACK_WEBHOOK_URL" --notify-format slack \
+  --cooldown-minutes 60 --notify-state .agenticlens/gate-notifications.json
+```
+
+Each breached threshold (`pass_rate`, `total_cost_usd`, `tag_pass_rate:safety`,
+...) alerts once and is then quiet for the cooldown, so a scheduled gate does
+not page on every run. Formats: `generic` JSON, Slack, and Teams. A failed
+alert is reported but never changes the gate's exit code. In Python,
+`notify_gate_breach()` also takes per-threshold or per-category
+(`quality`, `latency`, `budget`) cooldowns.
+
+### Concurrent live evaluation
+
+`agenticlens evaluate-live ... --max-workers 4` calls the target for several
+cases at once and keeps suite case order. Python and HTTP targets go through
+the same scoring path, and the test suite checks they produce identical reports.
+
+## Experiments and Statistical Comparison
+
+An experiment runs the same suite against three or more variants, several
+trials each, and reports quality, cost, latency, and reliability together.
+
+```bash
+agenticlens experiment run examples/experiments/support-experiment.yaml \
+  examples/experiments/support-suite.yaml \
+  --save experiment.json --html experiment.html \
+  --csv variants.csv --cases-csv cases.csv
+
+# Re-render saved results without re-running anything
+agenticlens experiment report experiment.json --html experiment.html
+```
+
+A manifest names the baseline, trial count, random seed, and each variant's
+target and `factors`:
+
+```yaml
+name: support-model-prompt-retrieval
+version: "2026-10"
+baseline_variant_id: baseline
+trial_count: 6
+random_seed: 42          # shuffles execution order; recorded in the report
+pass_k: [1, 3, 6]        # defaults to [1, trial_count]
+minimum_trials: 5        # fewer completed trials -> exploratory warnings
+max_workers: 1           # cases run concurrently within one live trial
+variants:
+  - id: baseline
+    name: Baseline
+    target_kind: recorded            # python | http | recorded
+    target: recorded/baseline.json   # replay saved samples; no agent calls
+    factors: {model: large, prompt: v3, retrieval: bm25}
+  - id: small-model
+    name: Small model
+    target_kind: python
+    target: my_agents.py:small_model
+    factors: {model: small, prompt: v3, retrieval: bm25}
+  # ...
+```
+
+What the report contains:
+
+- **Per case, per variant**: attempts, passes, pass rate, mean score and its
+  spread, whether every attempt agreed, and **pass@k** (chance at least one of
+  k attempts passes, unbiased estimator) and **pass^k** (chance all k pass).
+- **Per variant**: case-level pass rate with a Wilson interval, mean score,
+  latency and cost (with normal-approximation intervals over trials), trial
+  reliability, consistency rate and flaky cases, and Pareto-frontier status.
+- **Against the baseline**: deltas, the factors that changed, a two-proportion
+  p-value with a significance flag, regressed and improved cases, and warnings
+  when a variant has fewer than `minimum_trials` completed trials or when more
+  than one factor changed at once.
+- **Factor levels**: variants sharing a factor value, averaged — model vs.
+  model, prompt vs. prompt, retrieval vs. retrieval.
+- **Randomization**: the seed and the exact `(variant, trial)` execution order.
+
+The HTML report adds a variant x test-case heatmap. CSV exports give one row per
+variant and one row per (variant, case). `recorded` variants replay saved
+per-trial samples (`{"trials": [{"samples": [...]}, ...]}`), so an experiment
+can be reproduced exactly from committed files — see
+[`examples/experiments/`](examples/experiments/). Intervals and p-values treat
+each case attempt as independent; attempts on the same case are correlated,
+so read them as approximate. JSON Schemas for manifests and reports are in
+`schemas/experiments/`. Details: [docs/experiments.md](docs/experiments.md).
 
 ## Dashboard Report
 
@@ -802,7 +946,7 @@ cost_per_successful_task = total_recorded_cost / successful_runs
 
 Here, the larger model costs more per attempt but less per successful task.
 
-### Evaluation correctness and compatibility (unreleased)
+### Evaluation correctness and compatibility (0.5.0)
 
 - Structured-output checks use JSON Schema Draft 2020-12, including enum,
   numeric limits, composition, and embedded references. Invalid schemas and
@@ -862,14 +1006,16 @@ and suite versions. Fewer than 30 cases produces an exploratory-evidence
 warning; one-class references also produce a warning. Neither warning is an
 automatic quality gate.
 
-This is verdict agreement reporting, not probability calibration, automatic
-threshold tuning, or proof that human labels are correct. Use independently
+This is verdict agreement reporting, not probability calibration or proof that
+human labels are correct. `--tune-threshold` (or `tune_judge_threshold()`)
+recommends a pass threshold fitted on the same labels; confirm it on held-out
+cases before adopting it. Use independently
 reviewed, representative cases; correlated examples and judge-assisted labels
 can overstate reliability. Do not mix judge models/prompts or threshold settings
 within a calibration run; retain that configuration with the source evaluation
 report. The interval assumes independent cases. See the
 [NIST Wilson interval reference](https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm).
-Dataset lifecycle management and broader statistical calibration remain planned.
+Probability calibration of judge scores remains planned.
 
 ## Using Regression Checks in CI
 
@@ -1218,8 +1364,13 @@ Other examples:
 - `examples/live_evaluation_demo.py` — trusted live Python target for `evaluate-live`
 - `examples/dataset_and_calibration_demo.py` — dataset splitting, judge labels,
   evaluation, and calibration together
-- `examples/experiment_runner_demo.py` — repeated multi-variant experiment manifest
-  and comparison flow
+- `examples/experiment_runner_demo.py` — live three-variant experiment with
+  factors, writing JSON/HTML/CSV reports
+- `examples/experiments/` — reproducible four-variant experiment replayed from
+  recorded trials, with saved reports (`run_recorded_experiment.py`)
+- `examples/structured_judge_demo.py` — structured judge verdicts, evidence
+  audit, and judge-threshold tuning
+- `examples/gate_alert_demo.py` — cooldown-protected gate webhook alerts
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
 - `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` for
   the shared evaluator contract
@@ -1357,10 +1508,24 @@ uv run agenticlens evaluate-live suite.yaml \
   --target examples/live_evaluation_demo.py:run_case
 ```
 
-Apply a release gate:
+Apply a release gate, alerting a webhook at most once an hour per threshold:
 
 ```bash
-uv run agenticlens gate evaluation.json --min-pass-rate 0.95
+uv run agenticlens gate evaluation.json --min-pass-rate 0.95 \
+  --notify-webhook "$WEBHOOK_URL" --cooldown-minutes 60
+```
+
+Audit an evaluation's evidence and fail on gaps:
+
+```bash
+uv run agenticlens evaluate suite.yaml samples.json --audit audit.json --strict-evidence
+```
+
+Run an experiment and write HTML/CSV reports:
+
+```bash
+uv run agenticlens experiment run experiment.yaml suite.yaml \
+  --save experiment.json --html experiment.html --csv variants.csv --cases-csv cases.csv
 ```
 
 ### Command summary
@@ -1376,8 +1541,11 @@ uv run agenticlens gate evaluation.json --min-pass-rate 0.95
 | `conformance` | Run AIOS draft schema and semantic checks with draft-alignment reporting |
 | `evaluate` | Score recorded outputs and traces against a test suite |
 | `evaluate-live` | Run a trusted live Python or HTTP target against a suite |
-| `experiment run` | Run repeated live trials for 3+ variants against one suite |
-| `gate` | Enforce release thresholds from an evaluation report |
+| `experiment run` | Run repeated trials (live or recorded) for 3+ variants against one suite |
+| `experiment report` | Re-render a saved experiment report as console, HTML, or CSV output |
+| `calibrate` | Compare judge verdicts with human labels; optionally tune the threshold |
+| `dataset` | Summarize, split, and export versioned evaluation datasets |
+| `gate` | Enforce release thresholds; optionally alert a webhook with cooldowns |
 
 The `compare` command accepts either one JSON trace file or a directory of
 `*.json` traces for each condition.
@@ -1387,7 +1555,9 @@ The `compare` command accepts either one JSON trace file or a directory of
 - The research trace API and workflow profiler use separate artifact types.
 - Trace-span cost must currently be recorded by the caller.
 - Memory findings measure consumption, not semantic relevance or contribution.
-- Comparisons do not calculate confidence intervals or significance tests yet.
+- Trace-group `compare` reports deltas without significance tests; experiments
+  report intervals and two-proportion tests that treat case attempts as
+  independent, so they are approximate.
 - Built-in evaluators are deterministic; semantic, safety, and RAG-quality checks
   rely on application-supplied `CallableEvaluator`/`LLMJudgeEvaluator` logic
   rather than a bundled LLM-as-a-Judge provider.
@@ -1396,7 +1566,8 @@ The `compare` command accepts either one JSON trace file or a directory of
 - Default redaction cannot guarantee removal of every domain-specific secret or
   personal identifier.
 - `evaluate-live` assumes trusted targets and suite definitions.
-- Framework adapters and a local dashboard remain planned.
+- Framework adapters remain planned.
+- Gate webhook alerts send at most one request per gate run and do not retry.
 
 ## Development
 
@@ -1434,6 +1605,10 @@ src/agenticlens/
   instrumentation/ structured run and span tracing, payload redaction
   analysis/        memory and retry diagnostics
   comparison/      repeated-run statistics, regression reports, export
+  evaluation/      evaluation adapters, evidence audit, judging, calibration, alerts
+  experiments/     multi-variant experiments, pass@k statistics, HTML/CSV reports
+  adapters/        OTLP ingestion
+  api/             optional live OTLP receiver and trace store
   reports/         trace inspection rendering
   profiler/       workflow and step profiling
   metrics/        cost and performance calculation
@@ -1443,14 +1618,15 @@ src/agenticlens/
   cli/            Typer CLI and Rich rendering
   config/         pricing and settings
   models/         Pydantic data models
-schemas/           versioned trace, finding, and report JSON Schemas
+schemas/           versioned trace, finding, report, and experiment JSON Schemas
 ```
 
 ## Roadmap
 
 Near-term priorities:
 
-- experiment manifests and confidence intervals
+- v0.5 advanced evaluation and diagnosis: failure taxonomy, faulty-step
+  attribution, and judge cost recording
 - richer dataset curation workflows beyond versioned local dataset artifacts
 - automatic pricing resolution for research trace spans
 - prompt caching opportunity detection

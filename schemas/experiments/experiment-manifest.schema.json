@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/experiments/experiment-manifest.schema.json",
+  "$defs": {
+    "ExperimentVariant": {
+      "description": "One configuration under test.\n\n`target_kind` is `python` (a trusted `module:function` or `path.py:function`),\n`http` (a URL), or `recorded` (a JSON/YAML file of saved per-trial samples,\nreplayed without calling any agent). `factors` names what this variant\nsets for each compared dimension, such as `{\"model\": \"gpt-4o-mini\",\n\"prompt\": \"v2\"}`.",
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "target_kind": {
+          "pattern": "^(python|http|recorded)$",
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 30.0,
+          "exclusiveMinimum": 0,
+          "title": "Timeout Seconds",
+          "type": "number"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "factors": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Factors",
+          "type": "object"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "target_kind",
+        "target"
+      ],
+      "title": "ExperimentVariant",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "baseline_variant_id": {
+      "minLength": 1,
+      "title": "Baseline Variant Id",
+      "type": "string"
+    },
+    "trial_count": {
+      "default": 5,
+      "minimum": 1,
+      "title": "Trial Count",
+      "type": "integer"
+    },
+    "random_seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Random Seed"
+    },
+    "pass_k": {
+      "description": "k values for pass@k and pass^k; defaults to 1 and trial_count.",
+      "items": {
+        "type": "integer"
+      },
+      "title": "Pass K",
+      "type": "array"
+    },
+    "minimum_trials": {
+      "default": 5,
+      "description": "Completed trials per variant below which deltas are flagged exploratory.",
+      "minimum": 1,
+      "title": "Minimum Trials",
+      "type": "integer"
+    },
+    "max_workers": {
+      "default": 1,
+      "description": "Cases run concurrently within one live trial.",
+      "minimum": 1,
+      "title": "Max Workers",
+      "type": "integer"
+    },
+    "variants": {
+      "items": {
+        "$ref": "#/$defs/ExperimentVariant"
+      },
+      "title": "Variants",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "baseline_variant_id",
+    "variants"
+  ],
+  "title": "AgenticLens Experiment Manifest",
+  "type": "object"
+}

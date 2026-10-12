@@ -47,6 +47,7 @@ class CalibrationReport(BaseModel):
     suite_name: str
     suite_version: str
     evaluator: str
+    evaluator_version: str | None = None
     sample_count: int
     agreement_rate: float
     confidence_level: float = Field(default=0.95, ge=0.95, le=0.95)
@@ -71,6 +72,10 @@ def calibrate_judge(
     Uses Score.passed (the recorded threshold decision), not an assumed 0.5
     threshold. The Wilson interval assumes independent representative cases;
     this measures verdict agreement, not probabilistic confidence calibration.
+
+    All judged scores must come from one evaluator version: mixing judge
+    prompts or models in one calibration run raises. Scores without a
+    recorded version are accepted with a warning.
     """
     if not evaluator.strip():
         raise ValueError("evaluator must not be empty")
@@ -82,6 +87,7 @@ def calibrate_judge(
     if set(case_map) != {label.case_id for label in dataset.labels}:
         raise ValueError("reference labels must exactly match report case IDs")
     cases: list[CalibrationCase] = []
+    versions: set[str | None] = set()
     for label in dataset.labels:
         case = case_map[label.case_id]
         scores = [score for score in case.scores if score.name == evaluator]
@@ -90,6 +96,7 @@ def calibrate_judge(
                 f"case {label.case_id!r} must have exactly one llm_judge score named {evaluator!r}"
             )
         score = scores[0]
+        versions.add(score.evaluator_version)
         cases.append(
             CalibrationCase(
                 case_id=case.case_id,
@@ -100,6 +107,13 @@ def calibrate_judge(
                 agreed=score.passed == label.passed,
             )
         )
+    if len(versions) > 1:
+        listed = ", ".join(sorted(str(version) for version in versions))
+        raise ValueError(
+            f"judge scores for {evaluator!r} come from different evaluator versions ({listed}); "
+            "calibrate one judge version at a time"
+        )
+    evaluator_version = next(iter(versions))
     n = len(cases)
     agreement = sum(case.agreed for case in cases) / n
     # Two-sided 95% Wilson score interval (NIST/SEMATECH handbook, prc241).
@@ -113,6 +127,11 @@ def calibrate_judge(
     ]
     if n < 30:
         warnings.append("Fewer than 30 cases: treat this as exploratory evidence.")
+    if evaluator_version is None:
+        warnings.append(
+            "Judge scores carry no evaluator version; record one so this result can be "
+            "tied to a specific judge prompt and model."
+        )
     if len({case.reference_passed for case in cases}) == 1:
         warnings.append(
             "References contain only one class; both error directions are not assessed."
@@ -123,6 +142,7 @@ def calibrate_judge(
         suite_name=report.suite_name,
         suite_version=report.suite_version,
         evaluator=evaluator,
+        evaluator_version=evaluator_version,
         sample_count=n,
         agreement_rate=agreement,
         agreement_interval=(max(0.0, center - radius), min(1.0, center + radius)),
@@ -131,5 +151,109 @@ def calibrate_judge(
         false_accepts=sum(c.judge_passed and not c.reference_passed for c in cases),
         false_rejects=sum(not c.judge_passed and c.reference_passed for c in cases),
         cases=cases,
+        warnings=warnings,
+    )
+
+
+class ThresholdPoint(BaseModel):
+    threshold: float
+    agreement_rate: float
+    balanced_accuracy: float | None
+    false_accepts: int
+    false_rejects: int
+
+
+class ThresholdTuningReport(BaseModel):
+    schema_version: Literal["1.0"] = "1.0"
+    dataset_name: str
+    dataset_version: str
+    evaluator: str
+    evaluator_version: str | None = None
+    sample_count: int
+    current_agreement_rate: float
+    recommended_threshold: float
+    recommended: ThresholdPoint
+    objective: Literal["balanced_accuracy", "agreement_rate"]
+    points: list[ThresholdPoint]
+    warnings: list[str]
+
+
+def tune_judge_threshold(
+    report: EvaluationReport,
+    dataset: CalibrationDataset,
+    *,
+    evaluator: str,
+    thresholds: list[float] | None = None,
+) -> ThresholdTuningReport:
+    """Sweep pass thresholds over saved judge values against reference labels.
+
+    Each point re-decides `judge_value >= threshold` for every case. The
+    recommended threshold maximizes balanced accuracy (the mean of the
+    true-accept and true-reject rates) when both reference classes are
+    present, otherwise raw agreement; ties go to the lowest threshold.
+    Candidate thresholds default to every distinct judge value plus 0 and 1.
+
+    This is fitted on the same labels it is scored on; confirm a new
+    threshold on a held-out split before adopting it.
+    """
+    calibration = calibrate_judge(report, dataset, evaluator=evaluator)
+    cases = calibration.cases
+    candidates = sorted(
+        set(thresholds)
+        if thresholds is not None
+        else {0.0, 1.0, *(case.judge_value for case in cases)}
+    )
+    if not candidates or any(not 0 <= value <= 1 for value in candidates):
+        raise ValueError("thresholds must be a non-empty list of values between 0 and 1")
+    positives = sum(case.reference_passed for case in cases)
+    negatives = len(cases) - positives
+    both_classes = positives > 0 and negatives > 0
+
+    points: list[ThresholdPoint] = []
+    for threshold in candidates:
+        decisions = [(case.judge_value >= threshold, case.reference_passed) for case in cases]
+        true_accepts = sum(judged and ref for judged, ref in decisions)
+        true_rejects = sum(not judged and not ref for judged, ref in decisions)
+        points.append(
+            ThresholdPoint(
+                threshold=threshold,
+                agreement_rate=(true_accepts + true_rejects) / len(cases),
+                balanced_accuracy=(
+                    (true_accepts / positives + true_rejects / negatives) / 2
+                    if both_classes
+                    else None
+                ),
+                false_accepts=sum(judged and not ref for judged, ref in decisions),
+                false_rejects=sum(not judged and ref for judged, ref in decisions),
+            )
+        )
+
+    def objective(point: ThresholdPoint) -> float:
+        if both_classes and point.balanced_accuracy is not None:
+            return point.balanced_accuracy
+        return point.agreement_rate
+
+    best = max(points, key=lambda point: (objective(point), -point.threshold))
+    warnings = [
+        "Threshold is fitted and scored on the same labels; validate it on held-out cases.",
+    ]
+    if not both_classes:
+        warnings.append(
+            "References contain only one class; optimizing raw agreement instead of "
+            "balanced accuracy, which can favor always-accept or always-reject."
+        )
+    if len(cases) < 30:
+        warnings.append("Fewer than 30 cases: the recommended threshold is unstable.")
+    return ThresholdTuningReport(
+        dataset_name=dataset.name,
+        dataset_version=dataset.version,
+        evaluator=evaluator,
+        evaluator_version=calibration.evaluator_version,
+        sample_count=len(cases),
+        current_agreement_rate=calibration.agreement_rate,
+        recommended_threshold=best.threshold,
+        recommended=best,
+        objective="balanced_accuracy" if both_classes else "agreement_rate",
+        points=points,
         warnings=warnings,
     )

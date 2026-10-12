@@ -21,6 +21,25 @@ See [regression tests](tests/test_evaluation_correctness.py) and the README's
 compatibility notes. Evaluator versions, Python timeout enforcement, and HTML
 gate-status semantics remain open; the roadmap is not fully complete.
 
+## 0.6.0 follow-up (2026-10-12)
+
+Release 0.6.0 (with sibling `agentic-evals` 0.7.1) closes the v0.3 acceptance
+gaps and delivers the v0.4 deliverables. The v0.3 and v0.4 tables below are
+updated in place; other sections still describe the 2026-09-11 snapshot.
+
+| Earlier gap | Resolution | Evidence |
+| --- | --- | --- |
+| No evaluator version on scores | `Score.evaluator`/`evaluator_version` stamped by agentic-evals; `audit_report` blocks unversioned evaluators | `tests/test_evidence_audit.py`, agentic-evals `tests/test_provenance.py` |
+| Cost provenance and coverage | `EvalTrace.cost_source`, per-case `cost_source`, summary `priced_cases`/`cost_sources`; Lens runs default to `estimated` | `tests/test_evidence_audit.py` |
+| Missing samples indistinguishable from lost trace IDs | `CaseEvaluation.sample_available`; audit always blocks untraceable failed cases | `tests/test_evidence_audit.py` |
+| No HTTP live-target parity evidence | One suite run through Python and HTTP targets with identical reports, sequential and concurrent | `tests/test_live_parity.py`, agentic-evals `tests/test_live_targets.py` |
+| Finding 6: HTML READY label implied a gate decision | Label now states case outcome; release decisions stay with `gate` | `tests/test_evidence_audit.py` |
+| Finding 7: calibration did not pin the judge | Calibration records the judge version and rejects mixed versions | `tests/test_calibration.py` |
+
+Still open: Python live-target timeouts are not enforced (finding 4); built-in
+judge provider clients; async evaluator APIs; framework event adapters;
+probability calibration of judge scores.
+
 ## How to read this audit
 
 - **Implemented (I):** usable code exists for the stated scope; evidence and test
@@ -40,8 +59,8 @@ Missing entries are repository-scoped findings, not claims about sibling project
 | --- | --- | --- |
 | v0.2 Trace/comparison | Partial acceptance; core implemented | Overhead benchmark and comprehensive artifact/schema acceptance evidence |
 | v0.2.x Evidence/operations | Partial acceptance; core implemented | Universal source-span provenance claim is stronger than enforcement; only AIOS 0.4 draft supported |
-| v0.3 Evaluation | Partial | Evaluator identity/version tracking, schema subset limits, async/batch, datasets, built-in judge clients, broader calibration, adapters, webhooks |
-| v0.4 Experiments | Partial building blocks | Experiment runner/manifests, repeated per-case trials, multi-variant analysis, pass@k/pass^k, uncertainty, heatmaps, Pareto |
+| v0.3 Evaluation | Implemented (0.6.0) | Follow-ons only: built-in judge clients, async evaluator APIs, framework adapters, probability calibration, Python target timeouts |
+| v0.4 Experiments | Implemented (0.6.0) | Multiple-comparison correction; correlated-attempt-aware intervals; parallel trials |
 | v0.5 Advanced evaluation | Partial | Built-in semantic/safety/trajectory evaluators, judge provenance/cost, diagnosis validation |
 | v0.6 Datasets | Partial building blocks | Immutable snapshots, conversions, splits, curation, approvals, dataset-specific masking |
 | v0.7 ModelFit | Missing as a subsystem | Task-aware, measured quality-constrained selection; cost-only suggestions already exist |
@@ -126,50 +145,59 @@ are **U** in this local audit.
 | Evaluator/Context/Score/Registry contracts | I | EVAL registry and threshold tests |
 | Exact/substring match; required/forbidden tools | I | EVAL |
 | Required output fields and tool argument names; turn, latency, cost thresholds | I | EVAL; argument presence is checked, not argument values or complete tool trajectories |
-| JSON Schema output validation | P | _validate_json_schema implements types, required/properties/items subset; many keywords are ignored |
+| JSON Schema output validation | I | Full Draft 2020-12 validation since 0.5.0; external references are not fetched |
 | CallableEvaluator, BusinessRuleEvaluator, LLMJudgeEvaluator | I | EVAL; caller supplies trusted execution/model logic through Python |
 | Semantic/safety/RAG checks | P | Callback extension points and RAG recommendation heuristics exist; no built-in semantic/safety evaluator suite |
 | JSON and standalone HTML reports | I | EVAL; HTML escaping is tested |
 | Release gates and evaluate/gate CLI | I | GATE; absolute summary thresholds, not paired per-case regression gates |
-| Live Python/HTTP targets | I | EVAL code and documented CLI; Python tests present, HTTP path has no dedicated target regression test in inspected suite |
+| Live Python/HTTP targets | I | Same-suite Python/HTTP parity tests (`tests/test_live_parity.py`); `--max-workers` concurrency with stable case order |
 | Offline LangGraph reference workflow | P | [reference example](examples/reference_workflows/langgraph_supervisor.py); no maintained event adapter or dedicated example integration test found |
 | Offline judge agreement report and 95% Wilson interval | I | CAL, unreleased local implementation; strict suite/case matching and trace-linked confusion counts |
 | Built-in judge provider clients | M | Provider modules extract usage; they do not perform judge inference |
-| Async/batched execution | M | run_live_suite/evaluate_suite use synchronous loops |
-| Broader calibration and statistical intervals | P | CAL only covers binary saved-verdict agreement, not probability calibration or threshold optimization |
-| Dataset management | P | Version strings/labels/loaders exist; lifecycle management is v0.6 work |
+| Async/batched execution | P | Thread-pool concurrency for live targets (`max_workers`); no async evaluator API |
+| Broader calibration and statistical intervals | P | Verdict agreement plus threshold tuning (`tune_judge_threshold`, balanced accuracy); no probability calibration |
+| Dataset management | I | `agenticlens dataset summary/split/export-samples`; lifecycle management (immutability, approvals) is v0.6 work |
 | Automatic framework adapters | M | Example instrumentation is manual |
-| Structured agree/partial/disagree verdict, confidence, grounding fields | M | Score has a value and free-form metadata, not that enforced contract |
-| Cooldown-protected webhooks | M | No notifier/cooldown implementation found |
+| Structured agree/partial/disagree verdict, confidence, grounding fields | I | `JudgeVerdict` + `structured_judge`; self-judging skipped or flagged (`tests/test_judging.py`) |
+| Cooldown-protected webhooks | I | `notify_gate_breach`, `gate --notify-webhook`; generic/Slack/Teams; per-threshold and per-category cooldowns (`tests/test_gate_notifications.py`) |
 
-Acceptance gaps:
-- **P:** scores carry name/type but no required evaluator-version field. Suite
-  version is not evaluator version.
-- **P:** unavailable costs are represented, but aggregate reports do not preserve
-  complete measured/estimated provenance or distinguish partial cost coverage.
-- **P:** cases with samples retain trace IDs; a missing sample produces an empty
-  trace ID, and trace contents are not embedded in the evaluation report.
-- **U:** Python and HTTP same-suite parity needs dedicated HTTP regression evidence.
+Acceptance (0.6.0):
+- **I:** every score identifies its evaluator and version; `audit_report` and
+  `evaluate --strict-evidence` block unversioned evaluators.
+- **I:** reports preserve measured/estimated cost provenance and cost coverage
+  (`priced_cases`, `cost_sources`); incomplete totals remain unavailable.
+- **I:** failed cases retain trace IDs; missing samples are flagged with
+  `sample_available=False`, and the audit blocks any untraceable failure.
+  Trace contents are referenced by ID, not embedded.
+- **I:** Python/HTTP same-suite parity has dedicated regression tests.
 
 ## v0.4 Experiments and Statistical Comparison
 
 | Roadmap deliverable | Status | Evidence / remaining boundary |
 | --- | --- | --- |
-| Experiment/variant manifests | P | TRACE has IDs; no manifest validation or experiment orchestration |
-| Repeated trials per case | M | COMP summarizes supplied runs; it does not schedule per-case trials |
-| Prompt/model/retrieval/memory/retry-policy comparison | P | Generic saved run-group comparison, not controlled variant execution |
-| pass@k and pass^k | M | No estimators found |
-| Confidence intervals | P | CAL's agreement interval only; no experiment-metric intervals |
-| Consistency/stability summaries | P | COMP standard deviation/CV, not per-case consistency |
-| Baseline regression analysis | P | COMP group-level thresholds; no paired evaluation-case analysis |
-| Test-level score heatmaps | M | No implementation found |
-| Pareto analysis | M | No implementation found |
-| HTML/CSV experiment reports | P | EVAL HTML and COMP CSV exist for different report models; no experiment report |
+Evidence key EXP: `src/agenticlens/experiments/`, `tests/test_experiments.py`,
+`tests/test_experiments_v04.py`, `tests/test_experiment_stats.py`,
+`tests/test_cli_evaluation_experiments.py`, and the reproducible example in
+`examples/experiments/` (`tests/test_examples_evaluation_experiments.py`).
 
-Acceptance: three-variant experiments and randomization provenance are **M**.
-Sample warnings exist for two-group comparison. Quality is represented largely by
-task success, not a combined experimental report of evaluator scores, cost,
-latency, and reliability.
+| Roadmap deliverable | Status | Evidence / remaining boundary |
+| --- | --- | --- |
+| Experiment/variant manifests | I | EXP; validated manifests with ≥ 3 variants, factors, `pass_k`, `minimum_trials`; published JSON Schemas |
+| Repeated trials per case | I | EXP; per-case attempts/passes across trials; live (Python/HTTP) or recorded replay |
+| Prompt/model/retrieval/memory/retry-policy comparison | I | EXP; variant `factors`, `changed_factors` per comparison, factor-level summaries |
+| pass@k and pass^k | I | EXP; unbiased pass@k and pass^k per case and per variant |
+| Confidence intervals | I | EXP; Wilson intervals for case pass rate, normal intervals for per-trial metrics |
+| Consistency/stability summaries | I | EXP; per-case consistency, flaky-case lists, CV per metric |
+| Baseline regression analysis | I | EXP; deltas, two-proportion p-values, regressed/improved case lists |
+| Test-level score heatmaps | I | EXP; variant x case heatmap in the HTML report, case-matrix CSV |
+| Pareto analysis | I | EXP; frontier over reliability, pass rate, score, latency, cost |
+| HTML/CSV experiment reports | I | EXP; `--html`, `--csv`, `--cases-csv`, `experiment report` re-render |
+
+Acceptance (0.6.0): three-variant experiments **I**; trial counts, seed, and
+execution order recorded **I**; minimum-sample warnings in reports and
+comparisons **I**; quality, cost, latency, and reliability shown together **I**.
+Boundary: intervals and p-values treat case attempts as independent, and there
+is no multiple-comparison correction.
 
 ## v0.5 Advanced Evaluation and Diagnosis
 

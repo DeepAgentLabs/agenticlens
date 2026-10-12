@@ -6,6 +6,85 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.6.0 - 2026-10-12
+
+Completes roadmap milestones v0.3 (Evaluation Foundation) and v0.4
+(Experiments and Statistical Comparison). Requires `agentic-evals>=0.7.1`.
+
+### Added — evaluation evidence (v0.3)
+
+- Every score names its evaluator and version (`Score.evaluator`,
+  `Score.evaluator_version`, stamped by agentic-evals 0.7.1). AgenticLens
+  run costs carry `cost_source` (`estimated` unless the run's metadata says
+  `measured`), and reports count priced cases per provenance.
+- `audit_report()` evidence audit: unversioned evaluators, failed cases with
+  no sample or trace ID, incomplete cost, and unspecified cost provenance.
+  `agenticlens evaluate --audit PATH` saves it; `--strict-evidence` exits with
+  code 3 on blocking issues.
+- Structured judge verdicts: `JudgeVerdict` (agree / partially agree /
+  disagree, confidence, unsupported claims, missed evidence, rationale) and
+  `structured_judge()`, which records the judge and evaluated models and skips
+  (or, with `allow_self_judging=True`, flags) a judge grading its own model.
+- Judge pass-threshold tuning: `tune_judge_threshold()` and
+  `agenticlens calibrate --tune-threshold PATH` (balanced accuracy, or
+  agreement for one-class labels).
+- Cooldown-protected gate alerts: `notify_gate_breach()` and
+  `agenticlens gate --notify-webhook URL --notify-format generic|slack|teams
+  --cooldown-minutes N --notify-state PATH` (also `AGENTICLENS_GATE_WEBHOOK`).
+  Per-threshold and per-category cooldowns in Python; alert failures never
+  change the gate's exit code.
+- Concurrent live evaluation: `run_live_suite(..., max_workers=N)` and
+  `evaluate-live --max-workers N`; `evaluate-live --html`.
+- Python/HTTP same-suite parity regression tests.
+
+### Added — experiments (v0.4)
+
+- Variant `factors` (model, prompt, retrieval, memory, retry_policy, or any
+  name), `changed_factors` per comparison, and factor-level summaries.
+- `recorded` variant targets that replay saved per-trial samples, so an
+  experiment reproduces exactly from committed files.
+- Per-case repeated-trial results with unbiased pass@k and pass^k,
+  consistency, and flaky-case lists; variant-level pass@k / pass^k.
+- Wilson intervals on case pass rates; two-proportion significance tests,
+  regressed/improved case lists, and minimum-sample and multi-factor warnings
+  on each comparison.
+- Recorded randomization (seed and exact execution order), confidence level,
+  regression threshold, and `pass_k` on every report.
+- Standalone HTML experiment report with a variant x test-case heatmap;
+  variant summary and case-matrix CSV exports.
+- `agenticlens experiment run --html/--csv/--cases-csv` and
+  `agenticlens experiment report SAVED.json` to re-render saved results.
+- JSON Schemas for experiment manifests and reports in `schemas/experiments/`.
+- Examples: `examples/experiments/` (reproducible four-variant experiment
+  with saved reports), `examples/structured_judge_demo.py`,
+  `examples/gate_alert_demo.py`; `examples/experiment_runner_demo.py` now
+  records factors and writes HTML/CSV.
+
+### Changed
+
+- Experiment manifest and report `schema_version` is `1.1` (additive).
+- `calibrate_judge` records the judge's evaluator version and rejects reports
+  whose judge scores mix versions; unversioned scores produce a warning.
+- The evaluation HTML report labels case outcomes ("CASE RESULT · 2 CASES
+  FAILED") instead of "RELEASE STATUS · READY/REVIEW", which implied a gate
+  decision. It also shows `evaluator@version`, cost provenance, and missing
+  samples.
+- Experiment console output splits pass@k / pass^k into its own table.
+- Experiment `pass_rate_delta` (and its regression flag) uses case-level pass
+  rates, which count crashed trials as failed attempts, matching the case
+  pass-rate delta shown in reports.
+- Gate-alert cooldown state is keyed per suite (`<suite>::<threshold>`), and
+  alert text lists only the breaches being alerted on. Existing unscoped
+  state entries are ignored, so each threshold may alert once after upgrade.
+- CSV exports prefix formula-like text cells (`=`, `+`, `-`, `@`) with `'`.
+
+### Fixed
+
+- Trace payloads in `EvalTrace` shape that omit `total_latency_ms` were
+  treated as AgenticLens `Run` payloads, dropping their trace-level cost.
+- `Run`-shaped trace payloads with `Z`-suffixed UTC timestamps failed to
+  parse on Python 3.10.
+
 ## 0.5.0 - 2026-09-13
 
 ### Fixed

@@ -6,6 +6,11 @@ README) — this is the one place that direction gets bridged, so anyone
 building an `EvaluationSample` from an AgenticLens `Run` (e.g. one just
 captured live, or imported from OTLP) doesn't have to hand-roll the
 conversion themselves.
+
+Cost provenance: AgenticLens span costs are computed from token counts and a
+price table, so a `Run`'s cost is `estimated` unless the producer says
+otherwise with `metadata["cost_source"] = "measured"` (for example, a cost
+read back from a provider invoice).
 """
 
 from datetime import datetime
@@ -15,22 +20,58 @@ from agentic_evals import EvalSpan, EvalTrace
 
 from agenticlens.models.trace import Run
 
+COST_SOURCES = ("measured", "estimated")
+
+
+def _cost_source(declared: Any, cost: float | None) -> str | None:
+    if cost is None:
+        return None
+    return declared if declared in COST_SOURCES else "estimated"
+
 
 def to_eval_trace(run: Run) -> EvalTrace:
-    return EvalTrace(
-        trace_id=run.trace_id,
-        spans=[
-            EvalSpan(tool_name=span.tool_name, attributes=dict(span.attributes))
-            for span in run.spans
-        ],
-        total_latency_ms=run.total_latency_ms,
-        estimated_cost_usd=run.estimated_cost_usd,
-        metadata=dict(run.metadata),
+    cost = run.estimated_cost_usd
+    return EvalTrace.model_validate(
+        {
+            "trace_id": run.trace_id,
+            "spans": [
+                EvalSpan(tool_name=span.tool_name, attributes=dict(span.attributes))
+                for span in run.spans
+            ],
+            "total_latency_ms": run.total_latency_ms,
+            "estimated_cost_usd": cost,
+            "cost_source": _cost_source(run.metadata.get("cost_source"), cost),
+            "metadata": dict(run.metadata),
+        }
     )
 
 
 def _parse_datetime(value: Any) -> datetime:
-    return value if isinstance(value, datetime) else datetime.fromisoformat(value)
+    if isinstance(value, datetime):
+        return value
+    # Python 3.10's fromisoformat() rejects the "Z" suffix pydantic emits for UTC.
+    text = value[:-1] + "+00:00" if value.endswith("Z") else value
+    return datetime.fromisoformat(text)
+
+
+_RUN_KEYS = frozenset({"started_at", "completed_at", "application_name", "run_id"})
+_RUN_SPAN_KEYS = frozenset({"span_type", "estimated_cost_usd", "span_id"})
+
+
+def _is_run_shaped(payload: dict[str, Any]) -> bool:
+    """True for AgenticLens `Run` payloads; `EvalTrace` payloads pass through.
+
+    `total_latency_ms` only appears on `EvalTrace`. Otherwise a payload is
+    `Run`-shaped when it carries a `Run`-only key or a span with a `Span`-only
+    key, so an `EvalTrace` that simply omits `total_latency_ms` keeps its
+    trace-level cost instead of having it recomputed from spans.
+    """
+    if "total_latency_ms" in payload:
+        return False
+    if _RUN_KEYS & payload.keys():
+        return True
+    spans = payload.get("spans") or []
+    return any(isinstance(span, dict) and _RUN_SPAN_KEYS & span.keys() for span in spans)
 
 
 def to_eval_trace_dict(payload: Any) -> Any:
@@ -45,7 +86,7 @@ def to_eval_trace_dict(payload: Any) -> Any:
     dict-level counterpart of `to_eval_trace()`, used as the `trace_adapter`
     hook for `agentic_evals`'s `load_samples()`/`run_live_suite()`.
     """
-    if not isinstance(payload, dict) or "total_latency_ms" in payload:
+    if not isinstance(payload, dict) or not _is_run_shaped(payload):
         return payload  # not a dict, or already EvalTrace-shaped
 
     spans = payload.get("spans") or []
@@ -64,6 +105,7 @@ def to_eval_trace_dict(payload: Any) -> Any:
         if span_costs and all(cost is not None for cost in span_costs)
         else None
     )
+    metadata = payload.get("metadata") or {}
 
     return {
         "trace_id": payload.get("trace_id", ""),
@@ -73,5 +115,8 @@ def to_eval_trace_dict(payload: Any) -> Any:
         ],
         "total_latency_ms": total_latency_ms,
         "estimated_cost_usd": estimated_cost_usd,
-        "metadata": payload.get("metadata") or {},
+        "cost_source": _cost_source(
+            payload.get("cost_source", metadata.get("cost_source")), estimated_cost_usd
+        ),
+        "metadata": metadata,
     }

@@ -1,26 +1,29 @@
 # AgenticLens Product Roadmap
 
-## Correctness follow-up (unreleased)
+## Correctness follow-up
 
-The four verified audit gaps are fixed: structured-output validation now uses
-Draft 2020-12; duplicate/unknown samples are rejected; incomplete span/case/run
-costs remain unavailable; explicit task outcomes override execution status.
-Regression evidence: [correctness tests](tests/test_evaluation_correctness.py).
-Evaluator-version enforcement, Python target timeouts, and HTML gate-status
-semantics remain open.
+The four verified audit gaps were fixed in `0.5.0`: structured-output validation
+uses Draft 2020-12; duplicate/unknown samples are rejected; incomplete
+span/case/run costs remain unavailable; explicit task outcomes override
+execution status. Regression evidence:
+[correctness tests](tests/test_evaluation_correctness.py). `0.6.0` closes
+evaluator-version enforcement (every score names its evaluator and version)
+and HTML gate-status semantics (the HTML label now states case outcomes only).
+Python live-target timeouts remain open.
 
 ## Implementation Audit
 
 The [2026-09-11 implementation audit](ROADMAP_AUDIT.md) maps this roadmap to
 source and tests. Core v0.2/v0.2.x capabilities exist, but milestone acceptance
-still has open evidence and provenance gates. Later milestones contain partial
-building blocks; planned scope is not a claim of completion. Calibration is
-implemented locally and unreleased.
+still has open evidence and provenance gates. The audit's
+[0.6.0 follow-up](ROADMAP_AUDIT.md#060-follow-up-2026-10-12) records v0.3
+acceptance and v0.4 delivery evidence. Later milestones contain partial
+building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
-Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0`
-(current, 2026-08-08) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
+`0.5.0` → `0.6.0` (current, 2026-10-12) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -32,11 +35,15 @@ forward from `v0.5` and `v1.0`.
   Intelligence (`Evidence` objects, next-best-analysis guidance,
   import-layer enforcement, OpenTelemetry trace export, and AIOS draft
   validation/conformance CLI are delivered)
-- **v0.3** 🏗️ Mostly complete — Evaluation Foundation (evaluator framework,
-  deterministic checks, custom/LLM-judge evaluators, release gates,
-  `evaluate`/`gate` CLI, and live agent targets); judge calibration and
-  dataset management still open; offline verdict-agreement calibration is implemented in the development line
-- **v0.4** 🚧 Planned — Experiments and Statistical Comparison
+- **v0.3** ✅ Delivered in `0.6.0` — Evaluation Foundation (evaluator
+  framework, deterministic checks, custom/LLM-judge evaluators with recorded
+  versions, structured judge verdicts, release gates with cooldown-protected
+  alerts, live targets with Python/HTTP parity, datasets, judge calibration and
+  threshold tuning, evidence audits)
+- **v0.4** ✅ Delivered in `0.6.0` — Experiments and Statistical Comparison
+  (manifests with factors, live or recorded repeated trials, pass@k/pass^k,
+  confidence intervals, significance tests, consistency, heatmaps, Pareto, and
+  HTML/CSV reports)
 - **v0.5** 🚧 Planned — Advanced Evaluation and Diagnosis (semantic/safety/RAG
   scoring partially pulled forward into `v0.3`)
 - **v0.6** 🚧 Planned — Test-Suite and Dataset Management
@@ -200,9 +207,9 @@ here or in a linked public tracking issue.
 
 | Window | Feature alignment | Deliverable and acceptance evidence |
 | --- | --- | --- |
-| Months 1-2 | Remaining v0.3 work | Reproducible calibration and versioned-dataset examples with disagreement, uncertainty, and limitations; measure instrumentation overhead still open under v0.2. |
+| Months 1-2 | Remaining v0.3 work | Reproducible calibration and versioned-dataset examples with disagreement, uncertainty, and limitations (delivered: `examples/dataset_and_calibration_demo.py`, `examples/structured_judge_demo.py`); measure instrumentation overhead still open under v0.2. |
 | Months 1-2 | Project maintenance | Review licensing and dependency notices; publish maintainer-reviewed governance covering decisions, maintainer admission/removal, disputes, and governance changes; document maintainer responsibilities and verify onboarding and private security reporting. |
-| Months 3-4 | v0.4 experiments | Repeatable comparison of at least three variants with saved inputs/results, trial settings, uncertainty, and minimum-sample warnings, matching milestone completion criteria. |
+| Months 3-4 | v0.4 experiments | Repeatable comparison of at least three variants with saved inputs/results, trial settings, uncertainty, and minimum-sample warnings, matching milestone completion criteria (delivered: `examples/experiments/`, reproduced by `tests/test_examples_evaluation_experiments.py`). |
 | Months 3-4 | Artifact interoperability | One producer-to-validation-to-consumer workflow using a documented AIOS draft snapshot; add supported mappings/export behavior if needed, record unsupported fields, and check valid/invalid fixtures against spec-owned rules. Existing validation tooling alone does not prove a native AIOS exporter. |
 | Months 5-6 | Independent validation | Seek artifact or workflow reviews from two unaffiliated external teams; record versions, reproduction steps, findings, and resulting issues with permission. Sibling repositories count as integration evidence, not independent adoption. |
 | Months 5-6 | Community and adoption | Publish a readiness review covering external usage evidence, contributor/maintainer participation, release cadence, unresolved gaps, and the next six-month priorities. Record missing evidence explicitly. |
@@ -211,7 +218,9 @@ here or in a linked public tracking issue.
 
 - [ ] Governance and maintainer responsibilities published and reviewed.
 - [ ] Licensing, dependency notices, onboarding, and security reporting reviewed.
-- [ ] Milestone examples reproduce from a clean installation.
+- [ ] Milestone examples reproduce from a clean installation. (v0.4's
+      recorded experiment reproduces its saved report in CI; other milestones
+      remain open.)
 - [ ] Instrumentation overhead measured with a documented workload/environment.
 - [ ] Artifact interoperability demonstrated with versioned fixtures.
 - [ ] Independent feedback from two unaffiliated teams recorded and triaged.
@@ -311,7 +320,25 @@ The following capabilities are implemented in the current development line.
   average latency, and total cost, with CI-friendly exit codes
 - `evaluate`, `evaluate-live`, and `gate` CLI commands
 - versioned evaluation dataset workflows via `agenticlens dataset ...`
-- judge calibration reports via `calibrate`
+- judge calibration reports and pass-threshold tuning via `calibrate`
+- evaluator name and version on every score, measured/estimated cost
+  provenance, and evidence audits via `evaluate --audit/--strict-evidence`
+- structured judge verdicts (`JudgeVerdict`, `structured_judge`) with a
+  self-confirmation guard
+- cooldown-protected webhook alerts on `gate` failures (generic, Slack, Teams)
+- concurrent live evaluation (`--max-workers`)
+
+### Experiments
+
+- experiment manifests with variant factors (model, prompt, retrieval, memory,
+  retry policy), live Python/HTTP or recorded-replay targets, and seeded
+  execution order
+- per-case repeated trials with pass@k, pass^k, consistency, and flaky cases
+- Wilson and normal-approximation confidence intervals, two-proportion
+  significance tests, regressed/improved case lists, and minimum-sample warnings
+- factor-level summaries and a Pareto frontier
+- HTML report with a variant x test-case heatmap; variant and case-matrix CSV
+  exports; `experiment report` re-renders saved results
 - a deterministic, offline LangGraph reference workflow demonstrating tracing,
   evaluation, and release-gate output together
 
@@ -455,11 +482,29 @@ suites.
 - a deterministic, offline LangGraph reference workflow demonstrating the
   full trace-to-evaluation-to-gate path
 
-### Added in the development line (unreleased)
+- offline judge/reference verdict agreement via the Python API and calibrate
+  CLI, with versioned labels, exact case matching, 95% Wilson agreement
+  intervals, confusion counts, and trace-linked cases (`0.5.0`)
 
-- Offline judge/reference verdict agreement via the Python API and calibrate CLI,
-  with versioned labels, exact case matching, 95% Wilson agreement intervals,
-  confusion counts, and trace-linked cases.
+### Delivered in `0.6.0`
+
+- `Score.evaluator` and `Score.evaluator_version` on every score (from
+  `agentic-evals` 0.7.1); built-in checks are attributed to
+  `agentic_evals.builtin` at its version; calibration records the judge
+  version and rejects mixed-version runs
+- measured/estimated cost provenance per case, priced-case coverage per
+  report, and `sample_available` for missing samples
+- `audit_report()` and `evaluate --audit/--strict-evidence`
+- Python/HTTP same-suite parity regression tests, and concurrent live
+  evaluation via `max_workers`
+- structured judge verdicts: `JudgeVerdict` (agree / partially agree /
+  disagree, confidence, unsupported claims, missed evidence) via
+  `structured_judge()`, which skips or flags a judge grading its own model
+- judge pass-threshold tuning (`tune_judge_threshold`, `calibrate --tune-threshold`)
+- cooldown-protected webhook notifications on `gate` breaches
+  (`notify_gate_breach`, `gate --notify-webhook`), generic/Slack/Teams payloads,
+  per-threshold and per-category cooldowns
+- the HTML report labels case outcomes, not a release decision
 
 This pulled forward parts of the semantic, safety, RAG, and LLM-judge scoring
 originally planned for [v0.5](#v05--advanced-evaluation-and-diagnosis), and
@@ -469,35 +514,31 @@ contract rather than as separate subsystems.
 
 ### Follow-on work
 
-The core `v0.3` evaluation foundation is complete. The following items remain
-valuable follow-on enhancements for later milestones:
+The `v0.3` evaluation foundation is complete. Remaining follow-on
+enhancements for later milestones:
 
 - built-in provider clients for LLM-as-a-Judge calls (applications currently
   supply the model call themselves)
-- asynchronous and batched evaluation execution
-- broader judge calibration (probability calibration and threshold tuning) and statistical intervals beyond verdict agreement
-- evaluation dataset management
+- async evaluator APIs (live targets already run concurrently on threads)
+- probability calibration of judge scores beyond verdict agreement and
+  threshold tuning
+- dataset lifecycle management (immutable snapshots, approvals) under v0.6
 - automatic framework event adapters beyond the LangGraph reference demo
-- richer structured judge verdict fields on `LLMJudgeEvaluator` metadata —
-  verdict (agree/partially-agree/disagree), confidence score, and a
-  factual-grounding breakdown (unsupported claims, evidence missed), plus
-  guidance to run the judge on a different model than the one under
-  evaluation to avoid self-confirmation bias
-- cooldown-protected webhook notifications on `gate` threshold breaches
-  (generic webhook, Slack/Teams-shaped payload) so CI/scheduled `gate` runs
-  can alert without paging on every single run, with per-threshold cooldowns
-  for repeated budget, quality, or investigation alerts
+- enforced timeouts for Python live targets
 
 ### Completion criteria
 
-- [ ] every score identifies its evaluator and version; names/types exist,
-      but evaluator version is not a required field
-- [ ] reports preserve measured/estimated provenance and cost completeness;
-      incomplete totals are now unavailable; full measured/estimated provenance remains open
-- [ ] failed cases retain sufficient trace-level evidence; sampled cases carry
-      trace IDs, but missing samples produce empty IDs
-- [ ] verify Python/HTTP same-suite parity with dedicated regression tests;
-      both code paths exist, but current target tests cover Python
+- [x] every score identifies its evaluator and version (`Score.evaluator`,
+      `Score.evaluator_version`; unversioned evaluators fail
+      `evaluate --strict-evidence`)
+- [x] reports preserve measured/estimated provenance and cost completeness
+      (`cost_source`, `priced_cases`, `cost_sources`; incomplete totals stay
+      unavailable)
+- [x] failed cases retain sufficient trace-level evidence (trace IDs on every
+      sampled case; missing samples flagged with `sample_available=False`;
+      the evidence audit blocks untraceable failures)
+- [x] verify Python/HTTP same-suite parity with dedicated regression tests
+      (`tests/test_live_parity.py`)
 
 ## v0.4 — Experiments and Statistical Comparison
 
@@ -521,19 +562,33 @@ repeated trials.
 
 ### Completion criteria
 
-- at least three variants can be compared in one experiment
-- trial counts and randomization settings are recorded
-- regression reports include minimum-sample warnings
-- quality, cost, latency, and reliability are shown together
+- [x] at least three variants can be compared in one experiment
+- [x] trial counts and randomization settings are recorded (seed and exact
+      execution order in `ExperimentReport.randomization`)
+- [x] regression reports include minimum-sample warnings (report-level and
+      per-comparison, driven by `minimum_trials`)
+- [x] quality, cost, latency, and reliability are shown together (console,
+      HTML, and CSV)
 
-### Current implementation status
+### Delivered in `0.6.0`
 
-- experiment manifests can define three or more live Python or HTTP variants
-- repeated suite trials are aggregated into per-variant stability summaries
-- confidence intervals, baseline deltas, and Pareto-frontier summaries are
-  available through `agenticlens experiment run`
-- pass@k, prompt/retrieval/memory-specific comparison, heatmaps, and HTML/CSV
-  experiment reports remain planned
+- experiment and variant manifests with `factors`, `pass_k`,
+  `minimum_trials`, and `max_workers`; live Python/HTTP or `recorded` replay
+  targets; JSON Schemas in `schemas/experiments/`
+- per-case repeated trials with unbiased pass@k and pass^k, consistency, and
+  flaky-case lists
+- prompt, model, retrieval, memory, and retry-policy comparison through
+  `changed_factors` and factor-level summaries
+- Wilson intervals for case pass rates and normal intervals for per-trial
+  metrics; two-proportion significance tests against the baseline
+- baseline regression analysis with regressed and improved case lists
+- test-level score heatmaps and Pareto analysis
+- HTML and CSV reports (`experiment run --html/--csv/--cases-csv`,
+  `experiment report`)
+- a reproducible four-variant example in `examples/experiments/`
+
+Known limits: intervals and p-values treat case attempts as independent; no
+multiple-comparison correction; live trials run sequentially.
 
 ## v0.5 — Advanced Evaluation and Diagnosis
 
