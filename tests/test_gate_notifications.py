@@ -110,7 +110,7 @@ def test_alert_is_sent_once_then_suppressed_until_cooldown_expires(tmp_path: Pat
     assert not second.sent and sorted(second.suppressed_keys) == ["pass_rate", "total_cost_usd"]
     assert third.sent
     assert len(sender.calls) == 2
-    assert set(json.loads(state.read_text())) == {"pass_rate", "total_cost_usd"}
+    assert set(json.loads(state.read_text())) == {"nightly::pass_rate", "nightly::total_cost_usd"}
     assert sender.calls[0][1]["event"] == "agenticlens.gate.failed"
 
 
@@ -187,3 +187,53 @@ def test_naive_now_is_rejected() -> None:
             now=datetime(2026, 1, 1),
             sender=Recorder(),
         )
+
+
+def test_suppressed_breaches_are_left_out_of_the_alert_text(tmp_path: Path) -> None:
+    report = _report()
+    decision = evaluate_gate(report, CONFIG)
+    sender = Recorder()
+    options = {
+        "url": "https://hooks.example/x",
+        "state_path": tmp_path / "state.json",
+        "sender": sender,
+        "webhook_format": "slack",
+        "cooldown": timedelta(hours=24),
+        "cooldowns": {"budget": timedelta(minutes=10)},
+    }
+
+    notify_gate_breach(report, decision, CONFIG, now=NOW, **options)
+    notify_gate_breach(report, decision, CONFIG, now=NOW + timedelta(minutes=15), **options)
+
+    second_text = sender.calls[1][1]["text"]
+    assert "total_cost_usd" in second_text
+    assert "pass_rate" not in second_text
+
+
+def test_cooldowns_are_scoped_per_suite(tmp_path: Path) -> None:
+    state = tmp_path / "state.json"
+    sender = Recorder()
+    first = _report()
+    other = first.model_copy(update={"suite_name": "weekly"})
+
+    notify_gate_breach(
+        first,
+        evaluate_gate(first, CONFIG),
+        CONFIG,
+        url="https://hooks.example/x",
+        state_path=state,
+        now=NOW,
+        sender=sender,
+    )
+    result = notify_gate_breach(
+        other,
+        evaluate_gate(other, CONFIG),
+        CONFIG,
+        url="https://hooks.example/x",
+        state_path=state,
+        now=NOW + timedelta(minutes=1),
+        sender=sender,
+    )
+
+    assert result.sent and result.suppressed_keys == []
+    assert sorted(result.notified_keys) == ["pass_rate", "total_cost_usd"]

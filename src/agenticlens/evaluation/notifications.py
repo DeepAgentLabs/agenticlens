@@ -3,7 +3,7 @@
 A scheduled or CI `gate` run that fails every hour should not page someone
 every hour. Each breached threshold has a key (`pass_rate`, `total_cost_usd`,
 `tag_pass_rate:safety`, ...); once an alert for a key is sent, further alerts
-for that key are suppressed until its cooldown expires. Cooldown state is a
+for that key on the same suite are suppressed until its cooldown expires. Cooldown state is a
 small JSON file the caller owns, so it survives between CI runs when cached.
 
 Payload shapes: `generic` (structured JSON), `slack` (incoming-webhook
@@ -91,6 +91,16 @@ def _save_state(path: Path | None, state: Mapping[str, str]) -> None:
     path.write_text(json.dumps(dict(sorted(state.items())), indent=2), encoding="utf-8")
 
 
+def describe_breach(breach: Breach) -> str:
+    observed = "unavailable" if breach.observed is None else f"{breach.observed:g}"
+    return f"{breach.key} is {observed} (limit {breach.limit:g})."
+
+
+def state_key(report: EvaluationReport, breach_key: str) -> str:
+    """Cooldown state key: per suite, so one suite's alert never silences another's."""
+    return f"{report.suite_name}::{breach_key}"
+
+
 def build_payload(
     report: EvaluationReport,
     decision: GateDecision,
@@ -99,7 +109,9 @@ def build_payload(
     webhook_format: WebhookFormat,
 ) -> dict[str, Any]:
     title = f"AgenticLens release gate failed: {report.suite_name} {report.suite_version}"
-    lines = [f"• {reason}" for reason in decision.reasons]
+    # Only the breaches being alerted on; suppressed ones stay quiet.
+    reasons = [describe_breach(breach) for breach in breaches]
+    lines = [f"• {reason}" for reason in reasons]
     if webhook_format == "slack":
         return {"text": "\n".join([f"*{title}*", *lines])}
     if webhook_format == "teams":
@@ -116,7 +128,7 @@ def build_payload(
         "suite_name": report.suite_name,
         "suite_version": report.suite_version,
         "report_created_at": report.created_at.isoformat(),
-        "reasons": decision.reasons,
+        "reasons": reasons,
         "breaches": [breach.model_dump(mode="json") for breach in breaches],
         "observed": decision.observed,
     }
@@ -169,7 +181,7 @@ def notify_gate_breach(
     suppressed: list[str] = []
     for breach in breaches:
         window = overrides.get(breach.key, overrides.get(breach.category, cooldown))
-        last = state.get(breach.key)
+        last = state.get(state_key(report, breach.key))
         if last is not None and moment - datetime.fromisoformat(last) < window:
             suppressed.append(breach.key)
         else:
@@ -180,7 +192,7 @@ def notify_gate_breach(
     payload = build_payload(report, decision, due, webhook_format=webhook_format)
     (sender or _post_json)(url, payload, timeout_seconds)
     for breach in due:
-        state[breach.key] = moment.isoformat()
+        state[state_key(report, breach.key)] = moment.isoformat()
     _save_state(state_path, state)
     return NotificationResult(
         sent=True,
