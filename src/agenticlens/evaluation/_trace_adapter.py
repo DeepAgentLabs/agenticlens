@@ -50,6 +50,26 @@ def _parse_datetime(value: Any) -> datetime:
     return value if isinstance(value, datetime) else datetime.fromisoformat(value)
 
 
+_RUN_KEYS = frozenset({"started_at", "completed_at", "application_name", "run_id"})
+_RUN_SPAN_KEYS = frozenset({"span_type", "estimated_cost_usd", "span_id"})
+
+
+def _is_run_shaped(payload: dict[str, Any]) -> bool:
+    """True for AgenticLens `Run` payloads; `EvalTrace` payloads pass through.
+
+    `total_latency_ms` only appears on `EvalTrace`. Otherwise a payload is
+    `Run`-shaped when it carries a `Run`-only key or a span with a `Span`-only
+    key, so an `EvalTrace` that simply omits `total_latency_ms` keeps its
+    trace-level cost instead of having it recomputed from spans.
+    """
+    if "total_latency_ms" in payload:
+        return False
+    if _RUN_KEYS & payload.keys():
+        return True
+    spans = payload.get("spans") or []
+    return any(isinstance(span, dict) and _RUN_SPAN_KEYS & span.keys() for span in spans)
+
+
 def to_eval_trace_dict(payload: Any) -> Any:
     """Normalize a raw trace payload into `EvalTrace`'s dict shape.
 
@@ -62,7 +82,7 @@ def to_eval_trace_dict(payload: Any) -> Any:
     dict-level counterpart of `to_eval_trace()`, used as the `trace_adapter`
     hook for `agentic_evals`'s `load_samples()`/`run_live_suite()`.
     """
-    if not isinstance(payload, dict) or "total_latency_ms" in payload:
+    if not isinstance(payload, dict) or not _is_run_shaped(payload):
         return payload  # not a dict, or already EvalTrace-shaped
 
     spans = payload.get("spans") or []
