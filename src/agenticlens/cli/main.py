@@ -758,39 +758,44 @@ def _render_experiment(report: ExperimentReport) -> None:
     summary_table = Table(title=f"Experiment · {report.experiment_name}")
     summary_table.add_column("Variant")
     summary_table.add_column("Case pass rate", justify="right")
-    summary_table.add_column("Mean score", justify="right")
-    summary_table.add_column("Mean latency", justify="right")
-    summary_table.add_column("Mean cost", justify="right")
+    summary_table.add_column("Score", justify="right")
+    summary_table.add_column("Latency", justify="right")
+    summary_table.add_column("Cost", justify="right")
     summary_table.add_column("Reliability", justify="right")
     summary_table.add_column("Consistency", justify="right")
-    for k in report.pass_k:
-        summary_table.add_column(f"pass@{k}", justify="right")
-        summary_table.add_column(f"pass^{k}", justify="right")
     summary_table.add_column("Pareto", justify="center")
+    k_table = Table(title="pass@k / pass^k (mean over cases)")
+    k_table.add_column("Variant")
+    for k in report.pass_k:
+        k_table.add_column(f"pass@{k}", justify="right")
+        k_table.add_column(f"pass^{k}", justify="right")
     for variant in report.variants:
         summary = variant.summary
         interval = summary.case_pass_rate_interval
         pass_rate = "n/a" if summary.case_pass_rate is None else f"{summary.case_pass_rate:.1%}"
         if interval is not None:
             pass_rate += f" [{interval.lower:.0%}–{interval.upper:.0%}]"
-        k_cells = [
-            "n/a" if (value := getattr(summary, field).get(str(k))) is None else f"{value:.1%}"
-            for k in report.pass_k
-            for field in ("pass_at_k", "pass_hat_k")
-        ]
         summary_table.add_row(
-            variant.variant_name,
+            variant.variant_id,
             pass_rate,
             f"{summary.average_score.mean:.3f}" if summary.average_score else "n/a",
-            f"{summary.average_latency_ms.mean:.1f} ms" if summary.average_latency_ms else "n/a",
+            f"{summary.average_latency_ms.mean:.0f} ms" if summary.average_latency_ms else "n/a",
             f"${summary.total_cost_usd.mean:.4f}" if summary.total_cost_usd else "n/a",
-            f"{summary.trial_success_rate:.1%} ({summary.completed_trials}/"
+            f"{summary.trial_success_rate:.0%} ({summary.completed_trials}/"
             f"{summary.attempted_trials})",
             "n/a" if summary.consistency_rate is None else f"{summary.consistency_rate:.0%}",
-            *k_cells,
             "yes" if variant.pareto_optimal else "no",
         )
+        k_table.add_row(
+            variant.variant_id,
+            *[
+                "n/a" if (value := getattr(summary, field).get(str(k))) is None else f"{value:.1%}"
+                for k in report.pass_k
+                for field in ("pass_at_k", "pass_hat_k")
+            ],
+        )
     console.print(summary_table)
+    console.print(k_table)
 
     delta_table = Table(title=f"Baseline Deltas · {report.baseline_variant_id}")
     delta_table.add_column("Variant")
