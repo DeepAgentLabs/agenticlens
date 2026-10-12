@@ -6,6 +6,11 @@ README) — this is the one place that direction gets bridged, so anyone
 building an `EvaluationSample` from an AgenticLens `Run` (e.g. one just
 captured live, or imported from OTLP) doesn't have to hand-roll the
 conversion themselves.
+
+Cost provenance: AgenticLens span costs are computed from token counts and a
+price table, so a `Run`'s cost is `estimated` unless the producer says
+otherwise with `metadata["cost_source"] = "measured"` (for example, a cost
+read back from a provider invoice).
 """
 
 from datetime import datetime
@@ -15,17 +20,29 @@ from agentic_evals import EvalSpan, EvalTrace
 
 from agenticlens.models.trace import Run
 
+COST_SOURCES = ("measured", "estimated")
+
+
+def _cost_source(declared: Any, cost: float | None) -> str | None:
+    if cost is None:
+        return None
+    return declared if declared in COST_SOURCES else "estimated"
+
 
 def to_eval_trace(run: Run) -> EvalTrace:
-    return EvalTrace(
-        trace_id=run.trace_id,
-        spans=[
-            EvalSpan(tool_name=span.tool_name, attributes=dict(span.attributes))
-            for span in run.spans
-        ],
-        total_latency_ms=run.total_latency_ms,
-        estimated_cost_usd=run.estimated_cost_usd,
-        metadata=dict(run.metadata),
+    cost = run.estimated_cost_usd
+    return EvalTrace.model_validate(
+        {
+            "trace_id": run.trace_id,
+            "spans": [
+                EvalSpan(tool_name=span.tool_name, attributes=dict(span.attributes))
+                for span in run.spans
+            ],
+            "total_latency_ms": run.total_latency_ms,
+            "estimated_cost_usd": cost,
+            "cost_source": _cost_source(run.metadata.get("cost_source"), cost),
+            "metadata": dict(run.metadata),
+        }
     )
 
 
@@ -64,6 +81,7 @@ def to_eval_trace_dict(payload: Any) -> Any:
         if span_costs and all(cost is not None for cost in span_costs)
         else None
     )
+    metadata = payload.get("metadata") or {}
 
     return {
         "trace_id": payload.get("trace_id", ""),
@@ -73,5 +91,8 @@ def to_eval_trace_dict(payload: Any) -> Any:
         ],
         "total_latency_ms": total_latency_ms,
         "estimated_cost_usd": estimated_cost_usd,
-        "metadata": payload.get("metadata") or {},
+        "cost_source": _cost_source(
+            payload.get("cost_source", metadata.get("cost_source")), estimated_cost_usd
+        ),
+        "metadata": metadata,
     }
