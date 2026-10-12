@@ -51,7 +51,9 @@ def wilson_interval(successes: int, total: int, confidence_level: float) -> tupl
         * math.sqrt(proportion * (1 - proportion) / total + z * z / (4 * total * total))
         / denominator
     )
-    return max(0.0, center - radius), min(1.0, center + radius)
+    lower = 0.0 if successes == 0 else max(0.0, center - radius)
+    upper = 1.0 if successes == total else min(1.0, center + radius)
+    return lower, upper
 
 
 def mean_interval(values: list[float], confidence_level: float) -> tuple[float, float]:
