@@ -67,3 +67,9 @@ def test_two_proportion_p_value() -> None:
     assert two_proportion_p_value(90, 100, 70, 100) == pytest.approx(0.0004, abs=1e-4)
     assert two_proportion_p_value(10, 10, 10, 10) == 1.0
     assert two_proportion_p_value(1, 0, 1, 2) is None
+
+
+@pytest.mark.parametrize("level", [0.0, 1.0, -0.5, 1.5])
+def test_interval_helpers_reject_invalid_confidence_levels(level: float) -> None:
+    with pytest.raises(ValueError, match="confidence_level"):
+        wilson_interval(3, 5, level)

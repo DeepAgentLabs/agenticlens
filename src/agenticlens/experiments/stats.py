@@ -35,6 +35,8 @@ def _check(trials: int, passes: int, k: int) -> None:
 
 
 def z_value(confidence_level: float) -> float:
+    if not 0 < confidence_level < 1:
+        raise ValueError("confidence_level must be between 0 and 1 (exclusive)")
     return NormalDist().inv_cdf(0.5 + confidence_level / 2)
 
 
