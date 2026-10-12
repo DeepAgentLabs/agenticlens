@@ -17,6 +17,7 @@ nav:
   - Workflow Schema Spec: workflow-schema-spec.md
   - Trace and Comparison: trace-and-comparison.md
   - Evaluation and Release Gates: evaluation-and-release-gates.md
+  - Experiments and Statistical Comparison: experiments.md
   - Multi-Agent Reference Workflows: multi-agent-reference-workflows.md
 
 repo_url: https://github.com/DeepAgentLabs/agenticlens
