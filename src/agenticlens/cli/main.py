@@ -1,6 +1,8 @@
 import json
 import runpy
+from datetime import timedelta
 from pathlib import Path
+from typing import cast
 
 import typer
 from rich.console import Console
@@ -29,6 +31,7 @@ from agenticlens.evaluation import (
     GateConfig,
     HTTPTarget,
     PythonTarget,
+    audit_report,
     calibrate_judge,
     dataset_to_samples,
     evaluate_gate,
@@ -36,13 +39,26 @@ from agenticlens.evaluation import (
     load_dataset,
     load_samples,
     load_suite,
+    notify_gate_breach,
     run_live_suite,
     save_dataset,
     save_html_report,
     split_dataset,
     summarize_dataset,
+    tune_judge_threshold,
 )
-from agenticlens.experiments import load_experiment_suite, load_manifest, run_experiment
+from agenticlens.evaluation.evidence import EvidenceAudit
+from agenticlens.evaluation.notifications import WebhookFormat
+from agenticlens.experiments import (
+    ExperimentReport,
+    load_experiment_report,
+    load_experiment_suite,
+    load_manifest,
+    run_experiment,
+    save_case_matrix_csv,
+    save_experiment_html,
+    save_variant_csv,
+)
 from agenticlens.exporters import CSVExporter, JSONExporter
 from agenticlens.models.trace import Run
 from agenticlens.models.workflow import Workflow
@@ -524,6 +540,16 @@ def evaluate(
         "--html",
         help="Also create a standalone HTML report.",
     ),
+    audit: Path | None = typer.Option(
+        None,
+        "--audit",
+        help="Save an evidence audit (evaluator versions, trace evidence, cost coverage).",
+    ),
+    strict_evidence: bool = typer.Option(
+        False,
+        "--strict-evidence",
+        help="Exit with code 3 when the evidence audit finds blocking issues.",
+    ),
 ) -> None:
     """Score agent outputs, tool use, latency, and cost against a test suite."""
     try:
@@ -535,6 +561,10 @@ def evaluate(
     save.write_text(result.model_dump_json(indent=2), encoding="utf-8")
     if html is not None:
         save_html_report(result, html)
+    evidence = audit_report(result)
+    if audit is not None:
+        audit.parent.mkdir(parents=True, exist_ok=True)
+        audit.write_text(evidence.model_dump_json(indent=2), encoding="utf-8")
 
     table = Table(title=f"Evaluation · {result.suite_name}")
     table.add_column("Cases", justify="right")
@@ -550,9 +580,28 @@ def evaluate(
         f"{result.summary.average_latency_ms:.1f} ms",
     )
     console.print(table)
+    _render_evidence(evidence)
     console.print(f"Saved evaluation to {save}")
     if html is not None:
         console.print(f"Saved HTML report to {html}")
+    if audit is not None:
+        console.print(f"Saved evidence audit to {audit}")
+    if strict_evidence and not evidence.passed:
+        raise typer.Exit(code=3)
+
+
+def _render_evidence(evidence: EvidenceAudit) -> None:
+    cost = evidence.cost
+    sources = ", ".join(f"{name} {count}" for name, count in cost.sources.items()) or "none"
+    status = "[green]complete[/green]" if evidence.passed else "[yellow]gaps found[/yellow]"
+    console.print(
+        f"Evidence: {status} · failed cases traced "
+        f"{evidence.failed_cases_with_trace}/{evidence.failed_cases} · "
+        f"cost {cost.priced_cases}/{cost.total_cases} priced ({sources})"
+    )
+    for issue in evidence.issues:
+        marker = "[red]✗[/red]" if issue.blocking else "[yellow]![/yellow]"
+        console.print(f"  {marker} {issue.message}")
 
 
 @dataset_app.command("summary")
@@ -651,6 +700,13 @@ def evaluate_live(
         "--save",
         help="Save the machine-readable evaluation report.",
     ),
+    max_workers: int = typer.Option(
+        1,
+        "--max-workers",
+        min=1,
+        help="Call the target for this many cases at once (only for concurrency-safe targets).",
+    ),
+    html: Path | None = typer.Option(None, "--html", help="Also create an HTML report."),
 ) -> None:
     """Run one trusted live Python or HTTP target against an evaluation suite."""
     try:
@@ -664,17 +720,115 @@ def evaluate_live(
         )
         if live_target is None:
             raise ValueError("target kind must be 'python' or 'http'")
-        result = run_live_suite(suite, live_target)
+        result = run_live_suite(suite, live_target, max_workers=max_workers)
     except (OSError, ValueError) as exc:
         console.print(f"[red]Unable to run live evaluation:[/red] {exc}")
         raise typer.Exit(code=1) from exc
     save.parent.mkdir(parents=True, exist_ok=True)
     save.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    if html is not None:
+        save_html_report(result, html)
+        console.print(f"Saved HTML report to {html}")
     console.print(
         "Live evaluation complete: "
         f"{result.summary.passed_cases}/{result.summary.total_cases} cases passed."
     )
     console.print(f"Saved evaluation to {save}")
+
+
+def _save_experiment_outputs(
+    report: ExperimentReport,
+    *,
+    html: Path | None,
+    csv_path: Path | None,
+    cases_csv: Path | None,
+) -> None:
+    if html is not None:
+        save_experiment_html(report, html)
+        console.print(f"Saved HTML experiment report to {html}")
+    if csv_path is not None:
+        save_variant_csv(report, csv_path)
+        console.print(f"Saved variant summary CSV to {csv_path}")
+    if cases_csv is not None:
+        save_case_matrix_csv(report, cases_csv)
+        console.print(f"Saved per-case matrix CSV to {cases_csv}")
+
+
+def _render_experiment(report: ExperimentReport) -> None:
+    summary_table = Table(title=f"Experiment · {report.experiment_name}")
+    summary_table.add_column("Variant")
+    summary_table.add_column("Case pass rate", justify="right")
+    summary_table.add_column("Mean score", justify="right")
+    summary_table.add_column("Mean latency", justify="right")
+    summary_table.add_column("Mean cost", justify="right")
+    summary_table.add_column("Reliability", justify="right")
+    summary_table.add_column("Consistency", justify="right")
+    for k in report.pass_k:
+        summary_table.add_column(f"pass@{k}", justify="right")
+        summary_table.add_column(f"pass^{k}", justify="right")
+    summary_table.add_column("Pareto", justify="center")
+    for variant in report.variants:
+        summary = variant.summary
+        interval = summary.case_pass_rate_interval
+        pass_rate = "n/a" if summary.case_pass_rate is None else f"{summary.case_pass_rate:.1%}"
+        if interval is not None:
+            pass_rate += f" [{interval.lower:.0%}–{interval.upper:.0%}]"
+        k_cells = [
+            "n/a" if (value := getattr(summary, field).get(str(k))) is None else f"{value:.1%}"
+            for k in report.pass_k
+            for field in ("pass_at_k", "pass_hat_k")
+        ]
+        summary_table.add_row(
+            variant.variant_name,
+            pass_rate,
+            f"{summary.average_score.mean:.3f}" if summary.average_score else "n/a",
+            f"{summary.average_latency_ms.mean:.1f} ms" if summary.average_latency_ms else "n/a",
+            f"${summary.total_cost_usd.mean:.4f}" if summary.total_cost_usd else "n/a",
+            f"{summary.trial_success_rate:.1%} ({summary.completed_trials}/"
+            f"{summary.attempted_trials})",
+            "n/a" if summary.consistency_rate is None else f"{summary.consistency_rate:.0%}",
+            *k_cells,
+            "yes" if variant.pareto_optimal else "no",
+        )
+    console.print(summary_table)
+
+    delta_table = Table(title=f"Baseline Deltas · {report.baseline_variant_id}")
+    delta_table.add_column("Variant")
+    delta_table.add_column("Changed factors")
+    delta_table.add_column("Case pass rate", justify="right")
+    delta_table.add_column("p-value", justify="right")
+    delta_table.add_column("Score", justify="right")
+    delta_table.add_column("Latency", justify="right")
+    delta_table.add_column("Cost", justify="right")
+    for comparison in report.comparisons:
+        delta = comparison.case_pass_rate_delta
+        p_value = comparison.case_pass_rate_p_value
+        delta_table.add_row(
+            comparison.candidate_variant_id,
+            ", ".join(
+                f"{name}: {values[0]} → {values[1]}"
+                for name, values in comparison.changed_factors.items()
+            )
+            or "-",
+            "n/a" if delta is None else f"{delta:+.1%}",
+            "n/a"
+            if p_value is None
+            else f"{p_value:.3f}{' *' if comparison.statistically_significant else ''}",
+            f"{comparison.average_score_delta.absolute:+.3f}",
+            f"{comparison.average_latency_ms_delta.absolute:+.1f} ms",
+            f"{comparison.total_cost_usd_delta.absolute:+.4f}"
+            if comparison.total_cost_usd_delta is not None
+            else "n/a",
+        )
+    console.print(delta_table)
+    pareto_frontier = ", ".join(report.pareto_frontier_variant_ids) or "none"
+    seed = "none" if report.random_seed is None else str(report.random_seed)
+    console.print(
+        f"Pareto frontier: {pareto_frontier} | Trials per variant: {report.trial_count} | "
+        f"Seed: {seed}"
+    )
+    for warning in report.warnings:
+        console.print(f"[yellow]! {warning}[/yellow]")
 
 
 @experiment_app.command("run")
@@ -693,8 +847,15 @@ def experiment_run(
         min=0.0,
         help="Relative degradation threshold for baseline deltas.",
     ),
+    html: Path | None = typer.Option(None, "--html", help="Also save an HTML report."),
+    csv_path: Path | None = typer.Option(
+        None, "--csv", help="Also save a per-variant summary CSV."
+    ),
+    cases_csv: Path | None = typer.Option(
+        None, "--cases-csv", help="Also save a per-variant, per-case matrix CSV."
+    ),
 ) -> None:
-    """Run repeated trials for three or more live variants against one suite."""
+    """Run repeated trials for three or more variants against one suite."""
     try:
         manifest = load_manifest(manifest_file)
         suite = load_experiment_suite(suite_file)
@@ -708,76 +869,30 @@ def experiment_run(
         console.print(f"[red]Unable to run experiment:[/red] {exc}")
         raise typer.Exit(code=1) from exc
 
-    summary_table = Table(title=f"Experiment · {report.experiment_name}")
-    summary_table.add_column("Variant")
-    summary_table.add_column("Trial success", justify="right")
-    summary_table.add_column("Completed", justify="right")
-    summary_table.add_column("Failed", justify="right")
-    summary_table.add_column("Mean pass rate", justify="right")
-    summary_table.add_column("Mean score", justify="right")
-    summary_table.add_column("Mean latency", justify="right")
-    summary_table.add_column("Mean cost", justify="right")
-    summary_table.add_column("Pareto", justify="center")
-    for variant in report.variants:
-        pass_rate = (
-            f"{variant.summary.pass_rate.mean:.1%}"
-            if variant.summary.pass_rate is not None
-            else "n/a"
-        )
-        average_score = (
-            f"{variant.summary.average_score.mean:.3f}"
-            if variant.summary.average_score is not None
-            else "n/a"
-        )
-        average_latency = (
-            f"{variant.summary.average_latency_ms.mean:.1f} ms"
-            if variant.summary.average_latency_ms is not None
-            else "n/a"
-        )
-        cost = (
-            f"${variant.summary.total_cost_usd.mean:.4f}"
-            if variant.summary.total_cost_usd is not None
-            else "n/a"
-        )
-        summary_table.add_row(
-            variant.variant_name,
-            f"{variant.summary.trial_success_rate:.1%}",
-            str(variant.summary.completed_trials),
-            str(variant.summary.failed_trials),
-            pass_rate,
-            average_score,
-            average_latency,
-            cost,
-            "yes" if variant.pareto_optimal else "no",
-        )
-    console.print(summary_table)
-
-    delta_table = Table(title=f"Baseline Deltas · {report.baseline_variant_id}")
-    delta_table.add_column("Variant")
-    delta_table.add_column("Pass rate", justify="right")
-    delta_table.add_column("Score", justify="right")
-    delta_table.add_column("Latency", justify="right")
-    delta_table.add_column("Cost", justify="right")
-    for comparison in report.comparisons:
-        cost_delta = (
-            f"{comparison.total_cost_usd_delta.absolute:+.4f}"
-            if comparison.total_cost_usd_delta is not None
-            else "n/a"
-        )
-        delta_table.add_row(
-            comparison.candidate_variant_id,
-            f"{comparison.pass_rate_delta.absolute:+.1%}",
-            f"{comparison.average_score_delta.absolute:+.3f}",
-            f"{comparison.average_latency_ms_delta.absolute:+.1f} ms",
-            cost_delta,
-        )
-    console.print(delta_table)
-    pareto_frontier = ", ".join(report.pareto_frontier_variant_ids) or "none"
-    console.print(f"Pareto frontier: {pareto_frontier} | Trials per variant: {report.trial_count}")
-
+    _render_experiment(report)
     save.parent.mkdir(parents=True, exist_ok=True)
     save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
     console.print(f"Saved experiment report to {save}")
+    _save_experiment_outputs(report, html=html, csv_path=csv_path, cases_csv=cases_csv)
+
+
+@experiment_app.command("report")
+def experiment_report(
+    report_file: Path = typer.Argument(..., help="Saved experiment report JSON."),
+    html: Path | None = typer.Option(None, "--html", help="Save an HTML report."),
+    csv_path: Path | None = typer.Option(None, "--csv", help="Save a per-variant summary CSV."),
+    cases_csv: Path | None = typer.Option(
+        None, "--cases-csv", help="Save a per-variant, per-case matrix CSV."
+    ),
+) -> None:
+    """Re-render a saved experiment report without re-running any variant."""
+    try:
+        report = load_experiment_report(report_file)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to read experiment report:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    _render_experiment(report)
+    _save_experiment_outputs(report, html=html, csv_path=csv_path, cases_csv=cases_csv)
 
 
 @app.command()
@@ -788,20 +903,41 @@ def gate(
     max_failed_cases: int = typer.Option(0, min=0),
     max_average_latency_ms: float | None = typer.Option(None, min=0.0),
     max_total_cost_usd: float | None = typer.Option(None, min=0.0),
+    notify_webhook: str | None = typer.Option(
+        None,
+        "--notify-webhook",
+        envvar="AGENTICLENS_GATE_WEBHOOK",
+        help="POST an alert to this http(s) webhook when the gate fails.",
+    ),
+    notify_format: str = typer.Option(
+        "generic", "--notify-format", help="Webhook payload: generic, slack, or teams."
+    ),
+    cooldown_minutes: float = typer.Option(
+        60.0,
+        "--cooldown-minutes",
+        min=0.0,
+        help="Suppress repeat alerts for the same breached threshold for this long.",
+    ),
+    notify_state: Path = typer.Option(
+        Path(".agenticlens/gate-notifications.json"),
+        "--notify-state",
+        help="JSON file recording when each threshold last alerted.",
+    ),
 ) -> None:
     """Apply release thresholds and return exit code 2 when the gate fails."""
+    if notify_format not in {"generic", "slack", "teams"}:
+        console.print("[red]--notify-format must be generic, slack, or teams.[/red]")
+        raise typer.Exit(code=1)
     try:
         report = EvaluationReport.model_validate_json(report_file.read_text(encoding="utf-8"))
-        decision = evaluate_gate(
-            report,
-            GateConfig(
-                min_pass_rate=min_pass_rate,
-                min_average_score=min_average_score,
-                max_failed_cases=max_failed_cases,
-                max_average_latency_ms=max_average_latency_ms,
-                max_total_cost_usd=max_total_cost_usd,
-            ),
+        config = GateConfig(
+            min_pass_rate=min_pass_rate,
+            min_average_score=min_average_score,
+            max_failed_cases=max_failed_cases,
+            max_average_latency_ms=max_average_latency_ms,
+            max_total_cost_usd=max_total_cost_usd,
         )
+        decision = evaluate_gate(report, config)
     except (OSError, ValueError) as exc:
         console.print(f"[red]Unable to apply release gate:[/red] {exc}")
         raise typer.Exit(code=1) from exc
@@ -811,6 +947,27 @@ def gate(
     console.print("[red]Release gate failed.[/red]")
     for reason in decision.reasons:
         console.print(f"  • {reason}")
+    if notify_webhook:
+        try:
+            outcome = notify_gate_breach(
+                report,
+                decision,
+                config,
+                url=notify_webhook,
+                webhook_format=cast(WebhookFormat, notify_format),
+                cooldown=timedelta(minutes=cooldown_minutes),
+                state_path=notify_state,
+            )
+        except (OSError, ValueError) as exc:
+            # An alerting failure must not hide the gate result itself.
+            console.print(f"[yellow]Gate alert not sent:[/yellow] {exc}")
+        else:
+            if outcome.sent:
+                console.print(f"Alert sent for: {', '.join(outcome.notified_keys)}")
+            if outcome.suppressed_keys:
+                console.print(
+                    f"Alert suppressed (cooldown) for: {', '.join(outcome.suppressed_keys)}"
+                )
     raise typer.Exit(code=2)
 
 
@@ -931,6 +1088,11 @@ def calibrate(
     labels_file: Path = typer.Argument(..., help="Versioned reference labels JSON."),
     evaluator: str = typer.Option(..., "--evaluator", help="Exact llm_judge score name."),
     save: Path = typer.Option(Path("agenticlens-calibration.json"), "--save"),
+    tune_threshold: Path | None = typer.Option(
+        None,
+        "--tune-threshold",
+        help="Also sweep pass thresholds and save the tuning report to this path.",
+    ),
 ) -> None:
     """Compare saved judge verdicts with human reference labels."""
     try:
@@ -939,6 +1101,14 @@ def calibrate(
         result = calibrate_judge(report, labels, evaluator=evaluator)
         save.parent.mkdir(parents=True, exist_ok=True)
         save.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+        tuning = (
+            tune_judge_threshold(report, labels, evaluator=evaluator)
+            if tune_threshold is not None
+            else None
+        )
+        if tuning is not None and tune_threshold is not None:
+            tune_threshold.parent.mkdir(parents=True, exist_ok=True)
+            tune_threshold.write_text(tuning.model_dump_json(indent=2), encoding="utf-8")
     except (OSError, ValueError) as exc:
         console.print(f"[red]Unable to calibrate judge:[/red] {exc}")
         raise typer.Exit(code=1) from exc
@@ -951,3 +1121,14 @@ def calibrate(
     for warning in result.warnings:
         console.print(warning)
     console.print(f"Saved calibration to {save}")
+    if tuning is not None:
+        best = tuning.recommended
+        objective = tuning.objective.replace("_", " ")
+        console.print(
+            f"Recommended threshold: {tuning.recommended_threshold:.3f} "
+            f"({objective} {best.balanced_accuracy or best.agreement_rate:.1%}; "
+            f"agreement {best.agreement_rate:.1%} vs current {tuning.current_agreement_rate:.1%})"
+        )
+        for warning in tuning.warnings:
+            console.print(warning)
+        console.print(f"Saved threshold tuning to {tune_threshold}")
