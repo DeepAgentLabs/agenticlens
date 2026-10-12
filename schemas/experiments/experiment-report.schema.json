@@ -1,0 +1,1230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/experiments/experiment-report.schema.json",
+  "$defs": {
+    "CaseEvaluation": {
+      "description": "One case's result.\n\n`sample_available` is `False` when no sample was supplied for the case;\nits empty `trace_id` then means \"no trace exists\", not \"trace ID lost\".",
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "case_name": {
+          "title": "Case Name",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "scores": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scores",
+          "type": "array"
+        },
+        "output": {
+          "title": "Output",
+          "type": "string"
+        },
+        "trace_id": {
+          "title": "Trace Id",
+          "type": "string"
+        },
+        "latency_ms": {
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
+        },
+        "cost_source": {
+          "anyOf": [
+            {
+              "enum": [
+                "measured",
+                "estimated"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Source"
+        },
+        "sample_available": {
+          "default": true,
+          "title": "Sample Available",
+          "type": "boolean"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "case_id",
+        "case_name",
+        "passed",
+        "scores",
+        "output",
+        "trace_id",
+        "latency_ms"
+      ],
+      "title": "CaseEvaluation",
+      "type": "object"
+    },
+    "ConfidenceInterval": {
+      "properties": {
+        "lower": {
+          "title": "Lower",
+          "type": "number"
+        },
+        "upper": {
+          "title": "Upper",
+          "type": "number"
+        },
+        "confidence_level": {
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lower",
+        "upper",
+        "confidence_level",
+        "method"
+      ],
+      "title": "ConfidenceInterval",
+      "type": "object"
+    },
+    "EvaluationReport": {
+      "properties": {
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "suite_name": {
+          "title": "Suite Name",
+          "type": "string"
+        },
+        "suite_version": {
+          "title": "Suite Version",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "summary": {
+          "$ref": "#/$defs/EvaluationSummary"
+        },
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/CaseEvaluation"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "suite_name",
+        "suite_version",
+        "summary",
+        "cases"
+      ],
+      "title": "EvaluationReport",
+      "type": "object"
+    },
+    "EvaluationSummary": {
+      "properties": {
+        "total_cases": {
+          "title": "Total Cases",
+          "type": "integer"
+        },
+        "passed_cases": {
+          "title": "Passed Cases",
+          "type": "integer"
+        },
+        "failed_cases": {
+          "title": "Failed Cases",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Pass Rate",
+          "type": "number"
+        },
+        "average_score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Average Score",
+          "type": "number"
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Cost Usd"
+        },
+        "priced_cases": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Priced Cases",
+          "type": "integer"
+        },
+        "cost_sources": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Cost Sources",
+          "type": "object"
+        },
+        "average_latency_ms": {
+          "title": "Average Latency Ms",
+          "type": "number"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MetricSummary"
+          },
+          "title": "Metrics",
+          "type": "object"
+        },
+        "tags": {
+          "additionalProperties": {
+            "$ref": "#/$defs/TagSummary"
+          },
+          "title": "Tags",
+          "type": "object"
+        }
+      },
+      "required": [
+        "total_cases",
+        "passed_cases",
+        "failed_cases",
+        "pass_rate",
+        "average_score",
+        "average_latency_ms"
+      ],
+      "title": "EvaluationSummary",
+      "type": "object"
+    },
+    "ExperimentCaseResult": {
+      "description": "One variant's results on one test case across all trials.\n\nA trial whose target call failed counts as a failed attempt on every\ncase: the agent did not deliver an output.",
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "case_name": {
+          "title": "Case Name",
+          "type": "string"
+        },
+        "attempts": {
+          "minimum": 0,
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "passes": {
+          "minimum": 0,
+          "title": "Passes",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Pass Rate",
+          "type": "number"
+        },
+        "pass_at_k": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Pass At K",
+          "type": "object"
+        },
+        "pass_hat_k": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Pass Hat K",
+          "type": "object"
+        },
+        "mean_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Score"
+        },
+        "score_standard_deviation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score Standard Deviation"
+        },
+        "consistent": {
+          "description": "Every attempt had the same pass/fail outcome.",
+          "title": "Consistent",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "case_id",
+        "case_name",
+        "attempts",
+        "passes",
+        "pass_rate",
+        "consistent"
+      ],
+      "title": "ExperimentCaseResult",
+      "type": "object"
+    },
+    "ExperimentComparison": {
+      "properties": {
+        "baseline_variant_id": {
+          "title": "Baseline Variant Id",
+          "type": "string"
+        },
+        "candidate_variant_id": {
+          "title": "Candidate Variant Id",
+          "type": "string"
+        },
+        "pass_rate_delta": {
+          "$ref": "#/$defs/MetricDelta"
+        },
+        "average_score_delta": {
+          "$ref": "#/$defs/MetricDelta"
+        },
+        "average_latency_ms_delta": {
+          "$ref": "#/$defs/MetricDelta"
+        },
+        "total_cost_usd_delta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MetricDelta"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "changed_factors": {
+          "additionalProperties": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array"
+          },
+          "description": "Factor -> [baseline value, candidate value] for factors that differ.",
+          "title": "Changed Factors",
+          "type": "object"
+        },
+        "case_pass_rate_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Case Pass Rate Delta"
+        },
+        "case_pass_rate_p_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Case Pass Rate P Value"
+        },
+        "statistically_significant": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Statistically Significant"
+        },
+        "regressed_case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Regressed Case Ids",
+          "type": "array"
+        },
+        "improved_case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Improved Case Ids",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseline_variant_id",
+        "candidate_variant_id",
+        "pass_rate_delta",
+        "average_score_delta",
+        "average_latency_ms_delta"
+      ],
+      "title": "ExperimentComparison",
+      "type": "object"
+    },
+    "ExperimentMetricSummary": {
+      "properties": {
+        "count": {
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "mean": {
+          "title": "Mean",
+          "type": "number"
+        },
+        "median": {
+          "title": "Median",
+          "type": "number"
+        },
+        "p95": {
+          "title": "P95",
+          "type": "number"
+        },
+        "standard_deviation": {
+          "title": "Standard Deviation",
+          "type": "number"
+        },
+        "coefficient_of_variation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coefficient Of Variation"
+        },
+        "confidence_interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConfidenceInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "count",
+        "mean",
+        "median",
+        "p95",
+        "standard_deviation"
+      ],
+      "title": "ExperimentMetricSummary",
+      "type": "object"
+    },
+    "ExperimentRandomization": {
+      "properties": {
+        "random_seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Seed"
+        },
+        "shuffled": {
+          "title": "Shuffled",
+          "type": "boolean"
+        },
+        "execution_order": {
+          "description": "(variant_id, trial_index) in the order run.",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Execution Order",
+          "type": "array"
+        }
+      },
+      "required": [
+        "shuffled"
+      ],
+      "title": "ExperimentRandomization",
+      "type": "object"
+    },
+    "ExperimentTrialResult": {
+      "properties": {
+        "trial_index": {
+          "minimum": 1,
+          "title": "Trial Index",
+          "type": "integer"
+        },
+        "status": {
+          "pattern": "^(succeeded|failed)$",
+          "title": "Status",
+          "type": "string"
+        },
+        "report": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvaluationReport"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error_message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Message"
+        }
+      },
+      "required": [
+        "trial_index",
+        "status"
+      ],
+      "title": "ExperimentTrialResult",
+      "type": "object"
+    },
+    "ExperimentVariantResult": {
+      "properties": {
+        "variant_id": {
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "variant_name": {
+          "title": "Variant Name",
+          "type": "string"
+        },
+        "target_kind": {
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "factors": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Factors",
+          "type": "object"
+        },
+        "pareto_optimal": {
+          "default": false,
+          "title": "Pareto Optimal",
+          "type": "boolean"
+        },
+        "trials": {
+          "items": {
+            "$ref": "#/$defs/ExperimentTrialResult"
+          },
+          "title": "Trials",
+          "type": "array"
+        },
+        "summary": {
+          "$ref": "#/$defs/ExperimentVariantSummary"
+        },
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/ExperimentCaseResult"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variant_id",
+        "variant_name",
+        "target_kind",
+        "trials",
+        "summary"
+      ],
+      "title": "ExperimentVariantResult",
+      "type": "object"
+    },
+    "ExperimentVariantSummary": {
+      "properties": {
+        "attempted_trials": {
+          "minimum": 0,
+          "title": "Attempted Trials",
+          "type": "integer"
+        },
+        "completed_trials": {
+          "minimum": 0,
+          "title": "Completed Trials",
+          "type": "integer"
+        },
+        "failed_trials": {
+          "minimum": 0,
+          "title": "Failed Trials",
+          "type": "integer"
+        },
+        "successful_trials": {
+          "minimum": 0,
+          "title": "Successful Trials",
+          "type": "integer"
+        },
+        "trial_success_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Trial Success Rate",
+          "type": "number"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExperimentMetricSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "average_score": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExperimentMetricSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "average_latency_ms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExperimentMetricSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExperimentMetricSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "case_attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Case Attempts",
+          "type": "integer"
+        },
+        "case_passes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Case Passes",
+          "type": "integer"
+        },
+        "case_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Case Pass Rate"
+        },
+        "case_pass_rate_interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConfidenceInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pass_at_k": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Pass At K",
+          "type": "object"
+        },
+        "pass_hat_k": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Pass Hat K",
+          "type": "object"
+        },
+        "consistency_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consistency Rate"
+        },
+        "flaky_case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flaky Case Ids",
+          "type": "array"
+        },
+        "priced_trials": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Priced Trials",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "attempted_trials",
+        "completed_trials",
+        "failed_trials",
+        "successful_trials",
+        "trial_success_rate"
+      ],
+      "title": "ExperimentVariantSummary",
+      "type": "object"
+    },
+    "FactorLevelSummary": {
+      "description": "Variants that share one value of one factor, averaged together.",
+      "properties": {
+        "factor": {
+          "title": "Factor",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "variant_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Variant Ids",
+          "type": "array"
+        },
+        "mean_pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Pass Rate"
+        },
+        "mean_average_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Average Score"
+        },
+        "mean_latency_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Latency Ms"
+        },
+        "mean_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Cost Usd"
+        },
+        "mean_trial_success_rate": {
+          "title": "Mean Trial Success Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "factor",
+        "value",
+        "variant_ids",
+        "mean_trial_success_rate"
+      ],
+      "title": "FactorLevelSummary",
+      "type": "object"
+    },
+    "MetricDelta": {
+      "properties": {
+        "absolute": {
+          "title": "Absolute",
+          "type": "number"
+        },
+        "relative": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relative"
+        },
+        "regressed": {
+          "title": "Regressed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "absolute",
+        "regressed"
+      ],
+      "title": "MetricDelta",
+      "type": "object"
+    },
+    "MetricSummary": {
+      "description": "How one metric did across the suite. Skipped scores are counted apart.",
+      "properties": {
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "integer"
+        },
+        "failed": {
+          "title": "Failed",
+          "type": "integer"
+        },
+        "skipped": {
+          "default": 0,
+          "title": "Skipped",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate"
+        },
+        "average_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Score"
+        }
+      },
+      "required": [
+        "total",
+        "passed",
+        "failed"
+      ],
+      "title": "MetricSummary",
+      "type": "object"
+    },
+    "Score": {
+      "description": "A single named judgment.\n\n`metric` is the stable key reports group by. It defaults to `name`;\nchecks whose name carries a per-case detail (`contains:42`,\n`required_tool:lookup`) share one metric (`contains`, `required_tool`).\n\nA `skipped` score records that a check did not apply to a case. It\nnever fails the case and is left out of averages and pass rates --\nbuild one with `Score.skip(...)`.\n\n`evaluator` and `evaluator_version` identify what produced the score.\n`evaluate_suite` stamps them: built-in checks are attributed to\n`BUILTIN_EVALUATOR` at this package's version, and registered\nevaluators to their registry name and their `version` attribute, if\nany. A `None` version means the evaluator did not declare one.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "metric": {
+          "default": "",
+          "title": "Metric",
+          "type": "string"
+        },
+        "value": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Value",
+          "type": "number"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "skipped": {
+          "default": false,
+          "title": "Skipped",
+          "type": "boolean"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "evaluator_type": {
+          "default": "deterministic",
+          "title": "Evaluator Type",
+          "type": "string"
+        },
+        "evaluator": {
+          "default": "",
+          "title": "Evaluator",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evaluator Version"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "passed",
+        "explanation"
+      ],
+      "title": "Score",
+      "type": "object"
+    },
+    "TagSummary": {
+      "description": "How the cases carrying one tag did.",
+      "properties": {
+        "total_cases": {
+          "title": "Total Cases",
+          "type": "integer"
+        },
+        "passed_cases": {
+          "title": "Passed Cases",
+          "type": "integer"
+        },
+        "failed_cases": {
+          "title": "Failed Cases",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Pass Rate",
+          "type": "number"
+        },
+        "average_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Score"
+        }
+      },
+      "required": [
+        "total_cases",
+        "passed_cases",
+        "failed_cases",
+        "pass_rate"
+      ],
+      "title": "TagSummary",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_name": {
+      "title": "Experiment Name",
+      "type": "string"
+    },
+    "experiment_version": {
+      "title": "Experiment Version",
+      "type": "string"
+    },
+    "suite_name": {
+      "title": "Suite Name",
+      "type": "string"
+    },
+    "suite_version": {
+      "title": "Suite Version",
+      "type": "string"
+    },
+    "baseline_variant_id": {
+      "title": "Baseline Variant Id",
+      "type": "string"
+    },
+    "trial_count": {
+      "minimum": 1,
+      "title": "Trial Count",
+      "type": "integer"
+    },
+    "random_seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Random Seed"
+    },
+    "confidence_level": {
+      "default": 0.95,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "regression_threshold": {
+      "default": 0.05,
+      "minimum": 0,
+      "title": "Regression Threshold",
+      "type": "number"
+    },
+    "pass_k": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Pass K",
+      "type": "array"
+    },
+    "minimum_trials": {
+      "default": 5,
+      "minimum": 1,
+      "title": "Minimum Trials",
+      "type": "integer"
+    },
+    "randomization": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentRandomization"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "variants": {
+      "items": {
+        "$ref": "#/$defs/ExperimentVariantResult"
+      },
+      "title": "Variants",
+      "type": "array"
+    },
+    "comparisons": {
+      "items": {
+        "$ref": "#/$defs/ExperimentComparison"
+      },
+      "title": "Comparisons",
+      "type": "array"
+    },
+    "pareto_frontier_variant_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Pareto Frontier Variant Ids",
+      "type": "array"
+    },
+    "factor_levels": {
+      "items": {
+        "$ref": "#/$defs/FactorLevelSummary"
+      },
+      "title": "Factor Levels",
+      "type": "array"
+    },
+    "case_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Case Ids",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "experiment_name",
+    "experiment_version",
+    "suite_name",
+    "suite_version",
+    "baseline_variant_id",
+    "trial_count",
+    "variants",
+    "comparisons"
+  ],
+  "title": "AgenticLens Experiment Report",
+  "type": "object"
+}
