@@ -168,6 +168,7 @@ class ThresholdTuningReport(BaseModel):
     dataset_name: str
     dataset_version: str
     evaluator: str
+    evaluator_version: str | None = None
     sample_count: int
     current_agreement_rate: float
     recommended_threshold: float
@@ -247,6 +248,7 @@ def tune_judge_threshold(
         dataset_name=dataset.name,
         dataset_version=dataset.version,
         evaluator=evaluator,
+        evaluator_version=calibration.evaluator_version,
         sample_count=len(cases),
         current_agreement_rate=calibration.agreement_rate,
         recommended_threshold=best.threshold,

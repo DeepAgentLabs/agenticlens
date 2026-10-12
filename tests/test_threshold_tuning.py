@@ -93,3 +93,20 @@ def test_invalid_thresholds_are_rejected() -> None:
         tune_judge_threshold(report, dataset, evaluator="judge", thresholds=[1.5])
     with pytest.raises(ValueError, match="thresholds"):
         tune_judge_threshold(report, dataset, evaluator="judge", thresholds=[])
+
+
+def test_tuning_report_keeps_the_judge_version() -> None:
+    report, dataset = _inputs([0.9, 0.1], [True, False])
+    versioned = report.model_copy(
+        update={
+            "cases": [
+                case.model_copy(
+                    update={
+                        "scores": [case.scores[0].model_copy(update={"evaluator_version": "j@4"})]
+                    }
+                )
+                for case in report.cases
+            ]
+        }
+    )
+    assert tune_judge_threshold(versioned, dataset, evaluator="judge").evaluator_version == "j@4"
