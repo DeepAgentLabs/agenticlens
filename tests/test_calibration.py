@@ -134,3 +134,42 @@ def test_cli_writes_report_and_rejects_bad_input(tmp_path):
     result = CliRunner().invoke(app, args)
     assert result.exit_code == 1
     assert "Unable to calibrate" in result.output
+
+
+def test_calibration_records_one_judge_version_and_rejects_mixed_versions():
+    report, dataset = make_inputs()
+    versioned = report.model_copy(
+        update={
+            "cases": [
+                case.model_copy(
+                    update={
+                        "scores": [
+                            case.scores[0].model_copy(update={"evaluator_version": "judge@2"})
+                        ]
+                    }
+                )
+                for case in report.cases
+            ]
+        }
+    )
+    result = calibrate_judge(versioned, dataset, evaluator="quality")
+    assert result.evaluator_version == "judge@2"
+    assert not any("no evaluator version" in warning for warning in result.warnings)
+
+    mixed_cases = list(versioned.cases)
+    mixed_cases[0] = mixed_cases[0].model_copy(
+        update={
+            "scores": [mixed_cases[0].scores[0].model_copy(update={"evaluator_version": "judge@3"})]
+        }
+    )
+    with pytest.raises(ValueError, match="different evaluator versions"):
+        calibrate_judge(
+            versioned.model_copy(update={"cases": mixed_cases}), dataset, evaluator="quality"
+        )
+
+
+def test_unversioned_judge_scores_warn():
+    report, dataset = make_inputs()
+    result = calibrate_judge(report, dataset, evaluator="quality")
+    assert result.evaluator_version is None
+    assert any("no evaluator version" in warning for warning in result.warnings)
