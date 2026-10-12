@@ -50,10 +50,11 @@ system performed well over time.
 
 ### Current Roadmap Focus
 
-The next milestone centers on judge calibration, evaluation dataset management,
-and experiments/statistical comparison. New work here should deepen evidence
-quality and repeatable analysis, not drift into spec stewardship or chaos
-simulation.
+v0.3 (evaluation evidence) and v0.4 (experiments and statistical comparison)
+shipped in 0.6.0. The next milestone is v0.5 advanced evaluation and diagnosis:
+failure taxonomy, faulty-step attribution, and judge cost recording. New work
+here should deepen evidence quality and repeatable analysis, not drift into
+spec stewardship or chaos simulation.
 
 ### Before You Build Here
 
@@ -93,7 +94,8 @@ simulation.
 | `src/agenticlens/analyzers/` | Analyzer implementations |
 | `src/agenticlens/comparison/` | Repeated-run statistics, regression reports |
 | `src/agenticlens/config/` | Pricing data, settings, configuration |
-| `src/agenticlens/evaluation/` | Test cases, suites, evaluators, and scoring |
+| `src/agenticlens/evaluation/` | agentic-evals adapters, evidence audit, structured judges, calibration, gate alerts |
+| `src/agenticlens/experiments/` | Multi-variant experiments, pass@k statistics, HTML/CSV experiment reports |
 | `src/agenticlens/exporters/` | JSON, CSV, Markdown, Jira exports |
 | `src/agenticlens/metrics/` | Cost and performance calculation |
 | `src/agenticlens/models/` | Pydantic data models (Workflow, Step, ChaosEvent) |
@@ -102,7 +104,7 @@ simulation.
 | `src/agenticlens/reports/` | Trace inspection rendering |
 | `src/agenticlens/cli/` | Typer CLI and Rich rendering |
 | `src/agenticlens/utils/` | Shared utilities |
-| `schemas/` | Versioned JSON Schemas (trace, finding, report) |
+| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments) |
 | `tests/` | Pytest test suite |
 | `docs/` | MkDocs documentation source |
 | `Makefile` | Local dev automation |
