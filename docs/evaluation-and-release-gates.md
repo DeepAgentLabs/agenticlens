@@ -165,9 +165,52 @@ agenticlens evaluate-live suite.yaml \
   --save evaluation-live.json
 ```
 
+Add `--max-workers 4` to call the target for several cases at once, and
+`--html report.html` for a standalone report. Case order in the report is the
+suite's order regardless of completion order. Only raise `--max-workers` for
+targets that are safe to call concurrently. With the default of one worker,
+each result is validated before the next case is sent, so an invalid payload
+stops the run without further target calls.
+
+Python and HTTP targets share one scoring path. `tests/test_live_parity.py`
+runs one suite against both (with AgenticLens `Run`-shaped traces) and checks
+that the reports are identical, sequentially and concurrently.
+
 Live targets are intentionally powerful developer-facing integrations. Python
 targets execute local code and HTTP targets can reach arbitrary URLs, so suite
 files and target definitions should be treated as trusted inputs.
+
+## Evidence Behind Every Score
+
+Every score in a report states what produced it:
+
+| Score source | `evaluator` | `evaluator_version` |
+| --- | --- | --- |
+| Built-in checks | `agentic_evals.builtin` | the installed `agentic-evals` version |
+| Registered evaluator | its registry name | its declared `version=` (or `null`) |
+
+Version a judge whenever its prompt or model changes:
+
+```python
+LLMJudgeEvaluator("answer_quality", judge, version="quality-prompt-v3/gpt-4o-2024-08-06")
+```
+
+Each case also records `cost_source` (`measured` or `estimated`) and
+`sample_available`. AgenticLens run costs are `estimated` (token counts times a
+price table) unless the run's metadata declares `cost_source: measured`.
+
+`audit_report(report)` (and `agenticlens evaluate --audit audit.json`) checks:
+
+| Issue | Blocking by default |
+| --- | --- |
+| A score without an evaluator, or an evaluator without a version | yes (`require_evaluator_versions=False` to relax) |
+| A failed case with no sample, or a sample without a trace ID | always |
+| Not every case has a cost | no (`require_complete_cost=True`) |
+| A priced case without measured/estimated provenance | no (`require_cost_source=True`) |
+
+`agenticlens evaluate ... --strict-evidence` exits with code `3` on blocking
+issues. The HTML report shows `evaluator@version` beside each score, the cost
+source beside each cost, and "no sample supplied" for missing samples.
 
 ## Example Advanced Checks
 
@@ -210,6 +253,32 @@ agenticlens gate evaluation.json \
 The command exits with status `0` when every threshold passes, `2` when the
 release gate fails, and `1` when the report or configuration is invalid.
 
+### Alerting on gate failures
+
+```bash
+agenticlens gate evaluation.json --min-pass-rate 0.95 --max-total-cost-usd 0.25 \
+  --notify-webhook "$WEBHOOK_URL" \
+  --notify-format slack \
+  --cooldown-minutes 60 \
+  --notify-state .agenticlens/gate-notifications.json
+```
+
+`--notify-webhook` can also come from `AGENTICLENS_GATE_WEBHOOK`. When the gate
+fails, AgenticLens works out which configured thresholds broke (keys such as
+`pass_rate`, `average_latency_ms`, `total_cost_usd`, `tag_pass_rate:<tag>`,
+`metric_pass_rate:<metric>`) and sends one alert covering those not in
+cooldown. The state file records when each key last alerted; cache it between
+CI runs to keep cooldowns across jobs. Formats:
+
+- `generic`: `{"event": "agenticlens.gate.failed", "suite_name", "reasons", "breaches", "observed", ...}`
+- `slack`: an incoming-webhook `{"text": ...}` message
+- `teams`: a `MessageCard`
+
+An alert that cannot be delivered is reported as a warning; the gate's exit
+code is unchanged. In Python, `notify_gate_breach()` also accepts per-key or
+per-category (`quality`, `latency`, `budget`) cooldowns, for example a short
+cooldown for budget breaches and a long one for quality.
+
 `max_turns` requires `trace.metadata.turn_count` to be recorded as a positive
 integer. AgenticLens does not infer conversational turns from lower-level span
 types when that metadata is absent.
@@ -237,8 +306,41 @@ the report's suite name/version must match the reference set's — a mismatch
 raises rather than silently comparing misaligned evidence. Uses each case's
 already-recorded `Score.passed` decision, not a re-derived 0.5 threshold.
 
-See `examples/experiment_runner_demo.py` for a runnable multi-variant experiment
-manifest example using the same evaluation layer for repeated live trials.
+### Tuning the judge's pass threshold
+
+```bash
+agenticlens calibrate evaluation.json labels.json --evaluator answer_quality \
+  --save calibration.json --tune-threshold tuning.json
+```
+
+`tune_judge_threshold()` re-decides `judge_value >= threshold` for each
+candidate threshold (every distinct judge value plus 0 and 1 by default) and
+recommends the one with the best balanced accuracy — or raw agreement when the
+labels contain only one class. It is fitted on the same labels it is scored on;
+confirm it on a held-out split (`agenticlens dataset split`) before adopting it.
+
+## Structured Judge Verdicts
+
+`structured_judge()` builds an `LLMJudgeEvaluator` from a function returning a
+`JudgeVerdict`:
+
+| Field | Meaning |
+| --- | --- |
+| `verdict` | `agree`, `partially_agree`, or `disagree` (scored 1.0 / 0.5 / 0.0 by default) |
+| `confidence` | the judge's confidence, recorded but not multiplied into the score |
+| `unsupported_claims` | claims in the output the evidence does not support |
+| `evidence_missed` | evidence the output should have used |
+| `rationale` | free-text reasoning |
+
+The verdict, judge model, evaluated model, and a `self_confirmation_risk` flag
+are stored on the score's metadata; `judge_verdict(score)` reads them back.
+The evaluated model comes from case metadata, then trace metadata
+(`evaluated_model`, `model`, or `model_name`). If it equals `judge_model`, the
+case is scored as skipped — the judge would be grading its own output — unless
+`allow_self_judging=True`. See `examples/structured_judge_demo.py`.
+
+Experiments (repeated trials across variants, pass@k, significance tests) are
+covered in [Experiments and Statistical Comparison](experiments.md).
 
 ## Offline Pitch Demonstration
 
@@ -255,7 +357,9 @@ performs real graph execution but does not require an API key or network access.
 
 ## Scope
 
-The framework supports deterministic checks, synchronous custom or model-based
-evaluators, versioned local datasets, and judge calibration against human
-labels. Built-in provider clients, asynchronous and batched evaluation, and
-automatic framework event adapters remain future roadmap capabilities.
+The framework supports deterministic checks, custom or model-based evaluators
+with recorded versions, structured judge verdicts, versioned local datasets,
+judge calibration and threshold tuning against human labels, evidence audits,
+concurrent live targets, and gate alerts. Built-in provider clients, async
+evaluator APIs, and automatic framework event adapters remain future roadmap
+capabilities.
