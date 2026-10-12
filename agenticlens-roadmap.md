@@ -809,3 +809,34 @@ Public documentation must:
 The supporting research plan is maintained in
 `AgenticLens_Research_and_Development_Roadmap.md`. Research metrics described
 there remain experimental until implemented and validated.
+
+## Verifiable execution evidence (planned, v1.0 readiness)
+
+Added 2026-10-11. Existing traces/source references provide traceability, not a
+tamper-evident execution ledger. Extend production readiness; correlation depends
+on Sidecar v0.7–v0.8 lifecycle work.
+
+- [ ] Correlate proposed, allowed, denied, dispatched and completed actions with
+      run/span/decision IDs, actor, policy version, approvals and actual outcomes.
+      Preserve producer attribution; missing evidence must not imply success.
+- [ ] Capture and export execution evidence in versioned AI Operations Specification
+      format, using spec-owned schemas and semantic checks. Declare the supported
+      draft/version, mappings, unsupported fields and any capture losses; validation
+      tooling alone does not establish a native exporter.
+- [ ] Let users import saved AIOS evidence and replay its event timeline, inspect
+      causal policy/action links, and reproduce analysis and evaluation offline.
+      Preserve original evidence and record analyzer/evaluator/configuration versions.
+- [ ] Provide valid/invalid capture-export-import fixtures and an end-to-end replay
+      example. Offline evidence replay must not invoke original tools or repeat
+      external side effects. Live reruns are separate, explicitly authorized work;
+      recorded traces alone cannot guarantee identical model/provider behavior.
+- [ ] Implement integrity-protected export/verification using a documented hash
+      chain with authenticated external checkpoints or signed manifests. Define
+      trusted keys, rotation, retention and verification coverage.
+- [ ] Detect modification, reordering, duplication and missing records within
+      declared coverage; detect truncation relative to trusted checkpoints.
+      Editable local chains or ordinary checksums do not establish authenticity.
+- [ ] Publish tampering fixtures. Explain that record integrity does not establish
+      completeness or truth of an untrusted producer's reported execution.
+- [ ] Expose verification/coverage status and causal policy/action links to Tower
+      and MCP; keep failed, unknown and incomplete verification visibly distinct.
