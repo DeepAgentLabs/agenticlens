@@ -70,6 +70,13 @@ Completes roadmap milestones v0.3 (Evaluation Foundation) and v0.4
   decision. It also shows `evaluator@version`, cost provenance, and missing
   samples.
 - Experiment console output splits pass@k / pass^k into its own table.
+- Experiment `pass_rate_delta` (and its regression flag) uses case-level pass
+  rates, which count crashed trials as failed attempts, matching the case
+  pass-rate delta shown in reports.
+- Gate-alert cooldown state is keyed per suite (`<suite>::<threshold>`), and
+  alert text lists only the breaches being alerted on. Existing unscoped
+  state entries are ignored, so each threshold may alert once after upgrade.
+- CSV exports prefix formula-like text cells (`=`, `+`, `-`, `@`) with `'`.
 
 ### Fixed
 
