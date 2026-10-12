@@ -47,7 +47,11 @@ def to_eval_trace(run: Run) -> EvalTrace:
 
 
 def _parse_datetime(value: Any) -> datetime:
-    return value if isinstance(value, datetime) else datetime.fromisoformat(value)
+    if isinstance(value, datetime):
+        return value
+    # Python 3.10's fromisoformat() rejects the "Z" suffix pydantic emits for UTC.
+    text = value[:-1] + "+00:00" if value.endswith("Z") else value
+    return datetime.fromisoformat(text)
 
 
 _RUN_KEYS = frozenset({"started_at", "completed_at", "application_name", "run_id"})
