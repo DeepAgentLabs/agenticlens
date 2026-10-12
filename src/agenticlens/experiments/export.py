@@ -16,6 +16,14 @@ def _fmt(value: float | int | None) -> str:
     return "" if value is None else str(value)
 
 
+_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _text(value: str) -> str:
+    """Neutralize spreadsheet formulas in user-supplied text (OWASP CSV injection)."""
+    return f"'{value}" if value.startswith(_FORMULA_PREFIXES) else value
+
+
 def render_variant_csv(report: ExperimentReport) -> str:
     comparisons = {c.candidate_variant_id: c for c in report.comparisons}
     k_columns = [f"{name}{k}" for k in report.pass_k for name in ("pass_at_", "pass_hat_")]
@@ -54,10 +62,10 @@ def render_variant_csv(report: ExperimentReport) -> str:
         comparison = comparisons.get(variant.variant_id)
         writer.writerow(
             [
-                variant.variant_id,
-                variant.variant_name,
+                _text(variant.variant_id),
+                _text(variant.variant_name),
                 variant.target_kind,
-                ";".join(f"{k}={v}" for k, v in variant.factors.items()),
+                _text(";".join(f"{k}={v}" for k, v in variant.factors.items())),
                 variant.variant_id == report.baseline_variant_id,
                 variant.pareto_optimal,
                 summary.attempted_trials,
@@ -71,7 +79,7 @@ def render_variant_csv(report: ExperimentReport) -> str:
                 _fmt(summary.total_cost_usd.mean if summary.total_cost_usd else None),
                 summary.priced_trials,
                 _fmt(summary.consistency_rate),
-                ";".join(summary.flaky_case_ids),
+                _text(";".join(summary.flaky_case_ids)),
                 *[
                     _fmt(getattr(summary, field).get(str(k)))
                     for k in report.pass_k
@@ -80,9 +88,13 @@ def render_variant_csv(report: ExperimentReport) -> str:
                 _fmt(comparison.case_pass_rate_delta if comparison else None),
                 _fmt(comparison.case_pass_rate_p_value if comparison else None),
                 _fmt(comparison.statistically_significant if comparison else None),
-                ";".join(
-                    f"{name}={values[0]}->{values[1]}"
-                    for name, values in (comparison.changed_factors.items() if comparison else [])
+                _text(
+                    ";".join(
+                        f"{name}={values[0]}->{values[1]}"
+                        for name, values in (
+                            comparison.changed_factors.items() if comparison else []
+                        )
+                    )
                 ),
             ]
         )
@@ -111,9 +123,9 @@ def render_case_matrix_csv(report: ExperimentReport) -> str:
         for case in variant.cases:
             writer.writerow(
                 [
-                    variant.variant_id,
-                    case.case_id,
-                    case.case_name,
+                    _text(variant.variant_id),
+                    _text(case.case_id),
+                    _text(case.case_name),
                     case.attempts,
                     case.passes,
                     case.pass_rate,
