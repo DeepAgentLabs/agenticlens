@@ -1,5 +1,6 @@
 """Attribution, timelines, anomalies, guardrails, narratives, and report contracts."""
 
+import itertools
 import json
 import time
 from pathlib import Path
@@ -271,7 +272,7 @@ def test_guard_detects_stagnation_iterations_and_cost() -> None:
 
 
 def test_guard_time_limit(monkeypatch: pytest.MonkeyPatch) -> None:
-    clock = iter([0.0, 10.0])
+    clock = itertools.chain([0.0], itertools.repeat(10.0))
     monkeypatch.setattr(time, "perf_counter", lambda: next(clock))
     guard = AnalysisGuard(AnalysisBudget(max_seconds=1))
     assert guard.exhausted and guard.out_of_time
