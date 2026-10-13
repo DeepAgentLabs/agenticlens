@@ -113,3 +113,58 @@ def test_engine_preserves_chaos_severity_despite_zero_token_savings() -> None:
     assert len(chaos_recs) == 1
     assert chaos_recs[0].severity == Severity.CRITICAL
     assert chaos_recs[0].estimated_savings == 0.0
+
+
+def test_recommendation_carries_step_id_and_per_event_evidence() -> None:
+    workflow = _workflow_with_step()
+    for attempt in (1, 2):
+        workflow.chaos_events.append(
+            {
+                "id": f"event-{attempt}",
+                "fault_type": "rate_limit_storm",
+                "step_id": "step-1",
+                "outcome": "errored",
+                "message": "429 Too Many Requests",
+                "timestamp": f"2026-10-13T12:00:0{attempt}Z",
+            }
+        )
+
+    recs = ChaosImpactRecommender().evaluate(workflow, RecommenderConfig())
+
+    assert recs[0].step_id == "step-1"
+    assert recs[0].step_type == "planner"
+    assert [e.details["chaos_event_id"] for e in recs[0].evidence] == ["event-1", "event-2"]
+    assert all(e.source == "workflow.chaos_event" for e in recs[0].evidence)
+    assert all(e.span_id == "step-1" for e in recs[0].evidence)
+    assert recs[0].evidence[0].timestamp == datetime(2026, 10, 13, 12, 0, 1, tzinfo=timezone.utc)
+
+
+def test_step_resolved_by_name_when_event_has_no_step_id() -> None:
+    workflow = _workflow_with_step()
+    workflow.chaos_events.append(
+        {"fault_type": "token_timeout", "step_name": "Planner", "outcome": "errored"}
+    )
+
+    recs = ChaosImpactRecommender().evaluate(workflow, RecommenderConfig())
+
+    assert recs[0].step_id == "step-1"
+    assert recs[0].evidence[0].timestamp is None
+
+
+def test_unresolved_step_keeps_the_producer_step_id() -> None:
+    workflow = _workflow_with_step()
+    workflow.chaos_events.append(
+        {
+            "fault_type": "token_timeout",
+            "step_id": "unknown-id",
+            "step_name": "Detached Step",
+            "outcome": "errored",
+            "timestamp": "not-a-timestamp",
+        }
+    )
+
+    recs = ChaosImpactRecommender().evaluate(workflow, RecommenderConfig())
+
+    assert recs[0].step_id == "unknown-id"
+    assert recs[0].step_type is None
+    assert recs[0].evidence[0].timestamp is None
