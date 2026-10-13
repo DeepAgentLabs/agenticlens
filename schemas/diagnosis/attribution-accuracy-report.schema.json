@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/diagnosis/attribution-accuracy-report.schema.json",
+  "$defs": {
+    "AccuracyMetric": {
+      "properties": {
+        "correct": {
+          "title": "Correct",
+          "type": "integer"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "accuracy": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Accuracy"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Wilson interval at the report's confidence level.",
+          "title": "Interval"
+        }
+      },
+      "required": [
+        "correct",
+        "total",
+        "accuracy"
+      ],
+      "title": "AccuracyMetric",
+      "type": "object"
+    },
+    "AttributionOutcome": {
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "expected_span": {
+          "title": "Expected Span",
+          "type": "string"
+        },
+        "predicted_span_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Predicted Span Id"
+        },
+        "predicted_span_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Predicted Span Name"
+        },
+        "predicted_agent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Predicted Agent"
+        },
+        "predicted_category": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FailureCategory"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "title": "Confidence",
+          "type": "number"
+        },
+        "step_correct": {
+          "title": "Step Correct",
+          "type": "boolean"
+        },
+        "top3_correct": {
+          "title": "Top3 Correct",
+          "type": "boolean"
+        },
+        "agent_correct": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "None when the case names no expected agent.",
+          "title": "Agent Correct"
+        },
+        "category_correct": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "None when the case names no expected category.",
+          "title": "Category Correct"
+        }
+      },
+      "required": [
+        "case_id",
+        "expected_span",
+        "predicted_span_id",
+        "predicted_span_name",
+        "predicted_agent",
+        "predicted_category",
+        "confidence",
+        "step_correct",
+        "top3_correct"
+      ],
+      "title": "AttributionOutcome",
+      "type": "object"
+    },
+    "FailureCategory": {
+      "enum": [
+        "tool_error",
+        "model_error",
+        "retrieval_error",
+        "timeout",
+        "retry_exhausted",
+        "tool_loop",
+        "handoff_loop",
+        "stagnation",
+        "empty_retrieval",
+        "validation_failure",
+        "delegation_failure",
+        "budget_exceeded",
+        "injected_fault",
+        "incomplete_task"
+      ],
+      "title": "FailureCategory",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "total_cases": {
+      "title": "Total Cases",
+      "type": "integer"
+    },
+    "confidence_level": {
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "step": {
+      "$ref": "#/$defs/AccuracyMetric"
+    },
+    "top3_step": {
+      "$ref": "#/$defs/AccuracyMetric"
+    },
+    "agent": {
+      "$ref": "#/$defs/AccuracyMetric"
+    },
+    "category": {
+      "$ref": "#/$defs/AccuracyMetric"
+    },
+    "mean_confidence": {
+      "title": "Mean Confidence",
+      "type": "number"
+    },
+    "calibration_gap": {
+      "description": "Mean attribution confidence minus top-1 step accuracy (positive = overconfident).",
+      "title": "Calibration Gap",
+      "type": "number"
+    },
+    "outcomes": {
+      "items": {
+        "$ref": "#/$defs/AttributionOutcome"
+      },
+      "title": "Outcomes",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "total_cases",
+    "confidence_level",
+    "step",
+    "top3_step",
+    "agent",
+    "category",
+    "mean_confidence",
+    "calibration_gap",
+    "outcomes"
+  ],
+  "title": "AttributionAccuracyReport",
+  "type": "object"
+}

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from jsonschema import Draft202012Validator, FormatChecker
 from pydantic import BaseModel, Field
@@ -12,6 +13,30 @@ from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
 DEFAULT_SPEC_VERSION = "0.4"
+#: AIOS versions this release can validate. Per AIOS-0.5-V03, an artifact that
+#: declares any other version is rejected rather than checked against 0.4.
+SUPPORTED_SPEC_VERSIONS = ("0.4",)
+_SPEC_VERSION_PATTERN = re.compile(r"^(0\.[1-9][0-9]*|[1-9][0-9]*\.(0|[1-9][0-9]*))(-draft)?$")
+_RULES_CATALOG = "conformance-rules.json"
+
+#: Issue code -> AIOS rule ID in `conformance-rules.json`.
+ISSUE_RULES: dict[str, str] = {
+    "schema.invalid": "AIOS-0.4-P01",
+    "semantic.duplicate-object": "AIOS-0.4-P02",
+    "semantic.duplicate-relationship": "AIOS-0.4-P03",
+    "semantic.duplicate-event": "AIOS-0.4-P03",
+    "semantic.invalid-time-range": "AIOS-0.4-P04",
+    "semantic.unresolved-reference": "AIOS-0.4-P05",
+    "semantic.step-membership": "AIOS-0.4-P06",
+    "semantic.observed-in": "AIOS-0.4-P07",
+    "semantic.evaluation-target": "AIOS-0.4-P08",
+    "semantic.workflow-link": "AIOS-0.4-P09",
+    "semantic.event-target": "AIOS-0.4-P10",
+    "semantic.self-relationship": "AIOS-0.4-P11",
+    "semantic.structural-cycle": "AIOS-0.4-P11",
+    "semantic.causal-cycle": "AIOS-0.4-P11",
+    "semantic.ordering-cycle": "AIOS-0.4-P11",
+}
 _RUN_ARTIFACT = "run"
 _WORKFLOW_ARTIFACT = "workflow"
 _CYCLE_RELATIONSHIP_GROUPS: dict[str, set[str]] = {
@@ -34,6 +59,37 @@ class ValidationIssue(BaseModel):
     source: str
     message: str
     location: str | None = None
+    rule_id: str | None = Field(
+        default=None, description="AIOS conformance rule this issue violates, when known."
+    )
+
+
+class RuleResult(BaseModel):
+    """Outcome of one AIOS conformance rule for this artifact.
+
+    `not_checked` marks process rules (behavioral obligations an artifact
+    alone cannot prove) and semantic rules skipped because schema
+    validation failed or only `validate` mode ran.
+    """
+
+    rule_id: str
+    role: str
+    level: str
+    check: str
+    requirement: str
+    result: Literal["pass", "fail", "not_checked"]
+    issues: int = 0
+
+
+class ConformanceSummary(BaseModel):
+    status: Literal["aligned", "schema_valid", "schema_invalid", "semantic_invalid"]
+    schema_issues: int = 0
+    semantic_issues: int = 0
+    issue_codes: dict[str, int] = Field(default_factory=dict)
+    rules_passed: int = 0
+    rules_failed: int = 0
+    rules_not_checked: int = 0
+    failed_rules: list[str] = Field(default_factory=list)
 
 
 class ConformanceReport(BaseModel):
@@ -46,6 +102,14 @@ class ConformanceReport(BaseModel):
     semantic_valid: bool
     aligned: bool
     issues: list[ValidationIssue] = Field(default_factory=list)
+    declared_spec_version: str | None = Field(
+        default=None, description="The artifact's own spec_version marker, if any."
+    )
+    rules_catalog: str | None = Field(
+        default=None, description="Path of the conformance-rules.json catalog used, if found."
+    )
+    rules: list[RuleResult] = Field(default_factory=list)
+    summary: ConformanceSummary | None = None
 
 
 @dataclass(frozen=True)
@@ -65,11 +129,19 @@ def validate_aios_artifact(
 ) -> ConformanceReport:
     payload = json.loads(artifact_path.read_text(encoding="utf-8"))
     artifact_type = _artifact_type_for(payload)
+    spec_version = normalize_spec_version(spec_version)
     resolved_spec = _resolve_spec(
         artifact_type=artifact_type,
         spec_version=spec_version,
         explicit_root=spec_root,
     )
+    declared = payload.get("spec_version")
+    if isinstance(declared, str) and normalize_spec_version(declared) != spec_version:
+        raise ValueError(
+            f"Artifact declares spec_version {declared!r} but validation was requested for "
+            f"v{spec_version}-draft. AIOS-0.5-V03: validate against the artifact's declared "
+            "version; never fall back to a different draft's schema."
+        )
     issues = _schema_issues(payload, resolved_spec.schema_path)
     schema_valid = not issues
     semantic_issues: list[ValidationIssue] = []
@@ -77,6 +149,40 @@ def validate_aios_artifact(
         semantic_issues = _semantic_issues(payload)
     semantic_valid = not semantic_issues
     all_issues = [*issues, *semantic_issues]
+    for issue in all_issues:
+        issue.rule_id = issue.rule_id or ISSUE_RULES.get(issue.code)
+    catalog_path = resolved_spec.root / _RULES_CATALOG
+    rules = _rule_results(
+        catalog_path,
+        artifact_type=artifact_type,
+        issues=all_issues,
+        semantic_checked=mode == "conformance" and schema_valid,
+    )
+    status: Literal["aligned", "schema_valid", "schema_invalid", "semantic_invalid"] = (
+        "schema_invalid"
+        if not schema_valid
+        else "schema_valid"
+        if mode != "conformance"
+        else "aligned"
+        if semantic_valid
+        else "semantic_invalid"
+    )
+    codes: dict[str, int] = {}
+    for issue in all_issues:
+        codes[issue.code] = codes.get(issue.code, 0) + 1
+    summary = ConformanceSummary(
+        status=status,
+        schema_issues=len(issues),
+        semantic_issues=len(semantic_issues),
+        issue_codes=codes,
+        rules_passed=sum(r.result == "pass" for r in rules),
+        rules_failed=sum(r.result == "fail" for r in rules),
+        rules_not_checked=sum(r.result == "not_checked" for r in rules),
+        failed_rules=sorted(
+            {r.rule_id for r in rules if r.result == "fail"}
+            | {i.rule_id for i in all_issues if i.rule_id}
+        ),
+    )
     return ConformanceReport(
         spec_version=spec_version,
         artifact_type=artifact_type,
@@ -90,7 +196,76 @@ def validate_aios_artifact(
         semantic_valid=semantic_valid,
         aligned=schema_valid and semantic_valid,
         issues=all_issues,
+        declared_spec_version=declared if isinstance(declared, str) else None,
+        rules_catalog=str(catalog_path) if catalog_path.exists() else None,
+        rules=rules,
+        summary=summary,
     )
+
+
+def normalize_spec_version(version: str) -> str:
+    """``0.4-draft`` and ``v0.4`` both normalize to ``0.4``; rejects malformed markers."""
+    marker = version.strip().removeprefix("v")
+    if not _SPEC_VERSION_PATTERN.match(marker):
+        raise ValueError(f"Malformed AIOS spec version {version!r}.")
+    return marker.removesuffix("-draft")
+
+
+def available_spec_versions(spec_root: Path | None = None) -> list[str]:
+    """Supported AIOS versions whose schemas can be found locally."""
+    found: list[str] = []
+    for version in SUPPORTED_SPEC_VERSIONS:
+        try:
+            _resolve_spec(
+                artifact_type=_RUN_ARTIFACT, spec_version=version, explicit_root=spec_root
+            )
+        except ValueError:
+            continue
+        found.append(version)
+    return found
+
+
+def _rule_results(
+    catalog_path: Path,
+    *,
+    artifact_type: str,
+    issues: list[ValidationIssue],
+    semantic_checked: bool,
+) -> list[RuleResult]:
+    """Pass/fail/not-checked for every catalog rule that applies to this artifact."""
+    if not catalog_path.exists():
+        return []
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    failures: dict[str, int] = {}
+    for issue in issues:
+        if issue.rule_id:
+            failures[issue.rule_id] = failures.get(issue.rule_id, 0) + 1
+    results: list[RuleResult] = []
+    for rule in catalog.get("rules", []):
+        if artifact_type not in rule.get("applies_to", []):
+            continue
+        rule_id = str(rule["id"])
+        check = str(rule.get("check", "process"))
+        if rule_id in failures:
+            result: Literal["pass", "fail", "not_checked"] = "fail"
+        elif (check == "schema" and not any(i.code.startswith("schema.") for i in issues)) or (
+            check == "semantic" and semantic_checked and rule_id in ISSUE_RULES.values()
+        ):
+            result = "pass"
+        else:
+            result = "not_checked"
+        results.append(
+            RuleResult(
+                rule_id=rule_id,
+                role=str(rule.get("role", "")),
+                level=str(rule.get("level", "")),
+                check=check,
+                requirement=str(rule.get("requirement", "")),
+                result=result,
+                issues=failures.get(rule_id, 0),
+            )
+        )
+    return results
 
 
 def _artifact_type_for(payload: dict[str, Any]) -> str:
@@ -112,10 +287,11 @@ def _resolve_spec(
     spec_version: str,
     explicit_root: Path | None,
 ) -> _ResolvedSpec:
-    if spec_version != DEFAULT_SPEC_VERSION:
+    if spec_version not in SUPPORTED_SPEC_VERSIONS:
+        supported = ", ".join(f"v{v}-draft" for v in SUPPORTED_SPEC_VERSIONS)
         raise ValueError(
             f"Unsupported AIOS version '{spec_version}'. "
-            f"AgenticLens currently supports only v{DEFAULT_SPEC_VERSION}-draft."
+            f"AgenticLens currently supports {supported}."
         )
     spec_dir_name = f"v{spec_version}"
     candidate_roots: list[Path] = []

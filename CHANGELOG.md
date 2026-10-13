@@ -6,6 +6,103 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.7.0 - 2026-10-13
+
+Delivers roadmap milestone v0.5 (Advanced Evaluation and Diagnosis).
+
+### Added — diagnosis (`agenticlens.diagnosis`)
+
+- Versioned failure taxonomy (`FailureCategory`, `TAXONOMY_VERSION = "1.0"`):
+  14 categories, each with a layer, default severity, attribution weight, and
+  next step.
+- Deterministic, versioned diagnosis rules: origin failures with propagation
+  to failed ancestors and recovery detection (`failed_span`), injected faults
+  on spans that did not fail (`injected_fault`), exhausted retries, tool
+  loops, handoff loops, stagnation, empty retrieval, cost/token/latency
+  budgets, and an incomplete-task fallback. Every diagnosis has a confidence,
+  supporting span IDs, span-level evidence, and its `rule_id@version`.
+- Faulty-step and faulty-agent attribution: ranked candidates with blame
+  shares, per-agent shares, a confidence, and a status (`attributed`,
+  `recovered`, `unattributed`, `no_failure`). Recovered failures and later
+  consequences are discounted.
+- Attribution accuracy on controlled failures: `evaluate_attribution()`,
+  `controlled_failure_from_run()` (agentic-chaos `chaos.injected` markers or
+  `metadata["expected_faulty_span_id"]`), `load_controlled_failures()`; top-1 /
+  top-3 step, agent, and category accuracy with Wilson intervals and a
+  calibration gap.
+- Incident timelines with the root cause marked, robust (median/MAD) anomaly
+  detection against baseline runs, and `explain_run()` /
+  `explain_recommendations()` investigation narratives.
+- Analysis guardrails: `AnalysisBudget` and `AnalysisGuard` (span, depth,
+  diagnosis, time, iteration, and cost limits; stagnation detection).
+- `diagnose_run()` assembles a reproducible `DiagnosisReport` (schema
+  `1.0`, no wall-clock fields).
+- CLI: `diagnose` (`--baseline`, budgets, `--max-spans`, `--max-depth`,
+  `--markdown`, `--fail-on-unrecovered` exits 4), `explain`, `trace show
+  [--span]`, `trace timeline`, `attribution-accuracy` (`--min-step-accuracy`
+  exits 5).
+
+### Added — evaluation
+
+- Trace-aware evaluators registered by name: `tool_trajectory`,
+  `agent_goal`, `handoff`, `loop`, `groundedness`, `relevance`,
+  `completeness`, `citation`, `safety`. `default_registry()` combines them
+  with agentic-evals' built-in scorers; `evaluate` and `evaluate-live` now
+  use it, so suites can reference evaluators by name.
+- `analyze_scores()` / `ScoreAnalysis`: deterministic and model-based scores
+  reported separately, judge cost totals kept apart from agent cost (estimated
+  from tokens and pricing when the judge reports none), per-case evaluator
+  disagreement, and pairwise agreement. `evaluate --score-analysis PATH`; the
+  HTML report gains a "Score analysis" section when judges are present.
+- `structured_judge(..., judge_provider=, prompt_version=, prompt_template=)`
+  records the judge provider, prompt version, prompt SHA-256, measured
+  latency, and the usage the judge reports through `JudgeVerdict.usage`
+  (`JudgeUsage`).
+
+### Added — conformance
+
+- Every AIOS issue carries the `rule_id` it violates; reports list a pass /
+  fail / not-checked result for each applicable rule in the spec's
+  `conformance-rules.json` and a `summary` (status, counts by code and rule).
+- `conformance --json` prints the structured report; `--list-versions` lists
+  supported AIOS versions. `--version` accepts `0.4`, `0.4-draft`, or `v0.4`;
+  an artifact declaring a different `spec_version` is rejected (AIOS-0.5-V03).
+
+### Added — schemas, examples, docs
+
+- `schemas/diagnosis/diagnosis-report.schema.json`,
+  `schemas/diagnosis/attribution-accuracy-report.schema.json`,
+  `schemas/evaluation/score-analysis.schema.json`.
+- `examples/diagnosis_demo.py`, `examples/diagnosis/` (40 controlled-failure
+  traces, their builder, and the accuracy report: 40/40 on this synthetic
+  corpus), `examples/advanced_evaluation_demo.py`; all reproduced in CI.
+- `docs/diagnosis.md`; evaluation and AIOS docs updated.
+
+### Changed
+
+- `to_eval_trace()` / the trace adapter add namespaced span attributes
+  (`agenticlens.span_type`, `agenticlens.name`, `agenticlens.agent_name`,
+  `agenticlens.status`, `agenticlens.span_id`, `agenticlens.parent_span_id`,
+  `agenticlens.input_fingerprint`, `agenticlens.retrieved`) and trace
+  metadata (`agenticlens.run_status`, `agenticlens.task_success`). Additive;
+  existing keys are never overwritten.
+- `ValidationIssue` gains `rule_id`; `ConformanceReport` gains
+  `declared_spec_version`, `rules_catalog`, `rules`, and `summary`
+  (additive).
+- `python -m agenticlens.cli.main` registers every command before running
+  (the `__main__` guard moved to the end of the module).
+
+### Fixed (review)
+
+- Handoff round trips (diagnosis rule and `handoff` evaluator) count
+  alternating A→B→A sequences in order, so grouped handoffs are not loops.
+- `tool_args`-only inputs are fingerprinted canonically, so equal argument
+  dicts in a different key order count as the same call.
+- Efficiency findings in a diagnosis report respect the analysis budget.
+- Narratives for unattributed runs list diagnoses without a root-cause section.
+- Judge scores skipped before any call (self-judging) are reported as
+  `skipped_scores` and left out of judge cost coverage.
+
 ## 0.6.1 - 2026-10-13
 
 Closes the v0.2.x completion gate "every recommendation has resolvable

@@ -7,18 +7,71 @@ building an `EvaluationSample` from an AgenticLens `Run` (e.g. one just
 captured live, or imported from OTLP) doesn't have to hand-roll the
 conversion themselves.
 
+Span semantics: `EvalSpan` keeps only `tool_name` and `attributes`, so the
+adapter also copies what trace-aware evaluators need into namespaced
+attributes (`agenticlens.span_type`, `agenticlens.name`,
+`agenticlens.agent_name`, `agenticlens.status`, `agenticlens.input_fingerprint`,
+and `agenticlens.retrieved` for retrieval output), and the run's outcome into
+`metadata` (`agenticlens.run_status`, `agenticlens.task_success`). Existing
+attributes are never overwritten.
+
 Cost provenance: AgenticLens span costs are computed from token counts and a
 price table, so a `Run`'s cost is `estimated` unless the producer says
 otherwise with `metadata["cost_source"] = "measured"` (for example, a cost
 read back from a provider invoice).
 """
 
+import hashlib
+import json
 from datetime import datetime
 from typing import Any
 
 from agentic_evals import EvalSpan, EvalTrace
 
 from agenticlens.models.trace import Run
+
+LENS_PREFIX = "agenticlens."
+
+
+def _fingerprint(value: Any) -> str:
+    encoded = json.dumps(value, sort_keys=True, ensure_ascii=True, default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()[:16]
+
+
+def _lens_attributes(span: dict[str, Any]) -> dict[str, Any]:
+    """Namespaced span semantics for trace-aware evaluators."""
+    attributes: dict[str, Any] = dict(span.get("attributes") or {})
+    fields = {
+        "span_type": span.get("span_type"),
+        "name": span.get("name"),
+        "agent_name": span.get("agent_name"),
+        "status": span.get("status"),
+        "span_id": span.get("span_id"),
+        "parent_span_id": span.get("parent_span_id"),
+    }
+    if span.get("input_reference"):
+        fields["input_fingerprint"] = f"ref:{span['input_reference']}"
+    elif span.get("input_data") is not None:
+        fields["input_fingerprint"] = _fingerprint(span["input_data"])
+    elif attributes.get("tool_args") is not None:
+        # Canonical JSON, so equal argument dicts match whatever their key order.
+        fields["input_fingerprint"] = _fingerprint(attributes["tool_args"])
+    if span.get("span_type") == "retrieval" and span.get("output_data") is not None:
+        fields["retrieved"] = span["output_data"]
+    for key, value in fields.items():
+        if value is not None:
+            attributes.setdefault(LENS_PREFIX + key, value)
+    return attributes
+
+
+def _lens_metadata(metadata: dict[str, Any], status: Any, task_success: Any) -> dict[str, Any]:
+    enriched = dict(metadata)
+    if status is not None:
+        enriched.setdefault(LENS_PREFIX + "run_status", status)
+    if task_success is not None:
+        enriched.setdefault(LENS_PREFIX + "task_success", task_success)
+    return enriched
+
 
 COST_SOURCES = ("measured", "estimated")
 
@@ -35,13 +88,16 @@ def to_eval_trace(run: Run) -> EvalTrace:
         {
             "trace_id": run.trace_id,
             "spans": [
-                EvalSpan(tool_name=span.tool_name, attributes=dict(span.attributes))
+                EvalSpan(
+                    tool_name=span.tool_name,
+                    attributes=_lens_attributes(span.model_dump(mode="json")),
+                )
                 for span in run.spans
             ],
             "total_latency_ms": run.total_latency_ms,
             "estimated_cost_usd": cost,
             "cost_source": _cost_source(run.metadata.get("cost_source"), cost),
-            "metadata": dict(run.metadata),
+            "metadata": _lens_metadata(run.metadata, run.status.value, run.task_success),
         }
     )
 
@@ -110,7 +166,10 @@ def to_eval_trace_dict(payload: Any) -> Any:
     return {
         "trace_id": payload.get("trace_id", ""),
         "spans": [
-            {"tool_name": span.get("tool_name"), "attributes": span.get("attributes") or {}}
+            {
+                "tool_name": span.get("tool_name"),
+                "attributes": _lens_attributes(span) if isinstance(span, dict) else {},
+            }
             for span in spans
         ],
         "total_latency_ms": total_latency_ms,
@@ -118,5 +177,5 @@ def to_eval_trace_dict(payload: Any) -> Any:
         "cost_source": _cost_source(
             payload.get("cost_source", metadata.get("cost_source")), estimated_cost_usd
         ),
-        "metadata": metadata,
+        "metadata": _lens_metadata(metadata, payload.get("status"), payload.get("task_success")),
     }

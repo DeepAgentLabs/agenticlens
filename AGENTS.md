@@ -51,10 +51,12 @@ system performed well over time.
 ### Current Roadmap Focus
 
 v0.3 (evaluation evidence) and v0.4 (experiments and statistical comparison)
-shipped in 0.6.0. The next milestone is v0.5 advanced evaluation and diagnosis:
-failure taxonomy, faulty-step attribution, and judge cost recording. New work
-here should deepen evidence quality and repeatable analysis, not drift into
-spec stewardship or chaos simulation.
+shipped in 0.6.0; v0.5 (advanced evaluation and diagnosis: failure taxonomy,
+diagnosis rules, faulty-step attribution measured on controlled failures,
+timelines, anomalies, guardrails, trace-aware evaluators, judge cost, and
+score analysis) shipped in 0.7.0. The next milestone is v0.6 test-suite and
+dataset management. New work here should deepen evidence quality and
+repeatable analysis, not drift into spec stewardship or chaos simulation.
 
 ### Before You Build Here
 
@@ -94,8 +96,9 @@ spec stewardship or chaos simulation.
 | `src/agenticlens/analyzers/` | Analyzer implementations |
 | `src/agenticlens/comparison/` | Repeated-run statistics, regression reports |
 | `src/agenticlens/config/` | Pricing data, settings, configuration |
-| `src/agenticlens/evaluation/` | agentic-evals adapters, evidence audit, structured judges, calibration, gate alerts |
+| `src/agenticlens/evaluation/` | agentic-evals adapters, trace-aware evaluators, score analysis, evidence audit, structured judges, calibration, gate alerts |
 | `src/agenticlens/experiments/` | Multi-variant experiments, pass@k statistics, HTML/CSV experiment reports |
+| `src/agenticlens/diagnosis/` | Failure taxonomy, diagnosis rules, attribution, timelines, anomalies, guardrails, narratives, attribution accuracy |
 | `src/agenticlens/exporters/` | JSON, CSV, Markdown, Jira exports |
 | `src/agenticlens/metrics/` | Cost and performance calculation |
 | `src/agenticlens/models/` | Pydantic data models (Workflow, Step, ChaosEvent) |
@@ -104,7 +107,7 @@ spec stewardship or chaos simulation.
 | `src/agenticlens/reports/` | Trace inspection rendering |
 | `src/agenticlens/cli/` | Typer CLI and Rich rendering |
 | `src/agenticlens/utils/` | Shared utilities |
-| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments) |
+| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments, diagnosis, score analysis) |
 | `tests/` | Pytest test suite |
 | `docs/` | MkDocs documentation source |
 | `Makefile` | Local dev automation |
@@ -122,6 +125,19 @@ spec stewardship or chaos simulation.
 - `providers/` extracts usage data only — no analysis logic
 - `recommenders/` reads models and metrics, produces findings
 - `cli/` composes everything for user-facing commands
+
+## Adding a New Diagnosis Rule
+
+1. Add a class with `rule_id`, `version`, and
+   `diagnose(view: TraceView, config: DiagnosisConfig) -> list[Diagnosis]` to
+   `src/agenticlens/diagnosis/rules.py` (or pass it via `diagnose_run(rules=...)`)
+2. Use an existing `FailureCategory`; adding or changing a category bumps
+   `TAXONOMY_VERSION`
+3. Cite every supporting span with `view.evidence(...)` and give a confidence
+4. Add it to `DEFAULT_RULES`, add tests, and re-run
+   `agenticlens attribution-accuracy examples/diagnosis/controlled_failures`;
+   regenerate `examples/diagnosis/attribution-accuracy.json` if it changes
+5. Keep reports reproducible: no wall-clock values in `DiagnosisReport`
 
 ## Adding a New Recommender
 

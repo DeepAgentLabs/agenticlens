@@ -45,8 +45,15 @@ alerts) and v0.4 experiments and statistical comparison (pass@k, pass^k,
 confidence intervals, significance tests, factor comparison, heatmaps, and
 HTML/CSV reports). Release 0.6.1 closes the v0.2.x provenance gate: every
 default recommendation, including model swaps and chaos impact, names the step
-it is about and carries evidence pointing at that step. Development continues with advanced evaluation and diagnosis
-(v0.5). The
+it is about and carries evidence pointing at that step. Release 0.7.0 delivers
+v0.5 advanced evaluation and diagnosis: a versioned failure taxonomy,
+deterministic diagnosis rules, faulty-step and faulty-agent attribution
+measured on controlled failures, incident timelines, baseline anomaly
+detection, investigation narratives, analysis guardrails, trace-aware
+evaluators, judge cost recording, deterministic vs model-based score
+separation with evaluator disagreement, and rule-cited AIOS conformance
+summaries. Development continues with test-suite and dataset management
+(v0.6). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
@@ -68,6 +75,7 @@ and missing features with source/test evidence and open acceptance gates.
 - [Repeated-Run Comparison](#repeated-run-comparison)
 - [Evaluation and Release Gates](#evaluation-and-release-gates)
 - [Experiments and Statistical Comparison](#experiments-and-statistical-comparison)
+- [Diagnosis and Failure Attribution](#diagnosis-and-failure-attribution)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -220,7 +228,13 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Experiment statistics: pass@k, pass^k, Wilson intervals, significance tests | Implemented, experimental |
 | Factor comparison (model, prompt, retrieval, memory, retry policy) | Implemented, experimental |
 | Experiment HTML report with test-level heatmap, and CSV exports | Implemented, experimental |
-| AIOS draft validation and conformance CLI | Implemented, experimental |
+| Failure taxonomy and deterministic diagnosis rules | Implemented, experimental |
+| Faulty-step and faulty-agent attribution, accuracy on controlled failures | Implemented, experimental |
+| Incident timelines, baseline anomaly detection, investigation narratives | Implemented, experimental |
+| Analysis guardrails (span/depth/time/cost caps, stagnation detection) | Implemented, experimental |
+| Trace-aware evaluators (trajectory, goal, handoff, loop, RAG, safety) | Implemented, experimental |
+| Judge cost recording, deterministic vs model-based scores, evaluator disagreement | Implemented, experimental |
+| AIOS draft validation and conformance CLI (rule-cited summaries) | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
 | Live OTLP receiver + real-time dashboard (optional `[api]` extra, `serve-otlp`) | Implemented, experimental |
@@ -339,6 +353,49 @@ alert is reported but never changes the gate's exit code. In Python,
 cases at once and keeps suite case order. Python and HTTP targets go through
 the same scoring path, and the test suite checks they produce identical reports.
 
+### Trace-aware evaluators
+
+`evaluate` and `evaluate-live` resolve evaluators by name from
+`agenticlens.evaluation.default_registry()`: agentic-evals' built-in scorers
+plus AgenticLens evaluators that read the trace, not just the final text:
+`tool_trajectory` (exact / in-order / any-order), `agent_goal`, `handoff`,
+`loop`, `groundedness` and `citation` against the documents retrieval actually
+returned, `relevance`, `completeness`, and `safety` (PII and forbidden terms
+in the output *and* in tool arguments).
+
+```yaml
+evaluators:
+  - name: tool_trajectory
+    config: {expected: [kb_search, lookup_order], mode: in_order}
+  - name: citation
+  - name: safety
+```
+
+`groundedness`, `relevance`, and `completeness` are lexical heuristics; pair
+them with a judge where meaning matters.
+
+### Judge cost and evaluator disagreement
+
+`structured_judge()` records the judge's provider, prompt version, prompt
+SHA-256, measured latency, and the token usage and cost the judge reports
+(`JudgeVerdict.usage`). `analyze_scores(report)` and
+`agenticlens evaluate ... --score-analysis analysis.json` then report:
+
+- deterministic and model-based scores separately
+- judge cost, kept apart from the cost of the agent under evaluation
+  (estimated from tokens and pricing when the judge reports none)
+- cases where the deterministic checks and each judge disagree, with
+  pairwise agreement rates
+
+```text
+Scores: deterministic 12/15 passed (80.0%) · model-based 3/3 passed (100.0%)
+Judge cost: $0.006300 (3/3 judge scores priced; separate from agent cost)
+Evaluator disagreement: 2/3 comparable cases (66.7%)
+```
+
+See `examples/advanced_evaluation_demo.py` and
+[docs/evaluation-and-release-gates.md](docs/evaluation-and-release-gates.md).
+
 ## Experiments and Statistical Comparison
 
 An experiment runs the same suite against three or more variants, several
@@ -405,6 +462,55 @@ each case attempt as independent; attempts on the same case are correlated,
 so read them as approximate. JSON Schemas for manifests and reports are in
 `schemas/experiments/`. Details: [docs/experiments.md](docs/experiments.md).
 
+## Diagnosis and Failure Attribution
+
+`agenticlens diagnose` explains a failed (or degraded) run from its trace:
+which failures happened and of what kind, which step and agent caused them as
+opposed to failing as a consequence, the incident timeline, anomalies against
+healthy baseline runs, and what the failure cost.
+
+```bash
+agenticlens diagnose run.json --baseline healthy-runs/ \
+  --save diagnosis.json --markdown investigation.md --fail-on-unrecovered
+agenticlens explain run.json            # investigation narrative
+agenticlens trace timeline run.json     # root cause marked on the timeline
+agenticlens attribution-accuracy examples/diagnosis/controlled_failures
+```
+
+```python
+from agenticlens.diagnosis import diagnose_run, explain_run
+
+report = diagnose_run(run, baseline=healthy_runs)
+report.attribution.faulty_step     # "issue_refund"
+report.attribution.faulty_agent    # "refunds"
+report.attribution.category        # FailureCategory.TIMEOUT
+print(explain_run(report))
+```
+
+- **Failure taxonomy** (v1.0): tool, model, and retrieval errors, timeouts,
+  validation and delegation failures, exhausted retries, tool and handoff
+  loops, stagnation, empty retrieval, budget overruns, injected faults, and
+  incomplete tasks.
+- **Deterministic rules** cite supporting spans, record their rule version and
+  confidence, follow failure propagation to the deepest failed span, and mark
+  failures that a retry or later attempt recovered.
+- **Attribution** weighs each diagnosis by category and confidence, discounts
+  recovered failures and later consequences, and reports ranked candidates,
+  per-agent blame shares, and a confidence.
+- **Accuracy is measured, not assumed**: `evaluate_attribution()` scores
+  attribution against controlled failures (agentic-chaos `chaos.injected`
+  spans or recorded ground truth). On the bundled 40-case synthetic corpus
+  the faulty step, agent, and category are right in 40/40 cases (95% Wilson
+  interval 91.2–100%); that corpus is not independent evidence.
+- **Anomalies** use robust (median/MAD) z-scores against baseline runs.
+- **Guardrails** (`AnalysisBudget`) cap spans, tree depth, diagnoses, time,
+  iterations, and spend, and detect stagnation in iterative analyzers.
+- `explain_recommendations()` explains *why* each optimization
+  recommendation's waste occurred.
+
+Reports are reproducible from the saved trace and published as JSON Schemas in
+`schemas/diagnosis/`. Full guide: [docs/diagnosis.md](docs/diagnosis.md).
+
 ## Dashboard Report
 
 `analyze`, `inspect`, and `compare` can each render their own standalone HTML
@@ -443,6 +549,13 @@ agenticlens conformance run.json --version 0.4 --spec-root ../ai-operations-spec
 `validate` performs schema checks. `conformance` adds semantic graph and
 reference checks and reports draft alignment rather than stable conformance,
 because AIOS `v0.4` remains a draft.
+
+Since 0.7.0 every issue cites the AIOS rule it violates (for example
+`AIOS-0.4-P05`), the report lists a pass / fail / not-checked result for each
+applicable rule in the spec's `conformance-rules.json`, and `--json` prints the
+structured report. `--list-versions` shows supported AIOS versions; an artifact
+declaring a different `spec_version` is rejected rather than checked against
+another draft's schema (AIOS-0.5-V03).
 
 ## OpenTelemetry Export
 
@@ -1065,6 +1178,9 @@ Versioned JSON Schemas are provided for:
 - run traces: `schemas/trace.schema.json`
 - deterministic findings: `schemas/finding.schema.json` and `schemas/v2/finding.schema.json`
 - comparison reports: `schemas/report.schema.json`
+- experiment manifests and reports: `schemas/experiments/`
+- diagnosis and attribution-accuracy reports: `schemas/diagnosis/`
+- evaluation score analysis: `schemas/evaluation/score-analysis.schema.json`
 
 The schemas are included in wheel distributions under `agenticlens/schemas`.
 They allow external systems to validate and consume artifacts without depending
@@ -1373,6 +1489,13 @@ Other examples:
 - `examples/structured_judge_demo.py` — structured judge verdicts, evidence
   audit, and judge-threshold tuning
 - `examples/gate_alert_demo.py` — cooldown-protected gate webhook alerts
+- `examples/diagnosis_demo.py` — diagnose a failed multi-agent run against
+  healthy baselines: attribution, timeline, anomalies, and narrative
+- `examples/diagnosis/` — 40 controlled-failure traces, their builder, and the
+  attribution accuracy report
+- `examples/advanced_evaluation_demo.py` — trace-aware evaluators, a costed
+  structured judge, and the score analysis (deterministic vs model-based,
+  judge cost, disagreement)
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
 - `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` for
   the shared evaluator contract
@@ -1523,6 +1646,32 @@ Audit an evaluation's evidence and fail on gaps:
 uv run agenticlens evaluate suite.yaml samples.json --audit audit.json --strict-evidence
 ```
 
+Diagnose a failed run against healthy baselines:
+
+```bash
+uv run agenticlens diagnose run.json --baseline baselines/ \
+  --save diagnosis.json --markdown investigation.md
+```
+
+Explain a run or a workflow's recommendations, and show the incident timeline:
+
+```bash
+uv run agenticlens explain run.json
+uv run agenticlens trace timeline run.json
+```
+
+Measure attribution accuracy on controlled failures in CI:
+
+```bash
+uv run agenticlens attribution-accuracy controlled_failures/ --min-step-accuracy 0.9
+```
+
+Save deterministic vs model-based scores, judge cost, and disagreement:
+
+```bash
+uv run agenticlens evaluate suite.yaml samples.json --score-analysis analysis.json
+```
+
 Run an experiment and write HTML/CSV reports:
 
 ```bash
@@ -1540,8 +1689,12 @@ uv run agenticlens experiment run experiment.yaml suite.yaml \
 | `inspect` | Render a run trace, span tree, distributions, and findings |
 | `compare` | Compare baseline and candidate trace files or directories |
 | `validate` | Run AIOS draft schema validation on a workflow or run artifact |
-| `conformance` | Run AIOS draft schema and semantic checks with draft-alignment reporting |
-| `evaluate` | Score recorded outputs and traces against a test suite |
+| `conformance` | Run AIOS draft schema and semantic checks with rule-cited draft-alignment reporting (`--json`, `--list-versions`) |
+| `diagnose` | Diagnose failures, attribute the faulty step and agent, detect baseline anomalies |
+| `explain` | Write an investigation narrative for a trace, diagnosis, or workflow |
+| `trace show` / `trace timeline` | Show a span tree or one span; rebuild the incident timeline |
+| `attribution-accuracy` | Measure attribution accuracy on controlled failures |
+| `evaluate` | Score recorded outputs and traces against a test suite (`--score-analysis`) |
 | `evaluate-live` | Run a trusted live Python or HTTP target against a suite |
 | `experiment run` | Run repeated trials (live or recorded) for 3+ variants against one suite |
 | `experiment report` | Re-render a saved experiment report as console, HTML, or CSV output |
@@ -1560,9 +1713,13 @@ The `compare` command accepts either one JSON trace file or a directory of
 - Trace-group `compare` reports deltas without significance tests; experiments
   report intervals and two-proportion tests that treat case attempts as
   independent, so they are approximate.
-- Built-in evaluators are deterministic; semantic, safety, and RAG-quality checks
-  rely on application-supplied `CallableEvaluator`/`LLMJudgeEvaluator` logic
-  rather than a bundled LLM-as-a-Judge provider.
+- Built-in evaluators are deterministic. The groundedness, relevance, and
+  completeness evaluators are lexical heuristics; semantic judgments rely on
+  application-supplied judges (`structured_judge`, `LLMJudgeEvaluator`) rather
+  than a bundled LLM-as-a-Judge provider.
+- Diagnosis rules only see what the trace recorded; attribution shares are
+  rule-weighted blame, not calibrated probabilities. The bundled
+  controlled-failure corpus is synthetic, not independent validation.
 - Model-swap recommendations estimate cost and do not guarantee quality.
 - Live pricing uses a community-maintained feed that may lag provider changes.
 - Default redaction cannot guarantee removal of every domain-specific secret or
@@ -1607,8 +1764,11 @@ src/agenticlens/
   instrumentation/ structured run and span tracing, payload redaction
   analysis/        memory and retry diagnostics
   comparison/      repeated-run statistics, regression reports, export
-  evaluation/      evaluation adapters, evidence audit, judging, calibration, alerts
+  evaluation/      evaluation adapters, trace-aware evaluators, score analysis,
+                   evidence audit, judging, calibration, alerts
   experiments/     multi-variant experiments, pass@k statistics, HTML/CSV reports
+  diagnosis/       failure taxonomy, diagnosis rules, attribution, timelines,
+                   anomalies, guardrails, narratives, attribution accuracy
   adapters/        OTLP ingestion
   api/             optional live OTLP receiver and trace store
   reports/         trace inspection rendering
@@ -1620,15 +1780,16 @@ src/agenticlens/
   cli/            Typer CLI and Rich rendering
   config/         pricing and settings
   models/         Pydantic data models
-schemas/           versioned trace, finding, report, and experiment JSON Schemas
+schemas/           versioned trace, finding, report, experiment, diagnosis, and
+                   score-analysis JSON Schemas
 ```
 
 ## Roadmap
 
 Near-term priorities:
 
-- v0.5 advanced evaluation and diagnosis: failure taxonomy, faulty-step
-  attribution, and judge cost recording
+- v0.6 test-suite and dataset management: trace-to-test-case conversion,
+  immutable approved suite versions, PII masking, and duplicate detection
 - richer dataset curation workflows beyond versioned local dataset artifacts
 - automatic pricing resolution for research trace spans
 - prompt caching opportunity detection
