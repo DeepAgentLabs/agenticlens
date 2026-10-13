@@ -152,7 +152,7 @@ class FailedSpanRule:
             error = first.error_type or "an error"
             repeat = f" ({len(spans)} occurrences)" if len(spans) > 1 else ""
             summary = f"{first.span_type.value} span '{first.name}' failed with {error}{repeat}" + (
-                f": {first.error_message}" if first.error_message else "."
+                f": {first.error_message.rstrip('.')}." if first.error_message else "."
             )
             if fault:
                 summary += f" Injected fault: {fault.get('fault_type') or 'unspecified'}."
