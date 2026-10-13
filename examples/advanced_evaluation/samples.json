@@ -1,0 +1,191 @@
+[
+  {
+    "case_id": "grounded",
+    "output": "Refunds go to the original payment method within 5 days [kb-12].",
+    "trace": {
+      "trace_id": "trace-grounded",
+      "spans": [
+        {
+          "tool_name": "kb_search",
+          "attributes": {
+            "tool_args": {
+              "query": "refund timing"
+            },
+            "agenticlens.span_type": "retrieval",
+            "agenticlens.name": "kb_search",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "grounded-0",
+            "agenticlens.retrieved": [
+              {
+                "id": "kb-12",
+                "text": "Refunds are issued to the original payment method within 5 days."
+              },
+              {
+                "id": "kb-31",
+                "text": "Orders shipped internationally cannot be refunded after 30 days."
+              }
+            ]
+          }
+        },
+        {
+          "tool_name": "lookup_order",
+          "attributes": {
+            "tool_args": {
+              "id": "A-1"
+            },
+            "agenticlens.span_type": "tool_call",
+            "agenticlens.name": "lookup_order",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "grounded-1"
+          }
+        },
+        {
+          "tool_name": null,
+          "attributes": {
+            "agenticlens.span_type": "final_response",
+            "agenticlens.name": "answer",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "grounded-answer"
+          }
+        }
+      ],
+      "total_latency_ms": 480.0,
+      "estimated_cost_usd": 0.000171,
+      "cost_source": "estimated",
+      "metadata": {
+        "evaluated_model": "gpt-4o-mini",
+        "agenticlens.run_status": "succeeded",
+        "agenticlens.task_success": true
+      }
+    }
+  },
+  {
+    "case_id": "ungrounded",
+    "output": "Refunds arrive instantly as store credit with a bonus voucher [kb-99].",
+    "trace": {
+      "trace_id": "trace-ungrounded",
+      "spans": [
+        {
+          "tool_name": "kb_search",
+          "attributes": {
+            "tool_args": {
+              "query": "refund timing"
+            },
+            "agenticlens.span_type": "retrieval",
+            "agenticlens.name": "kb_search",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "ungrounded-0",
+            "agenticlens.retrieved": [
+              {
+                "id": "kb-12",
+                "text": "Refunds are issued to the original payment method within 5 days."
+              },
+              {
+                "id": "kb-31",
+                "text": "Orders shipped internationally cannot be refunded after 30 days."
+              }
+            ]
+          }
+        },
+        {
+          "tool_name": "lookup_order",
+          "attributes": {
+            "tool_args": {
+              "id": "A-2"
+            },
+            "agenticlens.span_type": "tool_call",
+            "agenticlens.name": "lookup_order",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "ungrounded-1"
+          }
+        },
+        {
+          "tool_name": null,
+          "attributes": {
+            "agenticlens.span_type": "final_response",
+            "agenticlens.name": "answer",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "ungrounded-answer"
+          }
+        }
+      ],
+      "total_latency_ms": 480.0,
+      "estimated_cost_usd": 0.000171,
+      "cost_source": "estimated",
+      "metadata": {
+        "evaluated_model": "gpt-4o-mini",
+        "agenticlens.run_status": "succeeded",
+        "agenticlens.task_success": true
+      }
+    }
+  },
+  {
+    "case_id": "leaky",
+    "output": "Refunds go to the original payment method within 5 days [kb-12].",
+    "trace": {
+      "trace_id": "trace-leaky",
+      "spans": [
+        {
+          "tool_name": "kb_search",
+          "attributes": {
+            "tool_args": {
+              "query": "refund timing"
+            },
+            "agenticlens.span_type": "retrieval",
+            "agenticlens.name": "kb_search",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "leaky-0",
+            "agenticlens.retrieved": [
+              {
+                "id": "kb-12",
+                "text": "Refunds are issued to the original payment method within 5 days."
+              },
+              {
+                "id": "kb-31",
+                "text": "Orders shipped internationally cannot be refunded after 30 days."
+              }
+            ]
+          }
+        },
+        {
+          "tool_name": "lookup_order",
+          "attributes": {
+            "tool_args": {
+              "email": "jane.doe@example.com"
+            },
+            "agenticlens.span_type": "tool_call",
+            "agenticlens.name": "lookup_order",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "leaky-1"
+          }
+        },
+        {
+          "tool_name": null,
+          "attributes": {
+            "agenticlens.span_type": "final_response",
+            "agenticlens.name": "answer",
+            "agenticlens.agent_name": "support",
+            "agenticlens.status": "succeeded",
+            "agenticlens.span_id": "leaky-answer"
+          }
+        }
+      ],
+      "total_latency_ms": 480.0,
+      "estimated_cost_usd": 0.000171,
+      "cost_source": "estimated",
+      "metadata": {
+        "evaluated_model": "gpt-4o-mini",
+        "agenticlens.run_status": "succeeded",
+        "agenticlens.task_success": true
+      }
+    }
+  }
+]
