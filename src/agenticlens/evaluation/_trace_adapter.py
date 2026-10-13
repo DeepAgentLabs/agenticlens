@@ -53,6 +53,9 @@ def _lens_attributes(span: dict[str, Any]) -> dict[str, Any]:
         fields["input_fingerprint"] = f"ref:{span['input_reference']}"
     elif span.get("input_data") is not None:
         fields["input_fingerprint"] = _fingerprint(span["input_data"])
+    elif attributes.get("tool_args") is not None:
+        # Canonical JSON, so equal argument dicts match whatever their key order.
+        fields["input_fingerprint"] = _fingerprint(attributes["tool_args"])
     if span.get("span_type") == "retrieval" and span.get("output_data") is not None:
         fields["retrieved"] = span["output_data"]
     for key, value in fields.items():
