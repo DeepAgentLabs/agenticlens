@@ -16,6 +16,7 @@
             "agenticlens.agent_name": "support",
             "agenticlens.status": "succeeded",
             "agenticlens.span_id": "grounded-0",
+            "agenticlens.input_fingerprint": "1acce63651bd9742",
             "agenticlens.retrieved": [
               {
                 "id": "kb-12",
@@ -38,7 +39,8 @@
             "agenticlens.name": "lookup_order",
             "agenticlens.agent_name": "support",
             "agenticlens.status": "succeeded",
-            "agenticlens.span_id": "grounded-1"
+            "agenticlens.span_id": "grounded-1",
+            "agenticlens.input_fingerprint": "909390756c74ce27"
           }
         },
         {
@@ -79,6 +81,7 @@
             "agenticlens.agent_name": "support",
             "agenticlens.status": "succeeded",
             "agenticlens.span_id": "ungrounded-0",
+            "agenticlens.input_fingerprint": "1acce63651bd9742",
             "agenticlens.retrieved": [
               {
                 "id": "kb-12",
@@ -101,7 +104,8 @@
             "agenticlens.name": "lookup_order",
             "agenticlens.agent_name": "support",
             "agenticlens.status": "succeeded",
-            "agenticlens.span_id": "ungrounded-1"
+            "agenticlens.span_id": "ungrounded-1",
+            "agenticlens.input_fingerprint": "d701b7e9e56742d6"
           }
         },
         {
@@ -142,6 +146,7 @@
             "agenticlens.agent_name": "support",
             "agenticlens.status": "succeeded",
             "agenticlens.span_id": "leaky-0",
+            "agenticlens.input_fingerprint": "1acce63651bd9742",
             "agenticlens.retrieved": [
               {
                 "id": "kb-12",
@@ -164,7 +169,8 @@
             "agenticlens.name": "lookup_order",
             "agenticlens.agent_name": "support",
             "agenticlens.status": "succeeded",
-            "agenticlens.span_id": "leaky-1"
+            "agenticlens.span_id": "leaky-1",
+            "agenticlens.input_fingerprint": "ab0397f7a04061b9"
           }
         },
         {

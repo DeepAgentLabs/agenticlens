@@ -27,6 +27,7 @@
   },
   "judge_cost": {
     "judge_scores": 3,
+    "skipped_scores": 0,
     "priced_scores": 3,
     "complete": true,
     "total_cost_usd": 0.0063,
