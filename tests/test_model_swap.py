@@ -161,3 +161,18 @@ def test_live_feed_candidates_filter_ft_mode_provider_and_context_window() -> No
     assert "tiny-context-model" not in rec.description
     assert "ft:" not in rec.description
     assert "bedrock" not in rec.description
+
+
+def test_recommendation_identifies_its_step() -> None:
+    workflow = _workflow_with_step(
+        "anthropic", "claude-3-5-sonnet", prompt_tokens=1000, completion_tokens=1000
+    )
+    step = workflow.steps[0]
+    rec = ModelSwapRecommender().evaluate(workflow, _DEFAULT_CONFIG)[0]
+
+    assert rec.step_id == step.id
+    assert rec.step_name == "LLM Call"
+    assert rec.step_type == StepType.LLM_CALL.value
+    assert rec.optimization_type == "model_swap"
+    assert rec.metadata["current_model"] == "anthropic:claude-3-5-sonnet"
+    assert rec.metadata["suggested_model"] == "openai:gpt-4o-mini"

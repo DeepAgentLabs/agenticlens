@@ -6,6 +6,33 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.6.1 - 2026-10-13
+
+Closes the v0.2.x completion gate "every recommendation has resolvable
+source-span provenance".
+
+### Changed
+
+- `ModelSwapRecommender` recommendations now identify their step
+  (`step_id`, `step_name`, `step_type`), use `optimization_type="model_swap"`
+  instead of the generic default, and record `current_model`,
+  `suggested_model`, `current_cost`, and `suggested_cost` in `metadata`.
+  Previously they named no step, so the engine could only attach unresolved
+  `workflow.recommendation` evidence.
+- `ChaosImpactRecommender` recommendations now carry the resolved `step_id`
+  and `step_type` (by event `step_id`, then by step name only when that name is
+  unique in the workflow). Events are grouped by step identity, so same-named
+  steps get separate findings. When the step is
+  not part of the workflow, the producer's `step_id` is kept. Evidence is one
+  `workflow.chaos_event` entry per source event, with the event ID, fault
+  type, outcome, timestamp, and message.
+
+### Added
+
+- `tests/test_recommendation_provenance.py`: every default recommender's
+  output must resolve to a workflow step and carry evidence with that step's
+  span ID.
+
 ## 0.6.0 - 2026-10-12
 
 Completes roadmap milestones v0.3 (Evaluation Foundation) and v0.4

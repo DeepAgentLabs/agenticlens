@@ -442,8 +442,12 @@ intelligent guidance for what analysis to run next.
 
 ### Completion criteria
 
-- [ ] every recommendation has resolvable source-span provenance; the engine
-      currently permits generic workflow evidence without a span ID
+- [x] every recommendation has resolvable source-span provenance — closed in
+      `0.6.1`: all default recommenders (including model swap and chaos
+      impact) now set `step_id`/`step_type`, and chaos-impact evidence cites
+      each source `chaos_events` entry. The engine's generic
+      `workflow.recommendation` evidence remains only as an explicitly labeled
+      fallback for third-party recommenders that do not name a step.
 - [x] next-step suggestions are generated from current findings
 - [x] structured trace() runs emit OTLP spans when configured
 - [x] CI rejects forbidden cross-module imports
