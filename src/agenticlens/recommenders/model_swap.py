@@ -116,8 +116,18 @@ class ModelSwapRecommender(BaseRecommender):
                         f"{_candidate_label(best)} would cost ~${best_cost:.4f} for the "
                         f"same token usage -- {savings_pct:.0f}% cheaper."
                     ),
+                    optimization_type="model_swap",
+                    step_id=step.id,
+                    step_name=step.name,
+                    step_type=step.type.value,
                     severity=Severity.WARNING,
                     cost_savings=savings,
+                    metadata={
+                        "current_model": current_key,
+                        "suggested_model": f"{best.provider}:{best.model}",
+                        "current_cost": current_cost,
+                        "suggested_cost": best_cost,
+                    },
                 )
             )
         return recommendations
