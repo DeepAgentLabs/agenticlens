@@ -15,6 +15,7 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
+from agenticlens.analysis.handoffs import count_round_trips
 from agenticlens.diagnosis.models import Diagnosis
 from agenticlens.diagnosis.taxonomy import FailureCategory, Severity, describe
 from agenticlens.diagnosis.view import TraceView
@@ -410,12 +411,7 @@ class HandoffLoopRule:
 
         diagnoses: list[Diagnosis] = []
         for transitions in pairs.values():
-            directions: dict[tuple[str, str], int] = defaultdict(int)
-            for source, target, _ in transitions:
-                directions[(source, target)] += 1
-            if len(directions) < 2:
-                continue
-            round_trips = min(directions.values())
+            round_trips = count_round_trips([(s, t) for s, t, _ in transitions])
             if round_trips < config.handoff_round_trips:
                 continue
             first_source, first_target, _ = transitions[0]

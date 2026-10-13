@@ -341,3 +341,17 @@ def test_custom_rule_set_replaces_defaults() -> None:
     report = diagnose_run(trace, rules=[EmptyRetrievalRule()])
     assert [d.category.value for d in report.diagnoses] == ["empty_retrieval"]
     assert [r.rule_id for r in report.rules] == ["empty_retrieval", "incomplete_task"]
+
+
+def test_grouped_handoffs_are_not_round_trips() -> None:
+    from agenticlens.analysis.handoffs import count_round_trips
+
+    grouped = [("a", "b"), ("a", "b"), ("b", "a"), ("b", "a")]
+    alternating = [("a", "b"), ("b", "a"), ("a", "b"), ("b", "a")]
+    assert count_round_trips(grouped) == 1
+    assert count_round_trips(alternating) == 2
+    spans = [
+        span(f"h{i}", "h", "delegation", i * 10, agent_name=src, attributes={"to_agent": dst})
+        for i, (src, dst) in enumerate(grouped)
+    ]
+    assert _categories(run(spans)) == []
