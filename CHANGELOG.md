@@ -92,6 +92,17 @@ Delivers roadmap milestone v0.5 (Advanced Evaluation and Diagnosis).
 - `python -m agenticlens.cli.main` registers every command before running
   (the `__main__` guard moved to the end of the module).
 
+### Fixed (review)
+
+- Handoff round trips (diagnosis rule and `handoff` evaluator) count
+  alternating A→B→A sequences in order, so grouped handoffs are not loops.
+- `tool_args`-only inputs are fingerprinted canonically, so equal argument
+  dicts in a different key order count as the same call.
+- Efficiency findings in a diagnosis report respect the analysis budget.
+- Narratives for unattributed runs list diagnoses without a root-cause section.
+- Judge scores skipped before any call (self-judging) are reported as
+  `skipped_scores` and left out of judge cost coverage.
+
 ## 0.6.1 - 2026-10-13
 
 Closes the v0.2.x completion gate "every recommendation has resolvable
