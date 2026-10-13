@@ -27,6 +27,8 @@ candidate configurations against reviewed baselines.
 | Resilience | Fault-injection outcomes through the `chaos_events` schema extension |
 | Tracing | Hierarchical runs and spans with status and error evidence |
 | Comparison | Success, tokens, latency, cost, variability, and regression deltas |
+| Diagnosis | Failure taxonomy, faulty step and agent, incident timeline, baseline anomalies |
+| Evaluation quality | Deterministic vs model-based scores, judge cost, evaluator disagreement |
 
 ## Token Optimization Focus
 
@@ -60,6 +62,7 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [RAG chunk utility](rag-chunk-utility.md)
 - [Trace and comparison](trace-and-comparison.md)
 - [Evaluation and release gates](evaluation-and-release-gates.md)
+- [Diagnosis and failure attribution](diagnosis.md)
 - [Experiments and statistical comparison](experiments.md)
 - [Multi-agent reference workflows](multi-agent-reference-workflows.md)
 - [Product roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/agenticlens-roadmap.md)
@@ -88,7 +91,9 @@ offline pricing, optimization recommendations, structured tracing, deterministic
 memory and retry findings, repeated-run comparison, evaluation suites with
 versioned evaluators and evidence audits, release gates with webhook alerts,
 judge calibration, multi-variant experiments with pass@k and significance
-tests, AIOS draft validation/conformance, OTLP trace export and ingestion, HTML
+tests, failure diagnosis with faulty-step attribution and incident timelines,
+trace-aware evaluators, judge cost and evaluator-disagreement reporting, AIOS
+draft validation/conformance with rule-cited summaries, OTLP trace export and ingestion, HTML
 dashboards, CLI commands, and export formats are implemented. The trace,
 comparison, evaluation, and experiment APIs remain experimental. Framework
 adapters remain roadmap work.
