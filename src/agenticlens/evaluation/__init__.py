@@ -89,6 +89,13 @@ from agenticlens.evaluation.score_analysis import (
     analyze_scores,
     score_kind,
 )
+from agenticlens.evaluation.trace_evaluators import (
+    TRACE_EVALUATOR_VERSION,
+    TRACE_EVALUATORS,
+    default_registry,
+    register_trace_evaluators,
+    trace_evaluators,
+)
 
 
 def load_samples(path: Path) -> list[EvaluationSample]:
@@ -127,6 +134,8 @@ def run_live_suite(
 __all__ = [
     "BUILTIN_EVALUATOR",
     "DEFAULT_VERDICT_VALUES",
+    "TRACE_EVALUATORS",
+    "TRACE_EVALUATOR_VERSION",
     "Breach",
     "BusinessRuleEvaluator",
     "CalibrationCase",
@@ -179,6 +188,7 @@ __all__ = [
     "calibrate_judge",
     "dataset_from_samples",
     "dataset_to_samples",
+    "default_registry",
     "evaluate_gate",
     "evaluate_suite",
     "evaluated_model",
@@ -188,6 +198,7 @@ __all__ = [
     "load_suite",
     "notify_gate_breach",
     "prompt_fingerprint",
+    "register_trace_evaluators",
     "render_html_report",
     "run_live_suite",
     "save_dataset",
@@ -197,5 +208,6 @@ __all__ = [
     "structured_judge",
     "summarize_dataset",
     "to_eval_trace",
+    "trace_evaluators",
     "tune_judge_threshold",
 ]
