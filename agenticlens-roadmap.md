@@ -443,7 +443,7 @@ intelligent guidance for what analysis to run next.
 ### Completion criteria
 
 - [x] every recommendation has resolvable source-span provenance — closed in
-      `0.7.0`: all default recommenders (including model swap and chaos
+      `0.6.1`: all default recommenders (including model swap and chaos
       impact) now set `step_id`/`step_type`, and chaos-impact evidence cites
       each source `chaos_events` entry. The engine's generic
       `workflow.recommendation` evidence remains only as an explicitly labeled

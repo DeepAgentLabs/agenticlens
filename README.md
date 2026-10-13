@@ -43,7 +43,7 @@ Release 0.6.0 completes the v0.3 evaluation foundation (evaluator versions on
 every score, evidence audits, structured judge verdicts, threshold tuning, gate
 alerts) and v0.4 experiments and statistical comparison (pass@k, pass^k,
 confidence intervals, significance tests, factor comparison, heatmaps, and
-HTML/CSV reports). Release 0.7.0 closes the v0.2.x provenance gate: every
+HTML/CSV reports). Release 0.6.1 closes the v0.2.x provenance gate: every
 default recommendation, including model swaps and chaos impact, names the step
 it is about and carries evidence pointing at that step. Development continues with advanced evaluation and diagnosis
 (v0.5). The

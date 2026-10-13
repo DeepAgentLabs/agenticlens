@@ -6,7 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
-## 0.7.0 - 2026-10-13
+## 0.6.1 - 2026-10-13
 
 Closes the v0.2.x completion gate "every recommendation has resolvable
 source-span provenance".
