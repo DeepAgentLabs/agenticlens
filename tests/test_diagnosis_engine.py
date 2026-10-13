@@ -341,3 +341,18 @@ def test_explain_recommendations_gives_root_causes() -> None:
     assert "**Why:** The same tool was called" in narrative
     assert "step 'search'" in narrative and "120 tokens" in narrative
     assert "No optimization recommendations" in explain_recommendations(workflow, [])
+
+
+def test_efficiency_findings_respect_the_span_budget() -> None:
+    spans = [span("a", "x", "model_call", 0, input_tokens=10)] + [
+        span(f"m{i}", "mem", "memory_read", 10 + i, input_tokens=1000) for i in range(3)
+    ]
+    assert diagnose_run(run(spans)).efficiency_findings
+    capped = diagnose_run(run(spans), budget=AnalysisBudget(max_spans=1))
+    assert capped.efficiency_findings == []
+
+
+def test_unattributed_narrative_has_no_root_cause_section() -> None:
+    narrative = explain_run(diagnose_run(run([], failed=True)))
+    assert "## Root cause" not in narrative and "Supporting spans" not in narrative
+    assert "## Diagnoses" in narrative and "incomplete_task" in narrative

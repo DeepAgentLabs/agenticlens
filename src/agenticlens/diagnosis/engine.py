@@ -109,7 +109,12 @@ def diagnose_run(
         else None
     )
     rule_refs = [RuleRef(rule_id=r.rule_id, version=r.version) for r in (*active, FALLBACK_RULE)]
-    efficiency = analyze_trace(run)
+    # Efficiency findings see the same bounded span set the rules saw.
+    efficiency = (
+        []
+        if guard.out_of_time
+        else analyze_trace(run.model_copy(update={"spans": list(view.spans)}))
+    )
     for index, finding in enumerate(efficiency, start=1):
         finding.finding_id = f"finding-{index:03d}"  # stable IDs keep reports reproducible
     limitations = list(LIMITATIONS)
