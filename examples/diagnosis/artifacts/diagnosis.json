@@ -1,0 +1,420 @@
+{
+  "schema_version": "1.0",
+  "taxonomy_version": "1.0",
+  "engine_version": "1.0",
+  "run_id": "incident-0042",
+  "trace_id": "trace-incident-0042",
+  "application_name": "refund-support",
+  "run_status": "failed",
+  "task_success": false,
+  "rules": [
+    {
+      "rule_id": "failed_span",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "injected_fault",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "retry_exhaustion",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "tool_loop",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "handoff_loop",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "stagnation",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "empty_retrieval",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "budget",
+      "version": "1.0"
+    },
+    {
+      "rule_id": "incomplete_task",
+      "version": "1.0"
+    }
+  ],
+  "summary": {
+    "total_diagnoses": 3,
+    "unrecovered": 3,
+    "highest_severity": "high",
+    "categories": {
+      "timeout": 1,
+      "retry_exhausted": 1,
+      "model_error": 1
+    },
+    "failed_spans": 3,
+    "wasted_tokens": 1500,
+    "wasted_latency_ms": 10380.0,
+    "wasted_cost_usd": 0.00024
+  },
+  "diagnoses": [
+    {
+      "diagnosis_id": "diag-001",
+      "category": "timeout",
+      "title": "A span exceeded its time limit or failed with a timeout error: issue_refund",
+      "summary": "tool_call span 'issue_refund' failed with TimeoutError: payments API timed out after 5000 ms.",
+      "severity": "high",
+      "confidence": 0.9,
+      "rule_id": "failed_span",
+      "rule_version": "1.0",
+      "origin_span_id": "incident-0042-pay",
+      "span_ids": [
+        "incident-0042-pay"
+      ],
+      "agent_name": "refunds",
+      "recovered": false,
+      "evidence": [
+        {
+          "source": "trace.span",
+          "span_id": "incident-0042-pay",
+          "timestamp": "2026-10-10T14:00:05.553250Z",
+          "confidence": 1.0,
+          "reasoning": "Span status is failed and none of its children failed first.",
+          "details": {
+            "span_name": "issue_refund",
+            "span_type": "tool_call",
+            "status": "failed",
+            "agent_name": "refunds",
+            "error_type": "TimeoutError",
+            "error_message": "payments API timed out after 5000 ms",
+            "tool_name": "payments",
+            "latency_ms": 5000.0
+          }
+        }
+      ]
+    },
+    {
+      "diagnosis_id": "diag-002",
+      "category": "retry_exhausted",
+      "title": "Retries exhausted for 'issue_refund'",
+      "summary": "1 retry of 'issue_refund' did not succeed.",
+      "severity": "high",
+      "confidence": 0.9,
+      "rule_id": "retry_exhaustion",
+      "rule_version": "1.0",
+      "origin_span_id": "incident-0042-pay",
+      "span_ids": [
+        "incident-0042-pay",
+        "incident-0042-retry"
+      ],
+      "agent_name": "refunds",
+      "recovered": false,
+      "evidence": [
+        {
+          "source": "trace.span",
+          "span_id": "incident-0042-pay",
+          "timestamp": "2026-10-10T14:00:05.553250Z",
+          "confidence": 1.0,
+          "reasoning": "Original failure the retries targeted.",
+          "details": {
+            "span_name": "issue_refund",
+            "span_type": "tool_call",
+            "status": "failed",
+            "agent_name": "refunds",
+            "error_type": "TimeoutError",
+            "error_message": "payments API timed out after 5000 ms",
+            "tool_name": "payments"
+          }
+        },
+        {
+          "source": "trace.retry",
+          "span_id": "incident-0042-retry",
+          "timestamp": "2026-10-10T14:00:10.557250Z",
+          "confidence": 1.0,
+          "reasoning": "Retry span and its children did not succeed.",
+          "details": {
+            "span_name": "retry issue_refund",
+            "span_type": "retry",
+            "status": "failed",
+            "agent_name": "refunds",
+            "error_type": "TimeoutError",
+            "error_message": "payments API timed out after 5000 ms",
+            "retry_number": 1,
+            "triggering_failure_span_id": "incident-0042-pay"
+          }
+        }
+      ]
+    },
+    {
+      "diagnosis_id": "diag-003",
+      "category": "model_error",
+      "title": "A model call failed (provider error, refusal, or malformed response): write_reply",
+      "summary": "final_response span 'write_reply' failed with MissingData: no refund confirmation to report.",
+      "severity": "high",
+      "confidence": 0.95,
+      "rule_id": "failed_span",
+      "rule_version": "1.0",
+      "origin_span_id": "incident-0042-write",
+      "span_ids": [
+        "incident-0042-write"
+      ],
+      "agent_name": "writer",
+      "recovered": false,
+      "evidence": [
+        {
+          "source": "trace.span",
+          "span_id": "incident-0042-write",
+          "timestamp": "2026-10-10T14:00:10.941250Z",
+          "confidence": 1.0,
+          "reasoning": "Span status is failed and none of its children failed first.",
+          "details": {
+            "span_name": "write_reply",
+            "span_type": "final_response",
+            "status": "failed",
+            "agent_name": "writer",
+            "error_type": "MissingData",
+            "error_message": "no refund confirmation to report",
+            "latency_ms": 380.0
+          }
+        }
+      ]
+    }
+  ],
+  "attribution": {
+    "status": "attributed",
+    "faulty_span_id": "incident-0042-pay",
+    "faulty_step": "issue_refund",
+    "faulty_agent": "refunds",
+    "category": "timeout",
+    "confidence": 0.710211,
+    "explanation": "Most likely faulty step: 'issue_refund' in agent 'refunds' — timeout, 79% of attributed blame. Next candidate: 'write_reply' (21%).",
+    "candidates": [
+      {
+        "span_id": "incident-0042-pay",
+        "span_name": "issue_refund",
+        "span_type": "tool_call",
+        "agent_name": "refunds",
+        "score": 0.789123,
+        "categories": [
+          "timeout",
+          "retry_exhausted"
+        ],
+        "diagnosis_ids": [
+          "diag-001",
+          "diag-002"
+        ],
+        "reasons": [
+          "timeout (0.90 confidence)",
+          "retry_exhausted (0.90 confidence)"
+        ]
+      },
+      {
+        "span_id": "incident-0042-write",
+        "span_name": "write_reply",
+        "span_type": "final_response",
+        "agent_name": "writer",
+        "score": 0.210877,
+        "categories": [
+          "model_error"
+        ],
+        "diagnosis_ids": [
+          "diag-003"
+        ],
+        "reasons": [
+          "model_error (0.95 confidence)"
+        ]
+      }
+    ],
+    "agent_scores": {
+      "refunds": 0.789123,
+      "writer": 0.210877
+    }
+  },
+  "timeline": {
+    "run_id": "incident-0042",
+    "events": [
+      {
+        "offset_ms": 0.0,
+        "timestamp": "2026-10-10T14:00:00Z",
+        "kind": "run_started",
+        "description": "Run of refund-support started.",
+        "span_id": null,
+        "span_name": null,
+        "agent_name": null,
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 0.0,
+        "timestamp": "2026-10-10T14:00:00Z",
+        "kind": "handoff",
+        "description": "Handoff by router: delegation 'route_ticket'.",
+        "span_id": "incident-0042-route",
+        "span_name": "route_ticket",
+        "agent_name": "router",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 34.0,
+        "timestamp": "2026-10-10T14:00:00.034000Z",
+        "kind": "span_started",
+        "description": "model_call 'plan_refund' started.",
+        "span_id": "incident-0042-plan",
+        "span_name": "plan_refund",
+        "agent_name": "refunds",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 453.0,
+        "timestamp": "2026-10-10T14:00:00.453000Z",
+        "kind": "span_started",
+        "description": "retrieval 'refund_policy_search' started.",
+        "span_id": "incident-0042-policy",
+        "span_name": "refund_policy_search",
+        "agent_name": "refunds",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 553.25,
+        "timestamp": "2026-10-10T14:00:00.553250Z",
+        "kind": "span_started",
+        "description": "tool_call 'issue_refund' started.",
+        "span_id": "incident-0042-pay",
+        "span_name": "issue_refund",
+        "agent_name": "refunds",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 5553.25,
+        "timestamp": "2026-10-10T14:00:05.553250Z",
+        "kind": "span_failed",
+        "description": "tool_call 'issue_refund' failed (TimeoutError: payments API timed out after 5000 ms).",
+        "span_id": "incident-0042-pay",
+        "span_name": "issue_refund",
+        "agent_name": "refunds",
+        "is_root_cause": true
+      },
+      {
+        "offset_ms": 5557.25,
+        "timestamp": "2026-10-10T14:00:05.557250Z",
+        "kind": "retry",
+        "description": "Retry #1: retry 'retry issue_refund' started.",
+        "span_id": "incident-0042-retry",
+        "span_name": "retry issue_refund",
+        "agent_name": "refunds",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 10557.25,
+        "timestamp": "2026-10-10T14:00:10.557250Z",
+        "kind": "span_failed",
+        "description": "retry 'retry issue_refund' failed (TimeoutError: payments API timed out after 5000 ms).",
+        "span_id": "incident-0042-retry",
+        "span_name": "retry issue_refund",
+        "agent_name": "refunds",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 10561.25,
+        "timestamp": "2026-10-10T14:00:10.561250Z",
+        "kind": "span_started",
+        "description": "final_response 'write_reply' started.",
+        "span_id": "incident-0042-write",
+        "span_name": "write_reply",
+        "agent_name": "writer",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 10941.25,
+        "timestamp": "2026-10-10T14:00:10.941250Z",
+        "kind": "span_failed",
+        "description": "final_response 'write_reply' failed (MissingData: no refund confirmation to report).",
+        "span_id": "incident-0042-write",
+        "span_name": "write_reply",
+        "agent_name": "writer",
+        "is_root_cause": false
+      },
+      {
+        "offset_ms": 10945.25,
+        "timestamp": "2026-10-10T14:00:10.945250Z",
+        "kind": "run_completed",
+        "description": "Run completed (failed, task_success=False).",
+        "span_id": null,
+        "span_name": null,
+        "agent_name": null,
+        "is_root_cause": false
+      }
+    ],
+    "first_failure_offset_ms": 5553.25,
+    "root_cause_offset_ms": 5553.25,
+    "recovered_span_ids": [],
+    "truncated": false
+  },
+  "anomalies": {
+    "method": "robust_z_mad",
+    "threshold": 3.5,
+    "min_baseline_samples": 5,
+    "baseline_runs": 6,
+    "anomalies": [
+      {
+        "scope": "run",
+        "key": "run",
+        "metric": "latency_ms",
+        "observed": 10945.25,
+        "baseline_median": 1757.25,
+        "baseline_mad": 19.5,
+        "robust_z": 317.8106,
+        "direction": "high",
+        "baseline_samples": 6,
+        "span_ids": []
+      },
+      {
+        "scope": "span",
+        "key": "final_response:write_reply",
+        "metric": "latency_ms",
+        "observed": 380.0,
+        "baseline_median": 533.0,
+        "baseline_mad": 6.0,
+        "robust_z": -17.1997,
+        "direction": "low",
+        "baseline_samples": 6,
+        "span_ids": [
+          "incident-0042-write"
+        ]
+      },
+      {
+        "scope": "span",
+        "key": "tool_call:issue_refund",
+        "metric": "latency_ms",
+        "observed": 5000.0,
+        "baseline_median": 653.0,
+        "baseline_mad": 6.0,
+        "robust_z": 488.6753,
+        "direction": "high",
+        "baseline_samples": 6,
+        "span_ids": [
+          "incident-0042-pay"
+        ]
+      }
+    ],
+    "warnings": [
+      "Too few baseline samples to score: retry:retry issue_refund"
+    ]
+  },
+  "efficiency_findings": [],
+  "guardrails": {
+    "truncated": false,
+    "stop_reasons": [],
+    "spans_analyzed": 6,
+    "spans_total": 6,
+    "max_depth_seen": 2,
+    "iterations": 0,
+    "stagnant_iterations": 0,
+    "cost_usd": 0.0
+  },
+  "limitations": [
+    "Diagnoses come from deterministic rules over recorded spans; behavior the trace did not record cannot be diagnosed.",
+    "Attribution shares are rule-weighted blame, not calibrated probabilities. Check accuracy on controlled failures with evaluate_attribution()."
+  ]
+}
