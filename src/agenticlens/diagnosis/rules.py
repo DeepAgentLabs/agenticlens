@@ -206,6 +206,56 @@ class FailedSpanRule:
         return diagnoses
 
 
+class InjectedFaultRule:
+    """Injected faults on spans that did not fail themselves.
+
+    A fault such as added latency or a corrupted payload can let its own span
+    succeed while breaking something downstream. These spans carry the
+    agentic-chaos markers (`chaos.injected`, `chaos.fault_type`); failed
+    injected spans are already covered by `FailedSpanRule`. The fault counts
+    as recovered when the run neither failed nor reported task failure.
+    """
+
+    rule_id = "injected_fault"
+    version = "1.0"
+
+    def diagnose(self, view: TraceView, config: DiagnosisConfig) -> list[Diagnosis]:
+        run = view.run
+        absorbed = run.status is not RunStatus.FAILED and run.task_success is not False
+        diagnoses: list[Diagnosis] = []
+        for span in view.spans:
+            fault = view.injected_fault(span)
+            if fault is None or view.failed(span):
+                continue
+            kind = fault.get("fault_type") or "unspecified"
+            outcome = (
+                "the run still completed its task"
+                if absorbed
+                else "the run later failed, so the fault was not absorbed"
+            )
+            diagnoses.append(
+                _diagnosis(
+                    self,
+                    FailureCategory.INJECTED_FAULT,
+                    title=f"Injected fault {kind} on {span.name}",
+                    summary=f"Fault '{kind}' was injected into '{span.name}'; {outcome}.",
+                    confidence=1.0,
+                    spans=[span],
+                    view=view,
+                    evidence=[
+                        view.evidence(
+                            span,
+                            source="trace.chaos",
+                            reasoning="Span carries agentic-chaos fault-injection markers.",
+                            injected_fault=fault,
+                        )
+                    ],
+                    recovered=absorbed,
+                )
+            )
+        return diagnoses
+
+
 class RetryExhaustionRule:
     """Retries that never succeeded, attributed to the failure they retried."""
 
@@ -637,6 +687,7 @@ class IncompleteTaskRule:
 
 DEFAULT_RULES: tuple[DiagnosisRule, ...] = (
     FailedSpanRule(),
+    InjectedFaultRule(),
     RetryExhaustionRule(),
     ToolLoopRule(),
     HandoffLoopRule(),
