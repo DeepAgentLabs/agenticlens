@@ -6,6 +6,7 @@ from typing import cast
 
 import typer
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.table import Table
 
 from agenticlens.adapters import load_otlp_export, safe_trace_filename
@@ -17,6 +18,12 @@ from agenticlens.cli.render import (
     render_summary,
     render_token_optimization,
 )
+from agenticlens.cli.render_diagnosis import (
+    render_accuracy,
+    render_diagnosis,
+    render_score_analysis,
+    render_timeline,
+)
 from agenticlens.comparison import (
     ComparisonReport,
     compare_runs,
@@ -25,15 +32,27 @@ from agenticlens.comparison import (
     export_comparison_markdown,
     load_runs,
 )
+from agenticlens.diagnosis import (
+    AnalysisBudget,
+    DiagnosisConfig,
+    DiagnosisReport,
+    diagnose_run,
+    evaluate_attribution,
+    explain_recommendations,
+    explain_run,
+    load_controlled_failures,
+)
 from agenticlens.evaluation import (
     CalibrationDataset,
     EvaluationReport,
     GateConfig,
     HTTPTarget,
     PythonTarget,
+    analyze_scores,
     audit_report,
     calibrate_judge,
     dataset_to_samples,
+    default_registry,
     evaluate_gate,
     evaluate_suite,
     load_dataset,
@@ -70,7 +89,12 @@ from agenticlens.reports import (
     render_trace_markdown,
     save_dashboard_html,
 )
-from agenticlens.validation import ConformanceReport, validate_aios_artifact
+from agenticlens.validation import (
+    SUPPORTED_SPEC_VERSIONS,
+    ConformanceReport,
+    available_spec_versions,
+    validate_aios_artifact,
+)
 
 app = typer.Typer(
     name="agenticlens",
@@ -81,6 +105,8 @@ dataset_app = typer.Typer(help="Manage versioned evaluation datasets.")
 experiment_app = typer.Typer(help="Run repeated multi-variant evaluation experiments.")
 app.add_typer(dataset_app, name="dataset")
 app.add_typer(experiment_app, name="experiment")
+trace_app = typer.Typer(help="Show traces, single spans, and incident timelines.")
+app.add_typer(trace_app, name="trace")
 console = Console()
 
 
@@ -235,11 +261,11 @@ def validate(
 
 @app.command()
 def conformance(
-    artifact_file: Path = typer.Argument(..., help="AIOS workflow or run artifact JSON."),
+    artifact_file: Path | None = typer.Argument(None, help="AIOS workflow or run artifact JSON."),
     version: str = typer.Option(
         "0.4",
         "--version",
-        help="AI Operations Specification version to validate against.",
+        help="AI Operations Specification version (0.4 or 0.4-draft) to check against.",
     ),
     spec_root: Path | None = typer.Option(
         None,
@@ -251,8 +277,25 @@ def conformance(
         "--save",
         help="Save the machine-readable conformance report.",
     ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print the structured report as JSON instead of tables."
+    ),
+    list_versions: bool = typer.Option(
+        False, "--list-versions", help="List supported AIOS versions and whether schemas are found."
+    ),
 ) -> None:
-    """Run schema and semantic AIOS draft checks and report draft alignment."""
+    """Run schema and semantic AIOS draft checks and report rule-cited draft alignment."""
+    if list_versions:
+        found = set(available_spec_versions(spec_root))
+        for supported in SUPPORTED_SPEC_VERSIONS:
+            state = "schemas found" if supported in found else "schemas not found (use --spec-root)"
+            console.print(f"v{supported}-draft: {state}")
+        return
+    if artifact_file is None:
+        console.print(
+            "[red]Missing artifact file.[/red] Pass an AIOS JSON file or --list-versions."
+        )
+        raise typer.Exit(code=1)
     try:
         report = validate_aios_artifact(
             artifact_file,
@@ -263,7 +306,13 @@ def conformance(
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         console.print(f"[red]Unable to check conformance:[/red] {exc}")
         raise typer.Exit(code=1) from exc
-    _render_aios_report(report, save)
+    if as_json:
+        print(report.model_dump_json(indent=2))
+        if save is not None:
+            save.parent.mkdir(parents=True, exist_ok=True)
+            save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    else:
+        _render_aios_report(report, save)
     if not report.aligned:
         raise typer.Exit(code=2)
 
@@ -550,10 +599,22 @@ def evaluate(
         "--strict-evidence",
         help="Exit with code 3 when the evidence audit finds blocking issues.",
     ),
+    score_analysis: Path | None = typer.Option(
+        None,
+        "--score-analysis",
+        help="Save deterministic vs model-based scores, judge cost, and evaluator disagreement.",
+    ),
 ) -> None:
-    """Score agent outputs, tool use, latency, and cost against a test suite."""
+    """Score agent outputs, tool use, latency, and cost against a test suite.
+
+    Suites may reference agentic-evals' built-in scorers and AgenticLens's
+    trace-aware evaluators (tool_trajectory, agent_goal, handoff, loop,
+    groundedness, relevance, completeness, citation, safety) by name.
+    """
     try:
-        result = evaluate_suite(load_suite(suite_file), load_samples(samples_file))
+        result = evaluate_suite(
+            load_suite(suite_file), load_samples(samples_file), registry=default_registry()
+        )
     except (OSError, ValueError) as exc:
         console.print(f"[red]Unable to evaluate suite:[/red] {exc}")
         raise typer.Exit(code=1) from exc
@@ -562,6 +623,10 @@ def evaluate(
     if html is not None:
         save_html_report(result, html)
     evidence = audit_report(result)
+    analysis = analyze_scores(result)
+    if score_analysis is not None:
+        score_analysis.parent.mkdir(parents=True, exist_ok=True)
+        score_analysis.write_text(analysis.model_dump_json(indent=2), encoding="utf-8")
     if audit is not None:
         audit.parent.mkdir(parents=True, exist_ok=True)
         audit.write_text(evidence.model_dump_json(indent=2), encoding="utf-8")
@@ -581,11 +646,14 @@ def evaluate(
     )
     console.print(table)
     _render_evidence(evidence)
+    render_score_analysis(console, analysis)
     console.print(f"Saved evaluation to {save}")
     if html is not None:
         console.print(f"Saved HTML report to {html}")
     if audit is not None:
         console.print(f"Saved evidence audit to {audit}")
+    if score_analysis is not None:
+        console.print(f"Saved score analysis to {score_analysis}")
     if strict_evidence and not evidence.passed:
         raise typer.Exit(code=3)
 
@@ -720,7 +788,9 @@ def evaluate_live(
         )
         if live_target is None:
             raise ValueError("target kind must be 'python' or 'http'")
-        result = run_live_suite(suite, live_target, max_workers=max_workers)
+        result = run_live_suite(
+            suite, live_target, registry=default_registry(), max_workers=max_workers
+        )
     except (OSError, ValueError) as exc:
         console.print(f"[red]Unable to run live evaluation:[/red] {exc}")
         raise typer.Exit(code=1) from exc
@@ -1068,23 +1138,27 @@ def _render_aios_report(report: ConformanceReport, save: Path | None) -> None:
         "pass" if report.semantic_valid else ("n/a" if report.mode == "validate" else "fail"),
     )
     table.add_row("Draft alignment", "pass" if report.aligned else "fail")
+    if report.summary is not None and report.rules:
+        summary = report.summary
+        table.add_row(
+            "AIOS rules",
+            f"{summary.rules_passed} pass · {summary.rules_failed} fail · "
+            f"{summary.rules_not_checked} not checked",
+        )
     console.print(table)
     console.print(report.draft_alignment_claim)
     if report.issues:
         console.print("[yellow]AIOS-defined issues:[/yellow]")
         for issue in report.issues:
             location = f" ({issue.location})" if issue.location else ""
-            console.print(f"  • {issue.code}: {issue.message}{location}")
+            rule = f" [{issue.rule_id}]" if issue.rule_id else ""
+            console.print(f"  • {issue.code}{rule}: {issue.message}{location}")
     else:
         console.print("[green]No AIOS issues detected.[/green]")
     if save is not None:
         save.parent.mkdir(parents=True, exist_ok=True)
         save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
         console.print(f"Saved report to {save}")
-
-
-if __name__ == "__main__":
-    app()
 
 
 @app.command("calibrate")
@@ -1137,3 +1211,161 @@ def calibrate(
         for warning in tuning.warnings:
             console.print(warning)
         console.print(f"Saved threshold tuning to {tune_threshold}")
+
+
+def _load_baseline(paths: list[Path]) -> list[Run]:
+    runs: list[Run] = []
+    for path in paths:
+        runs.extend(load_runs(path))
+    return runs
+
+
+@app.command()
+def diagnose(
+    run_file: Path = typer.Argument(..., help="Saved AgenticLens trace (JSON)."),
+    baseline: list[Path] = typer.Option(
+        [],
+        "--baseline",
+        help="Baseline trace file or directory for anomaly detection (repeatable).",
+    ),
+    save: Path | None = typer.Option(None, "--save", help="Save the diagnosis report JSON."),
+    markdown: Path | None = typer.Option(
+        None, "--markdown", help="Also save the investigation narrative as Markdown."
+    ),
+    max_cost_usd: float | None = typer.Option(None, "--max-cost-usd", min=0),
+    max_tokens: int | None = typer.Option(None, "--max-tokens", min=1),
+    max_latency_ms: float | None = typer.Option(None, "--max-latency-ms", min=0),
+    loop_threshold: int = typer.Option(3, "--loop-threshold", min=2),
+    max_spans: int = typer.Option(10_000, "--max-spans", min=1, help="Analysis span cap."),
+    max_depth: int = typer.Option(64, "--max-depth", min=1, help="Span-tree depth cap."),
+    fail_on_unrecovered: bool = typer.Option(
+        False,
+        "--fail-on-unrecovered",
+        help="Exit with code 4 when an unrecovered failure is diagnosed.",
+    ),
+) -> None:
+    """Diagnose failures, attribute the faulty step and agent, and rebuild the timeline."""
+    run = _load_run(run_file)
+    try:
+        baseline_runs = _load_baseline(baseline) if baseline else None
+        report = diagnose_run(
+            run,
+            config=DiagnosisConfig(
+                loop_threshold=loop_threshold,
+                max_cost_usd=max_cost_usd,
+                max_total_tokens=max_tokens,
+                max_latency_ms=max_latency_ms,
+            ),
+            baseline=baseline_runs,
+            budget=AnalysisBudget(max_spans=max_spans, max_depth=max_depth),
+        )
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to diagnose run:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    render_diagnosis(console, report)
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved diagnosis to {save}")
+    if markdown is not None:
+        markdown.parent.mkdir(parents=True, exist_ok=True)
+        markdown.write_text(explain_run(report), encoding="utf-8")
+        console.print(f"Saved investigation narrative to {markdown}")
+    if fail_on_unrecovered and report.summary.unrecovered:
+        raise typer.Exit(code=4)
+
+
+@app.command()
+def explain(
+    artifact_file: Path = typer.Argument(
+        ..., help="A saved trace, workflow, or diagnosis report (JSON)."
+    ),
+    save: Path | None = typer.Option(None, "--save", help="Save the narrative as Markdown."),
+) -> None:
+    """Explain a run's failures, or a workflow's recommendations, as an investigation."""
+    if not artifact_file.exists():
+        console.print(f"[red]File not found:[/red] {artifact_file}")
+        raise typer.Exit(code=1)
+    try:
+        payload = json.loads(artifact_file.read_text(encoding="utf-8"))
+        if isinstance(payload, dict) and "engine_version" in payload:
+            narrative = explain_run(DiagnosisReport.model_validate(payload))
+        elif isinstance(payload, dict) and "spans" in payload:
+            narrative = explain_run(diagnose_run(Run.model_validate(payload)))
+        elif isinstance(payload, dict) and "steps" in payload:
+            workflow = Workflow.model_validate(payload)
+            narrative = explain_recommendations(workflow, RecommendationEngine().run(workflow))
+        else:
+            raise ValueError("expected a trace (spans), workflow (steps), or diagnosis report")
+    except ValueError as exc:
+        console.print(f"[red]Unable to explain artifact:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    console.print(Markdown(narrative))
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(narrative, encoding="utf-8")
+        console.print(f"Saved narrative to {save}")
+
+
+@trace_app.command("show")
+def trace_show(
+    run_file: Path = typer.Argument(..., help="Saved AgenticLens trace (JSON)."),
+    span: str | None = typer.Option(None, "--span", help="Show one span's full record."),
+) -> None:
+    """Show a trace's span tree and metrics, or one span in full."""
+    run = _load_run(run_file)
+    if span is None:
+        render_trace(console, run)
+        return
+    found = next((item for item in run.spans if item.span_id == span), None)
+    if found is None:
+        console.print(f"[red]Span not found:[/red] {span}")
+        raise typer.Exit(code=1)
+    console.print_json(found.model_dump_json())
+
+
+@trace_app.command("timeline")
+def trace_timeline(
+    run_file: Path = typer.Argument(..., help="Saved AgenticLens trace (JSON)."),
+    save: Path | None = typer.Option(None, "--save", help="Save the timeline JSON."),
+) -> None:
+    """Reconstruct the incident timeline, marking the attributed root cause."""
+    report = diagnose_run(_load_run(run_file))
+    render_timeline(console, report.timeline)
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(report.timeline.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved timeline to {save}")
+
+
+@app.command("attribution-accuracy")
+def attribution_accuracy(
+    cases_path: Path = typer.Argument(
+        ..., help="Directory or JSON file of controlled-failure traces."
+    ),
+    save: Path | None = typer.Option(None, "--save", help="Save the accuracy report JSON."),
+    min_step_accuracy: float | None = typer.Option(
+        None,
+        "--min-step-accuracy",
+        min=0,
+        max=1,
+        help="Exit with code 5 when top-1 faulty-step accuracy is below this value.",
+    ),
+) -> None:
+    """Measure faulty-step attribution accuracy on controlled failures."""
+    try:
+        report = evaluate_attribution(load_controlled_failures(cases_path))
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]Unable to evaluate attribution:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    render_accuracy(console, report)
+    if save is not None:
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+        console.print(f"Saved accuracy report to {save}")
+    if min_step_accuracy is not None and (report.step.accuracy or 0.0) < min_step_accuracy:
+        raise typer.Exit(code=5)
+
+
+if __name__ == "__main__":
+    app()
