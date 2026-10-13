@@ -339,8 +339,102 @@ The evaluated model comes from case metadata, then trace metadata
 case is scored as skipped — the judge would be grading its own output — unless
 `allow_self_judging=True`. See `examples/structured_judge_demo.py`.
 
+### Judge identity, prompt version, and cost
+
+`structured_judge()` also records `judge_provider`, `prompt_version`, and the
+SHA-256 of `prompt_template` on every score, so an edited judge prompt shows up
+in saved reports. The judge call's wall-clock latency is measured
+(`judge_latency_ms`). When the judge reports what its call consumed through
+`JudgeVerdict.usage` (`JudgeUsage(cost_usd=..., cost_source="measured",
+input_tokens=..., output_tokens=...)`), the score records `judge_cost_usd`,
+`judge_cost_source`, and token counts. Any other judge can set the same
+metadata keys itself. Without a cost, `analyze_scores()` estimates one from
+tokens and AgenticLens pricing when `judge_provider` and the judge model are
+known, and labels it `estimated`.
+
+```python
+evaluator = structured_judge(
+    "answer_quality",
+    my_judge,                       # returns JudgeVerdict(..., usage=JudgeUsage(...))
+    judge_model="claude-haiku-5-5",
+    judge_provider="anthropic",
+    version="1.0",
+    prompt_version="answer-quality-v2",
+    prompt_template=PROMPT,
+)
+```
+
 Experiments (repeated trials across variants, pass@k, significance tests) are
 covered in [Experiments and Statistical Comparison](experiments.md).
+
+## Score Analysis: Deterministic vs Model-Based
+
+`analyze_scores(report)` (and `agenticlens evaluate --score-analysis PATH`)
+reports three things a single pass rate hides:
+
+- **Deterministic and model-based scores, separately.** Scores from
+  `llm_judge`/`llm_rubric` evaluators (or carrying `judge_model`) are
+  model-based; everything else is deterministic. Each side gets its own pass
+  rate, average, and evaluator list.
+- **Judge cost**, kept apart from the cost of the agent under evaluation: total
+  and per evaluator, priced versus unpriced judge scores, cost sources, tokens,
+  and latency. `complete` is false when any judge score has no cost.
+- **Evaluator disagreement.** All deterministic checks on a case vote as one
+  unit; each model-based evaluator votes on its own. Cases where the units
+  disagree are listed (with each side's explanation), and pairwise agreement
+  rates are reported per evaluator pair.
+
+The evaluate CLI prints a one-line summary, and the HTML report adds a
+"Score analysis" section whenever model-based scores are present.
+`schemas/evaluation/score-analysis.schema.json` publishes the contract.
+
+## Trace-Aware Evaluators
+
+These evaluators score what the trace recorded, not only the final text. They
+are registered by name in `agenticlens.evaluation.default_registry()`
+(alongside agentic-evals' built-in scorers), which `evaluate` and
+`evaluate-live` use, so suites can reference them directly:
+
+```yaml
+evaluators:
+  - name: tool_trajectory
+    config: {expected: [kb_search, lookup_order], mode: in_order}
+  - name: groundedness
+    threshold: 0.8
+  - name: safety
+    config: {allow: [support@example.com], forbidden_terms: [internal only]}
+```
+
+| Evaluator | Checks | Config |
+| --- | --- | --- |
+| `tool_trajectory` | Recorded tool sequence vs. expected | `expected`, `mode`: `exact` / `in_order` / `any_order` |
+| `agent_goal` | Task success, run not failed, no failed spans, final agent, required output text | `require_task_success`, `allow_failed_spans`, `final_agent`, `goal_contains` |
+| `handoff` | Handoff count, allowed pairs, A→B→A bounces | `max_handoffs`, `allowed` (`"a->b"`), `max_round_trips` |
+| `loop` | Longest streak of identical tool calls | `max_repeats` (default 2) |
+| `groundedness` | Share of output sentences supported by retrieved documents | `min_overlap` (0.6), `context` |
+| `relevance` | Share of query terms the output addresses | `query` (defaults to case input) |
+| `completeness` | Share of required points mentioned | `required_points` (strings or lists of alternatives); falls back to `expected_contains` |
+| `citation` | Citations resolve to retrieved document IDs | `pattern`, `require_citations`, `known_sources` |
+| `safety` | Email, SSN, phone, Luhn-valid card numbers, and forbidden terms in the output **and in tool arguments** | `allow`, `forbidden_terms`, `check_pii` |
+
+Retrieved documents come from `context` in the evaluator config or case
+metadata, otherwise from retrieval spans (`output_data`, or `documents` /
+`retrieval.documents` / `chunks` attributes). Span semantics reach evaluators
+through namespaced `EvalSpan` attributes that `to_eval_trace()` adds
+(`agenticlens.span_type`, `agenticlens.agent_name`, `agenticlens.status`,
+`agenticlens.input_fingerprint`, `agenticlens.retrieved`), plus
+`agenticlens.run_status` and `agenticlens.task_success` in trace metadata.
+
+!!! warning "Lexical heuristics"
+    `groundedness`, `relevance`, and `completeness` compare words, not meaning:
+    paraphrases count as unsupported and copied-but-wrong claims as supported.
+    Use them as cheap first-pass signals next to a structured LLM judge; the
+    score analysis then shows where they disagree. The safety evaluator never
+    copies matched values into the score, only their kind and location.
+
+`examples/advanced_evaluation_demo.py` runs these evaluators and a costed
+structured judge over three recorded RAG runs and saves the report, score
+analysis, and HTML in `examples/advanced_evaluation/artifacts/`.
 
 ## Offline Pitch Demonstration
 
@@ -357,9 +451,12 @@ performs real graph execution but does not require an API key or network access.
 
 ## Scope
 
-The framework supports deterministic checks, custom or model-based evaluators
-with recorded versions, structured judge verdicts, versioned local datasets,
+The framework supports deterministic checks, trace-aware evaluators, custom
+or model-based evaluators with recorded versions, structured judge verdicts
+with prompt versions and judge cost, score analysis separating deterministic
+and model-based results with evaluator disagreement, versioned local datasets,
 judge calibration and threshold tuning against human labels, evidence audits,
-concurrent live targets, and gate alerts. Built-in provider clients, async
-evaluator APIs, and automatic framework event adapters remain future roadmap
-capabilities.
+concurrent live targets, and gate alerts. Failure diagnosis and attribution
+are covered in [Diagnosis and Failure Attribution](diagnosis.md). Built-in
+provider clients, async evaluator APIs, and automatic framework event adapters
+remain future roadmap capabilities.
