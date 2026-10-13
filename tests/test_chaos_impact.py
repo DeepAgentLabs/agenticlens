@@ -168,3 +168,43 @@ def test_unresolved_step_keeps_the_producer_step_id() -> None:
     assert recs[0].step_id == "unknown-id"
     assert recs[0].step_type is None
     assert recs[0].evidence[0].timestamp is None
+
+
+def _workflow_with_duplicate_names() -> Workflow:
+    workflow = Workflow(name="Dupes", start_time=datetime.now(timezone.utc))
+    for step_id in ("call-a", "call-b"):
+        workflow.steps.append(Step(id=step_id, name="LLM Call", type=StepType.LLM_CALL))
+    return workflow
+
+
+def test_same_named_steps_stay_separate_when_events_carry_ids() -> None:
+    workflow = _workflow_with_duplicate_names()
+    for step_id in ("call-a", "call-b"):
+        workflow.chaos_events.append(
+            {
+                "fault_type": "token_timeout",
+                "step_id": step_id,
+                "step_name": "LLM Call",
+                "outcome": "errored",
+            }
+        )
+
+    recs = ChaosImpactRecommender().evaluate(workflow, RecommenderConfig())
+
+    assert sorted(rec.step_id or "" for rec in recs) == ["call-a", "call-b"]
+    for rec in recs:
+        assert all(evidence.span_id == rec.step_id for evidence in rec.evidence)
+
+
+def test_ambiguous_name_only_event_is_not_attributed_to_an_arbitrary_step() -> None:
+    workflow = _workflow_with_duplicate_names()
+    workflow.chaos_events.append(
+        {"fault_type": "token_timeout", "step_name": "LLM Call", "outcome": "errored"}
+    )
+
+    recs = ChaosImpactRecommender().evaluate(workflow, RecommenderConfig())
+
+    assert recs[0].step_id is None
+    assert recs[0].step_type is None
+    assert recs[0].evidence[0].span_id is None
+    assert "LLM Call" in recs[0].title

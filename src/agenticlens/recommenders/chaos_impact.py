@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime
 from typing import Any
 
@@ -44,30 +44,38 @@ class ChaosImpactRecommender(BaseRecommender):
             return []
 
         steps_by_id = {step.id: step for step in workflow.steps}
-        steps_by_name = {step.name: step for step in workflow.steps}
+        name_counts = Counter(step.name for step in workflow.steps)
+        # Step names aren't unique; only an unambiguous name may stand in for an ID.
+        unique_steps_by_name = {
+            step.name: step for step in workflow.steps if name_counts[step.name] == 1
+        }
         groups: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
+        resolved: dict[str, tuple[str, Step | None, str | None]] = {}
         for event in workflow.chaos_events:
             fault_type = str(event.get("fault_type", "unknown_fault"))
             outcome = str(event.get("outcome", "unknown"))
-            step_id = event.get("step_id")
-            known_step = steps_by_id.get(str(step_id)) if step_id is not None else None
-            step_name = event.get("step_name") or (
-                known_step.name if known_step else "unknown step"
-            )
-            groups[(step_name, fault_type, outcome)].append(event)
+            step, producer_step_id = self._resolve_step(event, steps_by_id, unique_steps_by_name)
+            step_name = event.get("step_name") or (step.name if step else "unknown step")
+            # Group by step identity, not display name, so same-named steps stay apart.
+            if step is not None:
+                step_key = f"id:{step.id}"
+            elif producer_step_id is not None:
+                step_key = f"producer:{producer_step_id}"
+            else:
+                step_key = f"name:{step_name}"
+            resolved[step_key] = (str(step_name), step, producer_step_id)
+            groups[(step_key, fault_type, outcome)].append(event)
 
         recommendations = []
-        for (step_name, fault_type, outcome), events in groups.items():
+        for (step_key, fault_type, outcome), events in groups.items():
+            step_name, step, producer_step_id = resolved[step_key]
             recommendation = self._recommendation_for(step_name, fault_type, outcome, events)
-            step = self._resolve_step(events, step_name, steps_by_id, steps_by_name)
             if step is not None:
                 recommendation.step_id = step.id
                 recommendation.step_type = step.type.value
             else:
                 # Keep the producer's correlation even when the step isn't in this workflow.
-                recommendation.step_id = next(
-                    (str(e["step_id"]) for e in events if e.get("step_id") is not None), None
-                )
+                recommendation.step_id = producer_step_id
             recommendation.evidence = [
                 self._evidence_for(event, recommendation.step_id) for event in events
             ]
@@ -76,16 +84,19 @@ class ChaosImpactRecommender(BaseRecommender):
 
     @staticmethod
     def _resolve_step(
-        events: list[dict[str, Any]],
-        step_name: str,
+        event: dict[str, Any],
         steps_by_id: dict[str, Step],
-        steps_by_name: dict[str, Step],
-    ) -> Step | None:
-        for event in events:
-            step_id = event.get("step_id")
-            if step_id is not None and str(step_id) in steps_by_id:
-                return steps_by_id[str(step_id)]
-        return steps_by_name.get(step_name)
+        unique_steps_by_name: dict[str, Step],
+    ) -> tuple[Step | None, str | None]:
+        """Return (workflow step, producer step_id) for one chaos event."""
+        raw_step_id = event.get("step_id")
+        producer_step_id = str(raw_step_id) if raw_step_id is not None else None
+        if producer_step_id is not None and producer_step_id in steps_by_id:
+            return steps_by_id[producer_step_id], producer_step_id
+        step_name = event.get("step_name")
+        if step_name is not None:
+            return unique_steps_by_name.get(str(step_name)), producer_step_id
+        return None, producer_step_id
 
     @staticmethod
     def _evidence_for(event: dict[str, Any], step_id: str | None) -> Evidence:
