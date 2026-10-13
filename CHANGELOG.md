@@ -20,7 +20,9 @@ source-span provenance".
   Previously they named no step, so the engine could only attach unresolved
   `workflow.recommendation` evidence.
 - `ChaosImpactRecommender` recommendations now carry the resolved `step_id`
-  and `step_type` (by event `step_id`, then by step name). When the step is
+  and `step_type` (by event `step_id`, then by step name only when that name is
+  unique in the workflow). Events are grouped by step identity, so same-named
+  steps get separate findings. When the step is
   not part of the workflow, the producer's `step_id` is kept. Evidence is one
   `workflow.chaos_event` entry per source event, with the event ID, fault
   type, outcome, timestamp, and message.
