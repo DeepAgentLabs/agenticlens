@@ -153,7 +153,7 @@ def samples() -> list[EvaluationSample]:
 def main(out: Path = HERE / "artifacts") -> None:
     out.mkdir(parents=True, exist_ok=True)
     built = samples()
-    (HERE / "samples.json").write_text(
+    (out.parent / "samples.json").write_text(
         json.dumps([s.model_dump(mode="json") for s in built], indent=2) + "\n", encoding="utf-8"
     )
     suite = load_suite(HERE / "suite.yaml")
