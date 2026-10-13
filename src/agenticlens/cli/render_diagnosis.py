@@ -96,20 +96,26 @@ def render_score_analysis(console: Console, analysis: ScoreAnalysis) -> None:
         if judge.total_cost_usd is None
         else f"${judge.total_cost_usd:.6f}" + ("" if judge.complete else " (partial)")
     )
-    console.print(
+    scores = (
         f"Scores: deterministic {det.passed}/{det.total - det.skipped} passed "
-        f"({rate(det.pass_rate)}) · model-based {model.passed}/{model.total - model.skipped} "
-        f"passed ({rate(model.pass_rate)})"
+        f"({rate(det.pass_rate)})"
     )
+    if model.total:
+        scores += (
+            f" · model-based {model.passed}/{model.total - model.skipped} passed "
+            f"({rate(model.pass_rate)})"
+        )
+    console.print(scores)
     if model.total:
         console.print(
             f"Judge cost: {judge_cost} ({judge.priced_scores}/{judge.judge_scores} judge scores "
             "priced; separate from agent cost)"
         )
-    console.print(
-        f"Evaluator disagreement: {analysis.disagreement_cases}/{analysis.comparable_cases} "
-        f"comparable cases ({rate(analysis.disagreement_rate)})"
-    )
+    if analysis.comparable_cases:
+        console.print(
+            f"Evaluator disagreement: {analysis.disagreement_cases}/{analysis.comparable_cases} "
+            f"comparable cases ({rate(analysis.disagreement_rate)})"
+        )
 
 
 def render_accuracy(console: Console, report: AttributionAccuracyReport) -> None:
