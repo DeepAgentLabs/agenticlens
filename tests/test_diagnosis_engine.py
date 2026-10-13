@@ -274,7 +274,7 @@ def test_guard_time_limit(monkeypatch: pytest.MonkeyPatch) -> None:
     clock = iter([0.0, 10.0])
     monkeypatch.setattr(time, "perf_counter", lambda: next(clock))
     guard = AnalysisGuard(AnalysisBudget(max_seconds=1))
-    assert guard.exhausted
+    assert guard.exhausted and guard.out_of_time
     assert "time limit" in guard.stop_reasons[0]
 
 

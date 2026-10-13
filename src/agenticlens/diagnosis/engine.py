@@ -77,7 +77,8 @@ def diagnose_run(
 
     found: list[Diagnosis] = []
     for rule in active:
-        if guard.exhausted:
+        # Span and depth limits already trimmed the view; only time stops the rules.
+        if guard.out_of_time:
             break
         found.extend(rule.diagnose(view, config))
     if all(d.recovered for d in found):

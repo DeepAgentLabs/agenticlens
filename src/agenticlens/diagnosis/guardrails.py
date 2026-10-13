@@ -71,6 +71,12 @@ class AnalysisGuard:
     def stop_reasons(self) -> list[str]:
         return list(self._reasons)
 
+    @property
+    def out_of_time(self) -> bool:
+        """True once the time limit has passed (other limits trim work instead)."""
+        self._check_time()
+        return any(reason.startswith("time limit") for reason in self._reasons)
+
     def _check_time(self) -> None:
         limit = self.budget.max_seconds
         if limit is not None and time.perf_counter() - self._started > limit:
