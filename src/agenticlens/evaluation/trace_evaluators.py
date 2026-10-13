@@ -73,8 +73,17 @@ def _tool_calls(context: EvaluationContext) -> list[EvalSpan]:
     return [span for span in context.sample.trace.spans if span.tool_name]
 
 
+def _stem(word: str) -> str:
+    """Crude suffix stripping so 'arrives'/'arrive' and 'refunds'/'refund' match."""
+    for suffix in ("ing", "ed", "es", "s"):
+        if word.endswith(suffix) and not word.endswith("ss") and len(word) - len(suffix) >= 3:
+            word = word[: -len(suffix)]
+            break
+    return word[:-1] if word.endswith("e") and len(word) > 3 else word
+
+
 def _content_words(text: str) -> set[str]:
-    return {w for w in _WORD.findall(text.casefold()) if len(w) > 2 and w not in _STOPWORDS}
+    return {_stem(w) for w in _WORD.findall(text.casefold()) if len(w) > 2 and w not in _STOPWORDS}
 
 
 def _text_of(value: Any) -> str:
