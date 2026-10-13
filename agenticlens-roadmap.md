@@ -9,6 +9,8 @@ execution status. Regression evidence:
 [correctness tests](tests/test_evaluation_correctness.py). `0.6.0` closes
 evaluator-version enforcement (every score names its evaluator and version)
 and HTML gate-status semantics (the HTML label now states case outcomes only).
+`0.7.0` makes the evaluation trace adapter carry span semantics (type, agent,
+status, retrieved context) additively, and keeps judge cost out of agent cost.
 Python live-target timeouts remain open.
 
 ## Implementation Audit
@@ -17,13 +19,15 @@ The [2026-09-11 implementation audit](ROADMAP_AUDIT.md) maps this roadmap to
 source and tests. Core v0.2/v0.2.x capabilities exist, but milestone acceptance
 still has open evidence and provenance gates. The audit's
 [0.6.0 follow-up](ROADMAP_AUDIT.md#060-follow-up-2026-10-12) records v0.3
-acceptance and v0.4 delivery evidence. Later milestones contain partial
+acceptance and v0.4 delivery evidence, and the
+[0.7.0 follow-up](ROADMAP_AUDIT.md#070-follow-up-2026-10-13) records v0.5
+delivery evidence. Later milestones contain partial
 building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
-`0.5.0` → `0.6.0` (current, 2026-10-12) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` (current, 2026-10-13) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -44,8 +48,12 @@ forward from `v0.5` and `v1.0`.
   (manifests with factors, live or recorded repeated trials, pass@k/pass^k,
   confidence intervals, significance tests, consistency, heatmaps, Pareto, and
   HTML/CSV reports)
-- **v0.5** 🚧 Planned — Advanced Evaluation and Diagnosis (semantic/safety/RAG
-  scoring partially pulled forward into `v0.3`)
+- **v0.5** ✅ Delivered in `0.7.0` — Advanced Evaluation and Diagnosis (failure
+  taxonomy, deterministic diagnosis rules, faulty-step/agent attribution
+  measured on controlled failures, incident timelines, anomaly detection,
+  investigation narratives, analysis guardrails, trace-aware evaluators, judge
+  cost and prompt versioning, deterministic vs model-based scores with
+  evaluator disagreement, rule-cited AIOS conformance summaries)
 - **v0.6** 🚧 Planned — Test-Suite and Dataset Management
 - **v0.7** 🚧 Planned — ModelFit
 - **v0.8** 🚧 Planned — Advisory Runtime Routing
@@ -138,7 +146,11 @@ cross-project coordination before they should be marked complete.
   the other half of this.
 - `agentic-chaos`
   Produces resilience/fault evidence that AgenticLens may analyze, summarize,
-  or validate as part of cross-tool workflows.
+  or validate as part of cross-tool workflows. Since `0.7.0`, spans marked
+  with agentic-chaos's `chaos.injected` / `chaos.fault_type` /
+  `chaos.event_id` attributes are diagnosed as injected faults and serve as
+  ground truth for attribution accuracy (`agentic-chaos` 0.5.3 adds
+  `span_attributes()` to write them).
 - `deep-agentic-core-mcp`
   Exposes AgenticLens capabilities through MCP and is a useful sibling check
   for CLI/API behavior that is expected to be consumable by hosts and tools.
@@ -219,8 +231,9 @@ here or in a linked public tracking issue.
 - [ ] Governance and maintainer responsibilities published and reviewed.
 - [ ] Licensing, dependency notices, onboarding, and security reporting reviewed.
 - [ ] Milestone examples reproduce from a clean installation. (v0.4's
-      recorded experiment reproduces its saved report in CI; other milestones
-      remain open.)
+      recorded experiment and v0.5's diagnosis, controlled-failure, and
+      advanced evaluation examples reproduce their saved artifacts in CI;
+      other milestones remain open.)
 - [ ] Instrumentation overhead measured with a documented workload/environment.
 - [ ] Artifact interoperability demonstrated with versioned fixtures.
 - [ ] Independent feedback from two unaffiliated teams recorded and triaged.
@@ -327,6 +340,12 @@ The following capabilities are implemented in the current development line.
   self-confirmation guard
 - cooldown-protected webhook alerts on `gate` failures (generic, Slack, Teams)
 - concurrent live evaluation (`--max-workers`)
+- trace-aware evaluators: tool trajectory, agent goal, handoff, loop,
+  groundedness, relevance, completeness, citation, and safety (output and
+  tool arguments)
+- judge provider, prompt version/hash, latency, tokens, and cost on judge
+  scores; deterministic vs model-based score analysis with evaluator
+  disagreement (`evaluate --score-analysis`)
 
 ### Experiments
 
@@ -342,11 +361,32 @@ The following capabilities are implemented in the current development line.
 - a deterministic, offline LangGraph reference workflow demonstrating tracing,
   evaluation, and release-gate output together
 
+### Diagnosis and failure attribution
+
+- versioned failure taxonomy (14 categories with layer, severity, attribution
+  weight, and next step)
+- deterministic, versioned diagnosis rules: origin failures with propagation
+  and recovery, injected faults, exhausted retries, tool and handoff loops,
+  stagnation, empty retrieval, budgets, and an incomplete-task fallback
+- faulty-step and faulty-agent attribution with ranked candidates, per-agent
+  blame shares, and confidence
+- attribution accuracy on controlled failures (agentic-chaos markers or
+  recorded ground truth) with Wilson intervals and a calibration gap
+- incident timeline reconstruction with the root cause marked
+- robust (median/MAD) anomaly detection against baseline runs
+- analysis guardrails: span, depth, diagnosis, time, iteration, and cost caps
+  with stagnation detection
+- investigation narratives for runs and for workflow recommendations
+- `diagnose`, `explain`, `trace show`, `trace timeline`, and
+  `attribution-accuracy` CLI commands
+
 ### Artifact contracts
 
 - versioned trace schema
 - versioned finding schema
 - versioned comparison-report schema
+- experiment manifest/report, diagnosis report, attribution-accuracy report,
+  and score-analysis schemas
 - schema inclusion in wheel distributions
 
 ## Capability Architecture
@@ -624,13 +664,59 @@ recorded evidence.
 - analysis guardrails (budget limits, recursion-depth caps, stagnation
   detection for automated analyzers)
 
+### Delivered in `0.7.0`
+
+- LLM-as-a-Judge interface: `structured_judge()` / `LLMJudgeEvaluator`
+  (application-supplied model call) now record judge provider, prompt
+  version, prompt SHA-256, measured latency, and reported usage and cost
+  (`JudgeVerdict.usage`)
+- trace-aware evaluators in `agenticlens.evaluation` registered by name for
+  `evaluate`/`evaluate-live`: `tool_trajectory`, `agent_goal`, `handoff`,
+  `loop`, `groundedness`, `relevance`, `completeness`, `citation`, `safety`
+  (groundedness, relevance, and completeness are lexical heuristics)
+- evaluator calibration reports (delivered in `0.5.0`/`0.6.0`)
+- `agenticlens.diagnosis`: failure taxonomy v1.0, deterministic diagnosis
+  rules, robust anomaly detection against baselines, faulty-step and
+  faulty-agent attribution, incident timelines, investigation narratives
+  (`explain_run`, `explain_recommendations`), and `AnalysisBudget` /
+  `AnalysisGuard` guardrails
+- CLI: `diagnose`, `explain` (shipped instead of `report explain`, because
+  `report` is an existing command), `trace show [--span]`, `trace timeline`,
+  `attribution-accuracy`; `evaluate --score-analysis`
+- conformance: AIOS rule IDs on every issue, per-rule pass / fail /
+  not-checked results from the spec's `conformance-rules.json`, a structured
+  summary, `--json`, `--list-versions`, and declared-version routing
+  (AIOS-0.5-V03)
+- JSON Schemas: `schemas/diagnosis/` and
+  `schemas/evaluation/score-analysis.schema.json`
+- examples: `examples/diagnosis_demo.py`, `examples/diagnosis/` (40
+  controlled failures, builder, accuracy report),
+  `examples/advanced_evaluation_demo.py`; all reproduced in CI
+
 ### Completion criteria
 
-- deterministic and model-based scores are reported separately
-- judge cost is recorded
-- evaluator disagreement is visible
-- diagnoses include confidence and supporting spans
-- attribution accuracy is evaluated on controlled failures
+- [x] deterministic and model-based scores are reported separately
+      (`analyze_scores`, CLI, HTML report)
+- [x] judge cost is recorded (per score and per evaluator, kept separate from
+      agent cost; estimated from tokens and pricing when not reported)
+- [x] evaluator disagreement is visible (per-case disagreements and pairwise
+      agreement rates)
+- [x] diagnoses include confidence and supporting spans (every diagnosis has
+      a confidence, span IDs, and span-level evidence)
+- [x] attribution accuracy is evaluated on controlled failures
+      (`evaluate_attribution`, `attribution-accuracy`; 40/40 on the bundled
+      synthetic corpus, 95% Wilson interval 91.2%–100%)
+
+Known limits: the controlled-failure corpus is synthetic and written alongside
+the rules, so it is not independent evidence; attribution shares are
+rule-weighted blame, not calibrated probabilities; lexical evaluators do not
+judge meaning; anomaly detection applies no multiple-comparison correction.
+
+### Follow-on work
+
+- independent controlled-failure corpora (agentic-chaos runs, external teams)
+- built-in judge provider clients and judge-score probability calibration
+- semantic (embedding or judge-based) groundedness as an optional evaluator
 
 ## v0.6 — Test-Suite and Dataset Management
 
