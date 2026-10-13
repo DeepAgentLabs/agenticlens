@@ -113,7 +113,14 @@
       "properties": {
         "judge_scores": {
           "default": 0,
+          "description": "Judge scores from an actual judge call.",
           "title": "Judge Scores",
+          "type": "integer"
+        },
+        "skipped_scores": {
+          "default": 0,
+          "description": "Judge scores skipped before any call (e.g. self-judging); not costed.",
+          "title": "Skipped Scores",
           "type": "integer"
         },
         "priced_scores": {

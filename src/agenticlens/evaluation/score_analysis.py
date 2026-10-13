@@ -67,7 +67,11 @@ class JudgeCost(BaseModel):
 
 
 class JudgeCostSummary(BaseModel):
-    judge_scores: int = 0
+    judge_scores: int = Field(default=0, description="Judge scores from an actual judge call.")
+    skipped_scores: int = Field(
+        default=0,
+        description="Judge scores skipped before any call (e.g. self-judging); not costed.",
+    )
     priced_scores: int = 0
     complete: bool = Field(
         default=True, description="True when every judge score has a known cost."
@@ -167,8 +171,9 @@ def judge_usage(score: Score) -> tuple[float | None, str | None, int, int, float
     return cost, (source if cost is not None else None), input_tokens, output_tokens, latency
 
 
-def _judge_costs(scores: list[Score], total_cases: int) -> JudgeCostSummary:
+def _judge_costs(all_scores: list[Score], total_cases: int) -> JudgeCostSummary:
     per: dict[str, JudgeCost] = {}
+    scores = [s for s in all_scores if not s.skipped]
     for score in scores:
         name = score.evaluator or score.name
         entry = per.setdefault(name, JudgeCost(evaluator=name))
@@ -189,6 +194,7 @@ def _judge_costs(scores: list[Score], total_cases: int) -> JudgeCostSummary:
     total = sum(costs) if costs else None
     return JudgeCostSummary(
         judge_scores=len(scores),
+        skipped_scores=len(all_scores) - len(scores),
         priced_scores=priced,
         complete=priced == len(scores),
         total_cost_usd=total,

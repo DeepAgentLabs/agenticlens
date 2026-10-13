@@ -241,3 +241,17 @@ def test_score_analysis_schema_matches_model() -> None:
     assert published["properties"] == generated["properties"]
     saved = ROOT / "examples" / "advanced_evaluation" / "artifacts" / "score-analysis.json"
     Draft202012Validator(published).validate(json.loads(saved.read_text("utf-8")))
+
+
+def test_self_judging_skips_are_not_counted_as_judge_calls() -> None:
+    registry = EvaluatorRegistry()
+    registry.register(structured_judge("q", _verdicts({}), judge_model="m", version="1"))
+    suite = _suite("q")
+    for case in suite.cases:
+        case.metadata["evaluated_model"] = "m"
+    report = evaluate_suite(
+        suite, _samples({"a": "refund", "b": "refund", "c": "refund"}), registry=registry
+    )
+    cost = analyze_scores(report).judge_cost
+    assert cost.judge_scores == 0 and cost.skipped_scores == 3
+    assert cost.complete and cost.total_cost_usd is None
