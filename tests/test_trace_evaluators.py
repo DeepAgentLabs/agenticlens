@@ -281,3 +281,31 @@ def test_evaluators_read_attributes_from_any_eval_trace_producer() -> None:
         ]
     )
     assert not loop(_context(trace=trace)).passed
+
+
+def test_grouped_handoffs_are_not_bounces() -> None:
+    spans = [
+        span(f"h{i}", "h", "delegation", i * 10, agent_name=src, attributes={"to_agent": dst})
+        for i, (src, dst) in enumerate([("a", "b"), ("a", "b"), ("b", "a"), ("b", "a")])
+    ]
+    assert handoff(_context(trace=run(spans))).passed
+
+
+def test_tool_args_fingerprint_ignores_key_order() -> None:
+    trace = run(
+        [
+            span(
+                f"t{i}",
+                "search",
+                "tool_call",
+                i * 10,
+                tool_name="search",
+                attributes={"tool_args": args},
+            )
+            for i, args in enumerate([{"a": 1, "b": 2}, {"b": 2, "a": 1}, {"a": 1, "b": 2}])
+        ]
+    )
+    adapted = to_eval_trace(trace)
+    fingerprints = {s.attributes["agenticlens.input_fingerprint"] for s in adapted.spans}
+    assert len(fingerprints) == 1
+    assert not loop(_context(trace=adapted)).passed

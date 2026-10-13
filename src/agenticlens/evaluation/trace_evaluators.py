@@ -27,6 +27,7 @@ example in a YAML suite::
         threshold: 0.8
 """
 
+import json
 import re
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -40,6 +41,7 @@ from agentic_evals import (
 )
 from agentic_evals.scorers import default_registry as _evals_default_registry
 
+from agenticlens.analysis.handoffs import count_round_trips
 from agenticlens.evaluation._trace_adapter import LENS_PREFIX
 
 TRACE_EVALUATOR_VERSION = "1.0"
@@ -272,15 +274,14 @@ def handoff(context: EvaluationContext) -> Score:
             if f"{source}->{target}" not in permitted:
                 problems.append(f"handoff {source}->{target} is not allowed")
     limit = int(_config(context, "max_round_trips", 1))
-    counts: dict[tuple[str, str], int] = {}
+    pairs: dict[frozenset[str], list[tuple[str, str]]] = {}
     for pair in transitions:
-        counts[pair] = counts.get(pair, 0) + 1
-    for (source, target), forward in counts.items():
-        back = counts.get((target, source), 0)
-        if source < target and min(forward, back) > limit:
-            problems.append(
-                f"{source} and {target} bounced {min(forward, back)} times (limit {limit})"
-            )
+        pairs.setdefault(frozenset(pair), []).append(pair)
+    for ordered in pairs.values():
+        trips = count_round_trips(ordered)
+        if trips > limit:
+            first, second = sorted(ordered[0])
+            problems.append(f"{first} and {second} bounced {trips} times (limit {limit})")
     if not transitions and max_handoffs is None and allowed is None:
         return Score.skip("handoff", "No handoffs recorded and no handoff limits configured.")
     return Score(
@@ -306,7 +307,8 @@ def loop(context: EvaluationContext) -> Score:
     for span in _tool_calls(context):
         key = (
             span.tool_name,
-            _lens(span, "input_fingerprint") or repr(span.attributes.get("tool_args")),
+            _lens(span, "input_fingerprint")
+            or json.dumps(span.attributes.get("tool_args"), sort_keys=True, default=str),
         )
         streak = streak + 1 if key == previous else 1
         previous = key
