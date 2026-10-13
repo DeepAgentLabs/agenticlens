@@ -130,6 +130,11 @@ def validate_aios_artifact(
     payload = json.loads(artifact_path.read_text(encoding="utf-8"))
     artifact_type = _artifact_type_for(payload)
     spec_version = normalize_spec_version(spec_version)
+    resolved_spec = _resolve_spec(
+        artifact_type=artifact_type,
+        spec_version=spec_version,
+        explicit_root=spec_root,
+    )
     declared = payload.get("spec_version")
     if isinstance(declared, str) and normalize_spec_version(declared) != spec_version:
         raise ValueError(
@@ -137,11 +142,6 @@ def validate_aios_artifact(
             f"v{spec_version}-draft. AIOS-0.5-V03: validate against the artifact's declared "
             "version; never fall back to a different draft's schema."
         )
-    resolved_spec = _resolve_spec(
-        artifact_type=artifact_type,
-        spec_version=spec_version,
-        explicit_root=spec_root,
-    )
     issues = _schema_issues(payload, resolved_spec.schema_path)
     schema_valid = not issues
     semantic_issues: list[ValidationIssue] = []
