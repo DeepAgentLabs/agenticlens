@@ -79,11 +79,18 @@ def explain_run(report: DiagnosisReport) -> str:
             f"{attribution.explanation} Attribution confidence: {_pct(attribution.confidence)}."
         )
 
-    if report.diagnoses:
-        lead = next(
-            (d for d in report.diagnoses if d.origin_span_id == attribution.faulty_span_id),
-            report.diagnoses[0],
-        )
+    attributed = attribution.status in ("attributed", "recovered") and any(
+        d.origin_span_id == attribution.faulty_span_id for d in report.diagnoses
+    )
+    if report.diagnoses and not attributed:
+        lines += ["", "## Diagnoses", ""]
+        for diagnosis in report.diagnoses:
+            lines.append(
+                f"- **{diagnosis.category.value}**: {diagnosis.summary} "
+                f"[confidence {_pct(diagnosis.confidence)}]"
+            )
+    if report.diagnoses and attributed:
+        lead = next(d for d in report.diagnoses if d.origin_span_id == attribution.faulty_span_id)
         info = describe(lead.category)
         lines += [
             "",
@@ -93,9 +100,9 @@ def explain_run(report: DiagnosisReport) -> str:
             f"severity {lead.severity}, rule `{lead.rule_id}@{lead.rule_version}`)",
             "",
             lead.summary,
-            "",
-            "Supporting spans: " + ", ".join(f"`{s}`" for s in lead.span_ids),
         ]
+        if lead.span_ids:
+            lines += ["", "Supporting spans: " + ", ".join(f"`{s}`" for s in lead.span_ids)]
         others = [d for d in report.diagnoses if d is not lead]
         if others:
             lines += ["", "## Contributing factors", ""]
