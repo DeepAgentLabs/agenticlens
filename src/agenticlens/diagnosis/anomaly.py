@@ -1,11 +1,17 @@
 """Anomaly detection against baseline runs.
 
-Uses the robust z-score (Iglewicz and Hoaglin): ``0.6745 * (x - median) / MAD``.
-Median and MAD resist the outliers a baseline of real runs usually contains,
-unlike mean and standard deviation. A value is anomalous when its robust z
-exceeds the threshold (3.5 by default). When the MAD is zero (every
-baseline value identical), any different value is reported with
-``robust_z=None`` so the reader sees it was not scored on a scale.
+Uses the modified z-score of Iglewicz and Hoaglin:
+``0.6745 * (x - median) / MAD``. Median and MAD resist the outliers a
+baseline of real runs usually contains, unlike mean and standard deviation.
+A value is anomalous when its robust z exceeds the threshold (3.5 by
+default).
+
+When the MAD is zero (more than half the baseline values are identical),
+the score falls back to the mean absolute deviation:
+``(x - median) / (1.253314 * MeanAD)``. When every baseline value is
+identical there is no spread to scale by, so a value is reported only if it
+differs from the baseline by more than ``constant_tolerance`` (relative,
+25% by default), with ``robust_z=None``.
 """
 
 from collections import defaultdict
@@ -18,7 +24,9 @@ from agenticlens.models.trace import Run, Span
 
 DEFAULT_THRESHOLD = 3.5
 DEFAULT_MIN_BASELINE = 5
+DEFAULT_CONSTANT_TOLERANCE = 0.25
 _CONSISTENCY = 0.6745
+_MEAN_AD_CONSISTENCY = 1.253314
 
 Metric = Literal["latency_ms", "total_tokens", "cost_usd"]
 
@@ -39,13 +47,18 @@ def span_key(span: Span) -> str:
 
 
 def _score(
-    observed: float, baseline: list[float], threshold: float
+    observed: float, baseline: list[float], threshold: float, tolerance: float
 ) -> tuple[bool, float, float, float | None]:
     center = median(baseline)
     mad = median(abs(value - center) for value in baseline)
-    if mad == 0:
-        return observed != center, center, mad, None
-    robust_z = _CONSISTENCY * (observed - center) / mad
+    if mad > 0:
+        robust_z = _CONSISTENCY * (observed - center) / mad
+    else:
+        mean_ad = sum(abs(value - center) for value in baseline) / len(baseline)
+        if mean_ad == 0:
+            scale = abs(center) if center else 1.0
+            return abs(observed - center) > tolerance * scale, center, mad, None
+        robust_z = (observed - center) / (_MEAN_AD_CONSISTENCY * mean_ad)
     return abs(robust_z) > threshold, center, mad, round(robust_z, 4)
 
 
@@ -55,6 +68,7 @@ def detect_anomalies(
     *,
     threshold: float = DEFAULT_THRESHOLD,
     min_baseline_samples: int = DEFAULT_MIN_BASELINE,
+    constant_tolerance: float = DEFAULT_CONSTANT_TOLERANCE,
 ) -> AnomalyReport:
     """Compare `run`'s run-level and per-span metrics with `baseline` runs.
 
@@ -67,6 +81,8 @@ def detect_anomalies(
         raise ValueError("threshold must be positive")
     if min_baseline_samples < 2:
         raise ValueError("min_baseline_samples must be at least 2")
+    if constant_tolerance < 0:
+        raise ValueError("constant_tolerance must not be negative")
     report = AnomalyReport(
         threshold=threshold,
         min_baseline_samples=min_baseline_samples,
@@ -84,7 +100,7 @@ def detect_anomalies(
         values = [v for v in (measure_run(b) for b in baseline) if v is not None]
         if observed is None or len(values) < min_baseline_samples:
             continue
-        flagged, center, mad, robust_z = _score(observed, values, threshold)
+        flagged, center, mad, robust_z = _score(observed, values, threshold, constant_tolerance)
         if flagged:
             report.anomalies.append(
                 Anomaly(
@@ -127,7 +143,7 @@ def detect_anomalies(
                 if key not in skipped:
                     skipped.append(key)
                 continue
-            flagged, center, mad, robust_z = _score(observed, values, threshold)
+            flagged, center, mad, robust_z = _score(observed, values, threshold, constant_tolerance)
             if flagged:
                 report.anomalies.append(
                     Anomaly(

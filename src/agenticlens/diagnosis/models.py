@@ -126,7 +126,11 @@ class Anomaly(BaseModel):
     baseline_median: float
     baseline_mad: float
     robust_z: float | None = Field(
-        default=None, description="0.6745 * (observed - median) / MAD; None when MAD is 0."
+        default=None,
+        description=(
+            "Modified z-score (MAD, or mean absolute deviation when MAD is 0); None when "
+            "every baseline value is identical."
+        ),
     )
     direction: Literal["high", "low"]
     baseline_samples: int

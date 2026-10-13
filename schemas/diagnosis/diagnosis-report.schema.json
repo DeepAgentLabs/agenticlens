@@ -49,7 +49,7 @@
             }
           ],
           "default": null,
-          "description": "0.6745 * (observed - median) / MAD; None when MAD is 0.",
+          "description": "Modified z-score (MAD, or mean absolute deviation when MAD is 0); None when every baseline value is identical.",
           "title": "Robust Z"
         },
         "direction": {
