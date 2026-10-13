@@ -40,6 +40,31 @@ Still open: Python live-target timeouts are not enforced (finding 4); built-in
 judge provider clients; async evaluator APIs; framework event adapters;
 probability calibration of judge scores.
 
+## 0.7.0 follow-up (2026-10-13)
+
+Release 0.7.0 delivers the v0.5 deliverables and completion criteria. The v0.5
+table below is updated in place; other sections still describe earlier
+snapshots.
+
+| Earlier gap | Resolution | Evidence |
+| --- | --- | --- |
+| Judge prompt/model versioning missing | `structured_judge` records judge model, provider, prompt version, prompt SHA-256 | `tests/test_score_analysis.py` |
+| Judge cost capture missing | `JudgeVerdict.usage` → `judge_cost_usd`/tokens/latency on scores; `analyze_scores().judge_cost` (estimated from pricing when unreported) | `tests/test_score_analysis.py` |
+| Summary pools deterministic and model-based scores | `analyze_scores` reports them separately; CLI and HTML show both | `tests/test_score_analysis.py`, `tests/test_cli_diagnosis.py` |
+| No multi-judge disagreement view | Per-case disagreements and pairwise agreement between deterministic checks and each judge | `tests/test_score_analysis.py` |
+| No built-in trajectory/goal/handoff/loop/RAG/safety evaluators | Nine trace-aware evaluators registered by name | `tests/test_trace_evaluators.py` |
+| No published failure taxonomy | `FailureCategory` taxonomy v1.0 | `tests/test_diagnosis_rules.py` |
+| No statistical anomaly detector | Median/MAD robust z against baselines with MeanAD and constant-baseline fallbacks | `tests/test_diagnosis_engine.py` |
+| Attribution accuracy on controlled failures unverified | `evaluate_attribution`; 40-case corpus, 40/40 (Wilson 91.2–100%) | `tests/test_attribution_accuracy.py`, `examples/diagnosis/attribution-accuracy.json` |
+| No incident timeline, narratives, trace show / explain | `build_timeline`, `explain_run`, `explain_recommendations`; `trace show/timeline`, `explain`, `diagnose` | `tests/test_diagnosis_engine.py`, `tests/test_cli_diagnosis.py` |
+| No analyzer guard subsystem | `AnalysisBudget`/`AnalysisGuard`: spans, depth, diagnoses, time, iterations, cost, stagnation | `tests/test_diagnosis_engine.py` |
+| Conformance not rule-cited | AIOS rule IDs, per-rule results, summary, `--json`, `--list-versions`, AIOS-0.5-V03 routing | `tests/test_aios_conformance_rules.py` |
+
+Still open: the controlled-failure corpus is synthetic (independent corpora are
+needed); attribution shares are not calibrated probabilities; lexical
+evaluators do not judge meaning; only AIOS v0.4-draft is supported; Python
+live-target timeouts remain unenforced.
+
 ## How to read this audit
 
 - **Implemented (I):** usable code exists for the stated scope; evidence and test
@@ -61,7 +86,7 @@ Missing entries are repository-scoped findings, not claims about sibling project
 | v0.2.x Evidence/operations | Partial acceptance; core implemented | Universal source-span provenance claim is stronger than enforcement; only AIOS 0.4 draft supported |
 | v0.3 Evaluation | Implemented (0.6.0) | Follow-ons only: built-in judge clients, async evaluator APIs, framework adapters, probability calibration, Python target timeouts |
 | v0.4 Experiments | Implemented (0.6.0) | Multiple-comparison correction; correlated-attempt-aware intervals; parallel trials |
-| v0.5 Advanced evaluation | Partial | Built-in semantic/safety/trajectory evaluators, judge provenance/cost, diagnosis validation |
+| v0.5 Advanced evaluation | Implemented (0.7.0) | Independent controlled-failure corpora; semantic (non-lexical) evaluators; judge provider clients |
 | v0.6 Datasets | Partial building blocks | Immutable snapshots, conversions, splits, curation, approvals, dataset-specific masking |
 | v0.7 ModelFit | Missing as a subsystem | Task-aware, measured quality-constrained selection; cost-only suggestions already exist |
 | v0.8 Routing | Missing | Runtime selection, failover, shadow/canary execution, escalation, audit |
@@ -201,30 +226,33 @@ is no multiple-comparison correction.
 
 ## v0.5 Advanced Evaluation and Diagnosis
 
+Updated for 0.7.0 (2026-10-13).
+
 | Roadmap deliverable | Status | Evidence / remaining boundary |
 | --- | --- | --- |
-| Model-based judge interface | I | EVAL LLMJudgeEvaluator callback |
-| Judge prompt/model versioning | M | No required stored identity/version contract |
-| Groundedness/relevance/completeness/citation evaluators | P | Custom callbacks and RECS citation/chunk signals; no built-in suite |
-| Tool-trajectory/agent-goal evaluators | P | Tool presence and turn limits; no ordered trajectory or general goal evaluation |
-| Handoff/loop evaluators | P | RECS handoff bloat and DIAG retry heuristics; no evaluation suite for these |
-| Safety evaluators | P | Callback mechanism only |
-| Calibration reports | P | CAL binary reference agreement only |
-| Failure taxonomy | P | Trace error fields/retry outcome categories; no full published diagnosis taxonomy |
-| Deterministic diagnosis rules | I | DIAG memory/retry/duplicate context and RECS |
-| Anomaly detection | P | Threshold heuristics exist, no general statistical anomaly detector |
-| Faulty-step/agent attribution | P | DIAG/RECS identify local evidence; general causal attribution unproven |
-| Incident timeline reconstruction | P | CLI renders ordered traces, not cross-run incident reconstruction |
-| Investigation narratives | P | Rule explanations and follow-up guidance, not a causal investigation engine |
-| inspect/compare/trace show/report explain | P | inspect and compare exist; trace show and report explain command trees do not |
-| Richer conformance and spec-version selection | P | AIOS detailed reports exist; only 0.4 supported |
-| Analysis budget/depth/stagnation guards | M | No automated analyzer guard subsystem |
+| Model-based judge interface | I | EVAL `LLMJudgeEvaluator`, `structured_judge` |
+| Judge prompt/model versioning | I | Judge model, provider, prompt version and SHA-256 on every judge score |
+| Groundedness/relevance/completeness/citation evaluators | I | Trace-aware evaluators; groundedness/relevance/completeness are lexical heuristics |
+| Tool-trajectory/agent-goal evaluators | I | `tool_trajectory` (exact/in-order/any-order), `agent_goal` |
+| Handoff/loop evaluators | I | `handoff`, `loop` evaluators; `handoff_loop`/`tool_loop` diagnosis rules |
+| Safety evaluators | I | `safety`: PII and forbidden terms in output and tool arguments (pattern-based) |
+| Calibration reports | I | CAL agreement, Wilson intervals, threshold tuning (0.5.0/0.6.0) |
+| Failure taxonomy | I | `FailureCategory` taxonomy v1.0 |
+| Deterministic diagnosis rules | I | `agenticlens.diagnosis.rules` (9 versioned rules) |
+| Anomaly detection | I | Robust z against baseline runs |
+| Faulty-step/agent attribution | I | `attribute()`; accuracy measured on controlled failures |
+| Incident timeline reconstruction | I | `build_timeline`, `trace timeline` |
+| Investigation narratives | I | `explain_run`, `explain_recommendations`, `explain` |
+| inspect/compare/trace show/report explain | I | `trace show`, `trace timeline`, `explain` (in place of `report explain`) |
+| Richer conformance and spec-version selection | I | Rule-cited per-rule results, `--json`, `--list-versions`; only 0.4 supported |
+| Analysis budget/depth/stagnation guards | I | `AnalysisBudget`, `AnalysisGuard` |
 
-Acceptance: evaluator_type is serialized, but summary average pools score types
-and HTML does not separate deterministic/model-based aggregates. Dedicated judge
-cost capture is **M**. CAL shows judge/reference disagreements, not a multi-judge
-comparison. Confidence/evidence fields exist, but population-level attribution
-accuracy on controlled failures is **U**; synthetic rule tests alone are insufficient.
+Acceptance: deterministic and model-based scores are separated in
+`analyze_scores`, CLI, and HTML; judge cost is recorded per score and per
+evaluator; disagreement is listed per case with pairwise agreement; every
+diagnosis carries confidence, supporting spans, and span-level evidence;
+attribution accuracy on controlled failures is measured (40/40 on a synthetic
+corpus written alongside the rules, so independent corpora remain **U**).
 
 ## v0.6 Test-Suite and Dataset Management
 
