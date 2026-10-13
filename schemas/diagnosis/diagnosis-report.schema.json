@@ -1,0 +1,912 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/diagnosis/diagnosis-report.schema.json",
+  "$defs": {
+    "Anomaly": {
+      "description": "A metric far outside the baseline runs' distribution.",
+      "properties": {
+        "scope": {
+          "enum": [
+            "run",
+            "span"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "key": {
+          "description": "'run' or '<span_type>:<span name>'.",
+          "title": "Key",
+          "type": "string"
+        },
+        "metric": {
+          "enum": [
+            "latency_ms",
+            "total_tokens",
+            "cost_usd"
+          ],
+          "title": "Metric",
+          "type": "string"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "number"
+        },
+        "baseline_median": {
+          "title": "Baseline Median",
+          "type": "number"
+        },
+        "baseline_mad": {
+          "title": "Baseline Mad",
+          "type": "number"
+        },
+        "robust_z": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "0.6745 * (observed - median) / MAD; None when MAD is 0.",
+          "title": "Robust Z"
+        },
+        "direction": {
+          "enum": [
+            "high",
+            "low"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "baseline_samples": {
+          "title": "Baseline Samples",
+          "type": "integer"
+        },
+        "span_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Span Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "scope",
+        "key",
+        "metric",
+        "observed",
+        "baseline_median",
+        "baseline_mad",
+        "direction",
+        "baseline_samples"
+      ],
+      "title": "Anomaly",
+      "type": "object"
+    },
+    "AnomalyReport": {
+      "properties": {
+        "method": {
+          "default": "robust_z_mad",
+          "title": "Method",
+          "type": "string"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        },
+        "min_baseline_samples": {
+          "title": "Min Baseline Samples",
+          "type": "integer"
+        },
+        "baseline_runs": {
+          "title": "Baseline Runs",
+          "type": "integer"
+        },
+        "anomalies": {
+          "items": {
+            "$ref": "#/$defs/Anomaly"
+          },
+          "title": "Anomalies",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "threshold",
+        "min_baseline_samples",
+        "baseline_runs"
+      ],
+      "title": "AnomalyReport",
+      "type": "object"
+    },
+    "Attribution": {
+      "description": "Which step and agent most likely caused the run's failure.\n\n- ``attributed``: an unrecovered failure was traced to a span.\n- ``recovered``: failures happened but were all recovered and the run did\n  not fail; candidates are still listed.\n- ``unattributed``: the run failed but no span explains it.\n- ``no_failure``: nothing failed.",
+      "properties": {
+        "status": {
+          "enum": [
+            "attributed",
+            "recovered",
+            "unattributed",
+            "no_failure"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "faulty_span_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Faulty Span Id"
+        },
+        "faulty_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Faulty Step"
+        },
+        "faulty_agent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Faulty Agent"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FailureCategory"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "confidence": {
+          "default": 0.0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/AttributionCandidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "agent_scores": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Blame share per agent (spans with no agent: '(none)').",
+          "title": "Agent Scores",
+          "type": "object"
+        }
+      },
+      "required": [
+        "status",
+        "explanation"
+      ],
+      "title": "Attribution",
+      "type": "object"
+    },
+    "AttributionCandidate": {
+      "description": "A span that may be responsible for the run's failure, with its share of blame.",
+      "properties": {
+        "span_id": {
+          "title": "Span Id",
+          "type": "string"
+        },
+        "span_name": {
+          "title": "Span Name",
+          "type": "string"
+        },
+        "span_type": {
+          "title": "Span Type",
+          "type": "string"
+        },
+        "agent_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Name"
+        },
+        "score": {
+          "description": "Share of total blame; candidates sum to 1.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/FailureCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "diagnosis_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Diagnosis Ids",
+          "type": "array"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "span_id",
+        "span_name",
+        "span_type",
+        "score"
+      ],
+      "title": "AttributionCandidate",
+      "type": "object"
+    },
+    "Diagnosis": {
+      "description": "One failure explained by a deterministic rule.",
+      "properties": {
+        "diagnosis_id": {
+          "title": "Diagnosis Id",
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/FailureCategory"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "rule_version": {
+          "title": "Rule Version",
+          "type": "string"
+        },
+        "origin_span_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Span where the failure started; None when no single span is responsible.",
+          "title": "Origin Span Id"
+        },
+        "span_ids": {
+          "description": "Every span that supports this diagnosis.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Span Ids",
+          "type": "array"
+        },
+        "agent_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Name"
+        },
+        "recovered": {
+          "default": false,
+          "description": "True when a later span of the same operation succeeded.",
+          "title": "Recovered",
+          "type": "boolean"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "diagnosis_id",
+        "category",
+        "title",
+        "summary",
+        "severity",
+        "confidence",
+        "rule_id",
+        "rule_version"
+      ],
+      "title": "Diagnosis",
+      "type": "object"
+    },
+    "DiagnosisSummary": {
+      "properties": {
+        "total_diagnoses": {
+          "default": 0,
+          "title": "Total Diagnoses",
+          "type": "integer"
+        },
+        "unrecovered": {
+          "default": 0,
+          "title": "Unrecovered",
+          "type": "integer"
+        },
+        "highest_severity": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Highest Severity"
+        },
+        "categories": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Categories",
+          "type": "object"
+        },
+        "failed_spans": {
+          "default": 0,
+          "title": "Failed Spans",
+          "type": "integer"
+        },
+        "wasted_tokens": {
+          "default": 0,
+          "description": "Tokens spent in failed and retry spans.",
+          "title": "Wasted Tokens",
+          "type": "integer"
+        },
+        "wasted_latency_ms": {
+          "default": 0.0,
+          "title": "Wasted Latency Ms",
+          "type": "number"
+        },
+        "wasted_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "None when any failed or retry span has no cost.",
+          "title": "Wasted Cost Usd"
+        }
+      },
+      "title": "DiagnosisSummary",
+      "type": "object"
+    },
+    "Evidence": {
+      "properties": {
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "span_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span Id"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "FailureCategory": {
+      "enum": [
+        "tool_error",
+        "model_error",
+        "retrieval_error",
+        "timeout",
+        "retry_exhausted",
+        "tool_loop",
+        "handoff_loop",
+        "stagnation",
+        "empty_retrieval",
+        "validation_failure",
+        "delegation_failure",
+        "budget_exceeded",
+        "injected_fault",
+        "incomplete_task"
+      ],
+      "title": "FailureCategory",
+      "type": "string"
+    },
+    "Finding": {
+      "properties": {
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "span_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Span Ids",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "title",
+        "description",
+        "severity",
+        "confidence"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "GuardrailStatus": {
+      "description": "What the analysis budget allowed, and whether anything was cut short.",
+      "properties": {
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "stop_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stop Reasons",
+          "type": "array"
+        },
+        "spans_analyzed": {
+          "default": 0,
+          "title": "Spans Analyzed",
+          "type": "integer"
+        },
+        "spans_total": {
+          "default": 0,
+          "title": "Spans Total",
+          "type": "integer"
+        },
+        "max_depth_seen": {
+          "default": 0,
+          "title": "Max Depth Seen",
+          "type": "integer"
+        },
+        "iterations": {
+          "default": 0,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "stagnant_iterations": {
+          "default": 0,
+          "title": "Stagnant Iterations",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "default": 0.0,
+          "title": "Cost Usd",
+          "type": "number"
+        }
+      },
+      "title": "GuardrailStatus",
+      "type": "object"
+    },
+    "IncidentTimeline": {
+      "description": "Ordered events reconstructed from span timestamps and statuses.",
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/TimelineEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "first_failure_offset_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Failure Offset Ms"
+        },
+        "root_cause_offset_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Root Cause Offset Ms"
+        },
+        "recovered_span_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recovered Span Ids",
+          "type": "array"
+        },
+        "truncated": {
+          "default": false,
+          "description": "True when max_events cut the timeline.",
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "run_id"
+      ],
+      "title": "IncidentTimeline",
+      "type": "object"
+    },
+    "RuleRef": {
+      "properties": {
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "version"
+      ],
+      "title": "RuleRef",
+      "type": "object"
+    },
+    "TimelineEvent": {
+      "properties": {
+        "offset_ms": {
+          "description": "Milliseconds since the run started.",
+          "title": "Offset Ms",
+          "type": "number"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "run_started",
+            "span_started",
+            "span_completed",
+            "span_failed",
+            "retry",
+            "handoff",
+            "fault_injected",
+            "recovered",
+            "run_completed"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "span_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span Id"
+        },
+        "span_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span Name"
+        },
+        "agent_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Name"
+        },
+        "is_root_cause": {
+          "default": false,
+          "title": "Is Root Cause",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "offset_ms",
+        "timestamp",
+        "kind",
+        "description"
+      ],
+      "title": "TimelineEvent",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "taxonomy_version": {
+      "default": "1.0",
+      "title": "Taxonomy Version",
+      "type": "string"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "trace_id": {
+      "title": "Trace Id",
+      "type": "string"
+    },
+    "application_name": {
+      "title": "Application Name",
+      "type": "string"
+    },
+    "run_status": {
+      "title": "Run Status",
+      "type": "string"
+    },
+    "task_success": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Task Success"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/RuleRef"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "summary": {
+      "$ref": "#/$defs/DiagnosisSummary"
+    },
+    "diagnoses": {
+      "items": {
+        "$ref": "#/$defs/Diagnosis"
+      },
+      "title": "Diagnoses",
+      "type": "array"
+    },
+    "attribution": {
+      "$ref": "#/$defs/Attribution"
+    },
+    "timeline": {
+      "$ref": "#/$defs/IncidentTimeline"
+    },
+    "anomalies": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AnomalyReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "efficiency_findings": {
+      "description": "Memory, retry, and duplicated-context findings from analyze_trace().",
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Efficiency Findings",
+      "type": "array"
+    },
+    "guardrails": {
+      "$ref": "#/$defs/GuardrailStatus"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "engine_version",
+    "run_id",
+    "trace_id",
+    "application_name",
+    "run_status",
+    "summary",
+    "attribution",
+    "timeline"
+  ],
+  "title": "DiagnosisReport",
+  "type": "object"
+}

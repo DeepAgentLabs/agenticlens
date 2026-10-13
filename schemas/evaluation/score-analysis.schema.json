@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/evaluation/score-analysis.schema.json",
+  "$defs": {
+    "Disagreement": {
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "passing": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Passing",
+          "type": "array"
+        },
+        "failing": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failing",
+          "type": "array"
+        },
+        "deterministic_vs_model": {
+          "description": "True when the deterministic checks and a model judge disagree.",
+          "title": "Deterministic Vs Model",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "case_id",
+        "passing",
+        "failing",
+        "deterministic_vs_model"
+      ],
+      "title": "Disagreement",
+      "type": "object"
+    },
+    "JudgeCost": {
+      "properties": {
+        "evaluator": {
+          "title": "Evaluator",
+          "type": "string"
+        },
+        "judge_models": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Judge Models",
+          "type": "array"
+        },
+        "scores": {
+          "default": 0,
+          "title": "Scores",
+          "type": "integer"
+        },
+        "priced_scores": {
+          "default": 0,
+          "title": "Priced Scores",
+          "type": "integer"
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Sum over priced scores; None when no score is priced.",
+          "title": "Total Cost Usd"
+        },
+        "cost_sources": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Cost Sources",
+          "type": "object"
+        },
+        "input_tokens": {
+          "default": 0,
+          "title": "Input Tokens",
+          "type": "integer"
+        },
+        "output_tokens": {
+          "default": 0,
+          "title": "Output Tokens",
+          "type": "integer"
+        },
+        "latency_ms": {
+          "default": 0.0,
+          "title": "Latency Ms",
+          "type": "number"
+        }
+      },
+      "required": [
+        "evaluator"
+      ],
+      "title": "JudgeCost",
+      "type": "object"
+    },
+    "JudgeCostSummary": {
+      "properties": {
+        "judge_scores": {
+          "default": 0,
+          "title": "Judge Scores",
+          "type": "integer"
+        },
+        "priced_scores": {
+          "default": 0,
+          "title": "Priced Scores",
+          "type": "integer"
+        },
+        "complete": {
+          "default": true,
+          "description": "True when every judge score has a known cost.",
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Cost Usd"
+        },
+        "cost_per_case_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Case Usd"
+        },
+        "evaluators": {
+          "items": {
+            "$ref": "#/$defs/JudgeCost"
+          },
+          "title": "Evaluators",
+          "type": "array"
+        }
+      },
+      "title": "JudgeCostSummary",
+      "type": "object"
+    },
+    "KindSummary": {
+      "properties": {
+        "total": {
+          "default": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "passed": {
+          "default": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "failed": {
+          "default": 0,
+          "title": "Failed",
+          "type": "integer"
+        },
+        "skipped": {
+          "default": 0,
+          "title": "Skipped",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate"
+        },
+        "average_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Score"
+        },
+        "evaluators": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evaluators",
+          "type": "array"
+        }
+      },
+      "title": "KindSummary",
+      "type": "object"
+    },
+    "PairwiseAgreement": {
+      "properties": {
+        "evaluator_a": {
+          "title": "Evaluator A",
+          "type": "string"
+        },
+        "evaluator_b": {
+          "title": "Evaluator B",
+          "type": "string"
+        },
+        "shared_cases": {
+          "title": "Shared Cases",
+          "type": "integer"
+        },
+        "agreements": {
+          "title": "Agreements",
+          "type": "integer"
+        },
+        "agreement_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Agreement Rate"
+        }
+      },
+      "required": [
+        "evaluator_a",
+        "evaluator_b",
+        "shared_cases",
+        "agreements",
+        "agreement_rate"
+      ],
+      "title": "PairwiseAgreement",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "deterministic": {
+      "$ref": "#/$defs/KindSummary"
+    },
+    "model_based": {
+      "$ref": "#/$defs/KindSummary"
+    },
+    "judge_cost": {
+      "$ref": "#/$defs/JudgeCostSummary"
+    },
+    "agent_cost_usd": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Cost of the evaluated runs, from the report summary.",
+      "title": "Agent Cost Usd"
+    },
+    "comparable_cases": {
+      "default": 0,
+      "description": "Cases where at least two evaluator units gave a verdict.",
+      "title": "Comparable Cases",
+      "type": "integer"
+    },
+    "disagreement_cases": {
+      "default": 0,
+      "title": "Disagreement Cases",
+      "type": "integer"
+    },
+    "disagreement_rate": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Disagreement Rate"
+    },
+    "disagreements": {
+      "items": {
+        "$ref": "#/$defs/Disagreement"
+      },
+      "title": "Disagreements",
+      "type": "array"
+    },
+    "pairwise_agreement": {
+      "items": {
+        "$ref": "#/$defs/PairwiseAgreement"
+      },
+      "title": "Pairwise Agreement",
+      "type": "array"
+    }
+  },
+  "required": [
+    "deterministic",
+    "model_based",
+    "judge_cost"
+  ],
+  "title": "ScoreAnalysis",
+  "type": "object"
+}
