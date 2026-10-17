@@ -54,8 +54,10 @@ v0.3 (evaluation evidence) and v0.4 (experiments and statistical comparison)
 shipped in 0.6.0; v0.5 (advanced evaluation and diagnosis: failure taxonomy,
 diagnosis rules, faulty-step attribution measured on controlled failures,
 timelines, anomalies, guardrails, trace-aware evaluators, judge cost, and
-score analysis) shipped in 0.7.0. The next milestone is v0.6 test-suite and
-dataset management. New work here should deepen evidence quality and
+score analysis) shipped in 0.7.0; v0.6 (test-suite and dataset management:
+imports, trace and feedback conversion, editors, splits, variations,
+duplicates, PII masking, approval, and an immutable suite store) shipped in
+0.8.0. The next milestone is v0.7 ModelFit. New work here should deepen evidence quality and
 repeatable analysis, not drift into spec stewardship or chaos simulation.
 
 ### Before You Build Here
@@ -99,6 +101,7 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
 | `src/agenticlens/evaluation/` | agentic-evals adapters, trace-aware evaluators, score analysis, evidence audit, structured judges, calibration, gate alerts |
 | `src/agenticlens/experiments/` | Multi-variant experiments, pass@k statistics, HTML/CSV experiment reports |
 | `src/agenticlens/diagnosis/` | Failure taxonomy, diagnosis rules, attribution, timelines, anomalies, guardrails, narratives, attribution accuracy |
+| `src/agenticlens/suites/` | Suite imports, trace/feedback conversion, editors, variations, duplicates, PII masking, splits, approval, immutable store |
 | `src/agenticlens/exporters/` | JSON, CSV, Markdown, Jira exports |
 | `src/agenticlens/metrics/` | Cost and performance calculation |
 | `src/agenticlens/models/` | Pydantic data models (Workflow, Step, ChaosEvent) |
@@ -107,7 +110,7 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
 | `src/agenticlens/reports/` | Trace inspection rendering |
 | `src/agenticlens/cli/` | Typer CLI and Rich rendering |
 | `src/agenticlens/utils/` | Shared utilities |
-| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments, diagnosis, score analysis) |
+| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments, diagnosis, score analysis, suites) |
 | `tests/` | Pytest test suite |
 | `docs/` | MkDocs documentation source |
 | `Makefile` | Local dev automation |
@@ -138,6 +141,17 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
    `agenticlens attribution-accuracy examples/diagnosis/controlled_failures`;
    regenerate `examples/diagnosis/attribution-accuracy.json` if it changes
 5. Keep reports reproducible: no wall-clock values in `DiagnosisReport`
+
+## Changing Suite Management
+
+1. Suites must stay valid agentic-evals `TestSuite`s; keep management state in
+   case `metadata` under the keys in `suites/models.py`
+2. Never change how `content_sha256` is computed for stored versions: it
+   would make every approved version fail verification
+3. Reports (masking, duplicates) must never contain masked values
+4. Regenerate `schemas/suites/` when a published model changes, and re-run
+   `uv run python examples/suite_management_demo.py` if the example output
+   changes (`tests/test_examples_suites.py` checks it)
 
 ## Adding a New Recommender
 
