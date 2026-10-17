@@ -1,0 +1,29 @@
+{
+  "contract_version": "sidecar.correlation/1",
+  "correlation": {
+    "run_id": "run-fixture",
+    "trace_id": "trace-fixture",
+    "span_id": "span-fixture"
+  },
+  "task_id": "f2a98578-1b16-444d-b452-3ba47f7b566a",
+  "system_id": null,
+  "agent_id": null,
+  "source_event_id": "4eb679d3-3f34-4102-a0df-5d31953c969d",
+  "timestamp": "2026-10-17T05:17:55.377397Z",
+  "policy_version": "7341c7cef110f8960e17db3cbb6e527ff5cae3c2b0aa73753ee848787b98fee6",
+  "tool_name": "read",
+  "boundary": "tool_call",
+  "decision": {
+    "decision_id": "85c3b02d-4598-4284-8ae6-f58a931410f0",
+    "status": "ALLOW",
+    "risk": "LOW",
+    "reason": "Policy Advisor: No policy rule matched tool 'read'; default effect is 'allow'; Risk Evaluator: No risk rule matched tool 'read'; default risk is 'LOW'",
+    "decision_point": "tool_call",
+    "trigger_details": {
+      "tool_name": "read",
+      "arguments": {}
+    },
+    "escalation_required": false,
+    "causal_link": null
+  }
+}
