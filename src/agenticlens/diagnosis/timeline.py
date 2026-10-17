@@ -50,6 +50,24 @@ def build_timeline(
     for span in view.spans:
         agent = view.agent_of(span)
         common = {"span_id": span.span_id, "span_name": span.name, "agent_name": agent}
+        for record in span.attributes.get("sidecar.decisions", []):
+            moment = datetime.fromisoformat(record["timestamp"].replace("Z", "+00:00"))
+            decision = record["decision"]
+            add(
+                moment,
+                2,
+                TimelineEvent(
+                    offset_ms=_offset(view, moment),
+                    timestamp=moment,
+                    kind="supervision_decision",
+                    is_root_cause=False,
+                    description=(
+                        f"Sidecar {decision['status']} ({decision['decision_id']}): "
+                        f"{decision['reason']}"
+                    ),
+                    **common,
+                ),
+            )
         is_root = span.span_id == root
         fault = view.injected_fault(span)
         if span.span_type is SpanType.RETRY:

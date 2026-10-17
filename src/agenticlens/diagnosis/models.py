@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from agenticlens.diagnosis.taxonomy import TAXONOMY_VERSION, FailureCategory, Severity
 from agenticlens.models.trace import Evidence, Finding
 
-DIAGNOSIS_SCHEMA_VERSION = "1.0"
+DIAGNOSIS_SCHEMA_VERSION = "1.1"
 
 
 class Diagnosis(BaseModel):
@@ -82,6 +82,7 @@ class Attribution(BaseModel):
 
 
 TimelineEventKind = Literal[
+    "supervision_decision",
     "run_started",
     "span_started",
     "span_completed",
