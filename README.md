@@ -157,7 +157,7 @@ and advisory-first. It does not require a hosted backend and does not
 automatically change production prompts, models, tools, or routing.
 
 That boundary matters in the broader DeepAgentLabs ecosystem: AgenticLens
-observes and evaluates, while `agenticops-control-tower` is the future
+observes and evaluates, while `agenticops-control-tower` is the
 operator-facing control plane above the package layer rather than a hosted
 requirement of AgenticLens itself.
 
@@ -1841,8 +1841,9 @@ explicit deployment/evidence link. They do not change producer behavior or
 convert a failed run, failed gate, blocked action or injected fault into fleet
 health. This link is a Tower-local contract, not a normative AIOS schema.
 See [Control Tower's evidence contract](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/main/docs/ecosystem-alignment.md).
-Remote collection and operator posture views remain planned; these local
-readers do not establish end-to-end integration or stable AIOS conformance.
+Tower 0.6.0 adds pushed evidence posture, cited investigation and approved
+deterministic staging recovery. Pull collection and production runtime adapters
+remain planned; native interoperability does not establish stable AIOS conformance.
 
 ## Operational safety roadmap
 
@@ -1869,3 +1870,11 @@ context privacy and delegated authority remain Sidecar 0.9 validation work.
 No Sidecar runtime dependency is added.
 
 See [integration details](docs/sidecar-integration.md).
+
+## Control Tower 0.6.0 integration
+
+Tower Phase 6 and 6A ship together in 0.6.0 with MCP 0.3.6: evidence-cited
+investigation, exact-preview human approval and verified deterministic staging
+recovery. Native producer outcomes and package ownership remain unchanged.
+See [compatibility, examples and dependency matrix](docs/control-tower-0.6.md).
+This is documentation alignment; no package release or dependency bump is needed.
