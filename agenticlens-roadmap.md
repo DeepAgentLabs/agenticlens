@@ -150,7 +150,11 @@ cross-project coordination before they should be marked complete.
   with agentic-chaos's `chaos.injected` / `chaos.fault_type` /
   `chaos.event_id` attributes are diagnosed as injected faults and serve as
   ground truth for attribution accuracy (`agentic-chaos` 0.5.3 adds
-  `span_attributes()` to write them).
+  `span_attributes()` to write them). Chaos 0.6.0 reports add a call log
+  (`calls`, `calls_dropped`) and `unhandled_error`. `Workflow` loads them
+  unchanged and ignores the new fields, and `chaos_events` are analysed as
+  before. Chaos's pytest contracts read the same report Lens analyzes. Validated
+  in agentic-chaos's sibling-integration CI; no Lens change is needed.
 - `deep-agentic-core-mcp`
   Exposes AgenticLens capabilities through MCP and is a useful sibling check
   for CLI/API behavior that is expected to be consumable by hosts and tools.
