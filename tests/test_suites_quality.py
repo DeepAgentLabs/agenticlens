@@ -160,3 +160,21 @@ def test_assign_splits_validates_ratios(ratios: tuple[float, float, float], mess
             validation_ratio=ratios[1],
             test_ratio=ratios[2],
         )
+
+
+def test_variations_leave_masked_values_alone() -> None:
+    from agenticlens.suites import mask_suite
+
+    case = _case("acct", {"question": "Cancel my plan", "account_email": "ana@example.org"})
+    masked, _ = mask_suite(_suite(case))
+    for kind in ("prefix", "uppercase", "typo", "whitespace"):
+        variant = vary_case(masked.cases[0], kind)
+        assert variant is not None
+        assert variant.input["account_email"] == "[SENSITIVE_FIELD]"
+
+
+def test_masked_values_with_added_text_are_not_reported_again() -> None:
+    from agenticlens.suites import PIIMasker
+
+    masked, found = PIIMasker().mask_value({"email": "Hello! [SENSITIVE_FIELD]"})
+    assert masked == {"email": "Hello! [SENSITIVE_FIELD]"} and found == []
