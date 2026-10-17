@@ -21,13 +21,16 @@ still has open evidence and provenance gates. The audit's
 [0.6.0 follow-up](ROADMAP_AUDIT.md#060-follow-up-2026-10-12) records v0.3
 acceptance and v0.4 delivery evidence, and the
 [0.7.0 follow-up](ROADMAP_AUDIT.md#070-follow-up-2026-10-13) records v0.5
+delivery evidence, and the
+[0.8.0 follow-up](ROADMAP_AUDIT.md#080-follow-up-2026-10-17) records v0.6
 delivery evidence. Later milestones contain partial
 building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
-`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` (current, 2026-10-13) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` (current,
+2026-10-17) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -54,7 +57,13 @@ forward from `v0.5` and `v1.0`.
   investigation narratives, analysis guardrails, trace-aware evaluators, judge
   cost and prompt versioning, deterministic vs model-based scores with
   evaluator disagreement, rule-cited AIOS conformance summaries)
-- **v0.6** 🚧 Planned — Test-Suite and Dataset Management
+- **v0.6** ✅ Delivered in `0.8.0` — Test-Suite and Dataset Management
+  (CSV/JSON imports, production-trace and user-feedback conversion into
+  reviewable cases, suite editors, tags and domain categories, stable
+  lineage-aware splits, synthetic variations, duplicate and conflicting-label
+  detection, PII masking before storage, review and approval metadata, and
+  immutable hash-verified suite versions that CI verifies, exports, and
+  evaluates)
 - **v0.7** 🚧 Planned — ModelFit
 - **v0.8** 🚧 Planned — Advisory Runtime Routing
 - **v0.9** 🚧 Planned — Optimization Intelligence
@@ -235,9 +244,9 @@ here or in a linked public tracking issue.
 - [ ] Governance and maintainer responsibilities published and reviewed.
 - [ ] Licensing, dependency notices, onboarding, and security reporting reviewed.
 - [ ] Milestone examples reproduce from a clean installation. (v0.4's
-      recorded experiment and v0.5's diagnosis, controlled-failure, and
-      advanced evaluation examples reproduce their saved artifacts in CI;
-      other milestones remain open.)
+      recorded experiment, v0.5's diagnosis, controlled-failure, and
+      advanced evaluation examples, and v0.6's suite-management example
+      reproduce their saved artifacts in CI; other milestones remain open.)
 - [ ] Instrumentation overhead measured with a documented workload/environment.
 - [ ] Artifact interoperability demonstrated with versioned fixtures.
 - [ ] Independent feedback from two unaffiliated teams recorded and triaged.
@@ -384,6 +393,23 @@ The following capabilities are implemented in the current development line.
 - `diagnose`, `explain`, `trace show`, `trace timeline`, and
   `attribution-accuracy` CLI commands
 
+### Test-suite and dataset management
+
+- suite imports from CSV (unknown columns rejected), JSON, JSON Lines, and YAML
+- production-trace conversion: successful runs become cases expecting their
+  tool trajectory and latency/cost within a margin; failed runs are skipped
+  with a reason
+- user-feedback conversion: corrected or confirmed outputs become expected
+  outputs; uncorrected negative feedback is skipped with a reason
+- suite editors (add, update, remove, tag, domain, review, merge, filter, diff)
+- case lineage, review status, domain, and split recorded in case metadata
+- deterministic synthetic input variations that keep their parent's split
+- exact, near, and conflicting duplicate detection
+- PII masking (`redact` or salted `hash`) before storage, with value-free reports
+- stable, lineage-aware train/validation/test splits
+- approval checks (review, PII, conflicting duplicates) and an immutable,
+  hash-verified suite store with `verify`, `export`, `versions`, and `diff`
+
 ### Artifact contracts
 
 - versioned trace schema
@@ -391,6 +417,7 @@ The following capabilities are implemented in the current development line.
 - versioned comparison-report schema
 - experiment manifest/report, diagnosis report, attribution-accuracy report,
   and score-analysis schemas
+- suite-version, feedback-batch, duplicate-report, and masking-report schemas
 - schema inclusion in wheel distributions
 
 ## Capability Architecture
@@ -742,12 +769,62 @@ Support the creation, review, versioning, and reuse of evaluation datasets.
 - PII masking
 - approval metadata
 
+### Delivered in `0.8.0`
+
+- test-case and suite editors: `agenticlens.suites` (`add_case`,
+  `update_case`, `remove_cases`, `tag_cases`, `review_cases`, `merge_suites`,
+  `filter_suite`, `diff_suites`) and `agenticlens suite add-case`,
+  `remove-case`, `tag`, `review`, `filter`, `diff`, `summary`
+- immutable suite versions: `SuiteStore.approve()` / `suite approve` writes
+  `<store>/<name>/<version>.json` once (exclusive create) with the SHA-256 of
+  the suite's canonical JSON; identical re-approval is idempotent, different
+  content is refused, and every read re-hashes (`suite verify`, exit 6)
+- CSV and JSON imports: `import_csv`, `import_json` (JSON, JSON Lines, YAML),
+  `suite import`
+- production trace conversion: `case_from_run`, `cases_from_runs`,
+  `suite from-traces`
+- user-feedback conversion: `FeedbackRecord`, `cases_from_feedback`,
+  `suite from-feedback` (missing inputs filled from the referenced run)
+- synthetic variation generation: `generate_variations`, `suite vary`
+  (lowercase, uppercase, whitespace, punctuation, typo, prefix)
+- tags and domain categories: case `tags` and `metadata.domain`, with
+  filtering and summaries
+- train, validation, and test splits: `assign_splits`, `suite split`
+- duplicate detection: `find_duplicates`, `drop_duplicates`, `suite dedupe`
+- PII masking: `PIIMasker`, `mask_suite`, `scan_suite`, `suite mask [--check]`
+  (exit 7)
+- approval metadata: `ApprovalRecord` (approver, time, notes, recorded
+  checks) and per-case `review_status` / `reviewed_by` / `review_notes`
+- JSON Schemas: `schemas/suites/`
+- example: `examples/suite_management_demo.py` with its committed store and
+  artifacts, reproduced by `tests/test_examples_suites.py`; CI's
+  `regression-suite` job verifies, exports, evaluates, and gates it
+
 ### Completion criteria
 
-- traces can be converted into reviewable test cases
-- approved suite versions are immutable
-- regression suites can run in CI
-- sensitive fields can be masked before storage
+- [x] traces can be converted into reviewable test cases (converted cases are
+      `needs_review` and record trace and run IDs; skipped runs are reported
+      with a reason)
+- [x] approved suite versions are immutable (write-once store, content hash
+      re-verified on every read, conflicting re-approval refused)
+- [x] regression suites can run in CI (`suite verify` → `suite export` →
+      `evaluate`/`evaluate-live` → `gate`, exercised by this repository's CI)
+- [x] sensitive fields can be masked before storage (masking is on by default
+      for every import and conversion, and approval refuses unmasked PII)
+
+Known limits: PII detection is pattern- and key-based and misses names, free-text
+street addresses, and locale-specific identifiers; synthetic variations are
+surface perturbations, not paraphrases; duplicate detection is lexical and
+pairwise; approval records an approver name but does not authenticate it; the
+store is local files, not a multi-user registry.
+
+### Follow-on work
+
+- semantic (embedding or judge-based) duplicate detection and paraphrase
+  variations as optional extensions
+- an interactive review surface (the CLI and Python API are the editors today)
+- signed approvals and a shared registry, tracked under v1.0 audit logs and
+  model and prompt registries
 
 ## v0.7 — ModelFit
 
