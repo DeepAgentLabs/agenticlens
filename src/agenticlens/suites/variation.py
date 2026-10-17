@@ -22,7 +22,7 @@ from agenticlens.suites.models import (
     SOURCE_KEY,
     CaseSource,
 )
-from agenticlens.suites.pii import is_placeholder
+from agenticlens.suites.pii import is_placeholder, preserve_placeholders
 
 _PREFIXES = ("Hi, ", "Hello! ", "Quick question: ", "Please help: ", "Hey there, ")
 _WORD = re.compile(r"[A-Za-z]{4,}")
@@ -71,8 +71,10 @@ VARIATIONS: dict[str, Callable[[str, random.Random], str]] = {
 
 def _apply(value: Any, transform: Callable[[str, random.Random], str], rng: random.Random) -> Any:
     if isinstance(value, str):
-        # Masked values stay exactly as masked.
-        return value if is_placeholder(value) else transform(value, rng)
+        # Masked values, alone or embedded in text, stay exactly as masked.
+        if is_placeholder(value):
+            return value
+        return preserve_placeholders(value, lambda text: transform(text, rng))
     if isinstance(value, dict):
         return {key: _apply(item, transform, rng) for key, item in value.items()}
     if isinstance(value, list):
