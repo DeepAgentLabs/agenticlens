@@ -73,6 +73,24 @@ def is_placeholder(value: str) -> bool:
     return _PLACEHOLDER.fullmatch(value) is not None
 
 
+def preserve_placeholders(text: str, transform: Callable[[str], str]) -> str:
+    """Apply `transform` to `text` while keeping every embedded placeholder unchanged.
+
+    Placeholders are swapped for `\x00<n>\x00` sentinels (no letters, spaces, or
+    punctuation, so text transforms leave them alone) and restored afterwards.
+    """
+    tokens: list[str] = []
+
+    def stash(match: re.Match[str]) -> str:
+        tokens.append(match.group())
+        return f"\x00{len(tokens) - 1}\x00"
+
+    shielded = _PLACEHOLDER.sub(stash, text)
+    if not tokens:
+        return transform(text)
+    return re.sub(r"\x00(\d+)\x00", lambda m: tokens[int(m.group(1))], transform(shielded))
+
+
 def _luhn(digits: str) -> bool:
     total = 0
     for index, char in enumerate(reversed(digits)):
@@ -187,8 +205,9 @@ class PIIMasker:
                     and isinstance(item, (str, int))
                     and not isinstance(item, bool)
                     and item != ""
-                    # Already masked, possibly with text added around it later.
-                    and not (isinstance(item, str) and _PLACEHOLDER.search(item))
+                    # Only an exact placeholder is already masked; text added around
+                    # one may itself be sensitive, so the whole value is masked again.
+                    and not (isinstance(item, str) and _PLACEHOLDER.fullmatch(item))
                 ):
                     result[key] = self.placeholder("sensitive_field", str(item))
                     found.append((child, "sensitive_field"))
