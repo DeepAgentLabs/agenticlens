@@ -14,6 +14,16 @@ documents the supporting research program, experimental metrics, benchmark
 design, and publication plan. Research proposals are not product commitments
 until they appear in the canonical product roadmap.
 
+## 0.8.0: Test-suite and dataset management
+
+Roadmap milestone v0.6 shipped in 0.8.0: `agenticlens.suites` and
+`agenticlens suite` build reviewed regression suites from CSV/JSON imports,
+production traces, and user feedback, then approve them into immutable,
+hash-verified versions that CI verifies, exports, and evaluates. See the
+[guide](docs/suite-management.md) and the
+[v0.6 section of the roadmap](agenticlens-roadmap.md#v06--test-suite-and-dataset-management).
+The next milestone is v0.7 ModelFit.
+
 ## Control Tower 0.6.0 integration
 
 Tower Phase 6 and 6A ship together in 0.6.0 with MCP 0.3.6: evidence-cited
