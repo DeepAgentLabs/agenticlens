@@ -6,6 +6,81 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.8.0 - 2026-10-17
+
+Delivers roadmap milestone v0.6 (Test-Suite and Dataset Management).
+
+### Added — suite management (`agenticlens.suites`)
+
+- Imports from CSV (`|`-separated list columns, JSON `input`, `domain`,
+  `split`, `metadata.<key>`; unknown columns rejected), JSON, JSON Lines, and
+  YAML: `import_csv`, `import_json`, `import_cases`, `import_suite`.
+- Production trace conversion: `case_from_run` / `cases_from_runs` turn
+  successful runs into cases expecting their tool trajectory
+  (`required_tools`, `required_tool_order`) and latency/cost within a margin;
+  `include_output` also expects the recorded output. Failed runs, runs
+  without a recorded input, and runs with nothing to expect are skipped with
+  a reason.
+- User-feedback conversion: `FeedbackRecord`, `load_feedback`,
+  `case_from_feedback` / `cases_from_feedback`. Corrections and confirmed
+  outputs become expected outputs. A missing input is filled from the
+  referenced run. Uncorrected negative feedback is skipped with a reason.
+- Suite editors: `add_case`, `update_case`, `remove_cases`, `tag_cases`
+  (tags and domain categories), `review_cases`, `merge_suites`,
+  `filter_suite`, `summarize_suite`, `diff_suites`, `load_suite_file`,
+  `save_suite_file`. Case lineage (`source`), `review_status`,
+  `reviewed_by`, `review_notes`, `domain`, and `split` live in case metadata,
+  so suites stay plain agentic-evals `TestSuite`s.
+- Synthetic variations: `generate_variations` / `vary_case` (lowercase,
+  uppercase, whitespace, punctuation, typo, prefix). They are deterministic
+  per seed, keep expectations and split, skip masked values, are marked
+  `needs_review`, and are capped per original.
+- Duplicate detection: `find_duplicates` / `drop_duplicates` group exact and
+  near (word unigram+bigram Jaccard) duplicates and flag conflicting groups
+  (same input, different expectations).
+- PII masking: `PIIMasker`, `mask_suite`, `scan_suite`. Covers emails,
+  phones, Luhn-valid cards, US SSNs, IPv4, bearer tokens and API keys, and
+  whole-word sensitive keys, with a `redact` or salted `hash` strategy.
+  Reports carry the location and type, never the value.
+- Splits: `assign_splits` places cases by a stable hash of their lineage, so
+  cases keep their split as a suite grows and variants follow their original.
+- Approval and immutable versions: `SuiteStore.approve` checks review status,
+  unmasked PII, and conflicting duplicates. It then writes
+  `<store>/<name>/<version>.json` once, with the SHA-256 of the canonical
+  suite JSON and an `ApprovalRecord` (approver, time, notes, checks,
+  `parent_version`). Identical re-approval is idempotent; different content
+  is refused. Every read re-hashes (`get`, `load_suite`, `versions`,
+  `latest`, `verify`). `load_suite` stamps
+  `metadata.agenticlens_suite_version` provenance.
+
+### Added — CLI
+
+- `agenticlens suite` command group: `import`, `from-traces`,
+  `from-feedback`, `add-case`, `remove-case`, `tag`, `review`, `mask`
+  (`--check` exits 7), `dedupe`, `vary`, `split`, `filter`, `summary`,
+  `approve` (exit 6 when refused), `versions`, `verify` (exit 6 when a
+  version is missing or altered), `export`, and `diff`. Imports and
+  conversions mask PII by default (`--no-mask`).
+
+### Added — schemas, examples, docs, CI
+
+- JSON Schemas in `schemas/suites/`: suite version, feedback batch,
+  duplicate report, masking report.
+- `examples/suite_management_demo.py` builds `support-regression@1.0.0` (15
+  cases) from a CSV, production traces, and feedback. It masks,
+  de-duplicates, varies, splits, reviews, approves, exports, evaluates, and
+  gates the suite, and commits the store and artifacts in `examples/suites/`
+  (reproduced by `tests/test_examples_suites.py`).
+- CI `regression-suite` job: `suite verify` → `suite export` → `evaluate
+  --strict-evidence` → `gate` on the committed store.
+- `docs/suite-management.md`. README, roadmap (v0.6 delivered), audit
+  follow-up, and AGENTS.md updated.
+
+### Compatibility
+
+- Additive only: no existing API, schema, or CLI behaviour changes. Requires
+  `agentic-evals>=0.7.1,<1` as before.
+
 ## 0.7.1 - 2026-10-17
 
 ### Added
