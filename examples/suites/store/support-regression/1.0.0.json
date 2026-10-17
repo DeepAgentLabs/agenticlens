@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "status": "approved",
   "content_sha256": "f73877cc6a76bdf62f5bba2230155809fab39c37dc1113a4d5865db606000ab6",
+  "record_sha256": "256f39326b354747f3aee1990267805b0cdc291a9efed09afe3620b165a96cc9",
   "case_count": 15,
   "parent_version": null,
   "approval": {
