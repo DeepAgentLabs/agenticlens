@@ -65,6 +65,28 @@ needed); attribution shares are not calibrated probabilities; lexical
 evaluators do not judge meaning; only AIOS v0.4-draft is supported; Python
 live-target timeouts remain unenforced.
 
+## 0.8.0 follow-up (2026-10-17)
+
+Release 0.8.0 delivers the v0.6 deliverables and completion criteria. The v0.6
+table below is updated in place; other sections still describe earlier
+snapshots.
+
+| Earlier gap | Resolution | Evidence |
+| --- | --- | --- |
+| No dedicated editing workflow | `agenticlens.suites` editors and `suite add-case/remove-case/tag/review/filter/diff/summary` | `tests/test_suites_editing.py`, `tests/test_cli_suites.py` |
+| TestSuite mutable; no snapshot/hash store | `SuiteStore`: write-once versions, canonical-JSON SHA-256 re-verified on every read, conflicting re-approval refused | `tests/test_suites_store.py` |
+| No dataset CSV importer | CSV (unknown columns rejected), JSON, JSON Lines, YAML imports | `tests/test_suites_importers.py` |
+| No trace/feedback conversion pipeline | `cases_from_runs`, `cases_from_feedback`; skipped inputs reported with reasons | `tests/test_suites_conversion.py` |
+| No synthetic variations or splits | Deterministic variations; stable, lineage-aware hash splits | `tests/test_suites_quality.py` |
+| No content deduplication | Exact, near (Jaccard), and conflicting-label duplicate groups | `tests/test_suites_quality.py` |
+| No integrated masking lifecycle | Masking on by default for imports/conversions; approval refuses unmasked PII; value-free reports | `tests/test_suites_pii.py` |
+| No validated approval record | `ApprovalRecord` with recorded checks; per-case review status | `tests/test_suites_store.py` |
+| CI regression run unproven | CI `regression-suite` job: verify → export → evaluate → gate on `examples/suites/store` | `.github/workflows/ci.yml`, `tests/test_examples_suites.py` |
+
+Still open: PII detection is pattern/key based; variations are not paraphrases;
+deduplication is lexical and pairwise; approvals are not authenticated; the
+store is local files rather than a shared registry.
+
 ## How to read this audit
 
 - **Implemented (I):** usable code exists for the stated scope; evidence and test
@@ -87,7 +109,7 @@ Missing entries are repository-scoped findings, not claims about sibling project
 | v0.3 Evaluation | Implemented (0.6.0) | Follow-ons only: built-in judge clients, async evaluator APIs, framework adapters, probability calibration, Python target timeouts |
 | v0.4 Experiments | Implemented (0.6.0) | Multiple-comparison correction; correlated-attempt-aware intervals; parallel trials |
 | v0.5 Advanced evaluation | Implemented (0.7.0) | Independent controlled-failure corpora; semantic (non-lexical) evaluators; judge provider clients |
-| v0.6 Datasets | Partial building blocks | Immutable snapshots, conversions, splits, curation, approvals, dataset-specific masking |
+| v0.6 Datasets | Implemented (0.8.0) | Semantic deduplication and paraphrases; authenticated approvals and a shared registry (v1.0) |
 | v0.7 ModelFit | Missing as a subsystem | Task-aware, measured quality-constrained selection; cost-only suggestions already exist |
 | v0.8 Routing | Missing | Runtime selection, failover, shadow/canary execution, escalation, audit |
 | v0.9 Optimization | Partial | Outcome tracking, measured quality tradeoffs, broader optimization coverage |
@@ -258,19 +280,23 @@ corpus written alongside the rules, so independent corpora remain **U**).
 
 | Roadmap deliverable | Status | Evidence / remaining boundary |
 | --- | --- | --- |
-| Test-case/suite editors | P | Python models and hand-edited YAML/JSON; no dedicated editing workflow |
-| Immutable suite versions | M | TestSuite is mutable; no snapshot/hash store |
-| CSV/JSON imports | P | JSON/YAML suite/sample loading; no dataset CSV importer |
-| Production trace conversion; user-feedback conversion | M | No conversion pipeline |
-| Synthetic variation generation | M | No implementation |
-| Tags/domain categories | P | TestCase.tags and metadata exist; no managed categorization |
-| Train/validation/test splits | M | No implementation |
-| Duplicate detection | P | Duplicate suite IDs rejected; no semantic/content deduplication, sample dictionary overwrites duplicate IDs |
-| PII masking | P | TRACE redactor exists; suite labels, outputs, and stored evaluation datasets have no integrated masking lifecycle |
-| Approval metadata | P | Generic metadata possible; no validated approval record/workflow |
+Updated for 0.8.0 (2026-10-17).
 
-Acceptance: CLI evaluation/gates can support CI. Conversion, immutable approved
-versions, and dataset-wide storage masking remain open.
+| Roadmap deliverable | Status | Evidence / remaining boundary |
+| --- | --- | --- |
+| Test-case/suite editors | I | `agenticlens.suites` editors and `suite` CLI; no interactive UI |
+| Immutable suite versions | I | `SuiteStore` write-once versions with re-verified SHA-256 |
+| CSV/JSON imports | I | CSV, JSON, JSON Lines, YAML (`import_cases`, `suite import`) |
+| Production trace conversion; user-feedback conversion | I | `cases_from_runs`, `cases_from_feedback`; failed runs and uncorrected negative feedback skipped with reasons |
+| Synthetic variation generation | I | Six deterministic surface perturbations; not paraphrases |
+| Tags/domain categories | I | `tags`, `metadata.domain`; filtering and summaries |
+| Train/validation/test splits | I | `assign_splits`: stable hash of lineage; ratios approximate |
+| Duplicate detection | I | Exact, near (lexical Jaccard), and conflicting-label groups; pairwise |
+| PII masking | I | `PIIMasker` (patterns + sensitive keys; redact/hash) on by default before storage; pattern-based limits |
+| Approval metadata | I | `ApprovalRecord` (approver, time, notes, checks), per-case review status; approver not authenticated |
+
+Acceptance: all four completion criteria are met in 0.8.0 (see the
+[roadmap](agenticlens-roadmap.md#v06--test-suite-and-dataset-management)).
 
 ## v0.7 ModelFit
 
