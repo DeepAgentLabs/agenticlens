@@ -1001,3 +1001,9 @@ context privacy and delegated authority remain Sidecar 0.9 validation work.
 No Sidecar runtime dependency is added.
 
 See [integration details](docs/sidecar-integration.md).
+
+## Tower 0.6.0 integration
+
+Native Lens run evidence supports Tower's approved staging recovery, shipped
+with its combined Phase 6/6A and MCP 0.3.6. Lens retains analysis ownership. See
+[compatibility and examples](docs/control-tower-0.6.md).

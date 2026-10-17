@@ -13,3 +13,11 @@ The separate
 documents the supporting research program, experimental metrics, benchmark
 design, and publication plan. Research proposals are not product commitments
 until they appear in the canonical product roadmap.
+
+## Control Tower 0.6.0 integration
+
+Tower Phase 6 and 6A ship together in 0.6.0 with MCP 0.3.6: evidence-cited
+investigation, exact-preview human approval and verified deterministic staging
+recovery. Native producer outcomes and package ownership remain unchanged.
+See [compatibility, examples and dependency matrix](docs/control-tower-0.6.md).
+This is documentation alignment; no package release or dependency bump is needed.
