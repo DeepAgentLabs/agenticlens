@@ -57,6 +57,18 @@ def _expectations(case: TestCase) -> str:
     return json.dumps(data, sort_keys=True)
 
 
+def _has_conflict(indices: list[int], normalized: list[str], cases: list[TestCase]) -> bool:
+    """True when cases with the same normalised input expect different results.
+
+    Near duplicates with distinct inputs may legitimately expect different
+    results, so they never conflict.
+    """
+    by_input: dict[str, set[str]] = {}
+    for index in indices:
+        by_input.setdefault(normalized[index], set()).add(_expectations(cases[index]))
+    return any(len(expectations) > 1 for expectations in by_input.values())
+
+
 def find_duplicates(
     suite: TestSuite, *, threshold: float = 0.85, include_variants: bool = False
 ) -> DuplicateReport:
@@ -107,7 +119,7 @@ def find_duplicates(
                 case_ids=[cases[index].id for index in indices],
                 keep=cases[indices[0]].id,
                 similarity=round(min(similarities), 6),
-                conflicting=len({_expectations(cases[index]) for index in indices}) > 1,
+                conflicting=_has_conflict(indices, normalized, cases),
             )
         )
     return DuplicateReport(
