@@ -49,8 +49,8 @@ Delivers roadmap milestone v0.6 (Test-Suite and Dataset Management).
   `<store>/<name>/<version>.json` once, with the SHA-256 of the canonical
   suite JSON and an `ApprovalRecord` (approver, time, notes, checks,
   `parent_version`). Identical re-approval is idempotent; different content
-  is refused. Every read re-hashes (`get`, `load_suite`, `versions`,
-  `latest`, `verify`). `load_suite` stamps
+  is refused. Every read re-hashes the suite and the whole envelope
+  (`record_sha256`) (`get`, `load_suite`, `versions`, `latest`, `verify`). `load_suite` stamps
   `metadata.agenticlens_suite_version` provenance.
 
 ### Added — CLI

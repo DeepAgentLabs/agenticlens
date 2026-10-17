@@ -158,9 +158,9 @@ agenticlens suite split suite.yaml --train 0.7 --validation 0.15 --test 0.15 --s
 
 **Duplicates.** Exact duplicates share a normalised input (case,
 punctuation, and whitespace ignored). Near duplicates reach the Jaccard
-threshold over word unigrams and bigrams. A group is *conflicting* when its
-cases expect different results for the same input, which usually means a
-labelling error. `--drop` keeps the first case of each group. Synthetic
+threshold over word unigrams and bigrams. A group is *conflicting* when
+cases with the same normalised input expect different results, which usually
+means a labelling error. Near duplicates with distinct inputs never conflict. `--drop` keeps the first case of each group. Synthetic
 variants of the same original are not compared to each other unless you pass
 `--include-variants`. Comparison is pairwise, so it is sized for suites of
 thousands of cases.
@@ -210,8 +210,10 @@ Approved versions are immutable:
 
 - Approving the same name and version again is a no-op if the content is
   identical, and is refused if it differs. Bump the version instead.
-- Every read re-hashes the content. A hand-edited, moved, or corrupted
-  version fails `verify`, `export`, and `load_suite`.
+- Every read re-hashes both the suite (`content_sha256`) and the whole
+  envelope (`record_sha256`, covering the approver, time, notes, checks, case
+  count, and parent version). A hand-edited, moved, or corrupted version fails
+  `verify`, `export`, and `load_suite`.
 - Suite names and versions must be plain path segments (letters, digits,
   `.`, `_`, `-`).
 
