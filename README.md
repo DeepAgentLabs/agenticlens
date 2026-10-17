@@ -1841,8 +1841,8 @@ explicit deployment/evidence link. They do not change producer behavior or
 convert a failed run, failed gate, blocked action or injected fault into fleet
 health. This link is a Tower-local contract, not a normative AIOS schema.
 See [Control Tower's evidence contract](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/main/docs/ecosystem-alignment.md).
-Tower 0.6.0 adds pushed evidence posture, cited investigation and approved
-deterministic staging recovery. Pull collection and production runtime adapters
+Tower 0.5 introduced pushed evidence posture; 0.6.0 adds cited investigation
+and approved deterministic staging recovery. Pull collection and production runtime adapters
 remain planned; native interoperability does not establish stable AIOS conformance.
 
 ## Operational safety roadmap
