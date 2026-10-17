@@ -14,7 +14,8 @@ Strategies:
   detection) without storing them
 
 Pattern detection is a safeguard, not a guarantee: names, street addresses in
-free text, and locale-specific identifiers are not detected. Reports list
+free text, and locale-specific identifiers are not detected, and a dotted
+version number that is also a valid IPv4 address (1.2.3.4) is masked as one. Reports list
 where and what kind of value was masked, never the value itself.
 """
 
