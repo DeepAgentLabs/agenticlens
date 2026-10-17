@@ -90,6 +90,9 @@ def add_case(suite: TestSuite, case: TestCase | dict[str, Any]) -> TestSuite:
 def update_case(suite: TestSuite, case_id: str, **changes: Any) -> TestSuite:
     """Change fields of one case. Changing `id` to an existing ID is rejected."""
     index = _case_index(suite, case_id)
+    new_id = changes.get("id", case_id)
+    if new_id != case_id and any(case.id == new_id for case in suite.cases):
+        raise ValueError(f"suite {suite.name!r} already has case {new_id!r}")
     updated = TestCase.model_validate({**suite.cases[index].model_dump(mode="json"), **changes})
     cases = list(suite.cases)
     cases[index] = updated
@@ -175,8 +178,13 @@ def merge_suites(base: TestSuite, *others: TestSuite, on_conflict: str = "error"
 
 
 def case_review_status(case: TestCase) -> str:
-    """`accepted` for authored cases without a recorded review."""
-    return str(case.metadata.get(REVIEW_STATUS_KEY, "accepted"))
+    """`accepted` for authored cases without a recorded review.
+
+    An unrecognised recorded status counts as `needs_review`, so malformed
+    metadata cannot pass the approval review check.
+    """
+    status = case.metadata.get(REVIEW_STATUS_KEY, "accepted")
+    return status if status in _REVIEW_STATUSES else "needs_review"
 
 
 def case_source_kind(case: TestCase) -> str:

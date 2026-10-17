@@ -54,6 +54,9 @@ def test_update_case_changes_fields(suite: EvalSuite) -> None:
     assert updated.cases[0].expected_output == "hi there"
     with pytest.raises(KeyError):
         update_case(suite, "missing", expected_output="x")
+    with pytest.raises(ValueError, match="already has case 'b'"):
+        update_case(suite, "a", id="b")
+    assert [case.id for case in update_case(suite, "a", id="z").cases] == ["z", "b"]
 
 
 def test_remove_cases_keeps_at_least_one(suite: EvalSuite) -> None:
@@ -155,3 +158,8 @@ def test_save_and_load_round_trip(tmp_path: Path, suite: EvalSuite, suffix: str)
     assert load_suite_file(path) == suite
     text = path.read_text("utf-8")
     assert "threshold" not in text  # defaults omitted in drafts
+
+
+def test_unknown_review_status_counts_as_needs_review() -> None:
+    assert case_review_status(_case("a", metadata={"review_status": "bogus"})) == "needs_review"
+    assert case_review_status(_case("a", metadata={"review_status": "rejected"})) == "rejected"
