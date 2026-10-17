@@ -8,3 +8,7 @@ should tolerate unknown fields. Lens continues to consume the same native report
 See the [contract, examples and compatibility policy](https://github.com/DeepAgentLabs/agentic-evals/blob/main/docs/report-contract.md). Existing dependency
 ranges remain sufficient; using the new accessors directly requires
 `agentic-evals>=0.7.2`. This documentation alignment needs no sibling patch release.
+
+These schemas validate native Evals output; they do not establish AIOS
+conformance. See [AIOS validation and OpenTelemetry](aios-validation-and-otel.md)
+for the separate specification validation surface.
