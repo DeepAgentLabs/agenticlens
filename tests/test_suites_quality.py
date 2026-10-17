@@ -173,8 +173,28 @@ def test_variations_leave_masked_values_alone() -> None:
         assert variant.input["account_email"] == "[SENSITIVE_FIELD]"
 
 
-def test_masked_values_with_added_text_are_not_reported_again() -> None:
+def test_sensitive_values_mixing_a_placeholder_and_new_text_are_masked_again() -> None:
     from agenticlens.suites import PIIMasker
 
-    masked, found = PIIMasker().mask_value({"email": "Hello! [SENSITIVE_FIELD]"})
-    assert masked == {"email": "Hello! [SENSITIVE_FIELD]"} and found == []
+    masked, found = PIIMasker().mask_value({"password": "[SENSITIVE_FIELD] hunter2"})
+    assert masked == {"password": "[SENSITIVE_FIELD]"}
+    assert found == [("password", "sensitive_field")]
+    assert PIIMasker().mask_value({"password": "[SENSITIVE_FIELD]"})[1] == []
+
+
+@pytest.mark.parametrize("kind", sorted(VARIATIONS))
+def test_variations_keep_embedded_placeholders_canonical(kind: str) -> None:
+    case = _case("p", "Please contact [EMAIL] or [PHONE:0a1b2c3d] about my order today.")
+    variant = vary_case(case, kind, seed=2)
+    assert variant is not None
+    assert "[EMAIL]" in variant.input and "[PHONE:0a1b2c3d]" in variant.input
+
+
+def test_near_duplicates_with_distinct_inputs_never_conflict() -> None:
+    a = _case("a", "please refund my last order from the shop", expected_output="x")
+    b = _case("b", "please refund my last order from the store", expected_output="y")
+    (group,) = find_duplicates(_suite(a, b), threshold=0.6).groups
+    assert group.kind == "near" and group.conflicting is False
+    c = _case("c", "Please refund my last order from the shop!", expected_output="z")
+    (group,) = find_duplicates(_suite(a, b, c), threshold=0.6).groups
+    assert group.conflicting is True  # a and c share a normalised input
