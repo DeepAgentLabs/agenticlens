@@ -6,6 +6,14 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.7.1 - 2026-10-17
+
+### Added
+
+- Native `sidecar.correlation/1` decision readback with exact trace identity,
+  idempotency and atomic validation; governance outcomes preserve span/run health.
+- Diagnosis schema 1.1 adds `supervision_decision` incident timeline events.
+
 ## 0.7.0 - 2026-10-13
 
 Delivers roadmap milestone v0.5 (Advanced Evaluation and Diagnosis).

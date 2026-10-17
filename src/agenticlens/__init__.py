@@ -2,7 +2,7 @@ from agenticlens.instrumentation import SpanHandle, trace
 from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 from agenticlens.profiler import StepHandle, profile, step
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 __all__ = [
     "Run",
