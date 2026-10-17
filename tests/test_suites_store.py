@@ -181,3 +181,45 @@ def test_parse_ref(ref: str, expected: tuple[str, str]) -> None:
 def test_parse_ref_rejects_bad_refs(ref: str) -> None:
     with pytest.raises(SuiteStoreError, match="NAME@VERSION"):
         parse_ref(ref)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        (("approval", "approved_by"), "mallory"),
+        (("approval", "notes"), "edited"),
+        (("case_count",), 99),
+        (("parent_version",), "0.0.1"),
+    ],
+)
+def test_envelope_edits_are_detected(tmp_path: Path, field: tuple[str, ...], value: object) -> None:
+    store = SuiteStore(tmp_path)
+    record = _approve(store, _suite())
+    assert record.record_sha256  # type: ignore[attr-defined]
+    path = tmp_path / "support" / "1.0.0.json"
+    data = json.loads(path.read_text("utf-8"))
+    target = data
+    for key in field[:-1]:
+        target = target[key]
+    target[field[-1]] = value
+    path.write_text(json.dumps(data), "utf-8")
+    with pytest.raises(IntegrityError, match="approval record changed"):
+        store.get("support", "1.0.0")
+    assert store.verify()[0].ok is False
+
+
+def test_hash_matching_invalid_suite_is_an_integrity_error(tmp_path: Path) -> None:
+    from agenticlens.suites import record_sha256
+
+    store = SuiteStore(tmp_path)
+    _approve(store, _suite())
+    path = tmp_path / "support" / "1.0.0.json"
+    data = json.loads(path.read_text("utf-8"))
+    data["suite"]["cases"] = []
+    data["content_sha256"] = content_sha256(data["suite"])
+    data["record_sha256"] = record_sha256(data)
+    path.write_text(json.dumps(data), "utf-8")
+    with pytest.raises(IntegrityError, match="not a valid TestSuite"):
+        store.get("support", "1.0.0")
+    (result,) = store.verify()
+    assert result.ok is False and "not a valid TestSuite" in (result.error or "")
