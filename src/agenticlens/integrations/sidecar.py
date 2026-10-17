@@ -34,6 +34,10 @@ def attach_decisions(run: Run, records: list[dict[str, Any]]) -> None:
         decision = record["decision"]
         if decision["status"] not in STATUSES or not decision.get("decision_id"):
             raise ValueError("Invalid Sidecar decision")
+        if not isinstance(decision.get("reason"), str):
+            raise ValueError("Sidecar decision reason must be a string")
+        if not isinstance(decision["decision_id"], str):
+            raise ValueError("Sidecar decision identity must be a string")
         for key in ("task_id", "source_event_id", "policy_version", "tool_name", "boundary"):
             if not isinstance(record.get(key), str) or not record[key]:
                 raise ValueError(f"Missing Sidecar {key}")

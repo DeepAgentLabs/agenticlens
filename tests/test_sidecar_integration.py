@@ -77,3 +77,26 @@ def test_native_journal_integrity() -> None:
     event["payload"]["status"] = "ALLOW"
     with pytest.raises(ValueError, match="audit"):
         verify_journal([event], task_id="task")
+
+
+@pytest.mark.parametrize("reason", [None, 42, {"private": "value"}])
+def test_invalid_reason_batch_is_rejected_before_mutation(reason: object) -> None:
+    recording = run()
+    good = fixture()
+    bad = deepcopy(good)
+    bad["decision"]["decision_id"] = "different-decision"
+    bad["decision"]["reason"] = reason
+    with pytest.raises(ValueError, match="reason"):
+        attach_decisions(recording, [good, bad])
+    assert recording.spans[0].attributes == {}
+
+
+def test_missing_reason_batch_is_rejected_before_mutation() -> None:
+    recording = run()
+    good = fixture()
+    bad = deepcopy(good)
+    bad["decision"]["decision_id"] = "different-decision"
+    del bad["decision"]["reason"]
+    with pytest.raises(ValueError, match="reason"):
+        attach_decisions(recording, [good, bad])
+    assert recording.spans[0].attributes == {}
