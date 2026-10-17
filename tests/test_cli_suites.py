@@ -320,6 +320,8 @@ def test_store_errors(draft: Path, tmp_path: Path) -> None:
     store = tmp_path / "store"
     code, output = _invoke("suite", "verify", "--store", store)
     assert code == 6 and "No suite versions" in _flat(output)
+    code, output = _invoke("suite", "verify", "--store", store, "--json")
+    assert code == 6 and json.loads(output) == []
     code, output = _invoke("suite", "verify", "no-version", "--store", store)
     assert code == 6 and "NAME@VERSION" in _flat(output)
     code, output = _invoke(

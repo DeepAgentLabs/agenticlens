@@ -632,7 +632,8 @@ def suite_verify(
             detail = (result.expected_sha256 or "")[:12] if result.ok else result.error
             console.print(f"{marker} {result.name}@{result.version} {detail}")
     if not results:
-        console.print("[red]No suite versions found.[/red]")
+        if not json_output:
+            console.print("[red]No suite versions found.[/red]")
         raise typer.Exit(code=APPROVAL_EXIT)
     if not all(result.ok for result in results):
         raise typer.Exit(code=APPROVAL_EXIT)
