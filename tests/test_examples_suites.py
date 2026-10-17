@@ -22,6 +22,11 @@ def _load(path: Path) -> Any:
     return {k: v for k, v in data.items() if k not in MEASURED} if isinstance(data, dict) else data
 
 
+def _outcomes(path: Path) -> Any:
+    report = _load(path)
+    return report["summary"], [(case["case_id"], case["passed"]) for case in report["cases"]]
+
+
 def test_suite_management_demo_reproduces_store_and_artifacts(tmp_path: Path) -> None:
     module = runpy.run_path(str(EXAMPLE.parent / "suite_management_demo.py"))
     result = module["main"](tmp_path)
@@ -34,7 +39,10 @@ def test_suite_management_demo_reproduces_store_and_artifacts(tmp_path: Path) ->
     saved = EXAMPLE / "artifacts"
     for artifact in sorted(saved.iterdir()):
         mine = tmp_path / "artifacts" / artifact.name
-        if artifact.suffix == ".json":
+        if artifact.name == "evaluation.json":
+            # agentic-evals owns the report format; compare outcomes, not every field.
+            assert _outcomes(mine) == _outcomes(artifact)
+        elif artifact.suffix == ".json":
             assert _load(mine) == _load(artifact), artifact.name
         else:
             assert mine.read_text("utf-8") == artifact.read_text("utf-8"), artifact.name
