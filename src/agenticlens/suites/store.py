@@ -68,6 +68,11 @@ def content_sha256(suite_data: dict[str, Any]) -> str:
     return hashlib.sha256(canonical_json(suite_data).encode("utf-8")).hexdigest()
 
 
+def record_sha256(envelope: dict[str, Any]) -> str:
+    """SHA-256 of a stored envelope's canonical JSON, excluding `record_sha256`."""
+    return content_sha256({k: v for k, v in envelope.items() if k != "record_sha256"})
+
+
 def parse_ref(ref: str) -> tuple[str, str]:
     """Split `name@version`."""
     name, separator, version = ref.rpartition("@")
@@ -216,6 +221,7 @@ class SuiteStore:
             ),
             suite=suite_data,
         )
+        record.record_sha256 = record_sha256(record.model_dump(mode="json"))
         path.parent.mkdir(parents=True, exist_ok=True)
         try:
             with path.open("x", encoding="utf-8") as handle:
@@ -228,8 +234,9 @@ class SuiteStore:
 
     def _read(self, path: Path) -> SuiteVersion:
         try:
-            record = SuiteVersion.model_validate_json(path.read_text(encoding="utf-8"))
-        except (OSError, ValidationError) as exc:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            record = SuiteVersion.model_validate(raw)
+        except (OSError, ValueError) as exc:
             raise IntegrityError(f"{path}: unreadable suite version: {exc}") from exc
         actual = content_sha256(record.suite)
         if actual != record.content_sha256:
@@ -237,12 +244,24 @@ class SuiteStore:
                 f"{record.name}@{record.version} content changed after approval "
                 f"(expected sha256 {record.content_sha256[:12]}, found {actual[:12]})"
             )
+        envelope = record_sha256(raw)
+        if envelope != record.record_sha256:
+            raise IntegrityError(
+                f"{record.name}@{record.version} approval record changed after approval "
+                f"(expected sha256 {record.record_sha256[:12] or 'missing'}, "
+                f"found {envelope[:12]})"
+            )
         expected_path = self.path_for(record.name, record.version)
         if path.resolve() != expected_path.resolve():
             raise IntegrityError(f"{path} holds {record.name}@{record.version}; it was moved")
-        suite = TestSuite.model_validate(record.suite)
+        try:
+            suite = TestSuite.model_validate(record.suite)
+        except ValidationError as exc:
+            raise IntegrityError(f"{path}: stored suite is not a valid TestSuite: {exc}") from exc
         if (suite.name, suite.version) != (record.name, record.version):
             raise IntegrityError(f"{path}: envelope and suite name/version disagree")
+        if len(suite.cases) != record.case_count:
+            raise IntegrityError(f"{path}: case_count disagrees with the stored suite")
         return record
 
     def get(self, name: str, version: str) -> SuiteVersion:

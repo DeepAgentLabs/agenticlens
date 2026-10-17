@@ -125,7 +125,9 @@ class SuiteVersion(BaseModel):
 
     `suite` is the agentic-evals `TestSuite` JSON exactly as approved;
     `content_sha256` is computed over its canonical JSON (sorted keys, no
-    whitespace), so any later edit to the stored file is detected.
+    whitespace). `record_sha256` covers the whole envelope except itself, so
+    later edits to the approval record, case count, or parent version are
+    detected as well as edits to the suite.
     """
 
     schema_version: str = SUITE_VERSION_SCHEMA_VERSION
@@ -133,6 +135,9 @@ class SuiteVersion(BaseModel):
     version: str
     status: Literal["approved"] = "approved"
     content_sha256: str = Field(pattern="^[0-9a-f]{64}$")
+    record_sha256: str = Field(
+        default="", description="SHA-256 of the canonical envelope without this field."
+    )
     case_count: int = Field(ge=1)
     parent_version: str | None = None
     approval: ApprovalRecord

@@ -80,6 +80,7 @@ from agenticlens.suites.store import (
     canonical_json,
     content_sha256,
     parse_ref,
+    record_sha256,
 )
 from agenticlens.suites.variation import VARIATIONS, generate_variations, vary_case
 
@@ -144,6 +145,7 @@ __all__ = [
     "new_suite",
     "normalize_input",
     "parse_ref",
+    "record_sha256",
     "remove_cases",
     "review_cases",
     "save_suite_file",
