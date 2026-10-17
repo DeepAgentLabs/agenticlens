@@ -1,0 +1,271 @@
+{
+  "samples": [
+    {
+      "case_id": "refund-policy",
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace": {
+        "trace_id": "replay-refund-policy",
+        "spans": [
+          {
+            "tool_name": "lookup_policy",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "reset-password",
+      "output": "We sent a reset link to your account email.",
+      "trace": {
+        "trace_id": "replay-reset-password",
+        "spans": [
+          {
+            "tool_name": "send_reset_link",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "cancel-plan",
+      "output": "Your subscription is cancelled; you keep access until the period ends.",
+      "trace": {
+        "trace_id": "replay-cancel-plan",
+        "spans": [
+          {
+            "tool_name": "lookup_account",
+            "attributes": {}
+          },
+          {
+            "tool_name": "cancel_subscription",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 600.0,
+        "estimated_cost_usd": 0.0001,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "shipping-time",
+      "output": "Your order ships in 2 business days.",
+      "trace": {
+        "trace_id": "replay-shipping-time",
+        "spans": [
+          {
+            "tool_name": "lookup_order",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "trace-prod-0001",
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace": {
+        "trace_id": "replay-trace-prod-0001",
+        "spans": [
+          {
+            "tool_name": "lookup_policy",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "trace-prod-0002",
+      "output": "Your subscription is cancelled; you keep access until the period ends.",
+      "trace": {
+        "trace_id": "replay-trace-prod-0002",
+        "spans": [
+          {
+            "tool_name": "lookup_account",
+            "attributes": {}
+          },
+          {
+            "tool_name": "cancel_subscription",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 600.0,
+        "estimated_cost_usd": 0.0001,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "feedback-fb-101",
+      "output": "Your order ships in 2 business days.",
+      "trace": {
+        "trace_id": "replay-feedback-fb-101",
+        "spans": [
+          {
+            "tool_name": "lookup_order",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "feedback-fb-102",
+      "output": "Let me connect you with a specialist.",
+      "trace": {
+        "trace_id": "replay-feedback-fb-102",
+        "spans": [
+          {
+            "tool_name": "handoff",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "refund-policy--prefix",
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace": {
+        "trace_id": "replay-refund-policy--prefix",
+        "spans": [
+          {
+            "tool_name": "lookup_policy",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "reset-password--uppercase",
+      "output": "We sent a reset link to your account email.",
+      "trace": {
+        "trace_id": "replay-reset-password--uppercase",
+        "spans": [
+          {
+            "tool_name": "send_reset_link",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "shipping-time--prefix",
+      "output": "Your order ships in 2 business days.",
+      "trace": {
+        "trace_id": "replay-shipping-time--prefix",
+        "spans": [
+          {
+            "tool_name": "lookup_order",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "trace-prod-0001--prefix",
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace": {
+        "trace_id": "replay-trace-prod-0001--prefix",
+        "spans": [
+          {
+            "tool_name": "lookup_policy",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "trace-prod-0002--prefix",
+      "output": "Your subscription is cancelled; you keep access until the period ends.",
+      "trace": {
+        "trace_id": "replay-trace-prod-0002--prefix",
+        "spans": [
+          {
+            "tool_name": "lookup_account",
+            "attributes": {}
+          },
+          {
+            "tool_name": "cancel_subscription",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 600.0,
+        "estimated_cost_usd": 0.0001,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "feedback-fb-101--prefix",
+      "output": "Your order ships in 2 business days.",
+      "trace": {
+        "trace_id": "replay-feedback-fb-101--prefix",
+        "spans": [
+          {
+            "tool_name": "lookup_order",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    },
+    {
+      "case_id": "feedback-fb-102--uppercase",
+      "output": "Let me connect you with a specialist.",
+      "trace": {
+        "trace_id": "replay-feedback-fb-102--uppercase",
+        "spans": [
+          {
+            "tool_name": "handoff",
+            "attributes": {}
+          }
+        ],
+        "total_latency_ms": 300.0,
+        "estimated_cost_usd": 5e-05,
+        "cost_source": "estimated",
+        "metadata": {}
+      }
+    }
+  ]
+}

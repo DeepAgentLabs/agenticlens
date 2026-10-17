@@ -1,0 +1,32 @@
+{
+  "name": "support-regression",
+  "version": "1.0.0",
+  "total_cases": 15,
+  "by_split": {
+    "test": 2,
+    "train": 13
+  },
+  "by_domain": {
+    "account": 5,
+    "billing": 6,
+    "shipping": 4
+  },
+  "by_tag": {
+    "from-feedback": 4,
+    "from-trace": 4,
+    "production": 4,
+    "smoke": 4,
+    "synthetic": 7,
+    "variation:prefix": 5,
+    "variation:uppercase": 2
+  },
+  "by_source": {
+    "feedback": 2,
+    "imported": 4,
+    "synthetic": 7,
+    "trace": 2
+  },
+  "by_review_status": {
+    "accepted": 15
+  }
+}

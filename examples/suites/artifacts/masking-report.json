@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "suite_name": "support-regression",
+  "strategy": "redact",
+  "applied": true,
+  "total": 4,
+  "counts": {
+    "email": 2,
+    "phone": 1,
+    "sensitive_field": 1
+  },
+  "locations": [
+    {
+      "case_id": "refund-policy",
+      "field": "input",
+      "pii_type": "email"
+    },
+    {
+      "case_id": "shipping-time",
+      "field": "input",
+      "pii_type": "phone"
+    },
+    {
+      "case_id": "trace-prod-0002",
+      "field": "input.question",
+      "pii_type": "email"
+    },
+    {
+      "case_id": "trace-prod-0002",
+      "field": "input.account_email",
+      "pii_type": "sensitive_field"
+    }
+  ]
+}

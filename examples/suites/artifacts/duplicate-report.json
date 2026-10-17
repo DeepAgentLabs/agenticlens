@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "suite_name": "support-regression",
+  "threshold": 0.85,
+  "total_cases": 9,
+  "groups": [
+    {
+      "kind": "exact",
+      "case_ids": [
+        "reset-password",
+        "reset-password-dup"
+      ],
+      "keep": "reset-password",
+      "similarity": 1.0,
+      "conflicting": false
+    }
+  ],
+  "duplicate_case_ids": [
+    "reset-password-dup"
+  ],
+  "conflicting_groups": 0
+}

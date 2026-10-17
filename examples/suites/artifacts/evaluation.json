@@ -1,0 +1,995 @@
+{
+  "schema_version": "1.0",
+  "suite_name": "support-regression",
+  "suite_version": "1.0.0",
+  "created_at": "2026-10-17T21:03:30.399406Z",
+  "summary": {
+    "total_cases": 15,
+    "passed_cases": 15,
+    "failed_cases": 0,
+    "pass_rate": 1.0,
+    "average_score": 1.0,
+    "total_cost_usd": 0.0009000000000000001,
+    "priced_cases": 15,
+    "cost_sources": {
+      "estimated": 15
+    },
+    "average_latency_ms": 360.0,
+    "metrics": {
+      "contains": {
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "cost_threshold": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "exact_match": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "forbidden_tool": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "latency_threshold": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "required_tool": {
+        "total": 12,
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "tool_order": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      }
+    },
+    "tags": {
+      "from-feedback": {
+        "total_cases": 4,
+        "passed_cases": 4,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "from-trace": {
+        "total_cases": 4,
+        "passed_cases": 4,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "production": {
+        "total_cases": 4,
+        "passed_cases": 4,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "smoke": {
+        "total_cases": 4,
+        "passed_cases": 4,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "synthetic": {
+        "total_cases": 7,
+        "passed_cases": 7,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "variation:prefix": {
+        "total_cases": 5,
+        "passed_cases": 5,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      },
+      "variation:uppercase": {
+        "total_cases": 2,
+        "passed_cases": 2,
+        "failed_cases": 0,
+        "pass_rate": 1.0,
+        "average_score": 1.0
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "refund-policy",
+      "case_name": "Refund policy",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:30 days",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: '30 days'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:lookup_policy",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_policy' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace_id": "replay-refund-policy",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "smoke"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "imported",
+          "file": "support_cases.csv",
+          "row": 1
+        },
+        "domain": "billing",
+        "split": "train"
+      }
+    },
+    {
+      "case_id": "reset-password",
+      "case_name": "Password reset",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:reset link",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: 'reset link'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:send_reset_link",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'send_reset_link' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "We sent a reset link to your account email.",
+      "trace_id": "replay-reset-password",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "smoke"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "imported",
+          "file": "support_cases.csv",
+          "row": 2
+        },
+        "domain": "account",
+        "split": "train"
+      }
+    },
+    {
+      "case_id": "cancel-plan",
+      "case_name": "Cancel subscription",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:cancelled",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: 'cancelled'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "forbidden_tool:delete_account",
+          "metric": "forbidden_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Forbidden tool 'delete_account' was not called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your subscription is cancelled; you keep access until the period ends.",
+      "trace_id": "replay-cancel-plan",
+      "latency_ms": 600.0,
+      "cost_usd": 0.0001,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [],
+      "metadata": {
+        "source": {
+          "kind": "imported",
+          "file": "support_cases.csv",
+          "row": 4
+        },
+        "domain": "account",
+        "split": "train"
+      }
+    },
+    {
+      "case_id": "shipping-time",
+      "case_name": "Shipping time",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:business days",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: 'business days'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:lookup_order",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_order' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your order ships in 2 business days.",
+      "trace_id": "replay-shipping-time",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [],
+      "metadata": {
+        "source": {
+          "kind": "imported",
+          "file": "support_cases.csv",
+          "row": 5
+        },
+        "domain": "shipping",
+        "split": "train"
+      }
+    },
+    {
+      "case_id": "trace-prod-0001",
+      "case_name": "support-assistant run prod-000",
+      "passed": true,
+      "scores": [
+        {
+          "name": "required_tool:lookup_policy",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_policy' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "latency_threshold",
+          "metric": "latency_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Latency 300.0 ms meets the 1350.0 ms limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "cost_threshold",
+          "metric": "cost_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Cost $0.000050 meets the $0.000210 limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace_id": "replay-trace-prod-0001",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-trace",
+        "production"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "trace",
+          "trace_id": "trace-prod-0001",
+          "run_id": "prod-0001"
+        },
+        "review_status": "accepted",
+        "domain": "billing",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "trace-prod-0002",
+      "case_name": "support-assistant run prod-000",
+      "passed": true,
+      "scores": [
+        {
+          "name": "required_tool:cancel_subscription",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'cancel_subscription' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:lookup_account",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_account' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "tool_order",
+          "metric": "tool_order",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Tools were first called in the required order ['lookup_account', 'cancel_subscription'].",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "latency_threshold",
+          "metric": "latency_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Latency 600.0 ms meets the 1800.0 ms limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "cost_threshold",
+          "metric": "cost_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Cost $0.000100 meets the $0.000210 limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your subscription is cancelled; you keep access until the period ends.",
+      "trace_id": "replay-trace-prod-0002",
+      "latency_ms": 600.0,
+      "cost_usd": 0.0001,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-trace",
+        "production"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "trace",
+          "trace_id": "trace-prod-0002",
+          "run_id": "prod-0002"
+        },
+        "review_status": "accepted",
+        "domain": "account",
+        "split": "test",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "feedback-fb-101",
+      "case_name": "Feedback fb-101",
+      "passed": true,
+      "scores": [
+        {
+          "name": "exact_match",
+          "metric": "exact_match",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output exactly matches the reference.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your order ships in 2 business days.",
+      "trace_id": "replay-feedback-fb-101",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-feedback"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "feedback",
+          "feedback_id": "fb-101"
+        },
+        "review_status": "accepted",
+        "feedback_rating": "positive",
+        "domain": "shipping",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "feedback-fb-102",
+      "case_name": "Feedback fb-102",
+      "passed": true,
+      "scores": [
+        {
+          "name": "exact_match",
+          "metric": "exact_match",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output exactly matches the reference.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Let me connect you with a specialist.",
+      "trace_id": "replay-feedback-fb-102",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-feedback"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "feedback",
+          "feedback_id": "fb-102"
+        },
+        "review_status": "accepted",
+        "feedback_rating": "negative",
+        "feedback_comment": "Invoices are handled by the billing team; the bot should hand off.",
+        "rejected_output": "No.",
+        "domain": "billing",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "refund-policy--prefix",
+      "case_name": "Refund policy (prefix)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:30 days",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: '30 days'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:lookup_policy",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_policy' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace_id": "replay-refund-policy--prefix",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "smoke",
+        "synthetic",
+        "variation:prefix"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "refund-policy",
+          "variation": "prefix",
+          "seed": 7
+        },
+        "domain": "billing",
+        "review_status": "accepted",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "reset-password--uppercase",
+      "case_name": "Password reset (uppercase)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:reset link",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: 'reset link'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:send_reset_link",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'send_reset_link' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "We sent a reset link to your account email.",
+      "trace_id": "replay-reset-password--uppercase",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "smoke",
+        "synthetic",
+        "variation:uppercase"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "reset-password",
+          "variation": "uppercase",
+          "seed": 7
+        },
+        "domain": "account",
+        "review_status": "accepted",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "shipping-time--prefix",
+      "case_name": "Shipping time (prefix)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "contains:business days",
+          "metric": "contains",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output contains required text: 'business days'.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:lookup_order",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_order' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your order ships in 2 business days.",
+      "trace_id": "replay-shipping-time--prefix",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "synthetic",
+        "variation:prefix"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "shipping-time",
+          "variation": "prefix",
+          "seed": 7
+        },
+        "domain": "shipping",
+        "review_status": "accepted",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "trace-prod-0001--prefix",
+      "case_name": "support-assistant run prod-000 (prefix)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "required_tool:lookup_policy",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_policy' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "latency_threshold",
+          "metric": "latency_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Latency 300.0 ms meets the 1350.0 ms limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "cost_threshold",
+          "metric": "cost_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Cost $0.000050 meets the $0.000210 limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Refunds are issued within 30 days to the original payment method.",
+      "trace_id": "replay-trace-prod-0001--prefix",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-trace",
+        "production",
+        "synthetic",
+        "variation:prefix"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "trace-prod-0001",
+          "variation": "prefix",
+          "seed": 7
+        },
+        "review_status": "accepted",
+        "domain": "billing",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "trace-prod-0002--prefix",
+      "case_name": "support-assistant run prod-000 (prefix)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "required_tool:cancel_subscription",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'cancel_subscription' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "required_tool:lookup_account",
+          "metric": "required_tool",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Required tool 'lookup_account' was called.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "tool_order",
+          "metric": "tool_order",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Tools were first called in the required order ['lookup_account', 'cancel_subscription'].",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "latency_threshold",
+          "metric": "latency_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Latency 600.0 ms meets the 1800.0 ms limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        },
+        {
+          "name": "cost_threshold",
+          "metric": "cost_threshold",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Cost $0.000100 meets the $0.000210 limit.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your subscription is cancelled; you keep access until the period ends.",
+      "trace_id": "replay-trace-prod-0002--prefix",
+      "latency_ms": 600.0,
+      "cost_usd": 0.0001,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-trace",
+        "production",
+        "synthetic",
+        "variation:prefix"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "trace-prod-0002",
+          "variation": "prefix",
+          "seed": 7
+        },
+        "review_status": "accepted",
+        "domain": "account",
+        "split": "test",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "feedback-fb-101--prefix",
+      "case_name": "Feedback fb-101 (prefix)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "exact_match",
+          "metric": "exact_match",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output exactly matches the reference.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Your order ships in 2 business days.",
+      "trace_id": "replay-feedback-fb-101--prefix",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-feedback",
+        "synthetic",
+        "variation:prefix"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "feedback-fb-101",
+          "variation": "prefix",
+          "seed": 7
+        },
+        "review_status": "accepted",
+        "feedback_rating": "positive",
+        "domain": "shipping",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    },
+    {
+      "case_id": "feedback-fb-102--uppercase",
+      "case_name": "Feedback fb-102 (uppercase)",
+      "passed": true,
+      "scores": [
+        {
+          "name": "exact_match",
+          "metric": "exact_match",
+          "value": 1.0,
+          "passed": true,
+          "required": true,
+          "skipped": false,
+          "explanation": "Output exactly matches the reference.",
+          "evaluator_type": "deterministic",
+          "evaluator": "agentic_evals.builtin",
+          "evaluator_version": "0.7.1",
+          "metadata": {}
+        }
+      ],
+      "output": "Let me connect you with a specialist.",
+      "trace_id": "replay-feedback-fb-102--uppercase",
+      "latency_ms": 300.0,
+      "cost_usd": 5e-05,
+      "cost_source": "estimated",
+      "sample_available": true,
+      "tags": [
+        "from-feedback",
+        "synthetic",
+        "variation:uppercase"
+      ],
+      "metadata": {
+        "source": {
+          "kind": "synthetic",
+          "parent_case_id": "feedback-fb-102",
+          "variation": "uppercase",
+          "seed": 7
+        },
+        "review_status": "accepted",
+        "feedback_rating": "negative",
+        "feedback_comment": "Invoices are handled by the billing team; the bot should hand off.",
+        "rejected_output": "No.",
+        "domain": "billing",
+        "split": "train",
+        "reviewed_by": "support-qa"
+      }
+    }
+  ]
+}
