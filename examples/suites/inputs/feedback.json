@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "feedback": [
+    {
+      "feedback_id": "fb-101",
+      "input": "Where is my parcel? Order 5521.",
+      "output": "Your order ships in 2 business days.",
+      "rating": "positive",
+      "submitted_by": "support-portal",
+      "domain": "shipping"
+    },
+    {
+      "feedback_id": "fb-102",
+      "input": "Can I pay by invoice instead of card?",
+      "output": "No.",
+      "rating": "negative",
+      "corrected_output": "Let me connect you with a specialist.",
+      "comment": "Invoices are handled by the billing team; the bot should hand off.",
+      "domain": "billing"
+    },
+    {
+      "feedback_id": "fb-103",
+      "input": "Do you price-match?",
+      "output": "Yes, always.",
+      "rating": "negative",
+      "comment": "Wrong, but the agent left no correction."
+    },
+    {
+      "feedback_id": "fb-104",
+      "run_id": "prod-0003",
+      "score": 0.1,
+      "comment": "Order lookup timed out."
+    }
+  ]
+}

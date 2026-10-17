@@ -1,0 +1,6 @@
+id,name,input,expected_contains,required_tools,forbidden_tools,tags,domain
+refund-policy,Refund policy,How do I get a refund? My email is jo.doe@example.com,30 days,lookup_policy,,smoke,billing
+reset-password,Password reset,"I forgot my password, please reset it",reset link,send_reset_link,,smoke,account
+reset-password-dup,Password reset (duplicate row),i forgot my password please reset it,reset link,send_reset_link,,,account
+cancel-plan,Cancel subscription,Cancel my subscription today,cancelled,,delete_account,,account
+shipping-time,Shipping time,How long does shipping take? Call me at +1 415 555 0134,business days,lookup_order,,,shipping
