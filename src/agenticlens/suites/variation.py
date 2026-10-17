@@ -116,10 +116,11 @@ def generate_variations(
     seed: int = 0,
     include_synthetic: bool = False,
 ) -> list[TestCase]:
-    """Up to `per_case` variants for each case, chosen reproducibly from `kinds`.
+    """New variants so each original has up to `per_case`, chosen reproducibly from `kinds`.
 
-    Variants of variants are not generated unless `include_synthetic` is set.
-    Variants whose ID already exists in the suite are left out.
+    Variants already in the suite count toward `per_case`, so running this
+    again on its own output adds nothing. Variants of variants are not
+    generated unless `include_synthetic` is set.
     """
     if per_case < 1:
         raise ValueError("per_case must be at least 1")
@@ -128,6 +129,12 @@ def generate_variations(
         if kind not in VARIATIONS:
             raise ValueError(f"unknown variation {kind!r}; choose from {', '.join(VARIATIONS)}")
     existing = {case.id for case in suite.cases}
+    have: dict[str, int] = {}
+    for case in suite.cases:
+        source = case.metadata.get(SOURCE_KEY)
+        if isinstance(source, dict) and source.get("kind") == "synthetic":
+            parent = str(source.get("parent_case_id"))
+            have[parent] = have.get(parent, 0) + 1
     variants: list[TestCase] = []
     for case in suite.cases:
         source = case.metadata.get(SOURCE_KEY)
@@ -135,7 +142,7 @@ def generate_variations(
             continue
         order = list(allowed)
         random.Random(f"{seed}:{case.id}").shuffle(order)
-        made = 0
+        made = have.get(case.id, 0)
         for kind in order:
             if made >= per_case:
                 break
