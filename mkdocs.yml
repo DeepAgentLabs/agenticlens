@@ -19,6 +19,7 @@ nav:
   - Evaluation and Release Gates: evaluation-and-release-gates.md
   - Experiments and Statistical Comparison: experiments.md
   - Diagnosis and Failure Attribution: diagnosis.md
+  - Tower 0.6 Recovery: control-tower-0.6.md
   - Multi-Agent Reference Workflows: multi-agent-reference-workflows.md
 
 markdown_extensions:

@@ -21,10 +21,12 @@ credential binding, bulk operations and incident console views remain planned.
 
 ## Example and dependency matrix
 
-From a sibling workspace, run:
+From a sibling workspace, create a versioned Tower checkout (omit clone if
+already present). The example first ships in `v0.6.0`; it is absent from 0.5.x:
 
 ```bash
-cd ../agenticops-control-tower
+git clone --branch v0.6.0 https://github.com/DeepAgentLabs/agenticops-control-tower.git ../tower-0.6.0
+cd ../tower-0.6.0
 uv run --with ../agenticlens --with ../agentic-evals python examples/incident_recovery.py
 uv run --with ../agenticlens --with ../agentic-evals python examples/incident_recovery.py --fail-verification
 make test-ecosystem
@@ -34,8 +36,10 @@ The two walkthrough outputs are `resolved` and `escalated`. The actual producer
 matrix is Lens 0.7.1, Evals 0.7.1, Sidecar 0.8.0 and Chaos 0.5.3; MCP 0.3.6
 exposes the real authenticated Tower 0.6.0 API. Native artifact readers do not
 require those packages at Tower startup. MCP uses HTTP and does not import Tower.
-AIOS 0.5.1 semantics remain draft and are not silently elevated to a new standard.
+`ai-operations-spec` 0.5.1 is a repository/catalog release, not an AIOS
+schema version. Lens supports AIOS v0.4-draft only; Tower-local incident
+contracts make no AIOS conformance claim.
 
-See [the operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/main/docs/incident-recovery.md)
-and [MCP setup](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/main/docs/mcp-connector.md)
+See [the operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.6.0/docs/incident-recovery.md)
+and [MCP setup](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.6.0/docs/mcp-connector.md)
 for API requests, credentials, supported scope and recovery limits.
