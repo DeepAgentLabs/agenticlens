@@ -68,6 +68,11 @@ DEFAULT_SENSITIVE_KEYS = (
 _PLACEHOLDER = re.compile(r"\[[A-Z_]+(?::[0-9a-f]{8})?\]")
 
 
+def is_placeholder(value: str) -> bool:
+    """True when `value` is exactly a mask placeholder such as `[EMAIL]`."""
+    return _PLACEHOLDER.fullmatch(value) is not None
+
+
 def _luhn(digits: str) -> bool:
     total = 0
     for index, char in enumerate(reversed(digits)):
@@ -182,7 +187,8 @@ class PIIMasker:
                     and isinstance(item, (str, int))
                     and not isinstance(item, bool)
                     and item != ""
-                    and not (isinstance(item, str) and _PLACEHOLDER.fullmatch(item))
+                    # Already masked, possibly with text added around it later.
+                    and not (isinstance(item, str) and _PLACEHOLDER.search(item))
                 ):
                     result[key] = self.placeholder("sensitive_field", str(item))
                     found.append((child, "sensitive_field"))
