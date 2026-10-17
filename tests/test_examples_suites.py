@@ -17,9 +17,19 @@ EXAMPLE = Path(__file__).resolve().parents[1] / "examples" / "suites"
 MEASURED = {"created_at"}
 
 
+def _normalize(value: Any) -> Any:
+    # Float sums differ in the last digit across Python versions (3.12 sum()).
+    if isinstance(value, dict):
+        return {k: _normalize(v) for k, v in value.items() if k not in MEASURED}
+    if isinstance(value, list):
+        return [_normalize(item) for item in value]
+    if isinstance(value, float):
+        return round(value, 9)
+    return value
+
+
 def _load(path: Path) -> Any:
-    data = json.loads(path.read_text("utf-8"))
-    return {k: v for k, v in data.items() if k not in MEASURED} if isinstance(data, dict) else data
+    return _normalize(json.loads(path.read_text("utf-8")))
 
 
 def _outcomes(path: Path) -> Any:
