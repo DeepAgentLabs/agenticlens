@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/suites/masking-report.schema.json",
+  "$defs": {
+    "MaskedLocation": {
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "field": {
+          "description": "Dotted path to the masked value, e.g. input.customer.email.",
+          "title": "Field",
+          "type": "string"
+        },
+        "pii_type": {
+          "enum": [
+            "email",
+            "phone",
+            "credit_card",
+            "us_ssn",
+            "ipv4",
+            "secret",
+            "sensitive_field"
+          ],
+          "title": "Pii Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "field",
+        "pii_type"
+      ],
+      "title": "MaskedLocation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "suite_name": {
+      "title": "Suite Name",
+      "type": "string"
+    },
+    "strategy": {
+      "enum": [
+        "redact",
+        "hash"
+      ],
+      "title": "Strategy",
+      "type": "string"
+    },
+    "applied": {
+      "description": "False for a scan that reported but changed nothing.",
+      "title": "Applied",
+      "type": "boolean"
+    },
+    "total": {
+      "default": 0,
+      "title": "Total",
+      "type": "integer"
+    },
+    "counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Counts",
+      "type": "object"
+    },
+    "locations": {
+      "items": {
+        "$ref": "#/$defs/MaskedLocation"
+      },
+      "title": "Locations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "suite_name",
+    "strategy",
+    "applied"
+  ],
+  "title": "AgenticLens Masking Report",
+  "type": "object"
+}

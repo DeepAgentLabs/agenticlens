@@ -1,0 +1,592 @@
+{
+  "schema_version": "1.0",
+  "name": "support-regression",
+  "version": "1.0.0",
+  "status": "approved",
+  "content_sha256": "f73877cc6a76bdf62f5bba2230155809fab39c37dc1113a4d5865db606000ab6",
+  "record_sha256": "256f39326b354747f3aee1990267805b0cdc291a9efed09afe3620b165a96cc9",
+  "case_count": 15,
+  "parent_version": null,
+  "approval": {
+    "approved_by": "support-qa",
+    "approved_at": "2026-10-17T00:00:00Z",
+    "notes": "Initial regression suite from CSV, production traces, and feedback.",
+    "checks": [
+      {
+        "name": "review",
+        "passed": true,
+        "detail": "15/15 case(s) accepted"
+      },
+      {
+        "name": "pii",
+        "passed": true,
+        "detail": "no unmasked PII detected"
+      },
+      {
+        "name": "conflicting_duplicates",
+        "passed": true,
+        "detail": "none (0 non-conflicting duplicate group(s))"
+      }
+    ]
+  },
+  "suite": {
+    "name": "support-regression",
+    "version": "1.0.0",
+    "description": "",
+    "cases": [
+      {
+        "id": "refund-policy",
+        "name": "Refund policy",
+        "input": "How do I get a refund? My email is [EMAIL]",
+        "expected_output": null,
+        "expected_contains": [
+          "30 days"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "lookup_policy"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "smoke"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "imported",
+            "file": "support_cases.csv",
+            "row": 1
+          },
+          "domain": "billing",
+          "split": "train"
+        }
+      },
+      {
+        "id": "reset-password",
+        "name": "Password reset",
+        "input": "I forgot my password, please reset it",
+        "expected_output": null,
+        "expected_contains": [
+          "reset link"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "send_reset_link"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "smoke"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "imported",
+            "file": "support_cases.csv",
+            "row": 2
+          },
+          "domain": "account",
+          "split": "train"
+        }
+      },
+      {
+        "id": "cancel-plan",
+        "name": "Cancel subscription",
+        "input": "Cancel my subscription today",
+        "expected_output": null,
+        "expected_contains": [
+          "cancelled"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [],
+        "forbidden_tools": [
+          "delete_account"
+        ],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [],
+        "metadata": {
+          "source": {
+            "kind": "imported",
+            "file": "support_cases.csv",
+            "row": 4
+          },
+          "domain": "account",
+          "split": "train"
+        }
+      },
+      {
+        "id": "shipping-time",
+        "name": "Shipping time",
+        "input": "How long does shipping take? Call me at [PHONE]",
+        "expected_output": null,
+        "expected_contains": [
+          "business days"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "lookup_order"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [],
+        "metadata": {
+          "source": {
+            "kind": "imported",
+            "file": "support_cases.csv",
+            "row": 5
+          },
+          "domain": "shipping",
+          "split": "train"
+        }
+      },
+      {
+        "id": "trace-prod-0001",
+        "name": "support-assistant run prod-000",
+        "input": {
+          "question": "Is there a fee if I return a jacket after two weeks?"
+        },
+        "expected_output": null,
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "lookup_policy"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": 1350.0,
+        "max_cost_usd": 0.00021,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-trace",
+          "production"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "trace",
+            "trace_id": "trace-prod-0001",
+            "run_id": "prod-0001"
+          },
+          "review_status": "accepted",
+          "domain": "billing",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "trace-prod-0002",
+        "name": "support-assistant run prod-000",
+        "input": {
+          "question": "Please cancel my plan, my account is [EMAIL]",
+          "account_email": "[SENSITIVE_FIELD]"
+        },
+        "expected_output": null,
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "cancel_subscription",
+          "lookup_account"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [
+          "lookup_account",
+          "cancel_subscription"
+        ],
+        "max_latency_ms": 1800.0,
+        "max_cost_usd": 0.00021,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-trace",
+          "production"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "trace",
+            "trace_id": "trace-prod-0002",
+            "run_id": "prod-0002"
+          },
+          "review_status": "accepted",
+          "domain": "account",
+          "split": "test",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "feedback-fb-101",
+        "name": "Feedback fb-101",
+        "input": "Where is my parcel? Order 5521.",
+        "expected_output": "Your order ships in 2 business days.",
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-feedback"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "feedback",
+            "feedback_id": "fb-101"
+          },
+          "review_status": "accepted",
+          "feedback_rating": "positive",
+          "domain": "shipping",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "feedback-fb-102",
+        "name": "Feedback fb-102",
+        "input": "Can I pay by invoice instead of card?",
+        "expected_output": "Let me connect you with a specialist.",
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-feedback"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "feedback",
+            "feedback_id": "fb-102"
+          },
+          "review_status": "accepted",
+          "feedback_rating": "negative",
+          "feedback_comment": "Invoices are handled by the billing team; the bot should hand off.",
+          "rejected_output": "No.",
+          "domain": "billing",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "refund-policy--prefix",
+        "name": "Refund policy (prefix)",
+        "input": "Quick question: How do I get a refund? My email is [EMAIL]",
+        "expected_output": null,
+        "expected_contains": [
+          "30 days"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "lookup_policy"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "smoke",
+          "synthetic",
+          "variation:prefix"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "refund-policy",
+            "variation": "prefix",
+            "seed": 7
+          },
+          "domain": "billing",
+          "review_status": "accepted",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "reset-password--uppercase",
+        "name": "Password reset (uppercase)",
+        "input": "I FORGOT MY PASSWORD, PLEASE RESET IT",
+        "expected_output": null,
+        "expected_contains": [
+          "reset link"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "send_reset_link"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "smoke",
+          "synthetic",
+          "variation:uppercase"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "reset-password",
+            "variation": "uppercase",
+            "seed": 7
+          },
+          "domain": "account",
+          "review_status": "accepted",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "shipping-time--prefix",
+        "name": "Shipping time (prefix)",
+        "input": "Hello! How long does shipping take? Call me at [PHONE]",
+        "expected_output": null,
+        "expected_contains": [
+          "business days"
+        ],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "lookup_order"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "synthetic",
+          "variation:prefix"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "shipping-time",
+            "variation": "prefix",
+            "seed": 7
+          },
+          "domain": "shipping",
+          "review_status": "accepted",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "trace-prod-0001--prefix",
+        "name": "support-assistant run prod-000 (prefix)",
+        "input": {
+          "question": "Quick question: Is there a fee if I return a jacket after two weeks?"
+        },
+        "expected_output": null,
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "lookup_policy"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": 1350.0,
+        "max_cost_usd": 0.00021,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-trace",
+          "production",
+          "synthetic",
+          "variation:prefix"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "trace-prod-0001",
+            "variation": "prefix",
+            "seed": 7
+          },
+          "review_status": "accepted",
+          "domain": "billing",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "trace-prod-0002--prefix",
+        "name": "support-assistant run prod-000 (prefix)",
+        "input": {
+          "question": "Hello! Please cancel my plan, my account is [EMAIL]",
+          "account_email": "[SENSITIVE_FIELD]"
+        },
+        "expected_output": null,
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [
+          "cancel_subscription",
+          "lookup_account"
+        ],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [
+          "lookup_account",
+          "cancel_subscription"
+        ],
+        "max_latency_ms": 1800.0,
+        "max_cost_usd": 0.00021,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-trace",
+          "production",
+          "synthetic",
+          "variation:prefix"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "trace-prod-0002",
+            "variation": "prefix",
+            "seed": 7
+          },
+          "review_status": "accepted",
+          "domain": "account",
+          "split": "test",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "feedback-fb-101--prefix",
+        "name": "Feedback fb-101 (prefix)",
+        "input": "Hello! Where is my parcel? Order 5521.",
+        "expected_output": "Your order ships in 2 business days.",
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-feedback",
+          "synthetic",
+          "variation:prefix"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "feedback-fb-101",
+            "variation": "prefix",
+            "seed": 7
+          },
+          "review_status": "accepted",
+          "feedback_rating": "positive",
+          "domain": "shipping",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      },
+      {
+        "id": "feedback-fb-102--uppercase",
+        "name": "Feedback fb-102 (uppercase)",
+        "input": "CAN I PAY BY INVOICE INSTEAD OF CARD?",
+        "expected_output": "Let me connect you with a specialist.",
+        "expected_contains": [],
+        "output_json_schema": null,
+        "required_output_fields": [],
+        "required_tools": [],
+        "forbidden_tools": [],
+        "required_tool_arguments": {},
+        "expected_tool_arguments": {},
+        "required_tool_order": [],
+        "max_latency_ms": null,
+        "max_cost_usd": null,
+        "max_turns": null,
+        "evaluators": [],
+        "tags": [
+          "from-feedback",
+          "synthetic",
+          "variation:uppercase"
+        ],
+        "metadata": {
+          "source": {
+            "kind": "synthetic",
+            "parent_case_id": "feedback-fb-102",
+            "variation": "uppercase",
+            "seed": 7
+          },
+          "review_status": "accepted",
+          "feedback_rating": "negative",
+          "feedback_comment": "Invoices are handled by the billing team; the bot should hand off.",
+          "rejected_output": "No.",
+          "domain": "billing",
+          "split": "train",
+          "reviewed_by": "support-qa"
+        }
+      }
+    ],
+    "metadata": {}
+  }
+}

@@ -29,6 +29,7 @@ candidate configurations against reviewed baselines.
 | Comparison | Success, tokens, latency, cost, variability, and regression deltas |
 | Diagnosis | Failure taxonomy, faulty step and agent, incident timeline, baseline anomalies |
 | Evaluation quality | Deterministic vs model-based scores, judge cost, evaluator disagreement |
+| Regression suites | Cases from CSV/JSON, traces, and feedback; PII masking, duplicates, splits, approved immutable versions |
 
 ## Token Optimization Focus
 
@@ -62,6 +63,7 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [RAG chunk utility](rag-chunk-utility.md)
 - [Trace and comparison](trace-and-comparison.md)
 - [Evaluation and release gates](evaluation-and-release-gates.md)
+- [Test-suite and dataset management](suite-management.md)
 - [Diagnosis and failure attribution](diagnosis.md)
 - [Experiments and statistical comparison](experiments.md)
 - [Multi-agent reference workflows](multi-agent-reference-workflows.md)

@@ -37,6 +37,35 @@ jobs:
       - name: Test (pytest)
         run: uv run pytest
 
+  regression-suite:
+    # Runs an approved, hash-verified suite the way a team's CI would:
+    # refuse altered versions, export, evaluate recorded outputs, then gate.
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --extra dev --python 3.12
+      - name: Verify approved suite versions
+        run: uv run agenticlens suite verify --store examples/suites/store
+      - name: Export the approved suite
+        run: >
+          uv run agenticlens suite export support-regression@1.0.0
+          --store examples/suites/store --save build/regression-suite.json
+      - name: Evaluate recorded outputs
+        run: >
+          uv run agenticlens evaluate build/regression-suite.json
+          examples/suites/artifacts/samples.json
+          --save build/evaluation.json --strict-evidence
+      - name: Release gate
+        run: uv run agenticlens gate build/evaluation.json --notify-state build/gate-state.json
+
   package:
     runs-on: ubuntu-latest
     needs: test

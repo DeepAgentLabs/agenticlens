@@ -24,6 +24,7 @@ from agenticlens.cli.render_diagnosis import (
     render_score_analysis,
     render_timeline,
 )
+from agenticlens.cli.suite import suite_app
 from agenticlens.comparison import (
     ComparisonReport,
     compare_runs,
@@ -107,6 +108,7 @@ app.add_typer(dataset_app, name="dataset")
 app.add_typer(experiment_app, name="experiment")
 trace_app = typer.Typer(help="Show traces, single spans, and incident timelines.")
 app.add_typer(trace_app, name="trace")
+app.add_typer(suite_app, name="suite")
 console = Console()
 
 

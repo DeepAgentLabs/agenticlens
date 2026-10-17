@@ -52,8 +52,12 @@ measured on controlled failures, incident timelines, baseline anomaly
 detection, investigation narratives, analysis guardrails, trace-aware
 evaluators, judge cost recording, deterministic vs model-based score
 separation with evaluator disagreement, and rule-cited AIOS conformance
-summaries. Development continues with test-suite and dataset management
-(v0.6). The
+summaries. Release 0.8.0 delivers v0.6 test-suite and dataset management:
+suites built from CSV/JSON imports, production traces, and user feedback, with
+editors, tags and domains, stable splits, synthetic variations, duplicate
+detection, PII masking, review and approval metadata, and immutable,
+hash-verified suite versions that CI can verify, export, and evaluate.
+Development continues with ModelFit (v0.7). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
@@ -76,6 +80,7 @@ and missing features with source/test evidence and open acceptance gates.
 - [Evaluation and Release Gates](#evaluation-and-release-gates)
 - [Experiments and Statistical Comparison](#experiments-and-statistical-comparison)
 - [Diagnosis and Failure Attribution](#diagnosis-and-failure-attribution)
+- [Test-Suite and Dataset Management](#test-suite-and-dataset-management)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -234,6 +239,10 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Analysis guardrails (span/depth/time/cost caps, stagnation detection) | Implemented, experimental |
 | Trace-aware evaluators (trajectory, goal, handoff, loop, RAG, safety) | Implemented, experimental |
 | Judge cost recording, deterministic vs model-based scores, evaluator disagreement | Implemented, experimental |
+| Suites from CSV/JSON, production traces, and user feedback | Implemented, experimental |
+| Suite editors, tags, domains, stable splits, synthetic variations | Implemented, experimental |
+| Duplicate and conflicting-label detection, PII masking before storage | Implemented, experimental |
+| Reviewed, immutable, hash-verified suite versions for CI | Implemented, experimental |
 | AIOS draft validation and conformance CLI (rule-cited summaries) | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
@@ -510,6 +519,57 @@ print(explain_run(report))
 
 Reports are reproducible from the saved trace and published as JSON Schemas in
 `schemas/diagnosis/`. Full guide: [docs/diagnosis.md](docs/diagnosis.md).
+
+## Test-Suite and Dataset Management
+
+`agenticlens suite` turns hand-written cases, production traces, and user
+feedback into reviewed regression suites, then freezes approved versions so CI
+runs exactly what was reviewed.
+
+```bash
+agenticlens suite import cases.csv --name support --version 1.0.0 --save suite.yaml
+agenticlens suite from-traces traces/ --into suite.yaml --save suite.yaml
+agenticlens suite from-feedback feedback.json --into suite.yaml --save suite.yaml --traces traces/
+agenticlens suite dedupe suite.yaml --drop          # exact, near, and conflicting duplicates
+agenticlens suite vary suite.yaml --per-case 2      # typo, prefix, case, whitespace variants
+agenticlens suite split suite.yaml --seed 7         # stable, lineage-aware splits
+agenticlens suite review suite.yaml --status accepted --reviewer qa-lead
+agenticlens suite approve suite.yaml --store suites/ --approver qa-lead
+agenticlens suite verify --store suites/ && \
+  agenticlens suite export support@1.0.0 --store suites/ --save build/suite.json --split test
+```
+
+```python
+from agenticlens.suites import SuiteStore, cases_from_runs, mask_suite, new_suite
+
+result = cases_from_runs(runs)                 # skipped runs come with a reason
+suite, report = mask_suite(new_suite(name="support", version="1.0.0", cases=result.cases))
+SuiteStore("suites").approve(suite, approved_by="qa-lead", allow_unreviewed=True)
+```
+
+- **Sources**: CSV (unknown columns rejected), JSON, JSON Lines, and YAML
+  imports. Successful traces expect their tool trajectory and latency and
+  cost within a margin. Feedback expects the corrected output, or the output
+  a user confirmed. Failed runs and uncorrected negative feedback are
+  skipped with a reason.
+- **Review**: converted and synthetic cases start as `needs_review`. Every
+  case records its lineage (file and row, trace and run, feedback ID, or
+  parent case).
+- **Quality**: duplicate groups flag cases that share an input but expect
+  different results. Synthetic variations are surface perturbations, not
+  paraphrases, and stay in their parent's split.
+- **Privacy**: emails, phones, Luhn-valid cards, SSNs, IPv4 addresses,
+  secrets, and sensitive keys are masked (`redact` or salted `hash`) before
+  anything is written. Reports never contain the masked value.
+- **Approval**: refused (exit 6) when cases are rejected or unreviewed, PII
+  is unmasked, or duplicates conflict. Approved versions are written once and
+  re-hashed on every read, so an edited version fails `verify` and `export`.
+
+Suites remain agentic-evals `TestSuite` files, so `evaluate`, `evaluate-live`,
+and `experiment run` accept them unchanged. Schemas are in `schemas/suites/`.
+The reproducible example is
+[`examples/suite_management_demo.py`](examples/suite_management_demo.py).
+Full guide: [docs/suite-management.md](docs/suite-management.md).
 
 ## Dashboard Report
 
@@ -1171,6 +1231,19 @@ jobs:
 regressions are detected. Invalid inputs or unreadable traces return exit code
 `1`.
 
+To gate on an approved regression suite instead, verify the store, export the
+version, evaluate, and gate:
+
+```yaml
+      - run: uv run agenticlens suite verify --store suites
+      - run: uv run agenticlens suite export support@1.0.0 --store suites --save build/suite.json
+      - run: uv run agenticlens evaluate-live build/suite.json --target-kind http --target https://agent.internal/run --save build/evaluation.json
+      - run: uv run agenticlens gate build/evaluation.json
+```
+
+`suite verify` and `suite export` exit `6` when a stored version is missing or
+was changed after approval.
+
 ## Portable Schemas
 
 Versioned JSON Schemas are provided for:
@@ -1181,6 +1254,8 @@ Versioned JSON Schemas are provided for:
 - experiment manifests and reports: `schemas/experiments/`
 - diagnosis and attribution-accuracy reports: `schemas/diagnosis/`
 - evaluation score analysis: `schemas/evaluation/score-analysis.schema.json`
+- approved suite versions, feedback batches, duplicate and masking reports:
+  `schemas/suites/`
 
 The schemas are included in wheel distributions under `agenticlens/schemas`.
 They allow external systems to validate and consume artifacts without depending
@@ -1496,6 +1571,9 @@ Other examples:
 - `examples/advanced_evaluation_demo.py` — trace-aware evaluators, a costed
   structured judge, and the score analysis (deterministic vs model-based,
   judge cost, disagreement)
+- `examples/suite_management_demo.py` — build a regression suite from CSV,
+  production traces, and feedback; mask, de-duplicate, vary, split, review,
+  approve, export, and evaluate (artifacts in `examples/suites/`)
 - `examples/rag_scoring_demo.py` — RAG chunk utility with reranker/embedding/citation signals
 - `examples/custom_llm_judge.py` — registering a custom `LLMJudgeEvaluator` for
   the shared evaluator contract
@@ -1700,6 +1778,7 @@ uv run agenticlens experiment run experiment.yaml suite.yaml \
 | `experiment report` | Re-render a saved experiment report as console, HTML, or CSV output |
 | `calibrate` | Compare judge verdicts with human labels; optionally tune the threshold |
 | `dataset` | Summarize, split, and export versioned evaluation datasets |
+| `suite` | Build, edit, mask, de-duplicate, vary, split, review, approve, verify, export, and diff test suites |
 | `gate` | Enforce release thresholds; optionally alert a webhook with cooldowns |
 
 The `compare` command accepts either one JSON trace file or a directory of
@@ -1727,6 +1806,10 @@ The `compare` command accepts either one JSON trace file or a directory of
 - `evaluate-live` assumes trusted targets and suite definitions.
 - Framework adapters remain planned.
 - Gate webhook alerts send at most one request per gate run and do not retry.
+- Suite PII masking is pattern-based: names, free-text street addresses, and
+  locale-specific identifiers are not detected. Synthetic variations are
+  surface perturbations, not paraphrases. Duplicate detection is pairwise and
+  lexical. Suite approval records who approved; it does not authenticate them.
 
 ## Development
 
@@ -1769,6 +1852,8 @@ src/agenticlens/
   experiments/     multi-variant experiments, pass@k statistics, HTML/CSV reports
   diagnosis/       failure taxonomy, diagnosis rules, attribution, timelines,
                    anomalies, guardrails, narratives, attribution accuracy
+  suites/          suite imports, trace/feedback conversion, editors, variations,
+                   duplicates, PII masking, splits, approval, immutable store
   adapters/        OTLP ingestion
   api/             optional live OTLP receiver and trace store
   reports/         trace inspection rendering
@@ -1780,17 +1865,18 @@ src/agenticlens/
   cli/            Typer CLI and Rich rendering
   config/         pricing and settings
   models/         Pydantic data models
-schemas/           versioned trace, finding, report, experiment, diagnosis, and
-                   score-analysis JSON Schemas
+schemas/           versioned trace, finding, report, experiment, diagnosis,
+                   score-analysis, and suite JSON Schemas
 ```
 
 ## Roadmap
 
 Near-term priorities:
 
-- v0.6 test-suite and dataset management: trace-to-test-case conversion,
-  immutable approved suite versions, PII masking, and duplicate detection
-- richer dataset curation workflows beyond versioned local dataset artifacts
+- v0.7 ModelFit: task-level model recommendations under quality, cost,
+  latency, safety, and provider constraints, tied to experiment evidence
+- semantic (embedding or judge-based) duplicate detection and paraphrase
+  variations as optional suite extensions
 - automatic pricing resolution for research trace spans
 - prompt caching opportunity detection
 - integrations for LangChain, LangGraph, LiteLLM, and OpenAI Agents SDK

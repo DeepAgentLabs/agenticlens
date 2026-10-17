@@ -18,6 +18,7 @@ nav:
   - Trace and Comparison: trace-and-comparison.md
   - Evaluation and Release Gates: evaluation-and-release-gates.md
   - Evals Native Report Contract: evals-report-contract.md
+  - Test-Suite and Dataset Management: suite-management.md
   - Experiments and Statistical Comparison: experiments.md
   - Diagnosis and Failure Attribution: diagnosis.md
   - Tower 0.6 Recovery: control-tower-0.6.md
