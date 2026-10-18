@@ -221,13 +221,18 @@ def check_constraints(metrics: CandidateMetrics, constraints: ModelConstraints) 
                 ),
             )
         )
-    if metrics.provider is not None and metrics.provider in constraints.blocked_providers:
+    blocked = constraints.blocked_providers or []
+    if blocked and (metrics.provider is None or metrics.provider in blocked):
         violations.append(
             Violation(
                 constraint="blocked_providers",
-                limit=constraints.blocked_providers,
+                limit=blocked,
                 observed=metrics.provider,
-                message=f"Provider {metrics.provider!r} is blocked.",
+                message=(
+                    f"Provider {metrics.provider!r} is blocked."
+                    if metrics.provider
+                    else "Provider is unknown, so the provider block-list cannot be verified."
+                ),
             )
         )
     if constraints.allowed_deployments is not None and (
