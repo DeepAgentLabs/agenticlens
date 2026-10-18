@@ -233,3 +233,44 @@ def test_pareto_frontier_and_cost_per_success_ranking() -> None:
 
     assert pareto_frontier(candidates) == ["best", "cheap", "unknown"]
     assert cost_per_success_ranking(candidates) == ["cheap", "dominated", "best"]
+
+
+def test_partial_latency_evidence_is_unavailable(tmp_path: Path) -> None:
+    report = build_report(
+        tmp_path,
+        {
+            "a": Spec(uniform(DEFAULT_CASES, passes(2))),
+            "b": Spec(uniform(DEFAULT_CASES, passes(2))),
+            "c": Spec(uniform(DEFAULT_CASES, passes(2))),
+        },
+    )
+    variant = report.variants[0]
+    trial = variant.trials[0]
+    assert trial.report is not None
+    cases = [
+        case.model_copy(update={"latency_ms": None}) if case.case_id == "p1" else case
+        for case in trial.report.cases
+    ]
+    trials = [
+        trial.model_copy(update={"report": trial.report.model_copy(update={"cases": cases})}),
+        *variant.trials[1:],
+    ]
+    variants = [variant.model_copy(update={"trials": trials}), *report.variants[1:]]
+    candidates = _candidates(tmp_path, report.model_copy(update={"variants": variants}))
+
+    partial = measure(candidates[0], ["p1", "p2"], [], 0.95)
+    assert partial.mean_latency_ms is None and partial.p95_latency_ms is None
+    complete = measure(candidates[0], ["p2"], [], 0.95)
+    assert complete.mean_latency_ms is not None
+    violations = check_constraints(partial, ModelConstraints(max_p95_latency_ms=5000))
+    assert [v.constraint for v in violations] == ["max_p95_latency_ms"]
+    assert "cannot be verified" in violations[0].message
+
+
+def test_unknown_provider_fails_a_block_list() -> None:
+    blocked = ModelConstraints(blocked_providers=["bad"])
+    violations = check_constraints(_metrics(provider=None), blocked)
+    assert [v.constraint for v in violations] == ["blocked_providers"]
+    assert "Provider is unknown" in violations[0].message
+    assert check_constraints(_metrics(provider="good"), blocked) == []
+    assert check_constraints(_metrics(provider=None), ModelConstraints()) == []
