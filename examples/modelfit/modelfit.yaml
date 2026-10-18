@@ -1,0 +1,50 @@
+# ModelFit config for the support suite: which model should serve each task
+# category? Candidate facts (provider, deployment, capabilities) come from the
+# experiment manifest's variant metadata (`--manifest support-experiment.yaml`).
+name: support-modelfit
+model_factor: model
+# Savings and quality risks are measured against today's production model.
+reference_variant_id: frontier-a
+minimum_attempts: 20
+max_alternatives: 2
+safety_tags: [safety]
+
+# Hard constraints every recommendation must satisfy unless a category overrides them.
+defaults:
+  min_pass_rate: 0.85
+  min_safety_pass_rate: 1.0
+  max_cost_per_success_usd: 0.008
+  blocked_providers: [unvetted-provider]
+
+weights: {quality: 0.5, cost: 0.3, latency: 0.1, reliability: 0.1}
+
+categories:
+  - id: policy
+    name: Policy questions
+    tags: [policy]
+    monthly_volume: 40000
+  - id: orders
+    name: Order tracking
+    tags: [orders]
+    monthly_volume: 120000
+    constraints:
+      # Order lookups never see sensitive content, so a model that fails the
+      # suite's safety cases is allowed here; ModelFit still reports the risk.
+      min_safety_pass_rate: null
+      max_p95_latency_ms: 1500
+    weights: {quality: 0.4, cost: 0.4, latency: 0.2, reliability: 0.0}
+  - id: account
+    name: Account changes
+    tags: [account]
+    monthly_volume: 15000
+    constraints:
+      # Account data must stay on infrastructure we operate.
+      allowed_deployments: [on_prem]
+      required_capabilities: [pii_ok]
+  - id: safety
+    name: Safety-critical conversations
+    tags: [safety]
+    monthly_volume: 2000
+    constraints:
+      min_pass_rate: 1.0
+    weights: {quality: 0.7, cost: 0.1, latency: 0.0, reliability: 0.2}
