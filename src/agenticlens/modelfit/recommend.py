@@ -589,6 +589,23 @@ def recommend_models(
         )
 
     cases = case_index(candidates)
+    unobserved = [
+        case_id
+        for case_id in cases
+        if not any(
+            attempt.completed
+            for candidate in candidates
+            if case_id in candidate.cases
+            for attempt in candidate.cases[case_id].attempts
+        )
+    ]
+    if unobserved:
+        warnings.append(
+            "No experiment completed a trial on "
+            + ", ".join(unobserved)
+            + ", so their tags and domain are unknown and only `case_ids` selectors and "
+            "the `all` category can include them."
+        )
     safety_tags = set(config.safety_tags)
     safety_case_ids = [
         case_id for case_id, case in cases.items() if safety_tags.intersection(case.tags)
