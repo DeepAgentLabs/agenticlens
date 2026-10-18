@@ -117,7 +117,7 @@ def _identity(
         or metadata.get("deployment")
         or variant.factors.get("deployment")
     )
-    if entry and entry.capabilities:
+    if entry is not None and "capabilities" in entry.model_fields_set:
         capabilities = list(entry.capabilities)
     else:
         raw = metadata.get("capabilities", "")
