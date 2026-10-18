@@ -6,6 +6,77 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.9.0 - 2026-10-18
+
+Delivers roadmap milestone v0.7 (ModelFit).
+
+### Added — model recommendations (`agenticlens.modelfit`)
+
+- Experiment evidence: `load_experiment_evidence` reads an experiment report
+  (`agenticlens experiment run --save`) and records its file name and
+  SHA-256; `collect_candidates` turns every variant into a candidate with one
+  attempt per case per trial. Failed trials count as failed attempts with no
+  cost. Model names come from the `model` factor (`model_factor`); provider,
+  deployment, and capabilities from the config's `candidates` catalog, the
+  manifest's variant metadata, or `provider`/`deployment` factors.
+- Task taxonomy: `TaskCategory` selects cases by tag, `metadata.domain`, or
+  case ID; `derive_categories` creates one category per tag when none are
+  configured; the `all` category covers every case; `resolve_taxonomy`
+  reports uncategorized cases and categories that match nothing.
+- Hard constraints: `ModelConstraints` (`min_pass_rate`,
+  `min_pass_rate_lower_bound`, `max_cost_per_case_usd`,
+  `max_cost_per_success_usd`, `max_mean_latency_ms`, `max_p95_latency_ms`,
+  `min_consistency`, `min_safety_pass_rate`, `allowed_providers`,
+  `blocked_providers`, `allowed_deployments`, `required_capabilities`) with
+  config defaults and per-category overrides (`null` removes a default).
+  `check_constraints` fails closed: a limit the evidence cannot verify is a
+  violation.
+- Scoring: `ScoringWeights` (quality, cost, latency, reliability; per-category
+  weights allowed) over feasible candidates, normalised to the cheapest and
+  fastest; per-category `pareto_frontier` (pass rate, cost per success,
+  latency) and `cost_per_success_ranking`.
+- Recommendations: `recommend_models` returns a `ModelFitReport` with one
+  `CategoryResult` per category. Each `Recommendation` has a status
+  (`recommended`, `no_feasible_model`, `no_evidence`), a confidence level
+  with reasons, an explanation citing measured values and every rejection,
+  ranked alternatives, a fallback on a different provider when one is
+  feasible, a `SavingsEstimate` against the reference variant (per case, per
+  success, and per month from `monthly_volume`, with attempts, case IDs, and
+  source indexes; unavailable when cost is incomplete), and `QualityRisk`s
+  (quality regression with significance, regressed, flaky, and safety-failed
+  cases, low evidence, unavailable cost, failed trials, no fallback).
+- Task-level model matrix: `ModelFitReport.matrix` (one row per category and
+  candidate, with its role), `render_matrix_csv`, and `render_markdown`.
+- Config and report I/O: `load_modelfit_config` (YAML or JSON),
+  `load_modelfit_report`, `save_modelfit_report`.
+
+### Added — CLI
+
+- `agenticlens modelfit recommend REPORT... [--config] [--manifest] [--save]
+  [--markdown] [--csv] [--json] [--fail-on-unfit] [--fail-on-low-confidence]`.
+  Exit 8 when a category has no feasible model (`--fail-on-unfit`) or a
+  recommendation is low confidence (`--fail-on-low-confidence`).
+- `agenticlens modelfit matrix MODELFIT_REPORT [--csv] [--markdown]` and
+  `agenticlens modelfit taxonomy REPORT... [--config] [--json]`.
+
+### Added — schemas, example, docs, CI
+
+- `schemas/modelfit/modelfit-config.schema.json` and
+  `schemas/modelfit/modelfit-report.schema.json` (`schema_version: "1.0"`).
+- `examples/modelfit_demo.py`: a recorded four-model experiment (two
+  providers, cloud and on-prem) on a ten-case support suite, with committed
+  artifacts reproduced by `tests/test_examples_modelfit.py`.
+- [ModelFit guide](docs/modelfit.md); README, roadmap, audit, and AGENTS
+  updates.
+- CI `modelfit` job: replays the experiment and runs
+  `modelfit recommend --fail-on-unfit`.
+
+### Ecosystem
+
+- No AIOS object or existing Lens artifact changes. Agentic Sidecar 0.8.4
+  widens its optional `agenticlens` extra from `<0.9` to `<1`; Control Tower,
+  Chaos, Evals, and MCP already admit 0.9.0.
+
 ## 0.8.0 - 2026-10-17
 
 Delivers roadmap milestone v0.6 (Test-Suite and Dataset Management).
