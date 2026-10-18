@@ -87,6 +87,28 @@ Still open: PII detection is pattern/key based; variations are not paraphrases;
 deduplication is lexical and pairwise; approvals are not authenticated; the
 store is local files rather than a shared registry.
 
+## 0.9.0 follow-up (2026-10-18)
+
+Release 0.9.0 delivers the v0.7 deliverables and completion criteria. The v0.7
+table below is updated in place; other sections still describe earlier
+snapshots.
+
+| Earlier gap | Resolution | Evidence |
+| --- | --- | --- |
+| TRACE task_type string; no governed taxonomy | `TaskCategory` selects cases by tag, domain, or ID; derived per-tag categories; `modelfit taxonomy` | `tests/test_modelfit_taxonomy.py` |
+| SWAP filters, not task-quality/safety/deployment constraints | `ModelConstraints`: quality, interval, cost, latency, consistency, safety, provider, deployment, capability limits; unverifiable limits are violations | `tests/test_modelfit_scoring.py`, `tests/test_modelfit_models.py` |
+| No ModelFit ranking engine | Weighted scoring of feasible candidates; per-category Pareto frontier | `tests/test_modelfit_scoring.py` |
+| SWAP does not rank measured task outcomes | Per-category cost-per-success ranking from experiment attempts | `tests/test_modelfit_scoring.py` |
+| No task-level confidence/explanation | Confidence with reasons; explanations cite measured values and every rejection | `tests/test_modelfit_recommend.py` |
+| No quality-validated fallback policy | Alternatives among feasible candidates; provider-diverse fallback | `tests/test_modelfit_recommend.py` |
+| No task-level model matrix | `ModelFitReport.matrix`, CSV and Markdown renderers, `modelfit matrix` | `tests/test_modelfit_recommend.py`, `tests/test_cli_modelfit.py` |
+| Savings were cost projections without quality validation | Savings on the same cases as the reference, citing attempts, case IDs, and the report SHA-256; quality risks reported separately | `tests/test_modelfit_recommend.py`, `tests/test_examples_modelfit.py` |
+| Experiment-backed selection unproven in CI | CI `modelfit` job replays a recorded four-model experiment and runs `modelfit recommend --fail-on-unfit` | `.github/workflows/ci.yml`, `tests/test_examples_modelfit.py` |
+
+Still open: recommendations reflect the suite and recorded costs only;
+provider/deployment facts are declared, not verified; intervals treat case
+attempts as independent; runtime routing is v0.8.
+
 ## How to read this audit
 
 - **Implemented (I):** usable code exists for the stated scope; evidence and test
@@ -110,7 +132,7 @@ Missing entries are repository-scoped findings, not claims about sibling project
 | v0.4 Experiments | Implemented (0.6.0) | Multiple-comparison correction; correlated-attempt-aware intervals; parallel trials |
 | v0.5 Advanced evaluation | Implemented (0.7.0) | Independent controlled-failure corpora; semantic (non-lexical) evaluators; judge provider clients |
 | v0.6 Datasets | Implemented (0.8.0) | Semantic deduplication and paraphrases; authenticated approvals and a shared registry (v1.0) |
-| v0.7 ModelFit | Missing as a subsystem | Task-aware, measured quality-constrained selection; cost-only suggestions already exist |
+| v0.7 ModelFit | Implemented (0.9.0) | Price-sheet re-costing; case-level bootstrap confidence; routing integration (v0.8) |
 | v0.8 Routing | Missing | Runtime selection, failover, shadow/canary execution, escalation, audit |
 | v0.9 Optimization | Partial | Outcome tracking, measured quality tradeoffs, broader optimization coverage |
 | v1.0 Enterprise | Partial building blocks | Stable contracts, identity/access, registries, retention, audit/compliance, deployment and security acceptance |
@@ -300,19 +322,21 @@ Acceptance: all four completion criteria are met in 0.8.0 (see the
 
 ## v0.7 ModelFit
 
+Updated for 0.9.0 (2026-10-18).
+
 | Roadmap deliverable | Status | Evidence / remaining boundary |
 | --- | --- | --- |
-| Task taxonomy | P | TRACE task_type string; no governed taxonomy |
-| Constraint configuration | P | SWAP candidate/provider/context filters, not task-quality/safety/deployment constraints |
-| Weighted scoring; Pareto frontier | M | No ModelFit ranking engine |
-| Cost-per-success ranking | P | COMP reports group cost/success; SWAP does not rank measured task outcomes |
-| Recommendation confidence/explanation | P | RECS fields/descriptions exist; no task-level ModelFit calibration |
-| Alternative/fallback models | P | SWAP cheaper candidate suggestion; no quality-validated fallback policy |
-| Task-level model matrix | M | No implementation |
+| Task taxonomy | I | `TaskCategory` (tags, domains, case IDs), derived per-tag categories, `all` |
+| Constraint configuration | I | `ModelConstraints` defaults with per-category overrides; fail-closed checks |
+| Weighted scoring; Pareto frontier | I | `ScoringWeights`; `pareto_frontier` over pass rate, cost per success, latency |
+| Cost-per-success ranking | I | `cost_per_success_ranking` per category from measured attempts |
+| Recommendation confidence/explanation | I | Rule-based confidence with reasons; not a calibrated probability |
+| Alternative/fallback models | I | Ranked feasible alternatives; provider-diverse fallback when available |
+| Task-level model matrix | I | `ModelFitReport.matrix`, CSV/Markdown, `modelfit matrix` |
 
-Acceptance: savings are cost projections, not experimental quality validation.
-Task-specific hard constraints, quality risk validation, and experiment-backed
-selection remain open. A cost-only ModelSwapRecommender is not ModelFit.
+Acceptance: all four completion criteria are met in 0.9.0 (see the
+[roadmap](agenticlens-roadmap.md#v07--modelfit)). The cost-only
+`ModelSwapRecommender` remains a separate workflow-level suggestion.
 
 ## v0.8 Advisory Runtime Routing
 
