@@ -124,3 +124,13 @@ def test_loading_from_a_file_fingerprints_its_bytes(tmp_path: Path) -> None:
     assert evidence.file == "experiment.json"
     assert evidence.sha256 == hashlib.sha256(path.read_bytes()).hexdigest()
     assert evidence.report.experiment_name == report.experiment_name
+
+
+def test_an_explicit_empty_catalog_capability_list_overrides_metadata(tmp_path: Path) -> None:
+    report = _three(tmp_path)
+    config = ModelFitConfig(candidates=[ModelCandidate(variant_id="a", capabilities=[])])
+    metadata = {"a": {"capabilities": "pii_ok"}, "b": {"capabilities": "pii_ok"}}
+    candidates, _ = collect_candidates([ExperimentEvidence(report)], config, metadata)
+
+    assert candidates[0].capabilities == []
+    assert candidates[1].capabilities == ["pii_ok"]
