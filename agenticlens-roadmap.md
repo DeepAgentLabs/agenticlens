@@ -1088,3 +1088,9 @@ See [integration details](docs/sidecar-integration.md).
 Native Lens run evidence supports Tower's approved staging recovery, shipped
 with its combined Phase 6/6A and MCP 0.3.6. Lens retains analysis ownership. See
 [compatibility and examples](docs/control-tower-0.6.md).
+
+## Evals 0.8.0 CLI interoperability
+
+Evals 0.8.0 runs Lens 0.8.0 approved suite exports directly with `agentic-evals evaluate` or `live`, then applies release policy with `gate`. Lens retains dataset curation, approval, lineage and diagnosis. The existing `agentic-evals>=0.7.1,<1` dependency admits 0.8.0; no floor increase is needed.
+
+See [CLI usage and compatibility](docs/evals-0.8-cli.md).
