@@ -28,9 +28,10 @@ Delivers roadmap milestone v0.7 (ModelFit).
   `max_cost_per_success_usd`, `max_mean_latency_ms`, `max_p95_latency_ms`,
   `min_consistency`, `min_safety_pass_rate`, `allowed_providers`,
   `blocked_providers`, `allowed_deployments`, `required_capabilities`) with
-  config defaults and per-category overrides (`null` removes a default).
-  `check_constraints` fails closed: a limit the evidence cannot verify is a
-  violation.
+  config defaults and per-category overrides (`null` removes a default,
+  including for list constraints). `check_constraints` fails closed: a limit
+  the evidence cannot verify is a violation, including a block-list against
+  an unknown provider and a latency limit over partial latency evidence.
 - Scoring: `ScoringWeights` (quality, cost, latency, reliability; per-category
   weights allowed) over feasible candidates, normalised to the cheapest and
   fastest; per-category `pareto_frontier` (pass rate, cost per success,
@@ -42,7 +43,8 @@ Delivers roadmap milestone v0.7 (ModelFit).
   ranked alternatives, a fallback on a different provider when one is
   feasible, a `SavingsEstimate` against the reference variant (per case, per
   success, and per month from `monthly_volume`, with attempts, case IDs, and
-  source indexes; unavailable when cost is incomplete), and `QualityRisk`s
+  source indexes; unavailable when cost is incomplete or the two candidates
+  were measured on different cases), and `QualityRisk`s
   (quality regression with significance, regressed, flaky, and safety-failed
   cases, low evidence, unavailable cost, failed trials, no fallback).
 - Task-level model matrix: `ModelFitReport.matrix` (one row per category and
