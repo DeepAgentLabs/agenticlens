@@ -2107,6 +2107,7 @@ See the [local Tower compatibility guide](docs/tower-0.7-fleet-operations.md) fo
 ModelFit adds Lens-local analysis and schemas only; no AIOS object, sibling
 contract, or existing Lens artifact changes. Agentic Sidecar 0.8.4 widens its
 optional `agenticlens` extra from `<0.9` to `<1` so it installs alongside Lens
-0.9.0. Control Tower (`agenticlens>=0.7,<1`), Chaos (`agenticlens>=0.7.0`),
-MCP, and Evals already admit 0.9.0 and need no release. See the
+0.9.0, and MCP 0.3.11 pins its hosted images to 0.9.0 and adds a read-only
+`lens.modelfit_recommend` tool. Control Tower (`agenticlens>=0.7,<1`), Chaos
+(`agenticlens>=0.7.0`), and Evals already admit 0.9.0 and need no release. See the
 [compatibility notes](agenticlens-roadmap.md#090-ecosystem-compatibility).

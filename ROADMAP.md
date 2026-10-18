@@ -29,8 +29,9 @@ model matrix. See the [guide](docs/modelfit.md) and the
 The next milestone is v0.8 Advisory Runtime Routing.
 
 Sibling impact: Agentic Sidecar 0.8.4 widens its optional `agenticlens` extra
-from `<0.9` to `<1`. Control Tower, Chaos, Evals, MCP, and the specification
-need no change; see the
+from `<0.9` to `<1`, and MCP 0.3.11 pins hosted images to Lens 0.9.0 and adds
+a read-only `lens.modelfit_recommend` tool. Control Tower, Chaos, Evals, and
+the specification need no change; see the
 [ecosystem compatibility notes](agenticlens-roadmap.md#090-ecosystem-compatibility).
 
 ## 0.8.0: Test-suite and dataset management
