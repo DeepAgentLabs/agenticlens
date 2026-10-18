@@ -82,3 +82,11 @@ def test_no_tags_and_no_categories_is_warned() -> None:
     assert [c.id for c, _ in resolved] == ["all"]
     assert uncategorized == ["x1"]
     assert any("no case carries a tag" in w for w in warnings)
+
+
+def test_non_ascii_tags_derive_valid_ascii_ids() -> None:
+    cases = {"a": CaseEvidence("a", tags=["café", "日本"])}
+    assert [(c.id, c.name) for c in derive_categories(cases)] == [
+        ("caf-", "café"),
+        ("tag", "日本"),
+    ]
