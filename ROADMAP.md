@@ -14,6 +14,26 @@ documents the supporting research program, experimental metrics, benchmark
 design, and publication plan. Research proposals are not product commitments
 until they appear in the canonical product roadmap.
 
+## 0.9.0: ModelFit
+
+Roadmap milestone v0.7 shipped in 0.9.0: `agenticlens.modelfit` and
+`agenticlens modelfit` recommend a model per task category from recorded
+experiment reports, under hard quality, cost, latency, safety, provider, and
+deployment constraints that fail closed. Each recommendation carries a
+confidence level with reasons, an explanation, alternatives, a
+provider-diverse fallback, savings against a reference variant tied to the
+experiment report's SHA-256, and quality risks; every category also has a
+Pareto frontier, a cost-per-success ranking, and a row in the task-level
+model matrix. See the [guide](docs/modelfit.md) and the
+[v0.7 section of the roadmap](agenticlens-roadmap.md#v07--modelfit).
+The next milestone is v0.8 Advisory Runtime Routing.
+
+Sibling impact: Agentic Sidecar 0.8.4 widens its optional `agenticlens` extra
+from `<0.9` to `<1`, and MCP 0.3.11 pins hosted images to Lens 0.9.0 and adds
+a read-only `lens.modelfit_recommend` tool. Control Tower, Chaos, Evals, and
+the specification need no change; see the
+[ecosystem compatibility notes](agenticlens-roadmap.md#090-ecosystem-compatibility).
+
 ## 0.8.0: Test-suite and dataset management
 
 Roadmap milestone v0.6 shipped in 0.8.0: `agenticlens.suites` and
@@ -22,7 +42,6 @@ production traces, and user feedback, then approve them into immutable,
 hash-verified versions that CI verifies, exports, and evaluates. See the
 [guide](docs/suite-management.md) and the
 [v0.6 section of the roadmap](agenticlens-roadmap.md#v06--test-suite-and-dataset-management).
-The next milestone is v0.7 ModelFit.
 
 ## Control Tower 0.6.0 integration
 

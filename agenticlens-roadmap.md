@@ -23,14 +23,16 @@ acceptance and v0.4 delivery evidence, and the
 [0.7.0 follow-up](ROADMAP_AUDIT.md#070-follow-up-2026-10-13) records v0.5
 delivery evidence, and the
 [0.8.0 follow-up](ROADMAP_AUDIT.md#080-follow-up-2026-10-17) records v0.6
+delivery evidence, and the
+[0.9.0 follow-up](ROADMAP_AUDIT.md#090-follow-up-2026-10-18) records v0.7
 delivery evidence. Later milestones contain partial
 building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
-`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` (current,
-2026-10-17) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0`
+(current, 2026-10-18) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -64,7 +66,12 @@ forward from `v0.5` and `v1.0`.
   detection, PII masking before storage, review and approval metadata, and
   immutable hash-verified suite versions that CI verifies, exports, and
   evaluates)
-- **v0.7** 🚧 Planned — ModelFit
+- **v0.7** ✅ Delivered in `0.9.0` — ModelFit (task taxonomy, hard
+  quality/cost/latency/safety/provider/deployment constraints that fail
+  closed, weighted scoring, per-category Pareto frontier and cost-per-success
+  ranking, recommendation confidence and explanations, alternatives and
+  provider-diverse fallbacks, savings tied to experiment evidence, quality
+  risks, and a task-level model matrix)
 - **v0.8** 🚧 Planned — Advisory Runtime Routing
 - **v0.9** 🚧 Planned — Optimization Intelligence
 - **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
@@ -410,6 +417,26 @@ The following capabilities are implemented in the current development line.
 - approval checks (review, PII, conflicting duplicates) and an immutable,
   hash-verified suite store with `verify`, `export`, `versions`, and `diff`
 
+### Model selection (ModelFit)
+
+- task taxonomy: categories select cases by tag, `metadata.domain`, or case
+  ID, or are derived from case tags; an `all` category covers every case
+- hard constraints per category (with default inheritance and explicit
+  removal): pass rate and its Wilson lower bound, cost per case and per
+  success, mean and p95 latency, consistency, suite-wide safety pass rate,
+  provider allow/block lists, deployment allow-list, required capabilities;
+  unverifiable limits are violations
+- weighted scoring of feasible candidates (quality, cost, latency,
+  reliability), Pareto frontier, and cost-per-success ranking per category
+- recommendation confidence with stated reasons, explanations citing measured
+  values, alternatives, and provider-diverse fallbacks
+- savings against a reference variant on the same cases, with attempts, case
+  IDs, and the experiment report's SHA-256; quality regressions, regressed,
+  flaky, and safety-failed cases, thin evidence, and failed trials reported
+  as separate risks
+- task-level model matrix (JSON, CSV, Markdown) and `agenticlens modelfit`
+  `recommend`, `matrix`, and `taxonomy` commands
+
 ### Artifact contracts
 
 - versioned trace schema
@@ -418,6 +445,7 @@ The following capabilities are implemented in the current development line.
 - experiment manifest/report, diagnosis report, attribution-accuracy report,
   and score-analysis schemas
 - suite-version, feedback-batch, duplicate-report, and masking-report schemas
+- ModelFit config and report schemas
 - schema inclusion in wheel distributions
 
 ## Capability Architecture
@@ -845,12 +873,62 @@ safety, provider, and deployment constraints.
 - alternative and fallback models
 - task-level model matrix
 
+### Delivered in `0.9.0`
+
+- task taxonomy: `TaskCategory` (tags, domains, case IDs), derived per-tag
+  categories, the `all` category, and `agenticlens modelfit taxonomy`
+- constraint configuration: `ModelConstraints` defaults with per-category
+  overrides (`ModelConstraints.merged`), loaded from YAML or JSON with
+  `load_modelfit_config`
+- weighted scoring: `ScoringWeights` (quality, cost, latency, reliability),
+  with per-category weights
+- Pareto frontier: `pareto_frontier` over pass rate, cost per success, and
+  latency, per category
+- cost-per-success ranking: `cost_per_success_ranking`, per category
+- recommendation confidence: `high`/`medium`/`low` with reasons (evidence
+  volume, close and non-significant runner-up, interval below the minimum,
+  incomplete cost, a high-severity quality or safety trade-off)
+- recommendation explanation: per-category lines citing measured pass rates,
+  intervals, costs, latency, scores, and every rejection reason
+- alternative and fallback models: ranked alternatives and a fallback on a
+  different provider when one is feasible
+- task-level model matrix: `ModelFitReport.matrix`, `render_matrix_csv`,
+  `render_markdown`, `agenticlens modelfit matrix`
+- `recommend_models` / `agenticlens modelfit recommend` (exit 8 with
+  `--fail-on-unfit` or `--fail-on-low-confidence`)
+- JSON Schemas: `schemas/modelfit/`
+- example: `examples/modelfit_demo.py` with a recorded four-model experiment
+  and committed artifacts, reproduced by `tests/test_examples_modelfit.py`;
+  CI's `modelfit` job replays the experiment and requires a feasible model
+  for every category
+
 ### Completion criteria
 
-- recommendations are generated by task category
-- hard constraints are enforced
-- savings estimates are tied to experiment evidence
-- quality risks and alternatives are reported
+- [x] recommendations are generated by task category (one `CategoryResult`
+      per taxonomy category, plus `all`)
+- [x] hard constraints are enforced (infeasible candidates are never
+      recommended; unverifiable limits are violations; a category without a
+      feasible candidate reports `no_feasible_model`)
+- [x] savings estimates are tied to experiment evidence (same cases as the
+      reference, attempts and case IDs recorded, source report SHA-256, and
+      `available: false` when cost evidence is incomplete)
+- [x] quality risks and alternatives are reported (regressions with
+      significance, regressed, flaky, and safety-failed cases, thin evidence,
+      failed trials, alternatives, fallbacks)
+
+Known limits: recommendations are only as representative as the suite and
+trials; costs are the experiment's recorded costs; monthly savings assume the
+production mix matches the category's cases; provider, deployment, and
+capability facts are declared, not verified; intervals and significance tests
+treat case attempts as independent; ModelFit recommends and does not route.
+
+### Follow-on work
+
+- price-sheet re-costing of recorded token usage, so savings track price
+  changes without re-running the experiment
+- confidence from bootstrap resampling across cases rather than pooled
+  attempts
+- feeding recommendations and fallbacks into v0.8 advisory runtime routing
 
 ## v0.8 — Advisory Runtime Routing
 
@@ -1124,3 +1202,27 @@ Lens retains trace capture, diagnosis and suite management. Enhanced-tracing fle
 Existing optional dependency ranges remain sufficient. No sibling runtime or
 native evidence schema changes are required; this documentation alignment needs
 no patch release. See the [operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.7.0/docs/fleet-operations.md).
+
+## 0.9.0 ecosystem compatibility
+
+ModelFit is Lens-owned analysis over Lens experiment reports. It adds no
+cross-package object, event meaning, or AIOS schema, and changes no existing
+trace, finding, experiment, diagnosis, or suite contract.
+
+- `agentic-sidecar`: its optional `agenticlens` extra capped Lens below 0.9.
+  Sidecar 0.8.4 widens the range to `>=0.7.1,<1` and moves its locked
+  ecosystem check to Lens 0.9.x. Sidecar correlation (`attach_decisions`) is
+  unchanged.
+- `agenticops-control-tower`: the optional `agenticlens>=0.7,<1` extra already
+  admits 0.9.0. A ModelFit report is local analysis, not fleet health or
+  native evidence posture; Tower does not read it.
+- `agentic-chaos`: `agenticlens>=0.7.0` admits 0.9.0; chaos span adapters and
+  `chaos_events` analysis are unchanged.
+- `agentic-evals`: Lens keeps `agentic-evals>=0.7.1,<1`; ModelFit reads the
+  native evaluation reports embedded in experiment trials and computes no
+  release gate.
+- `deep-agentic-core-mcp`: MCP 0.3.11 pins its hosted images to
+  `agenticlens==0.9.0` and adds a read-only `lens.modelfit_recommend` tool
+  over supplied experiment reports; existing Lens-backed tools are
+  unchanged.
+- `ai-operations-spec`: no spec change; ModelFit schemas are Lens-local.

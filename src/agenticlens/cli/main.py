@@ -11,6 +11,7 @@ from rich.table import Table
 
 from agenticlens.adapters import load_otlp_export, safe_trace_filename
 from agenticlens.api.store import PersistentTraceStore
+from agenticlens.cli.modelfit import modelfit_app
 from agenticlens.cli.render import (
     render_agent_summary,
     render_recommendations,
@@ -109,6 +110,7 @@ app.add_typer(experiment_app, name="experiment")
 trace_app = typer.Typer(help="Show traces, single spans, and incident timelines.")
 app.add_typer(trace_app, name="trace")
 app.add_typer(suite_app, name="suite")
+app.add_typer(modelfit_app, name="modelfit")
 console = Console()
 
 

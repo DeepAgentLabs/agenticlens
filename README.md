@@ -57,7 +57,12 @@ suites built from CSV/JSON imports, production traces, and user feedback, with
 editors, tags and domains, stable splits, synthetic variations, duplicate
 detection, PII masking, review and approval metadata, and immutable,
 hash-verified suite versions that CI can verify, export, and evaluate.
-Development continues with ModelFit (v0.7). The
+Release 0.9.0 delivers v0.7 ModelFit: a task taxonomy, hard constraints on
+quality, cost, latency, safety, provider, and deployment, weighted scoring,
+per-category Pareto frontiers and cost-per-success rankings, recommendation
+confidence and explanations, alternatives and provider-diverse fallbacks,
+savings tied to experiment evidence, and a task-level model matrix.
+Development continues with advisory runtime routing (v0.8). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
@@ -81,6 +86,7 @@ and missing features with source/test evidence and open acceptance gates.
 - [Experiments and Statistical Comparison](#experiments-and-statistical-comparison)
 - [Diagnosis and Failure Attribution](#diagnosis-and-failure-attribution)
 - [Test-Suite and Dataset Management](#test-suite-and-dataset-management)
+- [ModelFit Model Recommendations](#modelfit-model-recommendations)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -243,6 +249,9 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Suite editors, tags, domains, stable splits, synthetic variations | Implemented, experimental |
 | Duplicate and conflicting-label detection, PII masking before storage | Implemented, experimental |
 | Reviewed, immutable, hash-verified suite versions for CI | Implemented, experimental |
+| ModelFit task taxonomy and hard constraints (quality, cost, latency, safety, provider, deployment) | Implemented, experimental |
+| ModelFit weighted scoring, Pareto frontier, cost-per-success ranking, task-level model matrix | Implemented, experimental |
+| ModelFit confidence, explanations, alternatives, fallbacks, evidence-tied savings, quality risks | Implemented, experimental |
 | AIOS draft validation and conformance CLI (rule-cited summaries) | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
@@ -250,7 +259,7 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Persistent local trace history (`--db`, `/history`, `agenticlens history`) | Implemented, experimental |
 | Local HTML dashboard (timeline, cost, findings, gate, comparison) | Implemented, experimental |
 | Framework trace adapters (native LangChain/LangGraph instrumentation, not already-OTel data) | Planned |
-| ModelFit and governance | Planned |
+| Advisory runtime routing and governance | Planned |
 
 ## Evaluation and Release Gates
 
@@ -570,6 +579,63 @@ and `experiment run` accept them unchanged. Schemas are in `schemas/suites/`.
 The reproducible example is
 [`examples/suite_management_demo.py`](examples/suite_management_demo.py).
 Full guide: [docs/suite-management.md](docs/suite-management.md).
+
+## ModelFit Model Recommendations
+
+`agenticlens modelfit` recommends a model for each task category from the
+experiment reports you already recorded, under hard constraints, and states
+how confident the recommendation is and what switching would risk.
+
+```bash
+agenticlens experiment run manifest.yaml suite.yaml --save experiment.json
+agenticlens modelfit taxonomy experiment.json --config modelfit.yaml
+agenticlens modelfit recommend experiment.json --config modelfit.yaml \
+  --manifest manifest.yaml --save modelfit.json --markdown modelfit.md \
+  --csv model-matrix.csv --fail-on-unfit
+agenticlens modelfit matrix modelfit.json
+```
+
+```yaml
+# modelfit.yaml
+reference_variant_id: frontier-a      # savings and risks are measured against this
+defaults: {min_pass_rate: 0.85, min_safety_pass_rate: 1.0}
+categories:
+  - {id: orders, tags: [orders], monthly_volume: 120000,
+     constraints: {max_p95_latency_ms: 1500}}
+  - {id: account, tags: [account],
+     constraints: {allowed_deployments: [on_prem], required_capabilities: [pii_ok]}}
+```
+
+```python
+from pathlib import Path
+from agenticlens.modelfit import load_experiment_evidence, load_modelfit_config, recommend_models
+
+report = recommend_models(
+    [load_experiment_evidence(Path("experiment.json"))],
+    load_modelfit_config(Path("modelfit.yaml")),
+)
+```
+
+- **Taxonomy**: categories select cases by tag, `metadata.domain`, or case
+  ID; without a taxonomy, one category is derived per tag, plus `all`.
+- **Hard constraints**: pass rate and its interval lower bound, cost per case
+  and per success, mean and p95 latency, consistency, safety pass rate,
+  provider allow/block lists, deployment, and capabilities. Constraints fail
+  closed: a limit the evidence cannot verify is a violation.
+- **Scoring**: weighted quality, cost, latency, and reliability among
+  feasible candidates, plus a Pareto frontier and a cost-per-success ranking.
+- **Recommendation**: confidence (`high`/`medium`/`low`) with reasons, a
+  numbered explanation citing measured values, alternatives, and a fallback
+  on a different provider when one is feasible.
+- **Evidence**: savings per case, per success, and per month are computed on
+  the same cases as the reference and cite the experiment report's SHA-256;
+  quality regressions, regressed and flaky cases, safety failures, and thin
+  evidence are reported as separate risks.
+
+Exit code `8` signals `--fail-on-unfit` (a category with no feasible model)
+or `--fail-on-low-confidence`. Schemas are in `schemas/modelfit/`. The
+reproducible example is [`examples/modelfit_demo.py`](examples/modelfit_demo.py).
+Full guide: [docs/modelfit.md](docs/modelfit.md).
 
 ## Dashboard Report
 
@@ -1244,6 +1310,17 @@ version, evaluate, and gate:
 `suite verify` and `suite export` exit `6` when a stored version is missing or
 was changed after approval.
 
+To keep model choices honest as the agent changes, re-run the model
+experiment and require a feasible model for every task category:
+
+```yaml
+      - run: uv run agenticlens experiment run models.yaml suite.yaml --save build/experiment.json
+      - run: uv run agenticlens modelfit recommend build/experiment.json --config modelfit.yaml --save build/modelfit.json --fail-on-unfit
+```
+
+`modelfit recommend --fail-on-unfit` exits `8` when some category has no model
+that meets its hard constraints.
+
 ## Portable Schemas
 
 Versioned JSON Schemas are provided for:
@@ -1256,6 +1333,7 @@ Versioned JSON Schemas are provided for:
 - evaluation score analysis: `schemas/evaluation/score-analysis.schema.json`
 - approved suite versions, feedback batches, duplicate and masking reports:
   `schemas/suites/`
+- ModelFit configs and reports: `schemas/modelfit/`
 
 The schemas are included in wheel distributions under `agenticlens/schemas`.
 They allow external systems to validate and consume artifacts without depending
@@ -1779,6 +1857,8 @@ uv run agenticlens experiment run experiment.yaml suite.yaml \
 | `calibrate` | Compare judge verdicts with human labels; optionally tune the threshold |
 | `dataset` | Summarize, split, and export versioned evaluation datasets |
 | `suite` | Build, edit, mask, de-duplicate, vary, split, review, approve, verify, export, and diff test suites |
+| `modelfit recommend` | Recommend a model per task category from experiment reports under hard constraints |
+| `modelfit matrix` / `modelfit taxonomy` | Show a saved report's task-level model matrix; show which cases each category covers |
 | `gate` | Enforce release thresholds; optionally alert a webhook with cooldowns |
 
 The `compare` command accepts either one JSON trace file or a directory of
@@ -1810,6 +1890,11 @@ The `compare` command accepts either one JSON trace file or a directory of
   locale-specific identifiers are not detected. Synthetic variations are
   surface perturbations, not paraphrases. Duplicate detection is pairwise and
   lexical. Suite approval records who approved; it does not authenticate them.
+- ModelFit recommendations are only as representative as the experiment
+  suite and trials: costs are the recorded costs, monthly savings assume the
+  production mix matches the category's cases, and provider, deployment, and
+  capability facts are declared rather than verified. ModelFit recommends;
+  it does not route traffic.
 
 ## Development
 
@@ -1854,6 +1939,8 @@ src/agenticlens/
                    anomalies, guardrails, narratives, attribution accuracy
   suites/          suite imports, trace/feedback conversion, editors, variations,
                    duplicates, PII masking, splits, approval, immutable store
+  modelfit/        task taxonomy, constraints, scoring, Pareto analysis, model
+                   recommendations, fallbacks, savings, risks, model matrix
   adapters/        OTLP ingestion
   api/             optional live OTLP receiver and trace store
   reports/         trace inspection rendering
@@ -1866,15 +1953,16 @@ src/agenticlens/
   config/         pricing and settings
   models/         Pydantic data models
 schemas/           versioned trace, finding, report, experiment, diagnosis,
-                   score-analysis, and suite JSON Schemas
+                   score-analysis, suite, and ModelFit JSON Schemas
 ```
 
 ## Roadmap
 
 Near-term priorities:
 
-- v0.7 ModelFit: task-level model recommendations under quality, cost,
-  latency, safety, and provider constraints, tied to experiment evidence
+- v0.8 advisory runtime routing: use ModelFit evidence to recommend or
+  select models at runtime, with fallback chains, shadow and canary modes,
+  and a routing audit log
 - semantic (embedding or judge-based) duplicate detection and paraphrase
   variations as optional suite extensions
 - automatic pricing resolution for research trace spans
@@ -2013,3 +2101,13 @@ native evidence schema changes are required; this documentation alignment needs
 no patch release. See the [operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.7.0/docs/fleet-operations.md).
 
 See the [local Tower compatibility guide](docs/tower-0.7-fleet-operations.md) for the operator workflow and package boundaries.
+
+## 0.9.0 ecosystem compatibility
+
+ModelFit adds Lens-local analysis and schemas only; no AIOS object, sibling
+contract, or existing Lens artifact changes. Agentic Sidecar 0.8.4 widens its
+optional `agenticlens` extra from `<0.9` to `<1` so it installs alongside Lens
+0.9.0, and MCP 0.3.11 pins its hosted images to 0.9.0 and adds a read-only
+`lens.modelfit_recommend` tool. Control Tower (`agenticlens>=0.7,<1`), Chaos
+(`agenticlens>=0.7.0`), and Evals already admit 0.9.0 and need no release. See the
+[compatibility notes](agenticlens-roadmap.md#090-ecosystem-compatibility).
