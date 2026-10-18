@@ -45,7 +45,14 @@ def measure(
         interval = ConfidenceInterval(
             lower=lower, upper=upper, confidence_level=confidence_level, method="wilson"
         )
-    latencies = [attempt.latency_ms for attempt in completed if attempt.latency_ms is not None]
+    # Like cost, latency is only stated when every completed attempt reported it,
+    # so a latency limit is never verified from a partial sample.
+    latency_values = [attempt.latency_ms for attempt in completed]
+    latencies = (
+        [value for value in latency_values if value is not None]
+        if completed and all(value is not None for value in latency_values)
+        else []
+    )
     costs = [attempt.cost_usd for attempt in completed]
     cost_complete = bool(completed) and all(cost is not None for cost in costs)
     total_cost = sum(cost for cost in costs if cost is not None) if cost_complete else None
