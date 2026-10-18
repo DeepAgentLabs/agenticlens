@@ -580,6 +580,63 @@ The reproducible example is
 [`examples/suite_management_demo.py`](examples/suite_management_demo.py).
 Full guide: [docs/suite-management.md](docs/suite-management.md).
 
+## ModelFit Model Recommendations
+
+`agenticlens modelfit` recommends a model for each task category from the
+experiment reports you already recorded, under hard constraints, and states
+how confident the recommendation is and what switching would risk.
+
+```bash
+agenticlens experiment run manifest.yaml suite.yaml --save experiment.json
+agenticlens modelfit taxonomy experiment.json --config modelfit.yaml
+agenticlens modelfit recommend experiment.json --config modelfit.yaml \
+  --manifest manifest.yaml --save modelfit.json --markdown modelfit.md \
+  --csv model-matrix.csv --fail-on-unfit
+agenticlens modelfit matrix modelfit.json
+```
+
+```yaml
+# modelfit.yaml
+reference_variant_id: frontier-a      # savings and risks are measured against this
+defaults: {min_pass_rate: 0.85, min_safety_pass_rate: 1.0}
+categories:
+  - {id: orders, tags: [orders], monthly_volume: 120000,
+     constraints: {max_p95_latency_ms: 1500}}
+  - {id: account, tags: [account],
+     constraints: {allowed_deployments: [on_prem], required_capabilities: [pii_ok]}}
+```
+
+```python
+from pathlib import Path
+from agenticlens.modelfit import load_experiment_evidence, load_modelfit_config, recommend_models
+
+report = recommend_models(
+    [load_experiment_evidence(Path("experiment.json"))],
+    load_modelfit_config(Path("modelfit.yaml")),
+)
+```
+
+- **Taxonomy**: categories select cases by tag, `metadata.domain`, or case
+  ID; without a taxonomy, one category is derived per tag, plus `all`.
+- **Hard constraints**: pass rate and its interval lower bound, cost per case
+  and per success, mean and p95 latency, consistency, safety pass rate,
+  provider allow/block lists, deployment, and capabilities. Constraints fail
+  closed: a limit the evidence cannot verify is a violation.
+- **Scoring**: weighted quality, cost, latency, and reliability among
+  feasible candidates, plus a Pareto frontier and a cost-per-success ranking.
+- **Recommendation**: confidence (`high`/`medium`/`low`) with reasons, a
+  numbered explanation citing measured values, alternatives, and a fallback
+  on a different provider when one is feasible.
+- **Evidence**: savings per case, per success, and per month are computed on
+  the same cases as the reference and cite the experiment report's SHA-256;
+  quality regressions, regressed and flaky cases, safety failures, and thin
+  evidence are reported as separate risks.
+
+Exit code `8` signals `--fail-on-unfit` (a category with no feasible model)
+or `--fail-on-low-confidence`. Schemas are in `schemas/modelfit/`. The
+reproducible example is [`examples/modelfit_demo.py`](examples/modelfit_demo.py).
+Full guide: [docs/modelfit.md](docs/modelfit.md).
+
 ## Dashboard Report
 
 `analyze`, `inspect`, and `compare` can each render their own standalone HTML
