@@ -325,3 +325,52 @@ def test_needs_reports_and_candidates(tmp_path: Path) -> None:
 def test_default_config_derives_categories_from_tags(tmp_path: Path) -> None:
     report = recommend_models([_report(tmp_path)])
     assert [r.category.id for r in report.categories] == ["all", "orders", "policy", "safety"]
+
+
+def test_savings_need_the_same_cases_as_the_reference(tmp_path: Path) -> None:
+    first = _report(tmp_path)
+    second = build_report(
+        tmp_path,
+        {
+            "other-1": Spec(uniform({"p1": [], "x1": []}, passes(10)), cost=0.0001),
+            "other-2": Spec(uniform({"p1": [], "x1": []}, passes(5, 5)), cost=0.0001),
+            "other-3": Spec(uniform({"p1": [], "x1": []}, passes(5, 5)), cost=0.0001),
+        },
+        cases={"p1": ["policy"], "x1": ["policy"]},
+        name="other",
+    )
+    report = recommend_models([first, second], _config())
+    policy = _category(report, "policy").recommendation
+
+    assert policy.variant_id == "other-1"
+    assert policy.savings is not None and policy.savings.available is False
+    assert "measured on different cases" in policy.savings.reason
+    assert any("different suites" in w for w in report.warnings)
+
+
+def test_cases_without_a_completed_trial_are_warned(tmp_path: Path) -> None:
+    report = _report(tmp_path, trials=4)
+    variants = [
+        variant.model_copy(
+            update={
+                "trials": [
+                    trial.model_copy(
+                        update={
+                            "report": trial.report.model_copy(
+                                update={
+                                    "cases": [c for c in trial.report.cases if c.case_id != "s1"]
+                                }
+                            )
+                        }
+                    )
+                    for trial in variant.trials
+                    if trial.report is not None
+                ]
+            }
+        )
+        for variant in report.variants
+    ]
+    result = recommend_models([report.model_copy(update={"variants": variants})], _config())
+
+    assert any("No experiment completed a trial on s1" in w for w in result.warnings)
+    assert "s1" in result.uncategorized_case_ids
