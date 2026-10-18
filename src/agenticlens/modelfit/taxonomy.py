@@ -57,7 +57,10 @@ def derive_categories(
 
 
 def _category_id(tag: str) -> str:
-    cleaned = "".join(char if char.isalnum() or char in "_.:-" else "-" for char in tag)
+    # Category IDs are ASCII (see TaskCategory.id); other characters become "-".
+    cleaned = "".join(
+        char if (char.isascii() and char.isalnum()) or char in "_.:-" else "-" for char in tag
+    )
     cleaned = cleaned.lstrip("_.:-") or "tag"
     return cleaned
 
