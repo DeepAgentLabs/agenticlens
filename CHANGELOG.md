@@ -74,8 +74,9 @@ Delivers roadmap milestone v0.7 (ModelFit).
 ### Ecosystem
 
 - No AIOS object or existing Lens artifact changes. Agentic Sidecar 0.8.4
-  widens its optional `agenticlens` extra from `<0.9` to `<1`; Control Tower,
-  Chaos, Evals, and MCP already admit 0.9.0.
+  widens its optional `agenticlens` extra from `<0.9` to `<1`; MCP 0.3.11
+  pins hosted images to 0.9.0 and adds a read-only `lens.modelfit_recommend`
+  tool; Control Tower, Chaos, and Evals already admit 0.9.0.
 
 ## 0.8.0 - 2026-10-17
 
