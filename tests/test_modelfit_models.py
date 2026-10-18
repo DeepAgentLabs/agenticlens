@@ -62,3 +62,14 @@ def test_all_is_reserved_while_the_overall_category_is_enabled() -> None:
         ModelFitConfig(categories=[TaskCategory(id="all", tags=["x"])])
     config = ModelFitConfig(include_overall=False, categories=[TaskCategory(id="all")])
     assert config.categories[0].id == "all"
+
+
+def test_list_constraints_accept_null_overrides() -> None:
+    defaults = ModelConstraints(blocked_providers=["x"], required_capabilities=["pii_ok"])
+    override = ModelConstraints.model_validate(
+        {"blocked_providers": None, "required_capabilities": None}
+    )
+
+    merged = defaults.merged(override)
+
+    assert merged.blocked_providers is None and merged.required_capabilities is None
