@@ -212,6 +212,18 @@ def _savings(
         case_ids=sorted(set(top.case_ids) | set(reference.case_ids)),
         source_indexes=sorted({top.source_index, reference.source_index}),
     )
+    if set(top.case_ids) != set(reference.case_ids):
+        only_top = sorted(set(top.case_ids) - set(reference.case_ids))
+        only_reference = sorted(set(reference.case_ids) - set(top.case_ids))
+        return base.model_copy(
+            update={
+                "reason": (
+                    f"{top.variant_id} and {reference.variant_id} were measured on different "
+                    f"cases ({len(only_top)} only in {top.variant_id}, {len(only_reference)} "
+                    f"only in {reference.variant_id}), so their costs are not comparable."
+                )
+            }
+        )
     if top.cost_per_case_usd is None or reference.cost_per_case_usd is None:
         missing = [
             candidate.variant_id
