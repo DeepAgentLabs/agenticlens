@@ -1,0 +1,35 @@
+name: support-model-selection
+version: "2026-10"
+baseline_variant_id: frontier-a
+trial_count: 8
+random_seed: 7
+pass_k: [1, 4, 8]
+minimum_trials: 5
+metadata:
+  owner: support-platform
+  purpose: Compare four candidate models on the same support suite for ModelFit.
+variants:
+  - id: frontier-a
+    name: Frontier model (provider A, cloud)
+    target_kind: recorded
+    target: recorded/frontier-a.json
+    factors: {model: frontier-large}
+    metadata: {provider: provider-a, deployment: cloud}
+  - id: mid-b
+    name: Mid-size model (provider B, cloud)
+    target_kind: recorded
+    target: recorded/mid-b.json
+    factors: {model: mid-size}
+    metadata: {provider: provider-b, deployment: cloud}
+  - id: small-a
+    name: Small model (provider A, cloud)
+    target_kind: recorded
+    target: recorded/small-a.json
+    factors: {model: small}
+    metadata: {provider: provider-a, deployment: cloud}
+  - id: oss-local
+    name: Open-weights model (self-hosted, on-prem)
+    target_kind: recorded
+    target: recorded/oss-local.json
+    factors: {model: oss-8b}
+    metadata: {provider: self-hosted, deployment: on_prem, capabilities: "tools,pii_ok"}
