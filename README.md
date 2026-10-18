@@ -2101,3 +2101,12 @@ native evidence schema changes are required; this documentation alignment needs
 no patch release. See the [operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.7.0/docs/fleet-operations.md).
 
 See the [local Tower compatibility guide](docs/tower-0.7-fleet-operations.md) for the operator workflow and package boundaries.
+
+## 0.9.0 ecosystem compatibility
+
+ModelFit adds Lens-local analysis and schemas only; no AIOS object, sibling
+contract, or existing Lens artifact changes. Agentic Sidecar 0.8.4 widens its
+optional `agenticlens` extra from `<0.9` to `<1` so it installs alongside Lens
+0.9.0. Control Tower (`agenticlens>=0.7,<1`), Chaos (`agenticlens>=0.7.0`),
+MCP, and Evals already admit 0.9.0 and need no release. See the
+[compatibility notes](agenticlens-roadmap.md#090-ecosystem-compatibility).
