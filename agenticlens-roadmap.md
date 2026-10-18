@@ -1202,3 +1202,25 @@ Lens retains trace capture, diagnosis and suite management. Enhanced-tracing fle
 Existing optional dependency ranges remain sufficient. No sibling runtime or
 native evidence schema changes are required; this documentation alignment needs
 no patch release. See the [operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.7.0/docs/fleet-operations.md).
+
+## 0.9.0 ecosystem compatibility
+
+ModelFit is Lens-owned analysis over Lens experiment reports. It adds no
+cross-package object, event meaning, or AIOS schema, and changes no existing
+trace, finding, experiment, diagnosis, or suite contract.
+
+- `agentic-sidecar`: its optional `agenticlens` extra capped Lens below 0.9.
+  Sidecar 0.8.4 widens the range to `>=0.7.1,<1` and moves its locked
+  ecosystem check to Lens 0.9.x. Sidecar correlation (`attach_decisions`) is
+  unchanged.
+- `agenticops-control-tower`: the optional `agenticlens>=0.7,<1` extra already
+  admits 0.9.0. A ModelFit report is local analysis, not fleet health or
+  native evidence posture; Tower does not read it.
+- `agentic-chaos`: `agenticlens>=0.7.0` admits 0.9.0; chaos span adapters and
+  `chaos_events` analysis are unchanged.
+- `agentic-evals`: Lens keeps `agentic-evals>=0.7.1,<1`; ModelFit reads the
+  native evaluation reports embedded in experiment trials and computes no
+  release gate.
+- `deep-agentic-core-mcp`: existing Lens-backed tools are unchanged; no
+  ModelFit MCP tool is added in this release.
+- `ai-operations-spec`: no spec change; ModelFit schemas are Lens-local.
