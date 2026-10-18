@@ -1975,3 +1975,9 @@ should tolerate unknown fields. Lens continues to consume the same native report
 See the [contract, examples and compatibility policy](https://github.com/DeepAgentLabs/agentic-evals/blob/main/docs/report-contract.md). Existing dependency
 ranges remain sufficient; using the new accessors directly requires
 `agentic-evals>=0.7.2`. This documentation alignment needs no sibling patch release.
+
+## Evals 0.8.0 CLI interoperability
+
+Evals 0.8.0 runs Lens 0.8.0 approved suite exports directly with `agentic-evals evaluate` or `live`, then applies release policy with `gate`. Lens retains dataset curation, approval, lineage and diagnosis. The existing `agentic-evals>=0.7.1,<1` dependency admits 0.8.0; no floor increase is needed.
+
+See [CLI usage and compatibility](docs/evals-0.8-cli.md).
