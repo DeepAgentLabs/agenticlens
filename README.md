@@ -86,6 +86,7 @@ and missing features with source/test evidence and open acceptance gates.
 - [Experiments and Statistical Comparison](#experiments-and-statistical-comparison)
 - [Diagnosis and Failure Attribution](#diagnosis-and-failure-attribution)
 - [Test-Suite and Dataset Management](#test-suite-and-dataset-management)
+- [ModelFit Model Recommendations](#modelfit-model-recommendations)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -248,6 +249,9 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Suite editors, tags, domains, stable splits, synthetic variations | Implemented, experimental |
 | Duplicate and conflicting-label detection, PII masking before storage | Implemented, experimental |
 | Reviewed, immutable, hash-verified suite versions for CI | Implemented, experimental |
+| ModelFit task taxonomy and hard constraints (quality, cost, latency, safety, provider, deployment) | Implemented, experimental |
+| ModelFit weighted scoring, Pareto frontier, cost-per-success ranking, task-level model matrix | Implemented, experimental |
+| ModelFit confidence, explanations, alternatives, fallbacks, evidence-tied savings, quality risks | Implemented, experimental |
 | AIOS draft validation and conformance CLI (rule-cited summaries) | Implemented, experimental |
 | OTLP/HTTP JSON trace export | Implemented, experimental |
 | OTLP/OpenTelemetry ingestion adapter (`gen_ai.*` semconv, `import-otlp`) | Implemented, experimental |
@@ -255,7 +259,7 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Persistent local trace history (`--db`, `/history`, `agenticlens history`) | Implemented, experimental |
 | Local HTML dashboard (timeline, cost, findings, gate, comparison) | Implemented, experimental |
 | Framework trace adapters (native LangChain/LangGraph instrumentation, not already-OTel data) | Planned |
-| ModelFit and governance | Planned |
+| Advisory runtime routing and governance | Planned |
 
 ## Evaluation and Release Gates
 
