@@ -57,7 +57,12 @@ suites built from CSV/JSON imports, production traces, and user feedback, with
 editors, tags and domains, stable splits, synthetic variations, duplicate
 detection, PII masking, review and approval metadata, and immutable,
 hash-verified suite versions that CI can verify, export, and evaluate.
-Development continues with ModelFit (v0.7). The
+Release 0.9.0 delivers v0.7 ModelFit: a task taxonomy, hard constraints on
+quality, cost, latency, safety, provider, and deployment, weighted scoring,
+per-category Pareto frontiers and cost-per-success rankings, recommendation
+confidence and explanations, alternatives and provider-diverse fallbacks,
+savings tied to experiment evidence, and a task-level model matrix.
+Development continues with advisory runtime routing (v0.8). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
