@@ -66,6 +66,36 @@ jobs:
       - name: Release gate
         run: uv run agenticlens gate build/evaluation.json --notify-state build/gate-state.json
 
+  modelfit:
+    # Replays the recorded four-model experiment and recommends a model per
+    # task category; fails when any category has no model that meets its
+    # hard constraints.
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --extra dev --python 3.12
+      - name: Run the recorded model-selection experiment
+        run: >
+          uv run agenticlens experiment run examples/modelfit/support-experiment.yaml
+          examples/modelfit/support-suite.yaml --save build/experiment.json
+      - name: Recommend models per task category
+        run: >
+          uv run agenticlens modelfit recommend build/experiment.json
+          --config examples/modelfit/modelfit.yaml
+          --manifest examples/modelfit/support-experiment.yaml
+          --save build/modelfit.json --markdown build/modelfit.md
+          --csv build/model-matrix.csv --fail-on-unfit
+      - name: Show the task-level model matrix
+        run: uv run agenticlens modelfit matrix build/modelfit.json
+
   package:
     runs-on: ubuntu-latest
     needs: test
