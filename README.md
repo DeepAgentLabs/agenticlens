@@ -1857,6 +1857,8 @@ uv run agenticlens experiment run experiment.yaml suite.yaml \
 | `calibrate` | Compare judge verdicts with human labels; optionally tune the threshold |
 | `dataset` | Summarize, split, and export versioned evaluation datasets |
 | `suite` | Build, edit, mask, de-duplicate, vary, split, review, approve, verify, export, and diff test suites |
+| `modelfit recommend` | Recommend a model per task category from experiment reports under hard constraints |
+| `modelfit matrix` / `modelfit taxonomy` | Show a saved report's task-level model matrix; show which cases each category covers |
 | `gate` | Enforce release thresholds; optionally alert a webhook with cooldowns |
 
 The `compare` command accepts either one JSON trace file or a directory of
