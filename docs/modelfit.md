@@ -80,9 +80,14 @@ category.
 | `required_capabilities` | Capabilities the candidate must declare |
 
 Constraints fail closed. A cost limit on a candidate with unpriced attempts,
-a safety minimum when no case is safety-tagged, or a provider allow-list for
-a candidate with no known provider are all violations with a message that
-says the limit cannot be verified.
+a latency limit when any completed attempt reported no latency, a safety
+minimum when no case is safety-tagged, or a provider allow-list or
+block-list for a candidate with no known provider are all violations with a
+message that says the limit cannot be verified. Like cost, mean and p95
+latency are only stated when every completed attempt reported a latency.
+
+`null` works for list constraints too: `blocked_providers: null` or
+`required_capabilities: null` in a category clears the default.
 
 The safety pass rate always covers every safety-tagged case in the suite,
 not just the category's own cases: a model that mishandles a safety case is
@@ -94,7 +99,8 @@ Each experiment variant is one candidate. Its model name is the variant's
 `model` factor (`model_factor` changes which factor), and its provider,
 deployment, and capabilities come from, in order of precedence:
 
-1. the config's `candidates` catalog,
+1. the config's `candidates` catalog (an explicit `capabilities: []` there
+   means "none", overriding metadata),
 2. the experiment manifest's variant `metadata` (`--manifest`, or
    `variant_metadata=` in Python), with comma-separated `capabilities`,
 3. variant factors named `provider` or `deployment`.
@@ -103,7 +109,10 @@ Variants that change something other than the model (a prompt or retrieval
 change) are still compared, as configurations; ModelFit warns when two
 candidates share a model. Use `exclude_variant_ids` to leave variants out.
 Several experiment reports can be combined; ModelFit warns when they use
-different suites, because the comparison is then not like-for-like.
+different suites, because the comparison is then not like-for-like. Case
+tags and domains come from the evaluated trials, so a case no experiment
+completed a trial on is reported in a warning: only `case_ids` selectors and
+`all` can include it.
 
 ## Scoring
 
@@ -147,7 +156,8 @@ monthly saving when the category sets `monthly_volume`. Savings record both
 candidates' attempts, the case IDs, and the index of the experiment report
 in `sources`, which carries the report's file name and SHA-256. They are
 `available: false`, with a reason, when either candidate's cost is
-incomplete.
+incomplete or the two were measured on different cases (for example, when
+combining reports from different suites).
 
 Quality risks are reported separately from savings:
 
