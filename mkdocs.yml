@@ -23,6 +23,7 @@ nav:
   - Experiments and Statistical Comparison: experiments.md
   - Diagnosis and Failure Attribution: diagnosis.md
   - Tower 0.6 Recovery: control-tower-0.6.md
+  - Tower 0.7 Fleet Operations: tower-0.7-fleet-operations.md
   - Multi-Agent Reference Workflows: multi-agent-reference-workflows.md
 
 markdown_extensions:
