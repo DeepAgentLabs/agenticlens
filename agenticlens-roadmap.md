@@ -417,6 +417,26 @@ The following capabilities are implemented in the current development line.
 - approval checks (review, PII, conflicting duplicates) and an immutable,
   hash-verified suite store with `verify`, `export`, `versions`, and `diff`
 
+### Model selection (ModelFit)
+
+- task taxonomy: categories select cases by tag, `metadata.domain`, or case
+  ID, or are derived from case tags; an `all` category covers every case
+- hard constraints per category (with default inheritance and explicit
+  removal): pass rate and its Wilson lower bound, cost per case and per
+  success, mean and p95 latency, consistency, suite-wide safety pass rate,
+  provider allow/block lists, deployment allow-list, required capabilities;
+  unverifiable limits are violations
+- weighted scoring of feasible candidates (quality, cost, latency,
+  reliability), Pareto frontier, and cost-per-success ranking per category
+- recommendation confidence with stated reasons, explanations citing measured
+  values, alternatives, and provider-diverse fallbacks
+- savings against a reference variant on the same cases, with attempts, case
+  IDs, and the experiment report's SHA-256; quality regressions, regressed,
+  flaky, and safety-failed cases, thin evidence, and failed trials reported
+  as separate risks
+- task-level model matrix (JSON, CSV, Markdown) and `agenticlens modelfit`
+  `recommend`, `matrix`, and `taxonomy` commands
+
 ### Artifact contracts
 
 - versioned trace schema
@@ -425,6 +445,7 @@ The following capabilities are implemented in the current development line.
 - experiment manifest/report, diagnosis report, attribution-accuracy report,
   and score-analysis schemas
 - suite-version, feedback-batch, duplicate-report, and masking-report schemas
+- ModelFit config and report schemas
 - schema inclusion in wheel distributions
 
 ## Capability Architecture
