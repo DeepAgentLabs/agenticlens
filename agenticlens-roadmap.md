@@ -1221,6 +1221,8 @@ trace, finding, experiment, diagnosis, or suite contract.
 - `agentic-evals`: Lens keeps `agentic-evals>=0.7.1,<1`; ModelFit reads the
   native evaluation reports embedded in experiment trials and computes no
   release gate.
-- `deep-agentic-core-mcp`: existing Lens-backed tools are unchanged; no
-  ModelFit MCP tool is added in this release.
+- `deep-agentic-core-mcp`: MCP 0.3.11 pins its hosted images to
+  `agenticlens==0.9.0` and adds a read-only `lens.modelfit_recommend` tool
+  over supplied experiment reports; existing Lens-backed tools are
+  unchanged.
 - `ai-operations-spec`: no spec change; ModelFit schemas are Lens-local.
