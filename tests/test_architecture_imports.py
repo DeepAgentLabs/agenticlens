@@ -6,6 +6,7 @@ FORBIDDEN_IMPORTS = {
     "exporters": ("agenticlens.cli",),
     "comparison": ("agenticlens.cli",),
     "evaluation": ("agenticlens.cli",),
+    "modelfit": ("agenticlens.cli",),
 }
 
 
