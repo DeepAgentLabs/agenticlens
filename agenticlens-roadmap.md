@@ -23,14 +23,16 @@ acceptance and v0.4 delivery evidence, and the
 [0.7.0 follow-up](ROADMAP_AUDIT.md#070-follow-up-2026-10-13) records v0.5
 delivery evidence, and the
 [0.8.0 follow-up](ROADMAP_AUDIT.md#080-follow-up-2026-10-17) records v0.6
+delivery evidence, and the
+[0.9.0 follow-up](ROADMAP_AUDIT.md#090-follow-up-2026-10-18) records v0.7
 delivery evidence. Later milestones contain partial
 building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
-`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` (current,
-2026-10-17) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0`
+(current, 2026-10-18) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -64,7 +66,12 @@ forward from `v0.5` and `v1.0`.
   detection, PII masking before storage, review and approval metadata, and
   immutable hash-verified suite versions that CI verifies, exports, and
   evaluates)
-- **v0.7** 🚧 Planned — ModelFit
+- **v0.7** ✅ Delivered in `0.9.0` — ModelFit (task taxonomy, hard
+  quality/cost/latency/safety/provider/deployment constraints that fail
+  closed, weighted scoring, per-category Pareto frontier and cost-per-success
+  ranking, recommendation confidence and explanations, alternatives and
+  provider-diverse fallbacks, savings tied to experiment evidence, quality
+  risks, and a task-level model matrix)
 - **v0.8** 🚧 Planned — Advisory Runtime Routing
 - **v0.9** 🚧 Planned — Optimization Intelligence
 - **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
