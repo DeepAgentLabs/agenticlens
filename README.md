@@ -1890,6 +1890,11 @@ The `compare` command accepts either one JSON trace file or a directory of
   locale-specific identifiers are not detected. Synthetic variations are
   surface perturbations, not paraphrases. Duplicate detection is pairwise and
   lexical. Suite approval records who approved; it does not authenticate them.
+- ModelFit recommendations are only as representative as the experiment
+  suite and trials: costs are the recorded costs, monthly savings assume the
+  production mix matches the category's cases, and provider, deployment, and
+  capability facts are declared rather than verified. ModelFit recommends;
+  it does not route traffic.
 
 ## Development
 
@@ -1934,6 +1939,8 @@ src/agenticlens/
                    anomalies, guardrails, narratives, attribution accuracy
   suites/          suite imports, trace/feedback conversion, editors, variations,
                    duplicates, PII masking, splits, approval, immutable store
+  modelfit/        task taxonomy, constraints, scoring, Pareto analysis, model
+                   recommendations, fallbacks, savings, risks, model matrix
   adapters/        OTLP ingestion
   api/             optional live OTLP receiver and trace store
   reports/         trace inspection rendering
@@ -1946,15 +1953,16 @@ src/agenticlens/
   config/         pricing and settings
   models/         Pydantic data models
 schemas/           versioned trace, finding, report, experiment, diagnosis,
-                   score-analysis, and suite JSON Schemas
+                   score-analysis, suite, and ModelFit JSON Schemas
 ```
 
 ## Roadmap
 
 Near-term priorities:
 
-- v0.7 ModelFit: task-level model recommendations under quality, cost,
-  latency, safety, and provider constraints, tied to experiment evidence
+- v0.8 advisory runtime routing: use ModelFit evidence to recommend or
+  select models at runtime, with fallback chains, shadow and canary modes,
+  and a routing audit log
 - semantic (embedding or judge-based) duplicate detection and paraphrase
   variations as optional suite extensions
 - automatic pricing resolution for research trace spans
