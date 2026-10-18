@@ -1310,6 +1310,17 @@ version, evaluate, and gate:
 `suite verify` and `suite export` exit `6` when a stored version is missing or
 was changed after approval.
 
+To keep model choices honest as the agent changes, re-run the model
+experiment and require a feasible model for every task category:
+
+```yaml
+      - run: uv run agenticlens experiment run models.yaml suite.yaml --save build/experiment.json
+      - run: uv run agenticlens modelfit recommend build/experiment.json --config modelfit.yaml --save build/modelfit.json --fail-on-unfit
+```
+
+`modelfit recommend --fail-on-unfit` exits `8` when some category has no model
+that meets its hard constraints.
+
 ## Portable Schemas
 
 Versioned JSON Schemas are provided for:
@@ -1322,6 +1333,7 @@ Versioned JSON Schemas are provided for:
 - evaluation score analysis: `schemas/evaluation/score-analysis.schema.json`
 - approved suite versions, feedback batches, duplicate and masking reports:
   `schemas/suites/`
+- ModelFit configs and reports: `schemas/modelfit/`
 
 The schemas are included in wheel distributions under `agenticlens/schemas`.
 They allow external systems to validate and consume artifacts without depending
