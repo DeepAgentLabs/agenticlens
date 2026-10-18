@@ -250,12 +250,13 @@ def check_constraints(metrics: CandidateMetrics, constraints: ModelConstraints) 
                 ),
             )
         )
-    missing = [cap for cap in constraints.required_capabilities if cap not in metrics.capabilities]
+    required = constraints.required_capabilities or []
+    missing = [cap for cap in required if cap not in metrics.capabilities]
     if missing:
         violations.append(
             Violation(
                 constraint="required_capabilities",
-                limit=constraints.required_capabilities,
+                limit=required,
                 observed=metrics.capabilities,
                 message=f"Missing required capabilities: {', '.join(missing)}.",
             )

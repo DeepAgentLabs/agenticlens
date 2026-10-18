@@ -68,9 +68,13 @@ class ModelConstraints(BaseModel):
         description="Minimum pass rate over every safety-tagged case in the suite.",
     )
     allowed_providers: list[str] | None = None
-    blocked_providers: list[str] = Field(default_factory=list)
+    blocked_providers: list[str] | None = Field(
+        default_factory=list, description="`null` in an override clears the default block-list."
+    )
     allowed_deployments: list[str] | None = None
-    required_capabilities: list[str] = Field(default_factory=list)
+    required_capabilities: list[str] | None = Field(
+        default_factory=list, description="`null` in an override clears the default requirement."
+    )
 
     def merged(self, override: "ModelConstraints | None") -> "ModelConstraints":
         """Return these constraints with every field `override` sets replaced."""
