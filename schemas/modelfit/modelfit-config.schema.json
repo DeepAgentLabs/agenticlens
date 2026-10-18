@@ -1,0 +1,452 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/modelfit/modelfit-config.schema.json",
+  "$defs": {
+    "ModelCandidate": {
+      "description": "Deployment facts about one experiment variant.\n\nValues here take precedence over the variant's `metadata` keys of the same\nname (`model`, `provider`, `deployment`, comma-separated `capabilities`).",
+      "properties": {
+        "variant_id": {
+          "minLength": 1,
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "deployment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deployment"
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variant_id"
+      ],
+      "title": "ModelCandidate",
+      "type": "object"
+    },
+    "ModelConstraints": {
+      "description": "Hard constraints a candidate must satisfy to be recommended.\n\nEvery limit is optional. A limit that cannot be checked because the\nevidence is missing (for example an unpriced trial under a cost limit, or\nan unknown provider under a provider allow-list) is a violation: ModelFit\nnever assumes a candidate passes a constraint it has no evidence for.",
+      "properties": {
+        "min_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Pass Rate"
+        },
+        "min_pass_rate_lower_bound": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum lower bound of the pass rate's Wilson confidence interval.",
+          "title": "Min Pass Rate Lower Bound"
+        },
+        "max_cost_per_case_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Cost Per Case Usd"
+        },
+        "max_cost_per_success_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Cost Per Success Usd"
+        },
+        "max_mean_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Mean Latency Ms"
+        },
+        "max_p95_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max P95 Latency Ms"
+        },
+        "min_consistency": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum share of cases with the same outcome on every attempt.",
+          "title": "Min Consistency"
+        },
+        "min_safety_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum pass rate over every safety-tagged case in the suite.",
+          "title": "Min Safety Pass Rate"
+        },
+        "allowed_providers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Providers"
+        },
+        "blocked_providers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocked Providers",
+          "type": "array"
+        },
+        "allowed_deployments": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Deployments"
+        },
+        "required_capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Capabilities",
+          "type": "array"
+        }
+      },
+      "title": "ModelConstraints",
+      "type": "object"
+    },
+    "ScoringWeights": {
+      "description": "Relative weights of the four normalised components of a candidate's score.\n\nComponents are each in [0, 1]: `quality` is the pass rate; `cost` and\n`latency` are the cheapest (fastest) feasible candidate's cost per success\n(mean latency) divided by this candidate's; `reliability` is the share of\ncases with a consistent outcome across attempts.",
+      "properties": {
+        "quality": {
+          "default": 0.5,
+          "minimum": 0,
+          "title": "Quality",
+          "type": "number"
+        },
+        "cost": {
+          "default": 0.3,
+          "minimum": 0,
+          "title": "Cost",
+          "type": "number"
+        },
+        "latency": {
+          "default": 0.1,
+          "minimum": 0,
+          "title": "Latency",
+          "type": "number"
+        },
+        "reliability": {
+          "default": 0.1,
+          "minimum": 0,
+          "title": "Reliability",
+          "type": "number"
+        }
+      },
+      "title": "ScoringWeights",
+      "type": "object"
+    },
+    "TaskCategory": {
+      "description": "A task category and the suite cases that belong to it.\n\nA case belongs to the category when its ID is listed in `case_ids`, it\ncarries any of `tags`, or its `metadata[\"domain\"]` is in `domains`. A\ncase can belong to several categories.",
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "domains": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Domains",
+          "type": "array"
+        },
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Ids",
+          "type": "array"
+        },
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelConstraints"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overrides for the config's default constraints."
+        },
+        "weights": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScoringWeights"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Replaces the config's default weights for this category."
+        },
+        "monthly_volume": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected requests per month, for savings projections.",
+          "title": "Monthly Volume"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TaskCategory",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "name": {
+      "default": "modelfit",
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "model_factor": {
+      "default": "model",
+      "description": "Experiment factor that names the model.",
+      "minLength": 1,
+      "title": "Model Factor",
+      "type": "string"
+    },
+    "reference_variant_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Variant that savings and quality risks are measured against; defaults to the experiment baseline.",
+      "title": "Reference Variant Id"
+    },
+    "categories": {
+      "description": "Task taxonomy. When empty, one category is derived per case tag.",
+      "items": {
+        "$ref": "#/$defs/TaskCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "include_overall": {
+      "default": true,
+      "description": "Add an `all` category covering every case.",
+      "title": "Include Overall",
+      "type": "boolean"
+    },
+    "defaults": {
+      "$ref": "#/$defs/ModelConstraints"
+    },
+    "weights": {
+      "$ref": "#/$defs/ScoringWeights"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/ModelCandidate"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "exclude_variant_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Exclude Variant Ids",
+      "type": "array"
+    },
+    "safety_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Safety Tags",
+      "type": "array"
+    },
+    "minimum_attempts": {
+      "default": 10,
+      "description": "Case attempts per category below which a recommendation is low confidence.",
+      "minimum": 1,
+      "title": "Minimum Attempts",
+      "type": "integer"
+    },
+    "confidence_level": {
+      "default": 0.95,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "significance_level": {
+      "default": 0.05,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Significance Level",
+      "type": "number"
+    },
+    "max_alternatives": {
+      "default": 2,
+      "minimum": 0,
+      "title": "Max Alternatives",
+      "type": "integer"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "title": "AgenticLens ModelFit Config",
+  "type": "object"
+}
