@@ -792,11 +792,19 @@
           "title": "Allowed Providers"
         },
         "blocked_providers": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Blocked Providers",
-          "type": "array"
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`null` in an override clears the default block-list.",
+          "title": "Blocked Providers"
         },
         "allowed_deployments": {
           "anyOf": [
@@ -814,11 +822,19 @@
           "title": "Allowed Deployments"
         },
         "required_capabilities": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Required Capabilities",
-          "type": "array"
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`null` in an override clears the default requirement.",
+          "title": "Required Capabilities"
         }
       },
       "title": "ModelConstraints",
