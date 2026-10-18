@@ -30,6 +30,7 @@ candidate configurations against reviewed baselines.
 | Diagnosis | Failure taxonomy, faulty step and agent, incident timeline, baseline anomalies |
 | Evaluation quality | Deterministic vs model-based scores, judge cost, evaluator disagreement |
 | Regression suites | Cases from CSV/JSON, traces, and feedback; PII masking, duplicates, splits, approved immutable versions |
+| Model selection | Per-task-category recommendations under hard constraints, with confidence, fallbacks, savings, and quality risks |
 
 ## Token Optimization Focus
 
@@ -66,6 +67,7 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [Test-suite and dataset management](suite-management.md)
 - [Diagnosis and failure attribution](diagnosis.md)
 - [Experiments and statistical comparison](experiments.md)
+- [ModelFit recommendations](modelfit.md)
 - [Multi-agent reference workflows](multi-agent-reference-workflows.md)
 - [Product roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/agenticlens-roadmap.md)
 - [Research roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Research_and_Development_Roadmap.md)
