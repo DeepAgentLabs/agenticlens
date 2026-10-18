@@ -401,8 +401,9 @@ def _explain(
             f"Per case it is {_money(abs(saving))}{ratio_text} {direction} than the reference "
             f"{savings.reference_variant_id}"
             + (
-                f", a projected {_money(savings.projected_monthly_savings_usd)} per month at "
-                f"{savings.monthly_volume} requests."
+                f", a projected monthly {'saving' if saving >= 0 else 'increase'} of "
+                f"${abs(savings.projected_monthly_savings_usd):,.2f} at "
+                f"{savings.monthly_volume:,} requests."
                 if savings.projected_monthly_savings_usd is not None
                 else "."
             )
@@ -414,7 +415,7 @@ def _explain(
                 f"{candidate.weighted_score:.3f}: {_describe(candidate)}."
             )
     for candidate in infeasible:
-        reasons = "; ".join(violation.message for violation in candidate.violations)
+        reasons = " ".join(violation.message for violation in candidate.violations)
         lines.append(f"Rejected {candidate.variant_id}: {reasons}")
     return lines
 
@@ -481,7 +482,7 @@ def _category_result(
                 "No candidate satisfies every hard constraint.",
                 *(
                     f"Rejected {item.variant_id}: "
-                    + "; ".join(violation.message for violation in item.violations)
+                    + " ".join(violation.message for violation in item.violations)
                     for item in infeasible
                 ),
             ],
