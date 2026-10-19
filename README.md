@@ -62,7 +62,8 @@ quality, cost, latency, safety, provider, and deployment, weighted scoring,
 per-category Pareto frontiers and cost-per-success rankings, recommendation
 confidence and explanations, alternatives and provider-diverse fallbacks,
 savings tied to experiment evidence, and a task-level model matrix.
-Development continues with advisory runtime routing (v0.8). The
+Release 0.10.0 delivers v0.8 advisory runtime routing. Development continues
+with optimization intelligence (v0.9). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,

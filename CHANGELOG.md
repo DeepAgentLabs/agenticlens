@@ -6,6 +6,29 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.10.0 - 2026-10-18
+
+Delivers roadmap milestone v0.8 (Advisory Runtime Routing).
+
+### Added
+
+- `agenticlens.routing`: snapshot ModelFit evidence and versioned policies for
+  rule/score selection, additional fail-closed constraints, confidence thresholds,
+  bounded fallback chains and provider-diverse failover. Advisory mode is default.
+- Explicit callback execution, host human-escalation handoffs, deterministic
+  canary allocation and separately enabled, measured shadow calls. Only explicit
+  safe-to-retry errors trigger fallback; other failures stop execution.
+- Local append/fsync routing journal, canonical policy/report hashes, versioned
+  Lens-local schemas, routing result summaries, and `routing decide/summary` CLI.
+- Offline failover/shadow demo, regression tests and full routing guide.
+
+### Compatibility
+
+- Existing Evals, Chaos and Sidecar dependency ranges remain sufficient. MCP
+  0.3.12 pins Lens 0.10.0 and exposes read-only `lens.routing_decide`.
+- Routing does not replace Sidecar authority or Tower approvals and does not
+  change the normative AIOS contract. Callbacks own provider access/timeouts.
+
 ## 0.9.0 - 2026-10-18
 
 Delivers roadmap milestone v0.7 (ModelFit).
