@@ -14,6 +14,16 @@ documents the supporting research program, experimental metrics, benchmark
 design, and publication plan. Research proposals are not product commitments
 until they appear in the canonical product roadmap.
 
+## 0.10.0: Advisory Runtime Routing
+
+Roadmap v0.8 ships with the routing SDK, rules/scores, fail-closed constraints,
+bounded provider failover, confidence and host escalation handoffs, explicit
+shadow/canary modes and a local routing journal. See [the guide](docs/routing.md)
+and [offline acceptance example](examples/routing_demo.py). MCP 0.3.12 pins
+Lens 0.10.0 and exposes read-only routing decisions. Existing Evals, Chaos and
+Sidecar dependency ranges remain sufficient; Tower and AIOS need no runtime change.
+Next is v0.9 Optimization Intelligence.
+
 ## 0.9.0: ModelFit
 
 Roadmap milestone v0.7 shipped in 0.9.0: `agenticlens.modelfit` and
@@ -26,7 +36,7 @@ experiment report's SHA-256, and quality risks; every category also has a
 Pareto frontier, a cost-per-success ranking, and a row in the task-level
 model matrix. See the [guide](docs/modelfit.md) and the
 [v0.7 section of the roadmap](agenticlens-roadmap.md#v07--modelfit).
-The next milestone is v0.8 Advisory Runtime Routing.
+The next milestone is v0.9 Optimization Intelligence.
 
 Sibling impact: Agentic Sidecar 0.8.4 widens its optional `agenticlens` extra
 from `<0.9` to `<1`, and MCP 0.3.11 pins hosted images to Lens 0.9.0 and adds
