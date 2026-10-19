@@ -9,7 +9,8 @@ Chaos 0.8.0 adds:
 - declarative YAML/JSON/TOML experiments, with validation that never executes
   targets and cron schedule previews
 - `Scope` explosion-radius control (steps, providers and exclusions) on every
-  fault
+  built-in fault and `cascade()`; custom faults get it by calling
+  `BaseFault.__init__`, setting `scope` or overriding `in_scope()`
 - a topology fuzzer that weights fault placement by fan-out
 
 Native event IDs and fault types are unchanged. Workflow provenance
