@@ -3,7 +3,7 @@
   "served": 1,
   "shadow_attempts": 1,
   "shadow_pairs": 1,
-  "mean_shadow_latency_delta_ms": -0.005370005965232849,
+  "mean_shadow_latency_delta_ms": -0.004517845809459686,
   "mean_shadow_cost_delta_usd": -0.003,
   "shadow_success_rate": 1.0,
   "primary_success_rate": 1.0

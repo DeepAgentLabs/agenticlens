@@ -1,8 +1,8 @@
 {
   "decision": {
     "schema_version": "1.0",
-    "decision_id": "a7b924a3-cabf-489a-a604-6dc045eedbfa",
-    "created_at": "2026-10-19T03:07:35.857964Z",
+    "decision_id": "b13b617b-e013-43bc-af23-83c020b36b81",
+    "created_at": "2026-10-19T03:17:28.838578Z",
     "request": {
       "request_id": "offline-demo-1",
       "category_id": "orders"
@@ -16,14 +16,15 @@
     "confidence": "low",
     "reasons": [
       "Ranked feasible candidates by recorded ModelFit weighted score.",
-      "Baseline serves; candidate is a separate measured shadow call.",
-      "Recommended small-a (small): pass rate 100.0% (CI 81%-100%) over 16 attempts, cost per success $0.0006, mean latency 480 ms; weighted score 1.000 (quality 0.4, cost 0.4, latency 0.2, reliability 0).",
-      "It satisfies every hard constraint; 2 of 4 candidates do.",
-      "It is on the Pareto frontier of pass rate, cost per success, and latency.",
-      "Per case it is $0.0054 (90%) cheaper than the reference frontier-a, a projected monthly saving of $648.00 at 120,000 requests.",
-      "Ranked 2: mid-b, score 0.594: pass rate 100.0% (CI 81%-100%) over 16 attempts, cost per success $0.0022, mean latency 1129 ms.",
-      "Rejected frontier-a: p95 latency (ms) 2000.88 exceeds the 1500 limit.",
-      "Rejected oss-local: Pass rate 37.5% is below the 85% minimum. p95 latency (ms) 1562.9 exceeds the 1500 limit."
+      "Baseline serves; a separate shadow callback can measure the candidate.",
+      "Serving target: mid-b; ModelFit recommendation: small-a. Confidence describes the original category recommendation evidence.",
+      "ModelFit context: Recommended small-a (small): pass rate 100.0% (CI 81%-100%) over 16 attempts, cost per success $0.0006, mean latency 480 ms; weighted score 1.000 (quality 0.4, cost 0.4, latency 0.2, reliability 0).",
+      "ModelFit context: It satisfies every hard constraint; 2 of 4 candidates do.",
+      "ModelFit context: It is on the Pareto frontier of pass rate, cost per success, and latency.",
+      "ModelFit context: Per case it is $0.0054 (90%) cheaper than the reference frontier-a, a projected monthly saving of $648.00 at 120,000 requests.",
+      "ModelFit context: Ranked 2: mid-b, score 0.594: pass rate 100.0% (CI 81%-100%) over 16 attempts, cost per success $0.0022, mean latency 1129 ms.",
+      "ModelFit context: Rejected frontier-a: p95 latency (ms) 2000.88 exceeds the 1500 limit.",
+      "ModelFit context: Rejected oss-local: Pass rate 37.5% is below the 85% minimum. p95 latency (ms) 1562.9 exceeds the 1500 limit."
     ],
     "rejected": {
       "frontier-a": [
@@ -70,7 +71,7 @@
       },
       "role": "primary",
       "status": "succeeded",
-      "latency_ms": 0.021378975361585617,
+      "latency_ms": 0.01988583244383335,
       "cost_usd": 0.004
     },
     {
@@ -84,7 +85,7 @@
       },
       "role": "shadow",
       "status": "succeeded",
-      "latency_ms": 0.016008969396352768,
+      "latency_ms": 0.015367986634373665,
       "cost_usd": 0.001
     }
   ],

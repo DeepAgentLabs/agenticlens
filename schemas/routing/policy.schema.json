@@ -1,7 +1,8 @@
 {
   "$defs": {
-    "ModelConstraints": {
-      "description": "Hard constraints a candidate must satisfy to be recommended.\n\nEvery limit is optional. A limit that cannot be checked because the\nevidence is missing (for example an unpriced trial under a cost limit, or\nan unknown provider under a provider allow-list) is a violation: ModelFit\nnever assumes a candidate passes a constraint it has no evidence for.",
+    "RoutingConstraints": {
+      "additionalProperties": false,
+      "description": "Routing policies reject unknown constraint names instead of dropping limits.",
       "properties": {
         "min_pass_rate": {
           "anyOf": [
@@ -175,7 +176,7 @@
           "title": "Required Capabilities"
         }
       },
-      "title": "ModelConstraints",
+      "title": "RoutingConstraints",
       "type": "object"
     }
   },
@@ -224,7 +225,7 @@
       "type": "object"
     },
     "constraints": {
-      "$ref": "#/$defs/ModelConstraints"
+      "$ref": "#/$defs/RoutingConstraints"
     },
     "minimum_confidence": {
       "default": "medium",
