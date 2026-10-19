@@ -2169,3 +2169,14 @@ now yields an unavailable score that never passes instead of aborting the
 suite. `samples=N` adds `judge_agreement`. Lens 0.10.0's tests pass unchanged,
 and `agentic-evals>=0.7.1,<1` already covers 0.9.0. No Lens release is needed.
 See [the compatibility note](docs/evals-0.9-judge-reliability.md).
+
+## MCP 0.4.0 unified release checks
+
+[MCP 0.4.0](https://github.com/DeepAgentLabs/mcp-server/releases/tag/v0.4.0) ships the first Phase 4 unified workflows: `core.compare_runs`, a fail-closed `core.release_check`, `core.incident_summary` and `core.export_report`. MCP judges nothing itself; it composes Lens comparisons, the Evals release gate and Chaos run reports, and missing, malformed or failed-call evidence blocks readiness.
+
+MCP validates `lens.compare_runs`/`core.compare_runs` output with Lens'
+`ComparisonReport` model and judges Evals reports with the gate it imports
+through `agenticlens.evaluation`, the same path as `lens.slo_summary`. A non-empty
+`regressions` list blocks the release; `sample_size_guidance` is reported but does
+not block. No Lens API change, dependency bump or release is needed.
+See [the compatibility guide](docs/mcp-0.4-unified-workflows.md).
