@@ -1260,3 +1260,13 @@ They are not scores, release gates or proof of containment. No new shared
 schema, automatic adapter or hosted execution capability is introduced.
 
 Lens reads workflow reports and merged reports as `Workflow` JSON and analyzes their `chaos_events` as before. `detail.workflow` is producer-specific event detail under schema v1.1. Suite conversion rules are unchanged. Chaos's optional `agenticlens>=0.7.0` extra is unchanged, so no dependency bump or Lens patch release is needed.
+
+## Evals 0.9.0 judge reliability compatibility
+
+Evals 0.9.0 records the same `judge_*` usage keys that `structured_judge()`
+writes and `analyze_scores()` reads. Its own rubric and judge evaluators now
+produce them too, and it totals them in `summary.judge`. A judge that raises
+now yields an unavailable score that never passes instead of aborting the
+suite. `samples=N` adds `judge_agreement`. Lens 0.10.0's tests pass unchanged,
+and `agentic-evals>=0.7.1,<1` already covers 0.9.0. No Lens release is needed.
+See [the compatibility note](docs/evals-0.9-judge-reliability.md).
