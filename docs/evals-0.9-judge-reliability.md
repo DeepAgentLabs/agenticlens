@@ -19,8 +19,9 @@ per-evaluator breakdown, pricing estimates and disagreement analysis.
 When `structured_judge()` records `judge_latency_ms` itself, Evals keeps that
 value. Every judge score also gains `judge_status` (`ok` or `unavailable`) and
 `judge_attempts`. With `samples=N` it also gains `judge_verdicts` and
-`judge_agreement`, which calibration can read as a judge-stability signal. That
-calibration remains Lens work.
+`judge_agreement`, a judge-stability signal. Lens's `calibrate_judge()` does
+not read it today: it still consumes `Score.value` and `Score.passed`. Using
+agreement in calibration would be future Lens work.
 
 ## Behavior to know
 
