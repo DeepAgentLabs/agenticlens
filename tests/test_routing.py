@@ -312,9 +312,77 @@ def test_cli_decide_exit_codes_and_summary(report, tmp_path):
 
 
 def test_nonfinite_constraints_and_unknown_schema_are_rejected(report):
-    policy = RoutingPolicy(constraints=ModelConstraints(max_cost_per_case_usd=float("inf")))
     with pytest.raises(ValueError):
-        Router(report, policy)
+        RoutingPolicy(constraints=ModelConstraints(max_cost_per_case_usd=float("inf")))
     report.schema_version = "2.0"
     with pytest.raises(ValueError, match="unsupported"):
         Router(report)
+
+
+def test_nested_policy_constraint_typos_are_rejected():
+    with pytest.raises(ValidationError, match="extra_forbidden"):
+        RoutingPolicy.model_validate(
+            {"mode": "enforce", "constraints": {"max_cost_per_case_us": 0.01}}
+        )
+
+
+@pytest.mark.parametrize(
+    "broken",
+    ["missing_variant", "unknown_variant", "wrong_category", "wrong_model", "wrong_provider"],
+)
+def test_inconsistent_recommendation_never_routes(report, broken):
+    category = next(c for c in report.categories if c.category.id == "orders")
+    rec = category.recommendation
+    if broken == "missing_variant":
+        rec.variant_id = None
+    elif broken == "unknown_variant":
+        rec.variant_id = "unknown"
+    elif broken == "wrong_category":
+        rec.category_id = "account"
+    elif broken == "wrong_model":
+        rec.model = "unknown-model"
+    else:
+        rec.provider = "unknown-provider"
+    result = Router(report, RoutingPolicy(mode="enforce")).run(request(), callbacks(report))
+    assert result.status == "escalated" and not result.attempts
+    assert "Inconsistent" in result.decision.reasons[-1]
+
+
+def test_rule_override_explains_actual_target_and_original_recommendation(report):
+    decision = Router(report, RoutingPolicy(strategy="rule", rules={"orders": ["mid-b"]})).decide(
+        request()
+    )
+    assert decision.targets[0].variant_id == "mid-b"
+    assert any(
+        "Serving target: mid-b; ModelFit recommendation: small-a" in r for r in decision.reasons
+    )
+    assert all(
+        r.startswith("ModelFit context:") for r in decision.reasons if "Recommended small-a" in r
+    )
+
+
+def test_shadow_same_candidate_does_not_claim_a_shadow_pair(report):
+    result = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="small-a")).run(
+        request(), callbacks(report), shadow_callbacks=callbacks(report)
+    )
+    assert result.decision.shadow_target is None
+    assert len(result.attempts) == 1
+    assert summarize_routing([result]).shadow_pairs == 0
+    assert any("no shadow call planned" in r for r in result.decision.reasons)
+
+
+def test_unknown_provider_is_not_prioritized_as_provider_diverse(report):
+    category = next(c for c in report.categories if c.category.id == "all")
+    # Primary mid-b/provider-b; frontier-a/provider-a and oss-local/unknown
+    # are otherwise eligible. Unknown must not get failover priority.
+    unknown = next(c for c in category.candidates if c.variant_id == "oss-local")
+    unknown.provider = None
+    unknown.feasible = True
+    unknown.violations = []
+    unknown.weighted_score = 0.9
+    from agenticlens.modelfit import ModelConstraints
+
+    category.constraints = ModelConstraints()
+    decision = Router(report).decide(request("all"))
+    assert decision.targets[0].variant_id == "mid-b"
+    assert decision.targets[1].variant_id == "frontier-a"

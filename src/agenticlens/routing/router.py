@@ -111,6 +111,20 @@ class Router:
                 "ModelFit has no recommendation with confidence for this category."
             )
             return self._finish(decision)
+        recommended = next((c for c in category.candidates if c.variant_id == rec.variant_id), None)
+        if (
+            rec.category_id != category.category.id
+            or recommended is None
+            or not recommended.feasible
+            or recommended.violations
+            or check_constraints(recommended, category.constraints)
+            or rec.model != recommended.model
+            or rec.provider != recommended.provider
+        ):
+            decision.reasons.append(
+                "Inconsistent ModelFit recommendation; evidence is not routable."
+            )
+            return self._finish(decision)
         if CONFIDENCE[rec.confidence] < CONFIDENCE[policy.minimum_confidence]:
             decision.reasons.append("ModelFit confidence is below the routing threshold.")
             return self._finish(decision)
@@ -173,8 +187,13 @@ class Router:
         selected = eligible[0]
         targets = [selected]
         if policy.strategy == "score":
-            targets.extend(c for c in eligible[1:] if c.provider != selected.provider)
-            targets.extend(c for c in eligible[1:] if c.provider == selected.provider)
+            diverse = [
+                c
+                for c in eligible[1:]
+                if c.provider and selected.provider and c.provider != selected.provider
+            ]
+            targets.extend(diverse)
+            targets.extend(c for c in eligible[1:] if c not in diverse)
         else:
             targets.extend(eligible[1:])
         if policy.mode in {"shadow", "canary"}:
@@ -188,9 +207,14 @@ class Router:
                 targets = [baseline]
                 if selected.variant_id != baseline.variant_id:
                     decision.shadow_target = _target(selected)
-                decision.reasons.append(
-                    "Baseline serves; candidate is a separate measured shadow call."
-                )
+                if decision.shadow_target is not None:
+                    decision.reasons.append(
+                        "Baseline serves; a separate shadow callback can measure the candidate."
+                    )
+                else:
+                    decision.reasons.append(
+                        "Baseline is the proposed candidate; no shadow call planned."
+                    )
             else:
                 key = f"{policy.allocation_salt}\0{request.category_id}\0{request.request_id}"
                 bucket = int.from_bytes(hashlib.sha256(key.encode()).digest()[:8], "big") / 2**64
@@ -200,7 +224,11 @@ class Router:
                 decision.reasons.append(f"Stable canary allocation: {decision.cohort}.")
         decision.targets = [_target(c) for c in targets[: policy.max_attempts]]
         decision.status = "selected"
-        decision.reasons.extend(rec.explanation)
+        decision.reasons.append(
+            f"Serving target: {targets[0].variant_id}; ModelFit recommendation: {rec.variant_id}. "
+            "Confidence describes the original category recommendation evidence."
+        )
+        decision.reasons.extend(f"ModelFit context: {text}" for text in rec.explanation)
         return self._finish(decision)
 
     def _finish(self, decision: RouteDecision) -> RouteDecision:
