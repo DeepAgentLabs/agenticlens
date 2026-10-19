@@ -60,8 +60,8 @@ duplicates, PII masking, approval, and an immutable suite store) shipped in
 0.8.0; v0.7 (ModelFit: task taxonomy, fail-closed hard constraints,
 weighted scoring, Pareto frontiers, cost-per-success ranking, confidence,
 explanations, fallbacks, evidence-tied savings, quality risks, and a
-task-level model matrix) shipped in 0.9.0. The next milestone is v0.8
-Advisory Runtime Routing. New work here should deepen evidence quality and
+task-level model matrix) shipped in 0.9.0. v0.8 Advisory Runtime Routing ships in 0.10.0. The next milestone is v0.9
+Optimization Intelligence. New work here should deepen evidence quality and
 repeatable analysis, not drift into spec stewardship or chaos simulation.
 
 ### Before You Build Here
@@ -106,6 +106,7 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
 | `src/agenticlens/experiments/` | Multi-variant experiments, pass@k statistics, HTML/CSV experiment reports |
 | `src/agenticlens/diagnosis/` | Failure taxonomy, diagnosis rules, attribution, timelines, anomalies, guardrails, narratives, attribution accuracy |
 | `src/agenticlens/suites/` | Suite imports, trace/feedback conversion, editors, variations, duplicates, PII masking, splits, approval, immutable store |
+| `src/agenticlens/routing/` | Evidence-based routing, constraints, failover, shadow/canary, local journal |
 | `src/agenticlens/modelfit/` | ModelFit: experiment evidence, task taxonomy, constraints, scoring, Pareto analysis, recommendations, model matrix |
 | `src/agenticlens/exporters/` | JSON, CSV, Markdown, Jira exports |
 | `src/agenticlens/metrics/` | Cost and performance calculation |

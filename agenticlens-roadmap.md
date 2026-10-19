@@ -72,7 +72,7 @@ forward from `v0.5` and `v1.0`.
   ranking, recommendation confidence and explanations, alternatives and
   provider-diverse fallbacks, savings tied to experiment evidence, quality
   risks, and a task-level model matrix)
-- **v0.8** 🚧 Planned — Advisory Runtime Routing
+- **v0.8** ✅ Implemented in 0.10.0 — Advisory Runtime Routing
 - **v0.9** 🚧 Planned — Optimization Intelligence
 - **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
   partially pulled forward into `v0.3`)
@@ -931,6 +931,14 @@ treat case attempts as independent; ModelFit recommends and does not route.
 - feeding recommendations and fallbacks into v0.8 advisory runtime routing
 
 ## v0.8 — Advisory Runtime Routing
+
+Implemented in package **0.10.0**. See [routing guide](docs/routing.md),
+[offline example](examples/routing_demo.py), `tests/test_routing.py` and
+`tests/test_examples_routing.py`. Python provides bounded callback execution;
+CLI/MCP only select and explain. Human escalation hands off to the host;
+local journals are not enterprise governance logs. Shadow metrics measure
+explicitly executed callback pairs. Completion criteria below are covered by
+the offline acceptance tests; real-provider production validation is separate.
 
 ### Objective
 

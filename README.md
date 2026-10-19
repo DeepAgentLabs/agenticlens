@@ -62,7 +62,8 @@ quality, cost, latency, safety, provider, and deployment, weighted scoring,
 per-category Pareto frontiers and cost-per-success rankings, recommendation
 confidence and explanations, alternatives and provider-diverse fallbacks,
 savings tied to experiment evidence, and a task-level model matrix.
-Development continues with advisory runtime routing (v0.8). The
+Release 0.10.0 delivers v0.8 advisory runtime routing. Development continues
+with optimization intelligence (v0.9). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
@@ -70,6 +71,27 @@ not a claim of AAIF acceptance or completed independent validation.
 
 The [code-backed roadmap audit](ROADMAP_AUDIT.md) records implemented, partial,
 and missing features with source/test evidence and open acceptance gates.
+
+
+## Advisory runtime routing — 0.10.0
+
+Roadmap v0.8 is implemented: `agenticlens.routing.Router` turns saved ModelFit
+experiment evidence into explainable runtime decisions, with additional hard
+constraints, confidence thresholds, bounded fallback/provider failover, human
+escalation handoffs, shadow/canary modes and a local audit journal. Advisory is
+the default; execution requires explicit modes and caller-owned callbacks.
+
+```bash
+uv run python examples/routing_demo.py
+agenticlens routing decide examples/modelfit/artifacts/modelfit.json \
+  --category orders --request-id demo-1 \
+  --policy examples/routing/artifacts/policy.json
+```
+
+The offline demo explicitly permits low confidence; default policies require
+medium confidence. See the [routing guide](docs/routing.md) for execution boundaries,
+measurement, audit limits and sibling compatibility. Next: roadmap v0.9
+Optimization Intelligence.
 
 ## Contents
 

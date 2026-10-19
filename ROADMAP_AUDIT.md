@@ -340,14 +340,17 @@ Acceptance: all four completion criteria are met in 0.9.0 (see the
 
 ## v0.8 Advisory Runtime Routing
 
-All listed deliverables are **M**: routing SDK; rule/score-based runtime selection;
-policy-aware routing; fallback chains; provider failover; confidence thresholds;
-human escalation; shadow/canary modes; routing audit log.
+Updated for 0.10.0 (2026-10-18).
 
-No corresponding execution subsystem or tests were found. The provider registry
-is usage extraction and the model-swap recommender is advisory analysis.
-Explainable runtime decisions, tested failover, measurable shadow operation, and
-policy blocking therefore remain open acceptance gates.
+All listed deliverables are implemented through `agenticlens.routing`,
+`agenticlens routing`, the offline example and `tests/test_routing.py` /
+`tests/test_examples_routing.py`: routing SDK, rule/score selection, constraints,
+bounded fallback chains/provider failover, confidence thresholds, human escalation
+handoffs, shadow/canary modes and local audit records. Explainability, failover,
+measured shadow outcomes and enabled policy blocking have offline acceptance tests.
+Human approval and provider invocation remain host-owned. No production-provider,
+shared AIOS schema, authenticated approval service or tamper-proof journal claim
+is made. See [scope and limits](docs/routing.md).
 
 ## v0.9 Optimization Intelligence
 

@@ -1,0 +1,220 @@
+{
+  "$defs": {
+    "RouteRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "category_id": {
+          "minLength": 1,
+          "title": "Category Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "category_id"
+      ],
+      "title": "RouteRequest",
+      "type": "object"
+    },
+    "RouteTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "variant_id": {
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "deployment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deployment"
+        },
+        "source_index": {
+          "title": "Source Index",
+          "type": "integer"
+        },
+        "weighted_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Score"
+        }
+      },
+      "required": [
+        "variant_id",
+        "model",
+        "source_index"
+      ],
+      "title": "RouteTarget",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "request": {
+      "$ref": "#/$defs/RouteRequest"
+    },
+    "policy_name": {
+      "title": "Policy Name",
+      "type": "string"
+    },
+    "policy_version": {
+      "title": "Policy Version",
+      "type": "string"
+    },
+    "policy_sha256": {
+      "title": "Policy Sha256",
+      "type": "string"
+    },
+    "report_sha256": {
+      "title": "Report Sha256",
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "advisory",
+        "enforce",
+        "shadow",
+        "canary"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "selected",
+        "blocked",
+        "escalated"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "rejected": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Rejected",
+      "type": "object"
+    },
+    "targets": {
+      "items": {
+        "$ref": "#/$defs/RouteTarget"
+      },
+      "title": "Targets",
+      "type": "array"
+    },
+    "shadow_target": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RouteTarget"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "cohort": {
+      "anyOf": [
+        {
+          "enum": [
+            "baseline",
+            "canary"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cohort"
+    }
+  },
+  "required": [
+    "request",
+    "policy_name",
+    "policy_version",
+    "policy_sha256",
+    "report_sha256",
+    "mode",
+    "status"
+  ],
+  "title": "RouteDecision",
+  "type": "object"
+}
