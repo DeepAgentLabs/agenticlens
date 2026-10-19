@@ -4,12 +4,18 @@ from datetime import datetime, timezone
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from agenticlens.modelfit.models import Confidence, ModelConstraints
 
 
 class RoutingModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+
+
+class RoutingConstraints(ModelConstraints):
+    """Routing policies reject unknown constraint names instead of dropping limits."""
+
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
@@ -19,13 +25,20 @@ class RoutingPolicy(RoutingModel):
     mode: Literal["advisory", "enforce", "shadow", "canary"] = "advisory"
     strategy: Literal["score", "rule"] = "score"
     rules: dict[str, list[str]] = Field(default_factory=dict)
-    constraints: ModelConstraints = Field(default_factory=ModelConstraints)
+    constraints: RoutingConstraints = Field(default_factory=RoutingConstraints)
     minimum_confidence: Confidence = "medium"
     on_unroutable: Literal["block", "escalate"] = "escalate"
     baseline_variant_id: str | None = None
     canary_fraction: float = Field(default=0.1, ge=0, le=1)
     allocation_salt: str = "lens-routing-v1"
     max_attempts: int = Field(default=3, ge=1, le=20)
+
+    @field_validator("constraints", mode="before")
+    @classmethod
+    def parse_constraints(cls, value: object) -> object:
+        if isinstance(value, ModelConstraints):
+            return value.model_dump(exclude_unset=True)
+        return value
 
     @model_validator(mode="after")
     def check_modes(self) -> "RoutingPolicy":
