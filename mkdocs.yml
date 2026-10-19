@@ -22,6 +22,7 @@ nav:
   - Test-Suite and Dataset Management: suite-management.md
   - Experiments and Statistical Comparison: experiments.md
   - ModelFit Recommendations: modelfit.md
+  - Advisory Runtime Routing: routing.md
   - Diagnosis and Failure Attribution: diagnosis.md
   - Tower 0.6 Recovery: control-tower-0.6.md
   - Tower 0.7 Fleet Operations: tower-0.7-fleet-operations.md

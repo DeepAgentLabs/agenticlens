@@ -71,6 +71,27 @@ not a claim of AAIF acceptance or completed independent validation.
 The [code-backed roadmap audit](ROADMAP_AUDIT.md) records implemented, partial,
 and missing features with source/test evidence and open acceptance gates.
 
+
+## Advisory runtime routing — 0.10.0
+
+Roadmap v0.8 is implemented: `agenticlens.routing.Router` turns saved ModelFit
+experiment evidence into explainable runtime decisions, with additional hard
+constraints, confidence thresholds, bounded fallback/provider failover, human
+escalation handoffs, shadow/canary modes and a local audit journal. Advisory is
+the default; execution requires explicit modes and caller-owned callbacks.
+
+```bash
+uv run python examples/routing_demo.py
+agenticlens routing decide examples/modelfit/artifacts/modelfit.json \
+  --category orders --request-id demo-1 \
+  --policy examples/routing/artifacts/policy.json
+```
+
+The offline demo explicitly permits low confidence; default policies require
+medium confidence. See the [routing guide](docs/routing.md) for execution boundaries,
+measurement, audit limits and sibling compatibility. Next: roadmap v0.9
+Optimization Intelligence.
+
 ## Contents
 
 - [Why AgenticLens?](#why-agenticlens)
