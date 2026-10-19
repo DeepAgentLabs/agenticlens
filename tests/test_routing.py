@@ -134,12 +134,12 @@ def test_missing_callback_does_not_silently_failover(report):
 
 
 def test_shadow_requires_separate_callback_and_measures_pairs(report):
-    router = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="frontier-a"))
+    router = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="mid-b"))
     unmeasured = router.run(request(), callbacks(report))
     assert len(unmeasured.attempts) == 1
-    assert unmeasured.served_variant_id == "frontier-a"
+    assert unmeasured.served_variant_id == "mid-b"
     result = router.run(request(), callbacks(report), shadow_callbacks={"small-a": good})
-    assert result.served_variant_id == "frontier-a"
+    assert result.served_variant_id == "mid-b"
     assert [a.role for a in result.attempts] == ["primary", "shadow"]
     summary = summarize_routing([result, unmeasured])
     assert summary.served == 2 and summary.shadow_pairs == 1
@@ -152,10 +152,10 @@ def test_shadow_requires_separate_callback_and_measures_pairs(report):
 
 
 def test_shadow_failure_does_not_replace_baseline_result(report):
-    result = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="frontier-a")).run(
+    result = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="mid-b")).run(
         request(), callbacks(report), shadow_callbacks={"small-a": unavailable}
     )
-    assert result.status == "succeeded" and result.served_variant_id == "frontier-a"
+    assert result.status == "succeeded" and result.served_variant_id == "mid-b"
     assert result.attempts[-1].status == "retryable_error"
 
 
@@ -168,18 +168,18 @@ def test_baseline_cannot_bypass_constraints(report, mode):
 
 
 @pytest.mark.parametrize(
-    "fraction, cohort, target", [(0, "baseline", "frontier-a"), (1, "canary", "small-a")]
+    "fraction, cohort, target", [(0, "baseline", "mid-b"), (1, "canary", "small-a")]
 )
 def test_canary_boundaries_and_repeatable_allocation(report, fraction, cohort, target):
     router = Router(
         report,
-        RoutingPolicy(mode="canary", baseline_variant_id="frontier-a", canary_fraction=fraction),
+        RoutingPolicy(mode="canary", baseline_variant_id="mid-b", canary_fraction=fraction),
     )
     for _ in range(3):
         decision = router.decide(request())
         assert decision.cohort == cohort and decision.targets[0].variant_id == target
     router = Router(
-        report, RoutingPolicy(mode="canary", baseline_variant_id="frontier-a", canary_fraction=0.5)
+        report, RoutingPolicy(mode="canary", baseline_variant_id="mid-b", canary_fraction=0.5)
     )
     allocations = [router.decide(request(request_id=str(i))).cohort for i in range(100)]
     assert "baseline" in allocations and "canary" in allocations
@@ -301,7 +301,7 @@ def test_cli_decide_exit_codes_and_summary(report, tmp_path):
         runner.invoke(app, [*base, "--category", "orders", "--policy", "missing.json"]).exit_code
         == 1
     )
-    result = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="frontier-a")).run(
+    result = Router(report, RoutingPolicy(mode="shadow", baseline_variant_id="mid-b")).run(
         request(), callbacks(report), shadow_callbacks=callbacks(report)
     )
     path = tmp_path / "result.json"
