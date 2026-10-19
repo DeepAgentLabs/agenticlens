@@ -11,7 +11,9 @@ from pydantic import BaseModel
 
 def artifact_sha256(model: BaseModel) -> str:
     """Hash canonical model JSON, independent of file whitespace."""
-    encoded = json.dumps(model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+    encoded = json.dumps(
+        model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), allow_nan=False
+    )
     return hashlib.sha256(encoded.encode()).hexdigest()
 
 

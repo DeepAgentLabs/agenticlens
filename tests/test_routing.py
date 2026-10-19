@@ -309,3 +309,12 @@ def test_cli_decide_exit_codes_and_summary(report, tmp_path):
     response = runner.invoke(app, ["routing", "summary", str(path)])
     assert response.exit_code == 0, response.output
     assert json.loads(response.output)["shadow_pairs"] == 1
+
+
+def test_nonfinite_constraints_and_unknown_schema_are_rejected(report):
+    policy = RoutingPolicy(constraints=ModelConstraints(max_cost_per_case_usd=float("inf")))
+    with pytest.raises(ValueError):
+        Router(report, policy)
+    report.schema_version = "2.0"
+    with pytest.raises(ValueError, match="unsupported"):
+        Router(report)

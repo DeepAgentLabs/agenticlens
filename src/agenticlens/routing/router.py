@@ -56,6 +56,11 @@ class Router:
         *,
         audit: RoutingAuditLog | None = None,
     ):
+        # Reject NaN/Infinity before JSON could normalize them to null and erase a limit.
+        artifact_sha256(report)
+        artifact_sha256(policy or RoutingPolicy())
+        if report.schema_version != "1.0":
+            raise ValueError("unsupported ModelFit schema version")
         self._report = ModelFitReport.model_validate_json(report.model_dump_json())
         self._policy = RoutingPolicy.model_validate_json(
             (policy or RoutingPolicy()).model_dump_json()
