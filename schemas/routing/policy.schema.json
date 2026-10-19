@@ -1,0 +1,282 @@
+{
+  "$defs": {
+    "ModelConstraints": {
+      "description": "Hard constraints a candidate must satisfy to be recommended.\n\nEvery limit is optional. A limit that cannot be checked because the\nevidence is missing (for example an unpriced trial under a cost limit, or\nan unknown provider under a provider allow-list) is a violation: ModelFit\nnever assumes a candidate passes a constraint it has no evidence for.",
+      "properties": {
+        "min_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Pass Rate"
+        },
+        "min_pass_rate_lower_bound": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum lower bound of the pass rate's Wilson confidence interval.",
+          "title": "Min Pass Rate Lower Bound"
+        },
+        "max_cost_per_case_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Cost Per Case Usd"
+        },
+        "max_cost_per_success_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Cost Per Success Usd"
+        },
+        "max_mean_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Mean Latency Ms"
+        },
+        "max_p95_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max P95 Latency Ms"
+        },
+        "min_consistency": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum share of cases with the same outcome on every attempt.",
+          "title": "Min Consistency"
+        },
+        "min_safety_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum pass rate over every safety-tagged case in the suite.",
+          "title": "Min Safety Pass Rate"
+        },
+        "allowed_providers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Providers"
+        },
+        "blocked_providers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`null` in an override clears the default block-list.",
+          "title": "Blocked Providers"
+        },
+        "allowed_deployments": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Deployments"
+        },
+        "required_capabilities": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`null` in an override clears the default requirement.",
+          "title": "Required Capabilities"
+        }
+      },
+      "title": "ModelConstraints",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "default": "routing",
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "default": "1",
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "mode": {
+      "default": "advisory",
+      "enum": [
+        "advisory",
+        "enforce",
+        "shadow",
+        "canary"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "strategy": {
+      "default": "score",
+      "enum": [
+        "score",
+        "rule"
+      ],
+      "title": "Strategy",
+      "type": "string"
+    },
+    "rules": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Rules",
+      "type": "object"
+    },
+    "constraints": {
+      "$ref": "#/$defs/ModelConstraints"
+    },
+    "minimum_confidence": {
+      "default": "medium",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "title": "Minimum Confidence",
+      "type": "string"
+    },
+    "on_unroutable": {
+      "default": "escalate",
+      "enum": [
+        "block",
+        "escalate"
+      ],
+      "title": "On Unroutable",
+      "type": "string"
+    },
+    "baseline_variant_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline Variant Id"
+    },
+    "canary_fraction": {
+      "default": 0.1,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Canary Fraction",
+      "type": "number"
+    },
+    "allocation_salt": {
+      "default": "lens-routing-v1",
+      "title": "Allocation Salt",
+      "type": "string"
+    },
+    "max_attempts": {
+      "default": 3,
+      "maximum": 20,
+      "minimum": 1,
+      "title": "Max Attempts",
+      "type": "integer"
+    }
+  },
+  "title": "RoutingPolicy",
+  "type": "object"
+}
