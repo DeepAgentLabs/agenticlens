@@ -11,5 +11,6 @@ schema 1.1. BLOCK/ESCALATE do not mark spans, runs or deployments unhealthy.
 Decision evidence is not proof of tool execution; the Sidecar journal carries
 actual dispatch/completion and must be verified separately. Reasons may contain
 sensitive information: callers must authorize recipients. Shared/Exclusive
-context privacy and delegated authority remain Sidecar 0.9 validation work.
+Sidecar 0.9 adds reader access, narrowed delegation and lifecycle checks;
+see the [0.9 compatibility guide](sidecar-0.9.md). Reader summaries are not native or hash-verifiable evidence.
 No Sidecar runtime dependency is added.
