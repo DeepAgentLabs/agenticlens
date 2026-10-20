@@ -141,3 +141,11 @@ native decisions/correlation stay compatible; no new normative schema is claimed
 See [AIOS v0.6 compatibility](docs/aios-v0.6.md) for canonical examples,
 namespace rules and native contract boundaries. AIOS artifacts remain
 `0.4-draft`; no runtime dependency bump or package release is required.
+
+## Control Tower 0.8.0 integration alignment
+
+Tower Phase 8 implements periodic detection, alerts, attributed lifecycle audit
+and incident console views. Fresh failed native Lens runs can create Tower incidents. Tower marks Lens integrity as not verified and coverage as not assessed; runtime routing and ModelFit artifacts are not automatic detection inputs.
+
+See [compatibility and operator example](docs/tower-0.8-live-operations.md).
+No sibling runtime change or patch release is required.
