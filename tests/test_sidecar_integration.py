@@ -106,6 +106,12 @@ def test_v09_authority_evidence_is_native_and_redacted_summary_is_not():
     from agenticlens.integrations.sidecar import verify_journal
 
     native = json.loads((Path(__file__).parent / "fixtures/sidecar-v09-authority.json").read_text())
+    event = next(e for e in native["events"] if e["kind"] == "decision")
+    authority = event["payload"]["context"]["metadata"]["sidecar.authority"]
+    assert authority["task_id"] == "case-fixture"
+    assert authority["agent_id"] == "refund-agent"
+    assert authority["grant_id"] and authority["parent_intent_id"]
+    assert native["correlated"][0]["decision"] == event["payload"]["decision"]
     task_id = native["events"][0]["task_id"]
     verify_journal(native["events"], task_id=task_id)
     recording = run()
@@ -113,4 +119,4 @@ def test_v09_authority_evidence_is_native_and_redacted_summary_is_not():
     assert recording.spans[0].attributes["sidecar.decisions"][0]["decision"]["status"] == "BLOCK"
     assert recording.spans[0].status == RunStatus.RUNNING
     with pytest.raises(ValueError, match="Unsupported"):
-        attach_decisions(run(), [{"redacted": True, "decisions": []}])
+        attach_decisions(run(), [native["redacted"]])

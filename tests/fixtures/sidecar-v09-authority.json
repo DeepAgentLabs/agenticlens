@@ -126,5 +126,22 @@
         "causal_link": null
       }
     }
-  ]
+  ],
+  "redacted": {
+    "task_id": "f494ed31-14bb-4476-8616-e4b4ddffcb8a",
+    "mode": "govern",
+    "stopped": false,
+    "paused": false,
+    "executed": 0,
+    "completed": 0,
+    "sequence": 2,
+    "redacted": true,
+    "decisions": [
+      {
+        "decision_id": "420d1190-3ef7-4306-96c6-775b945aab5f",
+        "status": "BLOCK",
+        "risk": null
+      }
+    ]
+  }
 }
