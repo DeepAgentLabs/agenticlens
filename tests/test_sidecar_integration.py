@@ -100,3 +100,23 @@ def test_missing_reason_batch_is_rejected_before_mutation() -> None:
     with pytest.raises(ValueError, match="reason"):
         attach_decisions(recording, [good, bad])
     assert recording.spans[0].attributes == {}
+
+
+def test_v09_authority_evidence_is_native_and_redacted_summary_is_not():
+    from agenticlens.integrations.sidecar import verify_journal
+
+    native = json.loads((Path(__file__).parent / "fixtures/sidecar-v09-authority.json").read_text())
+    event = next(e for e in native["events"] if e["kind"] == "decision")
+    authority = event["payload"]["context"]["metadata"]["sidecar.authority"]
+    assert authority["task_id"] == "case-fixture"
+    assert authority["agent_id"] == "refund-agent"
+    assert authority["grant_id"] and authority["parent_intent_id"]
+    assert native["correlated"][0]["decision"] == event["payload"]["decision"]
+    task_id = native["events"][0]["task_id"]
+    verify_journal(native["events"], task_id=task_id)
+    recording = run()
+    attach_decisions(recording, native["correlated"])
+    assert recording.spans[0].attributes["sidecar.decisions"][0]["decision"]["status"] == "BLOCK"
+    assert recording.spans[0].status == RunStatus.RUNNING
+    with pytest.raises(ValueError, match="Unsupported"):
+        attach_decisions(run(), [native["redacted"]])

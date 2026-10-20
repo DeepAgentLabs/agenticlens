@@ -129,3 +129,9 @@ They are not scores, release gates or proof of containment. No new shared
 schema, automatic adapter or hosted execution capability is introduced.
 
 Lens reads workflow reports and merged reports as `Workflow` JSON and analyzes their `chaos_events` as before. `detail.workflow` is producer-specific event detail under schema v1.1. Suite conversion rules are unchanged. Chaos's optional `agenticlens>=0.7.0` extra is unchanged, so no dependency bump or Lens patch release is needed.
+
+## Sidecar 0.9.0 interoperability
+
+Task-authority/delegation and reader-safe summaries are available in Sidecar.
+See [compatibility and ownership boundaries](docs/sidecar-0.9.md). Existing
+native decisions/correlation stay compatible; no new normative schema is claimed.
