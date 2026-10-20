@@ -1,0 +1,130 @@
+{
+  "source_version": "0.9.0",
+  "events": [
+    {
+      "sequence": 1,
+      "event_id": "0326e7b6-500f-4a41-b28b-2b8f0d4446b1",
+      "task_id": "f494ed31-14bb-4476-8616-e4b4ddffcb8a",
+      "timestamp": "2026-10-20T01:17:47.749854+00:00",
+      "kind": "proposed",
+      "payload": {
+        "context": {
+          "tool_name": "refund",
+          "tool_args": {},
+          "intent": {
+            "goal": "Billing",
+            "constraints": {}
+          },
+          "history": [],
+          "metadata": {
+            "sidecar.authority": {
+              "grant_id": "8bee2f9b-3a1b-4bcc-beda-1137841eaa89",
+              "task_id": "case-fixture",
+              "agent_id": "refund-agent",
+              "intent_id": "9a59c773-f009-4bcf-9594-86c52e6e9c59",
+              "parent_intent_id": "140c0d1a-5a13-430f-a8b0-21cee5e12591"
+            }
+          },
+          "boundary": "tool_call",
+          "parent_decision_id": null,
+          "parent_plan_step": null,
+          "goal": "",
+          "plan": []
+        },
+        "epoch": 1
+      },
+      "previous_hash": "",
+      "digest": "96ea5d76197589ca216b20371b89a54f437136d80805e10ca48fc0679d800b87"
+    },
+    {
+      "sequence": 2,
+      "event_id": "bcfde3d7-4112-457d-aff9-4d6d89d46fdc",
+      "task_id": "f494ed31-14bb-4476-8616-e4b4ddffcb8a",
+      "timestamp": "2026-10-20T01:17:47.749974+00:00",
+      "kind": "decision",
+      "payload": {
+        "decision": {
+          "decision_id": "420d1190-3ef7-4306-96c6-775b945aab5f",
+          "status": "BLOCK",
+          "risk": null,
+          "reason": "Task authority revoked",
+          "decision_point": null,
+          "trigger_details": null,
+          "escalation_required": false,
+          "causal_link": null
+        },
+        "trigger": {
+          "boundary_type": "tool_call",
+          "tool_name": "refund",
+          "arguments": {}
+        },
+        "rationale": {
+          "reason": "Task authority revoked",
+          "risk": null,
+          "findings": {}
+        },
+        "context": {
+          "tool_name": "refund",
+          "tool_args": {},
+          "intent": {
+            "goal": "Billing",
+            "constraints": {}
+          },
+          "history": [],
+          "metadata": {
+            "sidecar.authority": {
+              "grant_id": "8bee2f9b-3a1b-4bcc-beda-1137841eaa89",
+              "task_id": "case-fixture",
+              "agent_id": "refund-agent",
+              "intent_id": "9a59c773-f009-4bcf-9594-86c52e6e9c59",
+              "parent_intent_id": "140c0d1a-5a13-430f-a8b0-21cee5e12591"
+            }
+          },
+          "boundary": "tool_call",
+          "parent_decision_id": null,
+          "parent_plan_step": null,
+          "goal": "",
+          "plan": []
+        },
+        "proposal_id": "0326e7b6-500f-4a41-b28b-2b8f0d4446b1",
+        "epoch": 1,
+        "policy_version": "7341c7cef110f8960e17db3cbb6e527ff5cae3c2b0aa73753ee848787b98fee6",
+        "policy": {
+          "default": "allow",
+          "rules": []
+        },
+        "parent_plan_step": null
+      },
+      "previous_hash": "96ea5d76197589ca216b20371b89a54f437136d80805e10ca48fc0679d800b87",
+      "digest": "7d4ac4c1ad4f0925b6d5b20c503c1d7627a5117fc39ddac66914f2e7b0ea509a"
+    }
+  ],
+  "correlated": [
+    {
+      "contract_version": "sidecar.correlation/1",
+      "correlation": {
+        "run_id": "run-fixture",
+        "trace_id": "trace-fixture",
+        "span_id": "span-fixture"
+      },
+      "task_id": "f494ed31-14bb-4476-8616-e4b4ddffcb8a",
+      "system_id": null,
+      "agent_id": null,
+      "source_event_id": "bcfde3d7-4112-457d-aff9-4d6d89d46fdc",
+      "timestamp": "2026-10-20T01:17:47.749974Z",
+      "policy_version": "7341c7cef110f8960e17db3cbb6e527ff5cae3c2b0aa73753ee848787b98fee6",
+      "tool_name": "refund",
+      "boundary": "tool_call",
+      "decision": {
+        "decision_id": "420d1190-3ef7-4306-96c6-775b945aab5f",
+        "status": "BLOCK",
+        "risk": null,
+        "reason": "Task authority revoked",
+        "decision_point": null,
+        "trigger_details": null,
+        "escalation_required": false,
+        "causal_link": null
+      }
+    }
+  ]
+}
