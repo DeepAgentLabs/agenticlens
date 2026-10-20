@@ -135,3 +135,9 @@ Lens reads workflow reports and merged reports as `Workflow` JSON and analyzes t
 Task-authority/delegation and reader-safe summaries are available in Sidecar.
 See [compatibility and ownership boundaries](docs/sidecar-0.9.md). Existing
 native decisions/correlation stay compatible; no new normative schema is claimed.
+
+## AIOS v0.6 examples and extension guidance
+
+See [AIOS v0.6 compatibility](docs/aios-v0.6.md) for canonical examples,
+namespace rules and native contract boundaries. AIOS artifacts remain
+`0.4-draft`; no runtime dependency bump or package release is required.

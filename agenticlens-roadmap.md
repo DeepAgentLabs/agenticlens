@@ -1278,3 +1278,9 @@ gate re-exported by `agenticlens.evaluation`. Lens needs no runtime change or re
 A comparison field rename would be a breaking change for MCP's validation.
 See [the compatibility guide](docs/mcp-0.4-unified-workflows.md)
 and the [MCP guide](https://github.com/DeepAgentLabs/mcp-server/blob/v0.4.0/docs/unified-workflows.md).
+
+## AIOS v0.6 compatibility
+
+See [canonical example and extension guidance](docs/aios-v0.6.md). The AIOS
+v0.6 layer is exploratory; export schemas remain v0.4 and dependency floors
+are unchanged. Lens-local suite, ModelFit and routing contracts remain native.
