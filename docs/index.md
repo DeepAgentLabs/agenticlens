@@ -56,6 +56,14 @@ local, inspectable, and exportable so teams can compare workflows across version
 
 ## Documentation
 
+- [Getting started](getting-started.md)
+- [Architecture](architecture.md)
+- [Features](features.md)
+- [Configuration](configuration.md)
+- [API reference](api-reference.md)
+- [CLI reference](cli-reference.md)
+- [Integrations](integrations.md)
+- [Examples](examples.md)
 - [Workflow schema specification](workflow-schema-spec.md)
 - [AIOS validation and OTel export](aios-validation-and-otel.md)
 - [Export formats](export-formats.md)
@@ -65,6 +73,9 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [Diagnosis and failure attribution](diagnosis.md)
 - [Experiments and statistical comparison](experiments.md)
 - [Multi-agent reference workflows](multi-agent-reference-workflows.md)
+- [Troubleshooting](troubleshooting.md)
+- [Limitations](limitations.md)
+- [Roadmap](roadmap.md)
 - [Product roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/agenticlens-roadmap.md)
 - [Research roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Research_and_Development_Roadmap.md)
 
@@ -86,6 +97,8 @@ uv run agenticlens analyze workflow.json
 
 ## Current Status
 
+**Version:** 0.7.0 · **PyPI:** [`agenticlens`](https://pypi.org/project/agenticlens/) · **Maturity:** Alpha
+
 AgenticLens is early-stage open-source software. Workflow profiling, live and
 offline pricing, optimization recommendations, structured tracing, deterministic
 memory and retry findings, repeated-run comparison, evaluation suites with
@@ -97,3 +110,6 @@ draft validation/conformance with rule-cited summaries, OTLP trace export and in
 dashboards, CLI commands, and export formats are implemented. The trace,
 comparison, evaluation, and experiment APIs remain experimental. Framework
 adapters remain roadmap work.
+
+See [Limitations](limitations.md) for known constraints and [Roadmap](roadmap.md)
+for planned capabilities.
