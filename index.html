@@ -2,59 +2,179 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Open-source observability, evaluation, optimization, and release gates for agentic AI systems.">
-  <meta property="og:title" content="AgenticLens — Trace. Evaluate. Ship.">
-  <meta property="og:description" content="Ship agentic AI with evidence.">
-  <meta property="og:image" content="og.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Trace multi-agent execution, understand token and cost usage, evaluate behavior, and turn operational evidence into better decisions. Run locally, with no mandatory hosted backend.">
+  <meta name="theme-color" content="#07110e">
+  <meta property="og:title" content="AgenticLens — DeepAgentLabs">
+  <meta property="og:description" content="Trace multi-agent execution, understand token and cost usage, evaluate behavior, and turn operational evidence into better decisions. Run locally, with no mandatory hosted backend.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://deepagentlabs.io/agenticlens/">
+  <meta property="og:image" content="https://deepagentlabs.io/assets/img/ecosystem.png">
   <meta name="twitter:card" content="summary_large_image">
-  <title>AgenticLens — Trace. Evaluate. Ship.</title>
-  <link rel="stylesheet" href="site.css">
+  <title>AgenticLens — DeepAgentLabs</title>
+  <link rel="icon" href="https://deepagentlabs.io/assets/img/dal-logo.png">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/styles.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/enhance.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/nav.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/theme.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/background.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/copy.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/polish.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/product.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/footer.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/beam.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/product-uniform.css">
+  <link rel="stylesheet" href="https://deepagentlabs.github.io/assets/css/simulations.css">
+  <script src="https://deepagentlabs.github.io/assets/js/site.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/usecases-data.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/usecases.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/nav.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/background.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/copy.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/product.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/beam.js" defer></script>
+  <script src="https://deepagentlabs.github.io/assets/js/simulations.js" defer></script>
 </head>
-<body>
-  <main>
-    <nav class="nav shell" aria-label="Primary navigation">
-      <a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span>AgenticLens</a>
-      <div class="nav-links">
-        <a href="#platform">Platform</a><a href="#evaluators">Evaluators</a>
-        <a href="#workflow">How it works</a><a href="docs/">Documentation</a>
+<body class="product-page uniform-product" data-product="lens">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="https://deepagentlabs.io/" aria-label="DeepAgentLabs home">
+      <span class="brand-logo" aria-hidden="true"></span>
+      <span>DeepAgentLabs</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav id="site-nav" aria-label="Primary navigation">
+      <div class="nav-item has-mega">
+        <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="mega-platform">Platform</button>
+        <div class="mega mega-compact mega-narrow" id="mega-platform">
+          <div class="mega-main">
+            <p class="mega-label">On this site</p>
+            <ul class="mega-grid">
+              <li><a class="mega-link mega-link-plain" href="https://deepagentlabs.io/#loop"><span class="mega-text"><strong>The operating loop <i aria-hidden="true">→</i></strong><small>Define, observe, stress, evaluate, improve.</small></span></a></li>
+              <li><a class="mega-link mega-link-plain" href="https://deepagentlabs.io/#dashboards"><span class="mega-text"><strong>Dashboards <i aria-hidden="true">→</i></strong><small>What each product shows you.</small></span></a></li>
+              <li><a class="mega-link mega-link-plain" href="https://deepagentlabs.io/#why"><span class="mega-text"><strong>Why DeepAgentLabs <i aria-hidden="true">→</i></strong><small>How we differ from dashboards and SDK evals.</small></span></a></li>
+            </ul>
+          </div>
+          <a class="mega-side" href="https://deepagentlabs.io/roadmap.html">
+            <span class="mega-label">Roadmap</span>
+            <strong>Step 1 of 8: v0.1 in review.</strong>
+            <span class="mega-side-copy">See where the specification is headed, phase by phase.</span>
+            <span class="mega-side-cta">View roadmap <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+        </div>
       </div>
-      <a class="button button-small button-ghost" href="https://github.com/DeepAgentLabs/agenticlens">GitHub <span>↗</span></a>
+      <div class="nav-item has-mega">
+        <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="mega-products">Products</button>
+        <div class="mega" id="mega-products">
+          <div class="mega-main">
+            <p class="mega-label">Products</p>
+            <ul class="mega-grid">
+              <li><a class="mega-link" href="https://deepagentlabs.io/agenticlens"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/><circle cx="11" cy="11" r="2"/></svg></span><span class="mega-text"><strong>AgenticLens <i aria-hidden="true">→</i></strong><small>Observe — OTLP traces, cost and latency on live traffic.</small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/agentic-chaos"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 5 13h6l-1 9 8-11h-6l1-9z"/></svg></span><span class="mega-text"><strong>Agentic Chaos <i aria-hidden="true">→</i></strong><small>Stress — fault injection and drift testing across frameworks.</small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/agentic-sidecar"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="mega-text"><strong>Agentic Sidecar <i aria-hidden="true">→</i></strong><small>Govern — allow, warn or block actions against intent and policy.</small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/agentic-evals"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span><span class="mega-text"><strong>Agentic Evals <i aria-hidden="true">→</i></strong><small>Evaluate — deterministic and LLM-judge scoring behind a CI gate.</small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/mcp"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0V7zM12 16v5"/></svg></span><span class="mega-text"><strong>MCP Server <i aria-hidden="true">→</i></strong><small>Connect — every tool exposed through one MCP interface.</small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/control-tower"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="mega-text"><strong>Control Tower <i aria-hidden="true">→</i></strong><small>Operate — registry and console for every stage.</small></span></a></li>
+            </ul>
+          </div>
+          <a class="mega-side" href="https://github.com/DeepAgentLabs/ai-operations-spec">
+            <span class="mega-label">The shared contract</span>
+            <strong>AI Operations Specification</strong>
+            <span class="mega-side-copy">One vendor-neutral spec every product implements — so runs, steps and evaluations mean the same thing everywhere.</span>
+            <span class="mega-side-cta">Read the spec <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+        </div>
+      </div>
+      <div class="nav-item has-mega">
+        <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="mega-docs">Docs</button>
+        <div class="mega" id="mega-docs">
+          <div class="mega-main">
+            <p class="mega-label">Documentation</p>
+            <ul class="mega-grid">
+              <li><a class="mega-link" href="https://deepagentlabs.io/agenticlens/docs"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="mega-text"><strong>AgenticLens docs <i aria-hidden="true">→</i></strong><small><code>pip install agenticlens</code></small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/agentic-chaos/docs"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="mega-text"><strong>Agentic Chaos docs <i aria-hidden="true">→</i></strong><small><code>pip install agentic-chaos</code></small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/agentic-sidecar/docs"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="mega-text"><strong>Agentic Sidecar docs <i aria-hidden="true">→</i></strong><small><code>pip install agentic-sidecar</code></small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/agentic-evals/docs"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="mega-text"><strong>Agentic Evals docs <i aria-hidden="true">→</i></strong><small><code>pip install agentic-evals</code></small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/mcp/docs"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="mega-text"><strong>MCP Server docs <i aria-hidden="true">→</i></strong><small>Tools, resources and client setup.</small></span></a></li>
+              <li><a class="mega-link" href="https://deepagentlabs.io/control-tower/docs"><span class="mega-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="mega-text"><strong>Control Tower docs <i aria-hidden="true">→</i></strong><small><code>pip install agenticops-control-tower</code></small></span></a></li>
+            </ul>
+          </div>
+          <div class="mega-side mega-side-static">
+            <span class="mega-label">Start here</span>
+            <strong>Up and running in a minute.</strong>
+            <code class="mega-code">pip install agenticlens</code>
+            <span class="mega-side-copy">Instrument one agent, see its first trace, then add evals and chaos when you're ready.</span>
+            <span class="mega-label mega-pypi-label">On PyPI</span>
+            <div class="mega-pypi"><a href="https://pypi.org/project/agenticlens/" target="_blank" rel="noopener noreferrer">AgenticLens <span aria-hidden="true">↗</span></a><a href="https://pypi.org/project/agentic-chaos/" target="_blank" rel="noopener noreferrer">Chaos <span aria-hidden="true">↗</span></a><a href="https://pypi.org/project/agentic-evals/" target="_blank" rel="noopener noreferrer">Evals <span aria-hidden="true">↗</span></a><a href="https://pypi.org/project/agentic-sidecar/" target="_blank" rel="noopener noreferrer">Sidecar <span aria-hidden="true">↗</span></a><a href="https://pypi.org/project/deep-agentic-core-mcp/" target="_blank" rel="noopener noreferrer">MCP <span aria-hidden="true">↗</span></a><a href="https://pypi.org/project/agenticops-control-tower/" target="_blank" rel="noopener noreferrer">Control Tower <span aria-hidden="true">↗</span></a></div>
+            <a class="mega-side-cta" href="https://deepagentlabs.io/agenticlens/docs">AgenticLens quickstart <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+      </div>
+      <!-- USE CASES MENU: content comes from assets/js/usecases-data.js (edit it there, not here).
+           assets/js/usecases.js fills the [data-uc-list] and [data-uc-most-asked] slots below. -->
+      <div class="nav-item has-mega">
+        <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="mega-usecases">Use cases</button>
+        <div class="mega mega-usecases" id="mega-usecases">
+          <div class="mega-main">
+            <p class="mega-label">Use cases</p>
+            <ul class="mega-grid" data-uc-list></ul>
+          </div>
+          <div class="mega-side mega-side-static">
+            <span class="mega-label">Start here</span>
+            <strong>See it on a real agent.</strong>
+            <span class="mega-side-copy">Each use case walks through the problem, the setup and the result, step by step.</span>
+            <span class="mega-label mega-pypi-label">Most asked</span>
+            <div class="mega-pypi" data-uc-most-asked></div>
+            <a class="mega-side-cta" href="https://discord.gg/fEqPFWgcDG" target="_blank" rel="noopener noreferrer">Share your use case <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+      </div>
+      <!-- /USE CASES MENU -->
+      <a href="https://deepagentlabs.io/#architecture">Architecture</a>
+      <a href="https://deepagentlabs.io/#faq">FAQ</a>
+      <a href="https://github.com/DeepAgentLabs/ai-operations-spec">Specification</a>
+      <a href="https://deepagentlabs.io/roadmap.html">Roadmap</a>
+      <a href="https://mcp.deepagentlabs.io" target="_blank" rel="noopener noreferrer">Remote MCP</a>
+      <a class="nav-cta" href="https://github.com/DeepAgentLabs">GitHub <span aria-hidden="true">↗</span></a>
     </nav>
-
-    <section class="hero shell" id="top">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="live-dot"></span>Open-source · Local-first · Framework-neutral</div>
-        <h1>Ship agentic AI<br>with <span>evidence.</span></h1>
-        <p class="hero-lead">AgenticLens traces multi-agent execution, evaluates quality and behavior, finds cost and token waste, and gates releases—without requiring a hosted backend.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#playground">Explore the live demo <span>→</span></a>
-          <button class="copy-command" id="copy-install"><code>pip install agenticlens</code><span>⧉</span></button>
-        </div>
-        <div class="hero-proof">
-          <div><strong>102</strong><span>tests passing</span></div>
-          <div><strong>91%</strong><span>code coverage</span></div>
-          <div><strong>0</strong><span>required services</span></div>
-        </div>
+  </header>
+  <main id="main">
+    <section class="pp-hero pp-enter" id="top">
+      <div class="pp-hero-copy">
+        <p class="pp-crumbs"><a href="https://deepagentlabs.io/">Home</a><span aria-hidden="true">/</span><span>Products</span><span aria-hidden="true">/</span><b>AgenticLens</b></p>
+        <p class="section-label">AgenticLens · Observe</p>
+        <h1>Every step,<br><span class="hl">in focus.</span></h1>
+        <p class="pp-lede">Trace multi-agent execution, understand token and cost usage, evaluate behavior, and turn operational evidence into better decisions. Run locally, with no mandatory hosted backend.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#simulation">Try the simulation <span aria-hidden="true">↘</span></a><a class="button button-secondary" href="docs/">Read the docs <span aria-hidden="true">→</span></a></div>
+        <code class="tl-pip pp-pip">pip install agenticlens</code>
+        <ul class="pp-facts" aria-label="Key facts"><li>Open source</li><li>Local-first evidence</li><li>OpenTelemetry-native</li></ul>
       </div>
-      <div class="hero-visual" aria-label="AgenticLens trace visualization">
-        <div class="visual-topbar"><span class="window-dots"><i></i><i></i><i></i></span><span>langgraph-supervisor.json</span><em>LIVE TRACE</em></div>
-        <div class="trace-stage">
-          <div class="trace-line"></div>
-          <div class="trace-row"><span class="trace-node cyan">1</span><div><small>Supervisor</small><strong>Delegate</strong><span>research_agent</span></div><time>0.8 ms</time></div>
-          <div class="trace-row"><span class="trace-node violet">2</span><div><small>Research</small><strong>Retrieve</strong><span>regional support data</span></div><time>1.7 ms</time></div>
-          <div class="trace-row"><span class="trace-node cyan">3</span><div><small>Supervisor</small><strong>Delegate</strong><span>math_agent</span></div><time>0.5 ms</time></div>
-          <div class="trace-row"><span class="trace-node green">4</span><div><small>Math</small><strong>Tool · add</strong><span>18 + 24 → 42</span></div><time>0.4 ms</time></div>
-          <div class="trace-row"><span class="trace-node amber">5</span><div><small>Reviewer</small><strong>Final response</strong><span>grounded answer</span></div><time>1.2 ms</time></div>
-        </div>
-        <div class="visual-footer"><div><span>STATUS</span><strong class="success">● Succeeded</strong></div><div><span>SPANS</span><strong>7</strong></div><div><span>TOKENS</span><strong>86</strong></div><div><span>COST</span><strong>$0.0000</strong></div></div>
-        <div class="floating-score"><span>Release gate</span><strong>Passed</strong><i>✓</i></div>
+      <aside class="product-preview" aria-label="AgenticLens example preview">
+        <p class="product-preview-label">WORKFLOW TRACE · EXAMPLE <span>● Simulated</span></p>
+        <h2>One run. Every handoff.</h2>
+        <div class="product-preview-stats"><div><strong>4</strong><span>spans</span></div><div><strong>2,160</strong><span>tokens</span></div><div><strong>1.88 s</strong><span>latency</span></div></div>
+        <ul class="product-preview-rows"><li><span>plan → research</span><b class="">120 ms</b></li><li><span>retrieve → search_docs</span><b class="">380 ms</b></li><li><span>generate → model call</span><b class="">1,280 ms</b></li><li><span>respond → complete</span><b class="">100 ms</b></li></ul>
+        <p class="product-preview-caption">Inspect steps, token usage and advisory findings in the simulation.</p>
+        <a href="#simulation">Explore this example <span aria-hidden="true">→</span></a>
+      </aside>
+    </section>
+    <!-- product-simulation:start -->
+    <section class="dal-demo-section" id="simulation" aria-labelledby="simulation-lens">
+      <div class="dal-demo-intro"><small>Interactive example</small><h2 id="simulation-lens">Follow every agent, model, and tool call.</h2><p>Watch a distributed trace unfold, from delegation to retrieval and generation, with token usage and latency for the same example run.</p></div>
+      <div class="dal-demo" data-product-simulation="lens">
+        <div class="dal-demo-top"><span>Distributed trace · support-agent</span><span class="dal-demo-badge">Simulated</span></div>
+        <div class="dal-demo-metrics"><div><strong data-sim-metric>0</strong><span>Tokens consumed</span></div><div><strong data-sim-metric>0.12 s</strong><span>Run latency</span></div><div><strong data-sim-metric>1 / 4</strong><span>Completed spans</span></div></div>
+        <ul class="dal-demo-rows"><li class="dal-demo-row" data-sim-row data-tone="ok" style="--span-start:0%;--span-width:8%"><span>supervisor → research</span><span class="dal-demo-result" data-sim-result>complete</span><span class="dal-demo-detail" data-sim-detail>120 ms</span><span class="dal-demo-waterfall" aria-hidden="true"><i></i></span></li><li class="dal-demo-row" data-sim-row data-tone="warn" style="--span-start:8%;--span-width:24%"><span>research → search_docs</span><span class="dal-demo-result" data-sim-result>running</span><span class="dal-demo-detail" data-sim-detail>retrieving</span><span class="dal-demo-waterfall" aria-hidden="true"><i></i></span></li><li class="dal-demo-row" data-sim-row data-tone="muted" style="--span-start:32%;--span-width:0%"><span>research → llm.generate</span><span class="dal-demo-result" data-sim-result>queued</span><span class="dal-demo-detail" data-sim-detail>—</span><span class="dal-demo-waterfall" aria-hidden="true"><i></i></span></li><li class="dal-demo-row" data-sim-row data-tone="muted" style="--span-start:94%;--span-width:0%"><span>supervisor → respond</span><span class="dal-demo-result" data-sim-result>queued</span><span class="dal-demo-detail" data-sim-detail>—</span><span class="dal-demo-waterfall" aria-hidden="true"><i></i></span></li></ul>
+        <div class="dal-demo-event"><small>RECENT ACTIVITY</small><p data-sim-event>trace: demo-7f2 · Parent span propagated to research agent; search_docs started.</p></div>
+        <div class="dal-demo-controls" data-sim-controls hidden><div><button type="button" data-sim-toggle aria-pressed="false">Play demo</button><button type="button" data-sim-next>Next step →</button></div><small>Step <span data-sim-step>1 / 3</span></small></div>
+        <p class="dal-demo-note">Example data, simulated in your browser. No live telemetry or real actions.</p>
+        <script type="application/json" data-sim-frames>[{"metrics": ["0", "0.12 s", "1 / 4"], "rows": [["complete", "120 ms", "ok", 0, 8], ["running", "retrieving", "warn", 8, 24], ["queued", "\u2014", "muted", 32, 0], ["queued", "\u2014", "muted", 94, 0]], "event": "trace: demo-7f2 \u00b7 Parent span propagated to research agent; search_docs started."}, {"metrics": ["1,840", "1.41 s", "2 / 4"], "rows": [["complete", "120 ms", "ok", 0, 8], ["complete", "380 ms", "ok", 8, 24], ["streaming", "1,840 tokens", "warn", 32, 50], ["queued", "\u2014", "muted", 94, 0]], "event": "search_docs returned 6 documents. llm.generate is streaming; input 1,600 + output 240 tokens."}, {"metrics": ["2,160", "1.88 s", "4 / 4"], "rows": [["complete", "120 ms", "ok", 0, 8], ["complete", "380 ms", "ok", 8, 24], ["complete", "1,280 ms", "ok", 32, 62], ["complete", "100 ms", "ok", 94, 6]], "event": "Trace complete \u00b7 1,600 input + 560 output tokens. Generation accounts for 68% of run latency."}]</script>
       </div>
     </section>
-
-    <section class="trust-strip"><div class="shell trust-inner"><span>BUILT FOR THE AGENT STACK</span><b>LangGraph</b><b>OpenAI</b><b>Anthropic</b><b>MCP</b><b>Any Python agent</b></div></section>
-
-    <section class="section shell" id="platform">
+    <!-- product-simulation:end -->
+    <div class="product-content">
+<section class="trust-strip"><div class="shell trust-inner"><span>BUILT FOR THE AGENT STACK</span><b>LangGraph</b><b>OpenAI</b><b>Anthropic</b><b>MCP</b><b>Any Python agent</b></div></section>
+<section class="section shell" id="platform">
       <div class="section-heading"><div><span class="kicker">THE OPERATING LENS</span><h2>From opaque runs to<br>release confidence.</h2></div><p>One local toolkit connects execution evidence, quality evaluation, operational performance, and optimization decisions.</p></div>
       <div class="capability-grid">
         <article class="capability-card"><span class="card-number">01</span><div class="capability-icon icon-0"><i></i></div><h3>Trace</h3><p>See every agent, handoff, tool call, retry, token, and latency event in one structured run.</p><a href="#playground">See it in action <span>→</span></a></article>
@@ -65,8 +185,7 @@
         <article class="capability-card"><span class="card-number">06</span><div class="capability-icon icon-5"><i></i></div><h3>Export</h3><p>Keep portable JSON, CSV, Markdown, Jira-ready output, and standalone HTML reports locally.</p><a href="docs/">Read the docs <span>→</span></a></article>
       </div>
     </section>
-
-    <section class="playground-wrap" id="playground">
+<section class="playground-wrap" id="playground">
       <div class="section shell">
         <div class="section-heading playground-heading"><div><span class="kicker">INTERACTIVE PRODUCT TOUR</span><h2>Trace. Evaluate. Gate.</h2></div><p>Explore the same evidence flow used by the offline LangGraph supervisor demo included in the repository.</p></div>
         <div class="playground">
@@ -103,8 +222,7 @@
         </div>
       </div>
     </section>
-
-    <section class="section shell" id="evaluators">
+<section class="section shell" id="evaluators">
       <div class="split">
         <div class="split-copy"><span class="kicker">UNIFIED EVALUATOR FRAMEWORK</span><h2>Your models.<br>Your rubrics.<br>One contract.</h2><p>AgenticLens does not lock evaluation to one provider. Register a trusted evaluator, reference it in a versioned suite, and route every score through the same report and release gate.</p><div class="pill-row"><span>Deterministic</span><span>LLM judge</span><span>Semantic</span><span>Safety</span><span>RAG</span><span>Custom</span></div></div>
         <div class="code-card"><div class="code-tabs"><span class="active">judge.py</span><span>suite.yaml</span></div><pre class="static-code"><code><span class="keyword">from</span> agenticlens.evaluation <span class="keyword">import</span> (
@@ -123,13 +241,11 @@ report = evaluate_suite(
 )</code></pre><div class="code-status"><span>●</span>Provider-neutral · Normalized score · Gate-ready</div></div>
       </div>
     </section>
-
-    <section class="workflow section" id="workflow"><div class="shell">
+<section class="workflow section" id="workflow"><div class="shell">
       <div class="section-heading"><div><span class="kicker">HOW IT WORKS</span><h2>Instrument once.<br>Use the evidence everywhere.</h2></div><p>AgenticLens produces portable artifacts your team can inspect, compare, share, and enforce.</p></div>
       <div class="flow"><article><span>01</span><i></i><h3>Instrument</h3><p>Wrap workflows and spans with a small Python API.</p></article><article><span>02</span><i></i><h3>Observe</h3><p>Capture traces, tokens, latency, cost, and behavior.</p></article><article><span>03</span><i></i><h3>Evaluate</h3><p>Run versioned suites with built-in and custom evaluators.</p></article><article><span>04</span><i></i><h3>Ship</h3><p>Compare candidates and enforce release policies in CI.</p></article></div>
     </div></section>
-
-    <section class="section shell" id="open-source"><div class="open-card">
+<section class="section shell" id="open-source"><div class="open-card">
       <div><span class="kicker">OPEN SOURCE · MIT LICENSE</span><h2>Your agent data<br>stays yours.</h2><p>No mandatory account. No hosted backend. No data egress required just to inspect a run. Start locally and integrate on your terms.</p><div class="hero-actions"><a class="button button-primary" href="https://github.com/DeepAgentLabs/agenticlens">View on GitHub ↗</a><a class="button button-ghost" href="docs/">Read the docs</a></div></div>
       <div class="terminal"><div><span></span><span></span><span></span><em>terminal</em></div><pre><code><i>$</i> pip install agenticlens
 <i>$</i> agenticlens inspect trace.json
@@ -143,9 +259,29 @@ Latency     5.2 ms
 <i>$</i> agenticlens gate evaluation.json
 <strong>✓ Release gate passed.</strong></code></pre></div>
     </div></section>
-
-    <footer><div class="shell footer-inner"><a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span>AgenticLens</a><p>Observability and evaluation for production-ready agentic AI.</p><div><a href="https://github.com/DeepAgentLabs/agenticlens">GitHub</a><a href="docs/">Docs</a><a href="#top">Back to top ↑</a></div></div></footer>
+    </div>
+    <section class="cta section-shell pp-cta product-end">
+      <div><p class="section-label">Start building</p><h2>Put AgenticLens to work.</h2><p>Start with the documentation, explore the examples, or contribute on GitHub.</p></div>
+      <div class="hero-actions"><a class="button button-primary" href="docs/">Read the docs →</a><a class="button button-secondary" href="https://github.com/DeepAgentLabs/agenticlens">View on GitHub ↗</a></div>
+    </section>
   </main>
+  <footer class="site-footer">
+    <div class="ft-inner">
+      <div class="ft-about">
+        <p class="ft-statement">Open infrastructure for <em>observable, efficient and resilient</em> AI agents, built in the open.</p>
+        <ul class="ft-values" aria-label="Principles"><li>Spec comes first</li><li>Works with any framework</li><li>Runs on your machine</li><li>Free and open source</li></ul>
+      </div>
+      <nav class="ft-col" aria-label="Products"><p class="ft-title">Products</p><ul><li><a href="https://github.com/DeepAgentLabs/agenticlens" target="_blank" rel="noopener noreferrer">AgenticLens</a></li><li><a href="https://github.com/DeepAgentLabs/agentic-evals" target="_blank" rel="noopener noreferrer">Agentic Evals</a></li><li><a href="https://github.com/DeepAgentLabs/agentic-sidecar" target="_blank" rel="noopener noreferrer">Agentic Sidecar</a></li><li><a href="https://github.com/DeepAgentLabs/agentic-chaos" target="_blank" rel="noopener noreferrer">Agentic Chaos</a></li><li><a href="https://github.com/DeepAgentLabs/mcp-server" target="_blank" rel="noopener noreferrer">MCP Server</a></li><li><a href="https://github.com/DeepAgentLabs/agenticops-control-tower" target="_blank" rel="noopener noreferrer">Control Tower</a></li></ul></nav>
+      <nav class="ft-col" aria-label="Explore"><p class="ft-title">Explore</p><ul><li><a href="https://github.com/DeepAgentLabs/ai-operations-spec" target="_blank" rel="noopener noreferrer">Specification</a></li><li><a href="https://deepagentlabs.io/roadmap.html">Roadmap</a></li><li><a href="https://deepagentlabs.io/#architecture">Capability map</a></li><li><a href="https://deepagentlabs.io/#dashboards">Frameworks</a></li><li><a href="https://deepagentlabs.io/#faq">FAQ</a></li><li><a href="https://mcp.deepagentlabs.io" target="_blank" rel="noopener noreferrer">Remote MCP</a></li></ul></nav>
+      <nav class="ft-col" aria-label="Community"><p class="ft-title">Community</p><ul><li><a href="https://discord.gg/fEqPFWgcDG" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-discord" aria-hidden="true"></i> Discord</a></li><li><a href="https://www.linkedin.com/company/deepagentlabs" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> LinkedIn</a></li><li><a href="https://www.instagram.com/deepagentlabs.io" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram" aria-hidden="true"></i> Instagram</a></li><li><a href="https://github.com/DeepAgentLabs" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a></li></ul></nav>
+    </div>
+    <div class="ft-word" aria-hidden="true"><span class="ft-word-text"><span class="ft-w1">DeepAgent</span><span class="ft-w2">Labs</span></span></div>
+    <div class="ft-bottom">
+      <p>© <span id="year">2026</span> DeepAgentLabs</p>
+      <p class="ft-status"><i aria-hidden="true"></i>AI Operations Specification · v0.1 in review</p>
+      <a class="ft-top" href="#top">Back to top <span aria-hidden="true">↑</span></a>
+    </div>
+  </footer>
   <script src="site.js"></script>
 </body>
 </html>
