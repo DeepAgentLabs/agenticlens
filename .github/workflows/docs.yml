@@ -44,6 +44,10 @@ jobs:
           if [ -f og.png ]; then cp og.png site/og.png; fi
           touch site/.nojekyll
 
+      - name: Build and Package Use Cases in Connected Order
+        run: |
+          python scripts/build_usecases.py --site-dir site
+
       - name: Upload artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5

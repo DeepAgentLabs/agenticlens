@@ -1,0 +1,104 @@
+[
+  {
+    "policy_id": "POL-AETNA-2026-KNEE",
+    "payer_name": "Aetna Health",
+    "procedure_name": "Total Knee Arthroplasty (TKA)",
+    "cpt_code": "27447",
+    "icd_10_codes": ["M17.11", "M17.12", "M17.9"],
+    "inclusion_criteria": [
+      {
+        "id": "CRIT-1",
+        "description": "Severe chronic knee pain affecting activities of daily living for > 6 months",
+        "required": true
+      },
+      {
+        "id": "CRIT-2",
+        "description": "Radiographic evidence of severe joint space narrowing or Kellgren-Lawrence Grade 3-4 osteoarthritis",
+        "required": true
+      },
+      {
+        "id": "CRIT-3",
+        "description": "Completion of at least 12 weeks of non-operative conservative therapy (Physical Therapy, NSAIDs, intra-articular injections)",
+        "required": true
+      },
+      {
+        "id": "CRIT-4",
+        "description": "Body Mass Index (BMI) under 40.0 kg/m²",
+        "required": true
+      }
+    ],
+    "exclusion_criteria": [
+      "Active systemic or local joint infection",
+      "Severe neurovascular impairment in affected limb"
+    ],
+    "required_documentation": [
+      "Weight-bearing knee X-ray report (< 90 days old)",
+      "Physical therapy attendance log (min 12 sessions)",
+      "Orthopedic surgeon clinical evaluation notes"
+    ]
+  },
+  {
+    "policy_id": "POL-BCBS-2026-MRI-LUMBAR",
+    "payer_name": "Blue Cross Blue Shield",
+    "procedure_name": "Lumbar Spine MRI (Without Contrast)",
+    "cpt_code": "72148",
+    "icd_10_codes": ["M54.5", "M54.16", "M51.26"],
+    "inclusion_criteria": [
+      {
+        "id": "CRIT-1",
+        "description": "Low back pain with radiculopathy (sciatica) persisting > 6 weeks",
+        "required": true
+      },
+      {
+        "id": "CRIT-2",
+        "description": "Failed minimum 6 weeks of conservative management (PT, chiropractic, or anti-inflammatory regimen)",
+        "required": true
+      },
+      {
+        "id": "CRIT-3",
+        "description": "Objective neurological deficit documented on physical exam (motor weakness, sensory loss, or diminished reflexes)",
+        "required": true
+      }
+    ],
+    "exclusion_criteria": [
+      "Uncomplicated low back pain < 6 weeks duration without red flag symptoms"
+    ],
+    "required_documentation": [
+      "Physician physical exam with neurological evaluation",
+      "Supervised Physical Therapy completion notes"
+    ]
+  },
+  {
+    "policy_id": "POL-UHC-2026-CARD-CATH",
+    "payer_name": "UnitedHealthcare",
+    "procedure_name": "Diagnostic Left Heart Catheterization",
+    "cpt_code": "93458",
+    "icd_10_codes": ["I25.10", "I20.8", "I25.70"],
+    "inclusion_criteria": [
+      {
+        "id": "CRIT-1",
+        "description": "Abnormal non-invasive cardiac stress test (nuclear, echo, or stress ECG) showing moderate to severe ischemia",
+        "required": true
+      },
+      {
+        "id": "CRIT-2",
+        "description": "Unstable angina or refractory angina pectoris despite maximal medical therapy",
+        "required": true
+      },
+      {
+        "id": "CRIT-3",
+        "description": "Left ventricular ejection fraction (LVEF) < 50% with suspected ischemic etiology",
+        "required": false
+      }
+    ],
+    "exclusion_criteria": [
+      "Severe acute renal failure (CrCl < 15 mL/min) without planned hemodialysis setup",
+      "Active gastrointestinal bleeding"
+    ],
+    "required_documentation": [
+      "Recent 12-lead ECG report",
+      "Cardiac Stress Test or Echocardiogram final report",
+      "Cardiology consultation note"
+    ]
+  }
+]

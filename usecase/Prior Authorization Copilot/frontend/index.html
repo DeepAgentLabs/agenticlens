@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" class="daylight">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Prior Authorization Copilot — Enterprise Healthcare Clinical Observability &amp; Resilience</title>
+
+  <!-- Google Fonts: JetBrains Mono as code fallback (Calibri is primary) -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN with forms and container queries plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Tailwind Theme Configuration matching Daylight & Obsidian Telemetry design tokens -->
+  <script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-dim": "var(--color-surface-dim)",
+            "surface": "var(--color-surface)",
+            "surface-container-low": "var(--color-surface-low)",
+            "surface-container": "var(--color-surface-container)",
+            "surface-container-high": "var(--color-surface-high)",
+            "surface-container-highest": "var(--color-surface-highest)",
+            "outline": "var(--color-outline)",
+            "outline-variant": "var(--color-outline-variant)",
+            "primary": "var(--color-primary)",
+            "primary-container": "var(--color-primary-container)",
+            "secondary": "var(--color-secondary)",
+            "secondary-container": "var(--color-secondary-container)",
+            "tertiary": "var(--color-tertiary)",
+            "tertiary-container": "var(--color-tertiary-container)",
+            "error": "var(--color-error)",
+            "error-container": "var(--color-error-container)",
+            "on-surface": "var(--color-on-surface)",
+            "on-surface-variant": "var(--color-on-surface-variant)"
+          },
+          fontSize: {
+              'xs':   ['0.8rem',  { lineHeight: '1.5' }],
+              'sm':   ['0.9rem',  { lineHeight: '1.55' }],
+              'base': ['1rem',    { lineHeight: '1.6' }],
+              'lg':   ['1.15rem', { lineHeight: '1.6' }],
+              'xl':   ['1.3rem',  { lineHeight: '1.55' }],
+              '2xl':  ['1.55rem', { lineHeight: '1.4' }],
+              '3xl':  ['1.9rem',  { lineHeight: '1.3' }],
+              '4xl':  ['2.25rem', { lineHeight: '1.2' }],
+            },
+            fontFamily: {
+              sans: ['Calibri', 'Calibri Body', 'Inter', 'system-ui', 'sans-serif'],
+              headline: ['Calibri', 'Calibri Body', 'Inter', 'sans-serif'],
+              mono: ['Calibri', 'Calibri Body', 'JetBrains Mono', 'Menlo', 'Monaco', 'monospace']
+            },
+            boxShadow: {
+              'subtle': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+              'card': '0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02)',
+              'card-hover': '0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03)',
+              'glow-cyan': '0 0 25px -4px rgba(76, 215, 246, 0.28)',
+              'glow-emerald': '0 0 25px -4px rgba(78, 222, 163, 0.28)'
+            }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body class="theme-transition min-h-screen flex flex-col antialiased font-sans">
+
+  <!-- ========================================================================= -->
+  <!-- 1. HEADER & GLOBAL TELEMETRY BAR                                          -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 backdrop-blur-md border-b transition-colors shadow-sm app-header">
+    <div class="max-w-[1760px] mx-auto px-4 lg:px-8 py-3 flex items-center justify-between gap-4 flex-wrap">
+      
+      <!-- Brand & Micro-Badges -->
+      <div class="flex items-center space-x-3.5">
+        <div class="relative flex items-center justify-center">
+          <div class="brand-shield w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5 stroke-current" fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 2l7 3.5v6.2c0 5-3.3 9.4-7 10.3-3.7-.9-7-5.3-7-10.3V5.5L12 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <span class="absolute -top-1 -right-1 flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 ring-2 ring-white dark:ring-slate-900"></span>
+          </span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-base font-headline font-bold tracking-tight flex items-center gap-2 brand-heading">
+              Prior Authorization Copilot
+              <span class="badge-tag text-[10px] font-mono px-2 py-0.5 rounded font-semibold tracking-wide">ENTERPRISE ORCHESTRATOR v2.6</span>
+            </h1>
+          </div>
+          <p class="text-xs text-muted tracking-normal flex items-center gap-2 mt-0.5 font-medium">
+            <span>Multi-Agent Clinical Decision &amp; Resilience Cockpit</span>
+            <span class="opacity-40">•</span>
+            <span class="font-mono text-[11px]">SLO Target: 99.98%</span>
+            <span class="opacity-40">•</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-semibold">Fast-Track Active</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Telemetry Controls & Status Cluster -->
+      <div class="flex items-center space-x-2 sm:space-x-2.5 flex-wrap">
+        
+        <!-- Synthetic Sandbox Pill -->
+        <div class="sandbox-pill flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-mono font-medium shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-semibold tracking-wide">SYNTHETIC COHORT • NO PHI</span>
+        </div>
+
+        <!-- Interactive Chaos Engine Indicator / Toggle Pill -->
+        <button id="chaos-indicator-badge" class="chaos-pill flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold tracking-wide transition cursor-pointer shadow-sm" onclick="toggleGlobalChaos()" title="Click to toggle global chaos fault mode">
+          <span id="chaos-indicator-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span id="chaos-indicator-text">CHAOS ENGINE: INACTIVE</span>
+        </button>
+
+        <!-- DAY / NIGHT THEME SWITCHER -->
+        <button id="theme-toggle-btn" class="theme-btn flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm cursor-pointer" onclick="toggleTheme()" title="Switch between Daylight & Obsidian Telemetry modes">
+          <span id="theme-toggle-icon" class="text-amber-500 dark:text-cyan-400">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.166 17.834a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 001.061-1.06l-1.59-1.591zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 6.166a.75.75 0 001.06 1.06L8.817 5.636a.75.75 0 00-1.06-1.061L6.166 6.166z"/></svg>
+          </span>
+          <span id="theme-toggle-label" class="hidden sm:inline font-mono font-semibold">Daylight</span>
+        </button>
+
+        <!-- Use Case Links -->
+        <a href="../website/index.html" class="btn-subtle flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm cursor-pointer text-sky-700 dark:text-cyan-300 bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 hover:bg-sky-100" title="Back to Technical Guide">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          <span class="font-semibold">Technical Guide</span>
+        </a>
+        <a href="../website/storytelling/index.html" class="btn-subtle hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm cursor-pointer text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-100" title="Executive Storyboard">
+          <span class="font-semibold">Executive Story</span>
+        </a>
+
+        <!-- Compliance & Legal Trigger Button -->
+        <button id="open-compliance-btn" class="btn-subtle flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="hidden sm:inline font-medium">Compliance &amp; Legal</span>
+        </button>
+
+        <!-- Reset State Button -->
+        <button id="btn-reset-state" class="btn-reset flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm cursor-pointer" title="Reset all pipeline and chaos state">
+          <svg class="w-3.5 h-3.5 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="hidden sm:inline font-medium">Reset State</span>
+        </button>
+
+        <!-- User profile / Org selector -->
+        <div class="hidden lg:flex items-center pl-2 border-l border-slate-200 dark:border-slate-800 text-xs">
+          <div class="user-pill flex items-center space-x-2 py-1 px-2 rounded-lg border">
+            <div class="w-5 h-5 rounded-full bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold font-headline flex items-center justify-center text-[10px]">
+              M
+            </div>
+            <div class="text-left font-medium">
+              <span class="block text-[11px] leading-tight font-semibold">Mercy Health</span>
+              <span class="text-muted block text-[10px] leading-tight">Clinical Reviewer</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Segmented Sub-Header Navigation Tabs -->
+    <div class="subnav-container border-t transition-colors">
+      <div class="max-w-[1760px] mx-auto px-4 lg:px-8 flex items-center justify-between">
+        <nav aria-label="Tabs" class="flex space-x-1 sm:space-x-2 py-1.5">
+          <!-- Tab 1: Queue -->
+          <button class="tab-button flex items-center space-x-2 px-4 py-2 rounded-md text-xs font-semibold transition border-b-2 active" data-tab-target="tab-queue" id="tab-btn-queue">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span class="font-headline font-semibold">Case Queue &amp; Human Gate</span>
+            <span class="tab-badge ml-1 px-1.5 py-0.5 rounded text-[11px] font-mono font-bold" id="badge-case-count">12 Cases</span>
+            <span class="text-[10px] text-muted font-mono hidden md:inline ml-1 font-normal">[Q]</span>
+          </button>
+          
+          <!-- Tab 2: Lens -->
+          <button class="tab-button flex items-center space-x-2 px-4 py-2 rounded-md text-xs font-medium transition border-b-2" data-tab-target="tab-lens" id="tab-btn-lens">
+            <svg class="w-4 h-4 text-slate-400 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span class="font-headline font-semibold">Agentic Lens (Trace &amp; Replay)</span>
+            <span class="text-[10px] text-muted font-mono hidden md:inline ml-1 font-normal">[L]</span>
+          </button>
+          
+          <!-- Tab 3: Chaos -->
+          <button class="tab-button flex items-center space-x-2 px-4 py-2 rounded-md text-xs font-medium transition border-b-2" data-tab-target="tab-chaos" id="tab-btn-chaos">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span class="font-headline font-semibold">Agentic Chaos &amp; Resilience Panel</span>
+            <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-bold">5 Faults</span>
+            <span class="text-[10px] text-muted font-mono hidden md:inline ml-1 font-normal">[C]</span>
+          </button>
+        </nav>
+
+        <!-- Live Telemetry Status Ticker -->
+        <div class="text-right hidden md:flex items-center space-x-3 text-xs font-mono text-muted">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span class="font-sans font-medium">CMS Fast-Track: <strong class="text-emerald-600 dark:text-emerald-400 font-mono">99.8%</strong> Target</span>
+          </span>
+          <span class="opacity-40">|</span>
+          <span class="text-[11px]">Gateway: <strong id="telemetry-gateway-ms">34ms</strong></span>
+          <span class="opacity-40">|</span>
+          <span class="text-[11px]">Replay Buffer: 128 MB</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE CONTAINER                                                  -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-[1760px] w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- ======================================================================= -->
+    <!-- 2. TOP METRIC RIBBON (4 KPI CARDS)                                      -->
+    <!-- ======================================================================= -->
+    <section aria-label="Observability Key Metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Metric 1: Total Active Cases -->
+      <div class="kpi-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition duration-200 kpi-border-top-cobalt">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-muted font-mono">Active Case Queue</span>
+          <span class="text-xs font-mono text-blue-700 dark:text-cyan-300 bg-blue-50 dark:bg-cyan-950/40 px-2 py-0.5 rounded border border-blue-200 dark:border-cyan-800 font-semibold">+3 incoming pipeline</span>
+        </div>
+        <div class="flex items-baseline gap-2.5 mt-2.5">
+          <span class="text-3xl sm:text-4xl font-extrabold font-headline tracking-tight" id="kpi-total-val">12</span>
+          <span class="text-xs text-muted font-medium">cases in flight</span>
+        </div>
+        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-blue-600 dark:bg-cyan-400 h-1.5 rounded-full" id="kpi-total-bar" style="width: 100%"></div>
+        </div>
+        <div class="text-xs text-muted mt-2.5 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-cyan-400"></span>
+            Synthetic clinical chart cohort
+          </span>
+          <span class="font-mono text-[11px] font-medium">100% trace logged</span>
+        </div>
+      </div>
+
+      <!-- Metric 2: Needs Clinician Gate -->
+      <div class="kpi-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition duration-200 kpi-border-top-amber">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-muted font-mono">Needs Clinician Gate</span>
+          <span class="text-xs font-mono text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800 font-semibold" id="kpi-gate-pct">50% of queue</span>
+        </div>
+        <div class="flex items-baseline gap-2.5 mt-2.5">
+          <span class="text-3xl sm:text-4xl font-extrabold font-headline text-amber-600 dark:text-amber-400 tracking-tight" id="kpi-gate-val">6</span>
+          <span class="text-xs text-muted font-medium">cases queued</span>
+        </div>
+        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-amber-500 h-1.5 rounded-full" id="kpi-gate-bar" style="width: 50%"></div>
+        </div>
+        <div class="text-xs text-amber-800 dark:text-amber-300 mt-2.5 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Triggered by &lt;85% AI threshold
+          </span>
+          <span class="font-mono text-[11px] font-semibold">Gate Active</span>
+        </div>
+      </div>
+
+      <!-- Metric 3: Auto-Authorized -->
+      <div class="kpi-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition duration-200 kpi-border-top-emerald">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-muted font-mono">Auto-Authorized</span>
+          <span class="text-xs font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 font-semibold">Avg 1.2s adjudication</span>
+        </div>
+        <div class="flex items-baseline gap-2.5 mt-2.5">
+          <span class="text-3xl sm:text-4xl font-extrabold font-headline text-emerald-600 dark:text-emerald-400 tracking-tight" id="kpi-approved-val">4</span>
+          <span class="text-xs text-muted font-medium">cleared</span>
+        </div>
+        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-emerald-500 h-1.5 rounded-full" id="kpi-approved-bar" style="width: 33%"></div>
+        </div>
+        <div class="text-xs text-emerald-800 dark:text-emerald-300 mt-2.5 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Zero-touch payer clearance
+          </span>
+          <span class="font-mono text-[11px] font-semibold">CMS Compliant</span>
+        </div>
+      </div>
+
+      <!-- Metric 4: SLA At-Risk (<12 Hours) -->
+      <div class="kpi-card border rounded-xl p-5 shadow-card hover:shadow-card-hover transition duration-200 kpi-border-top-rose">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-muted font-mono">SLA At-Risk (&lt;12 Hours)</span>
+          <span class="text-xs font-mono text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800 flex items-center gap-1 font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+            CMS 7-Day Mandate
+          </span>
+        </div>
+        <div class="flex items-baseline gap-2.5 mt-2.5">
+          <span class="text-3xl sm:text-4xl font-extrabold font-headline text-rose-600 dark:text-rose-400 tracking-tight" id="kpi-risk-val">2</span>
+          <span class="text-xs text-muted font-medium">urgent attention</span>
+        </div>
+        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-rose-500 h-1.5 rounded-full" id="kpi-risk-bar" style="width: 16%"></div>
+        </div>
+        <div class="text-xs text-rose-800 dark:text-rose-300 mt-2.5 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            Turnaround window critical
+          </span>
+          <span class="font-mono text-[11px] font-bold">&lt; 12h remaining</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- 3. VIEW 1: CASE QUEUE & HUMAN GATE                                      -->
+    <!-- ======================================================================= -->
+    <div class="tab-view block space-y-4" id="tab-queue">
+      
+      <!-- Control Bar: Search Filter, Policy Dropdown & Primary Action -->
+      <div class="filter-bar border rounded-xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-subtle">
+        <div class="flex items-center gap-3 flex-1 flex-wrap">
+          
+          <!-- Search Input -->
+          <div class="relative flex-1 min-w-[260px] max-w-md">
+            <input id="queue-search-input" class="search-input w-full border text-xs rounded-lg pl-9 pr-4 py-2 font-medium transition" placeholder="Filter by Case ID, CPT, ICD-10, or patient..." type="text"/>
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Policy Filter Dropdown -->
+          <div class="relative">
+            <select id="policy-filter-select" class="select-input border text-xs rounded-lg pl-3 pr-8 py-2 appearance-none font-medium cursor-pointer">
+              <option value="ALL">All Payers: Aetna, BCBS, UHC</option>
+              <option value="POL-AETNA-2026-KNEE">POL-AETNA-2026-KNEE (Aetna Knee)</option>
+              <option value="POL-BCBS-2026-MRI-LUMBAR">POL-BCBS-2026-MRI-LUMBAR (BCBS MRI)</option>
+              <option value="POL-UHC-2026-CARD-CATH">POL-UHC-2026-CARD-CATH (UHC Cath)</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-muted">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Execute All Primary Action -->
+        <button id="btn-execute-all" class="btn-primary flex items-center justify-center space-x-2 text-white font-headline font-semibold text-xs px-5 py-2.5 rounded-lg shadow-sm hover:shadow transition transform active:scale-95 whitespace-nowrap cursor-pointer">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span id="btn-execute-all-text">Execute All Pending AI Pipelines</span>
+        </button>
+      </div>
+
+      <!-- High-Fidelity Data Table -->
+      <section class="table-container border rounded-xl overflow-hidden shadow-subtle">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="table-header-row border-b uppercase font-mono font-semibold text-[11px] tracking-wider sticky top-0">
+                <th class="py-3.5 px-4" scope="col">Case ID &amp; Patient</th>
+                <th class="py-3.5 px-4" scope="col">Requested Procedure &amp; CPT</th>
+                <th class="py-3.5 px-4" scope="col">Payer Policy</th>
+                <th class="py-3.5 px-4" scope="col">SLA Urgency</th>
+                <th class="py-3.5 px-4" scope="col">AI Confidence &amp; Evidence</th>
+                <th class="py-3.5 px-4" scope="col">Human-in-the-Loop Status</th>
+                <th class="py-3.5 px-4 text-right" scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="case-table-body" class="divide-y">
+              <!-- Dynamically populated from /api/cases -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer Pagination / Context -->
+        <div class="table-footer px-4 py-3 border-t flex items-center justify-between text-xs font-mono text-muted">
+          <span id="table-showing-text">Showing synthetic clinical cohort (Active: <strong class="font-semibold text-slate-800 dark:text-slate-200">SYNTH-2026-Q1</strong>)</span>
+          <div class="flex items-center gap-2">
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold">● CMS Fast-Track Enforced</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 4. VIEW 2: AGENTIC LENS (TRACE & OBSERVABILITY REPLAY)                  -->
+    <!-- ======================================================================= -->
+    <div class="tab-view hidden space-y-4" id="tab-lens">
+      
+      <!-- Split Observatory Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left Pane: Latency Breakdown Waterfall & Telemetry -->
+        <div class="lg:col-span-4 space-y-4">
+          
+          <!-- Case Selector Card -->
+          <div class="kpi-card border rounded-xl p-4 space-y-3 shadow-subtle">
+            <label class="text-xs font-bold uppercase tracking-wider font-mono flex items-center justify-between" for="audit-case-select">
+              <span>Auditing Case Target</span>
+              <span class="text-[10px] text-blue-700 dark:text-cyan-300 bg-blue-50 dark:bg-cyan-950/40 px-2 py-0.5 rounded border border-blue-200 dark:border-cyan-800 font-bold">REPLAY READY</span>
+            </label>
+            <div class="relative">
+              <select id="audit-case-select" class="select-input w-full border text-xs rounded-lg px-3 py-2 pr-8 font-mono font-medium cursor-pointer">
+                <!-- Dynamically populated -->
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-muted">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step Latency Waterfall Card -->
+          <div class="kpi-card border rounded-xl p-4 space-y-4 shadow-subtle">
+            <div class="flex items-center justify-between border-b pb-2.5">
+              <h3 class="text-xs font-bold font-mono uppercase tracking-wider">Pipeline Latency Waterfall</h3>
+              <span class="text-xs font-mono text-blue-600 dark:text-cyan-400 font-bold" id="telemetry-total-time">Total: 7,402 ms</span>
+            </div>
+
+            <!-- Waterfall Bars (Dynamically updated) -->
+            <div id="waterfall-bars-container" class="space-y-3 text-xs font-mono">
+              <!-- Rendered by app.js -->
+            </div>
+
+            <!-- Cost & Token Telemetry Box -->
+            <div class="telemetry-box border rounded-lg p-3 text-xs font-mono space-y-2 mt-4">
+              <div class="flex justify-between items-center text-muted">
+                <span>Model Orchestrator:</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-100" id="lens-model-name">Gemini 3.5 Flash Lite</span>
+              </div>
+              <div class="flex justify-between items-center text-muted">
+                <span>Tokens Consumed:</span>
+                <span class="text-blue-600 dark:text-cyan-400 font-bold" id="lens-tokens-consumed">1,482 tokens</span>
+              </div>
+              <div class="flex justify-between items-center text-muted">
+                <span>Observability Profile:</span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-bold">DeepAgentLabs AgenticLens</span>
+              </div>
+              <div class="flex justify-between items-center text-muted border-t pt-1.5">
+                <span>Trace Determinism:</span>
+                <span class="text-sky-600 dark:text-cyan-400 font-semibold">SHA256 Verified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Replay Action Controller -->
+          <div class="kpi-card border rounded-xl p-4 space-y-2 shadow-subtle">
+            <button id="btn-replay-trace" class="btn-replay w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg border text-xs font-headline font-semibold transition shadow-sm cursor-pointer">
+              <svg id="replay-spinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+              </svg>
+              <svg id="replay-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+              <span id="replay-btn-text">Replay Full Execution Trace</span>
+            </button>
+            <p class="text-[11px] text-muted text-center font-mono">Re-executes steps against frozen telemetry spans</p>
+          </div>
+
+        </div>
+
+        <!-- Center / Right Pane: Trace Observatory with Dual View -->
+        <div class="lg:col-span-8 space-y-4">
+          
+          <!-- Mode Switcher Header -->
+          <div class="filter-bar border rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-subtle">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-headline font-bold text-sm tracking-wide">
+                  Decision Trace Replay — <span id="current-trace-case-id" class="text-blue-600 dark:text-cyan-400">CASE-001</span>
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono border font-semibold" id="current-trace-span-id">SPANS: 4 ACTIVE</span>
+              </div>
+              <p class="text-xs text-muted mt-0.5">Step-by-step reasoning transcript logged via AgenticLens to persistent JSONL</p>
+            </div>
+
+            <!-- View Mode Switch Buttons -->
+            <div class="flex items-center p-1 rounded-lg border view-mode-toggle">
+              <button id="view-plain-btn" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition active" onclick="setLensView('plain')">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>Clinician Plain-Language View</span>
+              </button>
+              <button id="view-tech-btn" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-muted hover:text-slate-900 dark:hover:text-slate-100 transition" onclick="setLensView('tech')">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>Technical Trace JSON (.jsonl)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 1. PLAIN LANGUAGE TIMELINE CONTAINER -->
+          <div id="plain-language-container" class="space-y-3.5">
+            <!-- Dynamically populated from trace file -->
+          </div>
+
+          <!-- 2. TECHNICAL JSON TRACE CONTAINER (Initially Hidden) -->
+          <div id="technical-trace-container" class="hidden border rounded-xl overflow-hidden shadow-subtle tech-trace-box">
+            <div class="tech-trace-header px-4 py-2.5 border-b flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-rose-400 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                <span class="text-xs font-mono text-muted pl-2 font-medium" id="trace-file-label">traces/CASE-001.jsonl</span>
+              </div>
+              <button id="btn-copy-json" class="btn-copy text-xs font-mono flex items-center gap-1.5 px-2.5 py-1 rounded border transition shadow-sm font-medium cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span id="copy-btn-label">Copy JSON</span>
+              </button>
+            </div>
+            <pre class="p-4 font-mono text-xs overflow-x-auto leading-relaxed max-h-[540px] json-content"><code id="raw-json-code">Loading traces...</code></pre>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 5. VIEW 3: AGENTIC CHAOS & RESILIENCE PANEL                             -->
+    <!-- ======================================================================= -->
+    <div class="tab-view hidden space-y-5" id="tab-chaos">
+      
+      <!-- Resilience Split Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left Column: Fault Injection Matrix Cards -->
+        <div class="lg:col-span-5 kpi-card border rounded-xl p-5 space-y-4 shadow-subtle">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <h3 class="text-sm font-headline font-bold tracking-wide">Interactive Fault Matrix</h3>
+              <p class="text-xs text-muted mt-0.5">Inject synthetic network &amp; payload failures to verify graceful degradation.</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold">CHAOS TEST LAB</span>
+          </div>
+
+          <!-- Fault List -->
+          <div class="space-y-3 pt-1">
+            
+            <!-- Fault 1: 504 Timeout -->
+            <div class="fault-item p-3.5 rounded-lg border transition">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                  Payer Gateway Timeout (504)
+                </span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-semibold">NETWORK ERROR</span>
+              </div>
+              <p class="text-[11px] text-muted mt-1 leading-normal">Simulates a 5-second socket hangup on clearinghouse connection.</p>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button class="chaos-inject-btn px-3 py-1 rounded border text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('payer_timeout')">
+                  Inject Anomaly
+                </button>
+                <span class="text-[10px] font-mono text-muted font-semibold" id="status-payer_timeout">READY</span>
+              </div>
+            </div>
+
+            <!-- Fault 2: Malformed JSON -->
+            <div class="fault-item p-3.5 rounded-lg border transition">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                  Corrupted Non-JSON Payload
+                </span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-semibold">SCHEMA CONTRACT</span>
+              </div>
+              <p class="text-[11px] text-muted mt-1 leading-normal">Payer API returns HTML error dump instead of standard JSON payload.</p>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button class="chaos-inject-btn px-3 py-1 rounded border text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('malformed_json')">
+                  Inject Anomaly
+                </button>
+                <span class="text-[10px] font-mono text-muted font-semibold" id="status-malformed_json">READY</span>
+              </div>
+            </div>
+
+            <!-- Fault 3: Vague Denial -->
+            <div class="fault-item p-3.5 rounded-lg border transition">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                  Boilerplate Non-Specific Denial
+                </span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-semibold">GUARDRAIL TRIGGER</span>
+              </div>
+              <p class="text-[11px] text-muted mt-1 leading-normal">Payer denies claim without citing policy clause; flags for peer-to-peer review.</p>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button class="chaos-inject-btn px-3 py-1 rounded border text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('vague_denial')">
+                  Inject Anomaly
+                </button>
+                <span class="text-[10px] font-mono text-muted font-semibold" id="status-vague_denial">READY</span>
+              </div>
+            </div>
+
+            <!-- Fault 4: Missing Auth Field -->
+            <div class="fault-item p-3.5 rounded-lg border transition">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                  Missing Authorization Token
+                </span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 font-semibold">STATE CORRUPTION</span>
+              </div>
+              <p class="text-[11px] text-muted mt-1 leading-normal">Payer returns approved status but leaves auth token null.</p>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button class="chaos-inject-btn px-3 py-1 rounded border text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('missing_field')">
+                  Inject Anomaly
+                </button>
+                <span class="text-[10px] font-mono text-muted font-semibold" id="status-missing_field">READY</span>
+              </div>
+            </div>
+
+            <!-- Fault 5: Payer 500 Internal Error -->
+            <div class="fault-item p-3.5 rounded-lg border transition">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                  Payer Internal Server Error (500)
+                </span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-semibold">SERVICE CRASH</span>
+              </div>
+              <p class="text-[11px] text-muted mt-1 leading-normal">Simulates catastrophic 500 error inside insurer claims gateway.</p>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button class="chaos-inject-btn px-3 py-1 rounded border text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('payer_500')">
+                  Inject Anomaly
+                </button>
+                <span class="text-[10px] font-mono text-muted font-semibold" id="status-payer_500">READY</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="pt-2 border-t flex items-center justify-between">
+            <button id="btn-disable-all-chaos" class="btn-subtle px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition cursor-pointer">
+              Disarm All Faults
+            </button>
+            <span class="text-[11px] text-muted font-mono">Agentic-Chaos v0.4.0</span>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Scorecard & Terminal Stream -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <!-- Resilience Scorecard Card -->
+          <div class="kpi-card border rounded-xl p-5 space-y-3.5 shadow-subtle">
+            <div class="flex items-center justify-between border-b pb-2.5">
+              <div>
+                <h3 class="text-sm font-headline font-bold tracking-wide">Resilience Scorecard</h3>
+                <p class="text-xs text-muted mt-0.5">Automated verification of self-healing mechanisms under chaos fault injection.</p>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-bold">
+                SLO: 99.9% FAULT ISOLATION
+              </span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="table-header-row border-b uppercase font-mono font-semibold text-[10px] tracking-wider">
+                    <th class="py-2.5 px-3" scope="col">Fault Scenario</th>
+                    <th class="py-2.5 px-3" scope="col">Self-Healing Mechanism</th>
+                    <th class="py-2.5 px-3 text-right" scope="col">Resilience State</th>
+                  </tr>
+                </thead>
+                <tbody id="scorecard-table-body" class="divide-y font-mono text-xs">
+                  <!-- Dynamically populated from /api/scorecard -->
+                  <tr id="row-payer_timeout">
+                    <td class="py-3 px-3">
+                      <span class="font-bold">payer_timeout</span>
+                      <div class="text-[10px] text-muted">Payer Socket 504 Timeout</div>
+                    </td>
+                    <td class="py-3 px-3 text-muted font-sans">Gracefully catches timeout, auto-flags case as needs_human_review, prevents crash</td>
+                    <td class="py-3 px-3 text-right">
+                      <span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold">NOT TESTED</span>
+                    </td>
+                  </tr>
+                  <tr id="row-malformed_json">
+                    <td class="py-3 px-3">
+                      <span class="font-bold">malformed_json</span>
+                      <div class="text-[10px] text-muted">Corrupted Non-JSON Payload</div>
+                    </td>
+                    <td class="py-3 px-3 text-muted font-sans">Traps JSON parsing error, isolates raw payload, flags corrupt response</td>
+                    <td class="py-3 px-3 text-right">
+                      <span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold">NOT TESTED</span>
+                    </td>
+                  </tr>
+                  <tr id="row-vague_denial">
+                    <td class="py-3 px-3">
+                      <span class="font-bold">vague_denial</span>
+                      <div class="text-[10px] text-muted">Boilerplate Non-Specific Denial</div>
+                    </td>
+                    <td class="py-3 px-3 text-muted font-sans">Detects missing clause reference, escalates directly to Peer-to-Peer Review</td>
+                    <td class="py-3 px-3 text-right">
+                      <span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold">NOT TESTED</span>
+                    </td>
+                  </tr>
+                  <tr id="row-missing_field">
+                    <td class="py-3 px-3">
+                      <span class="font-bold">missing_field</span>
+                      <div class="text-[10px] text-muted">Missing Authorization Token</div>
+                    </td>
+                    <td class="py-3 px-3 text-muted font-sans">Detects null token mutation, blocks false-approval state</td>
+                    <td class="py-3 px-3 text-right">
+                      <span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold">NOT TESTED</span>
+                    </td>
+                  </tr>
+                  <tr id="row-payer_500">
+                    <td class="py-3 px-3">
+                      <span class="font-bold">payer_500</span>
+                      <div class="text-[10px] text-muted">Payer Internal Server Error 500</div>
+                    </td>
+                    <td class="py-3 px-3 text-muted font-sans">Trips circuit breaker on 500 error, schedules backoff retry</td>
+                    <td class="py-3 px-3 text-right">
+                      <span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold">NOT TESTED</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pt-2 border-t flex items-center justify-between text-xs text-muted font-mono">
+              <span>Engine Status: <strong class="text-emerald-600 dark:text-emerald-400 font-bold" id="chaos-state-desc">ALL CIRCUIT GUARDS ARMED</strong></span>
+              <span>Policy: <strong class="text-blue-600 dark:text-cyan-400">CIRCUIT_BREAKER_V2</strong></span>
+            </div>
+          </div>
+
+          <!-- Live Monospace Stream Terminal -->
+          <div class="terminal-card border rounded-xl overflow-hidden shadow-card">
+            <div class="terminal-header px-4 py-2 border-b flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">Live Resilience Terminal Stream</span>
+              </div>
+              <span class="text-[11px] font-mono text-slate-400" id="chaos-console-status">Listening to Kernel Events</span>
+            </div>
+            <div id="chaos-terminal" class="p-4 font-mono text-xs h-48 overflow-y-auto space-y-1 terminal-body">
+              <p class="text-slate-400">// Ready. Select any fault injection scenario from the left matrix to launch chaos test...</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 6. CLINICIAN GATE REVIEW MODAL (HUMAN SIGN-OFF DRAWER)                    -->
+  <!-- ========================================================================= -->
+  <aside id="case-review-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="modal-box border rounded-xl max-w-3xl w-full p-6 space-y-4 shadow-2xl relative text-left max-h-[90vh] flex flex-col">
+      <div class="flex items-start justify-between border-b pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-cyan-950/40 border border-blue-200 dark:border-cyan-800 flex items-center justify-center text-blue-700 dark:text-cyan-400 shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-headline font-bold" id="modal-case-title">CASE-001 Review</h3>
+            <span class="text-[10px] font-mono text-blue-700 dark:text-cyan-400 font-semibold" id="modal-patient-info">PT-88391 (John Doe)</span>
+          </div>
+        </div>
+        <button id="close-review-btn" class="text-muted hover:text-slate-900 dark:hover:text-slate-100 transition p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" onclick="closeReviewModal()">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div id="modal-case-body" class="space-y-4 text-xs leading-relaxed overflow-y-auto flex-1 pr-1">
+        <!-- Dynamically injected -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div id="modal-case-footer" class="pt-3 border-t flex items-center justify-between gap-3">
+        <!-- Injected actions -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- 7. COMPLIANCE MODAL (EXECUTIVE DIALOG)                                    -->
+  <!-- ========================================================================= -->
+  <aside id="compliance-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="modal-box border rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative text-left">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-sky-50 dark:bg-cyan-950/40 border border-sky-200 dark:border-cyan-800 flex items-center justify-center text-sky-700 dark:text-cyan-400 shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-headline font-bold">Compliance &amp; Legal Notice</h3>
+            <span class="text-[10px] font-mono text-blue-700 dark:text-cyan-400 font-semibold">GOVERNANCE &amp; CLINICAL AUDIT</span>
+          </div>
+        </div>
+        <button id="close-compliance-btn" class="text-muted hover:text-slate-900 dark:hover:text-slate-100 transition p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="space-y-3 text-xs leading-relaxed text-muted">
+        <p class="font-semibold text-slate-800 dark:text-slate-200">
+          Synthetic Architecture &amp; Agentic Observability Demonstration:
+        </p>
+        <p>
+          Every patient case in this repository is completely synthetic. This platform demonstrates decision traceability (via DeepAgentLabs AgenticLens) and resilience fault injection (via DeepAgentLabs Agentic Chaos) for multi-agent LLM systems in regulated healthcare domains.
+        </p>
+        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-900 dark:text-amber-200 text-[11px] space-y-1">
+          <strong class="font-bold">Protected Health Information (PHI) Notice:</strong>
+          <p>This deployment is an engineering demonstration sandbox and does not store or process real Protected Health Information (PHI). Strict clinician-in-the-loop review is mandatory before any claim submission.</p>
+        </div>
+      </div>
+      <div class="pt-2 flex justify-end">
+        <button id="close-compliance-confirm" class="btn-primary px-5 py-2.5 rounded-lg text-white font-headline font-semibold text-xs transition shadow-sm cursor-pointer">
+          Acknowledge &amp; Dismiss
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Core Javascript -->
+  <script src="/app.js"></script>
+</body>
+</html>
