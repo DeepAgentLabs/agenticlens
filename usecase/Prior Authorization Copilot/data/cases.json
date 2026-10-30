@@ -1,0 +1,382 @@
+[
+  {
+    "case_id": "CASE-001",
+    "patient_ref": "PT-88391 (John Doe)",
+    "age": 64,
+    "gender": "Male",
+    "payer_id": "POL-AETNA-2026-KNEE",
+    "procedure_requested": "Total Knee Arthroplasty (Right Knee)",
+    "cpt_code": "27447",
+    "icd_10": "M17.11",
+    "physician": "Dr. Aris Thorne, MD (Orthopedic Surgery)",
+    "sla_hours_remaining": 48,
+    "status": "approved",
+    "confidence_score": 98,
+    "chart_notes": "64-year-old male with severe right knee osteoarthritis ongoing for 14 months. Patient reports constant pain (8/10) impairing walking > 50 feet. Failed conservative treatment including 14 weeks of structured physical therapy (attendance log verified), daily Meloxicam, and two triamcinolone intra-articular injections with transient relief only. Weight-bearing X-ray (dated 15 days ago) demonstrates severe medial joint space obliteration and Kellgren-Lawrence Grade 4 changes. Height: 5'10\", Weight: 185 lbs (BMI 26.5 kg/m\u00b2). No active infections. Recommended for Right Total Knee Arthroplasty.",
+    "latest_intake": {
+      "case_id": "CASE-001",
+      "patient_ref": "PT-88391 (John Doe)",
+      "procedure_requested": "Total Knee Arthroplasty (Right Knee)",
+      "cpt_code": "27447",
+      "icd_10": "M17.11",
+      "physician": "Dr. Aris Thorne, MD (Orthopedic Surgery)",
+      "extracted_symptoms": [
+        "severe right knee osteoarthritis",
+        "constant pain (8/10) impairing walking > 50 feet"
+      ],
+      "extracted_treatments": [
+        "14 weeks of structured physical therapy",
+        "daily Meloxicam",
+        "two triamcinolone intra-articular injections"
+      ],
+      "extracted_imaging": [
+        "Weight-bearing X-ray demonstrating severe medial joint space obliteration and Kellgren-Lawrence Grade 4 changes"
+      ],
+      "extracted_neurological_findings": [],
+      "missing_evidence_flags": [],
+      "pain_score": "8/10",
+      "symptom_duration": "14 months",
+      "bmi": "26.5 kg/m\u00b2",
+      "summary_text": "A 64-year-old male with 14 months of severe right knee osteoarthritis and 8/10 pain failing conservative treatments, including 14 weeks of physical therapy, medications, and two injections, with X-rays confirming Grade 4 changes.",
+      "guardrail_verification": "Strict extraction mode: All findings mapped directly from source clinical chart without inference."
+    },
+    "latest_policy_match": {
+      "policy_id": "POL-AETNA-2026-KNEE",
+      "payer_name": "Aetna Health",
+      "procedure_name": "Total Knee Arthroplasty (TKA)",
+      "matched_criteria": [
+        {
+          "id": "CRIT-1",
+          "description": "Severe chronic knee pain affecting activities of daily living for > 6 months",
+          "required": true,
+          "evidence_note": "Symptom duration of 14 months with constant pain (8/10) impairing walking > 50 feet and severe right knee osteoarthritis.",
+          "review_flag": null
+        },
+        {
+          "id": "CRIT-2",
+          "description": "Radiographic evidence of severe joint space narrowing or Kellgren-Lawrence Grade 3-4 osteoarthritis",
+          "required": true,
+          "evidence_note": "Weight-bearing X-ray demonstrating severe medial joint space obliteration and Kellgren-Lawrence Grade 4 changes.",
+          "review_flag": null
+        },
+        {
+          "id": "CRIT-3",
+          "description": "Completion of at least 12 weeks of non-operative conservative therapy (Physical Therapy, NSAIDs, intra-articular injections)",
+          "required": true,
+          "evidence_note": "14 weeks of structured physical therapy, daily Meloxicam, and two triamcinolone intra-articular injections completed.",
+          "review_flag": null
+        },
+        {
+          "id": "CRIT-4",
+          "description": "Body Mass Index (BMI) under 40.0 kg/m\u00b2",
+          "required": true,
+          "evidence_note": "BMI is 26.5 kg/m\u00b2.",
+          "review_flag": null
+        }
+      ],
+      "unmatched_criteria": [],
+      "total_criteria_count": 4,
+      "compliance_score": 100.0,
+      "compliance_notes": "All inclusion criteria are fully satisfied by the provided clinical evidence, supporting compliance with policy POL-AETNA-2026-KNEE.",
+      "policy_match_status": "full_match"
+    },
+    "latest_justification": {
+      "case_id": "CASE-001",
+      "procedure_requested": "Total Knee Arthroplasty (Right Knee)",
+      "cpt_code": "27447",
+      "icd_10": "M17.11",
+      "confidence_score": 98,
+      "recommended_action": "approve",
+      "routing_status": "pending_human_approval",
+      "routing_reason": "All required policy criteria (CRIT-1 through CRIT-4) are fully satisfied with robust documentation from the clinical record, yielding a 100% compliance score.",
+      "confidence_rationale": "The confidence score of 100 was assigned because all four required policy criteria are directly met with explicit, verifiable evidence from the clinical summary and zero unmatched criteria or gaps identified.",
+      "requires_human_gate": true,
+      "justification_narrative": "Patient John Doe (PT-88391) is evaluated by Dr. Aris Thorne, MD, for severe right knee osteoarthritis (ICD-10: M17.11), and is requesting authorization for Total Knee Arthroplasty (CPT 27447) under Aetna Health policy POL-AETNA-2026-KNEE. The patient presents with a symptom duration of 14 months, reporting constant pain rated 8/10 that severely impairs activities of daily living, specifically limiting walking to less than 50 feet, thereby fully satisfying CRIT-1.\n\nRadiographic evidence from weight-bearing X-rays demonstrates severe medial joint space obliteration consistent with Kellgren-Lawrence Grade 4 osteoarthritis, meeting the requirements of CRIT-2. Furthermore, the patient has successfully completed and failed an exhaustive course of non-operative conservative therapy exceeding 12 weeks, which included 14 weeks of structured physical therapy, daily use of Meloxicam, and two triamcinolone intra-articular joint injections, satisfying CRIT-3.\n\nFinally, the patient's Body Mass Index (BMI) is documented at 26.5 kg/m\u00b2, which is well below the maximum threshold of 40.0 kg/m\u00b2 mandated by CRIT-4. Given the complete alignment of clinical findings, imaging, and conservative treatment history with all payer policy criteria, Total Knee Arthroplasty is medically necessary to restore functional mobility and alleviate chronic pain.",
+      "matched_criteria_count": 4,
+      "unmatched_criteria_count": 0
+    },
+    "authorization_number": "AUTH-CB2DE287",
+    "latest_submission": {
+      "status": "submitted",
+      "payer_adjudication": {
+        "status": "approved",
+        "authorization_number": "AUTH-CB2DE287",
+        "payer_case_id": "PAYER-REF-70075",
+        "effective_date": "2026-09-25",
+        "expiration_date": "2026-12-25",
+        "adjudication_notes": "Prior authorization approved for Total Knee Arthroplasty (Right Knee). Criteria CRIT-1 through CRIT-4 satisfied.",
+        "decision_timestamp": 1792073980.8327706
+      },
+      "handled_gracefully": true
+    }
+  },
+  {
+    "case_id": "CASE-002",
+    "patient_ref": "PT-44209 (Jane Smith)",
+    "age": 42,
+    "gender": "Female",
+    "payer_id": "POL-BCBS-2026-MRI-LUMBAR",
+    "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+    "cpt_code": "72148",
+    "icd_10": "M54.16",
+    "physician": "Dr. Elena Rostova, MD (Neurology)",
+    "sla_hours_remaining": 24,
+    "status": "needs_rework",
+    "confidence_score": 45,
+    "chart_notes": "42-year-old female presenting with L5-S1 radicular pain radiating down the left leg for 5 weeks. Physical exam shows mild sensory loss along the L5 dermatome, 4+/5 left dorsiflexion strength, and positive straight leg raise test at 45 degrees. Patient completed 4 weeks of outpatient physical therapy and a 10-day course of oral Methylprednisolone. Pain persists at 6/10. Ordering Lumbar MRI to rule out disc herniation before epidural steroid injection.",
+    "latest_intake": {
+      "case_id": "CASE-002",
+      "patient_ref": "PT-44209 (Jane Smith)",
+      "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+      "cpt_code": "72148",
+      "icd_10": "M54.16",
+      "physician": "Dr. Elena Rostova, MD (Neurology)",
+      "extracted_symptoms": [
+        "L5-S1 radicular pain radiating down the left leg"
+      ],
+      "extracted_treatments": [
+        "4 weeks of outpatient physical therapy",
+        "10-day course of oral Methylprednisolone"
+      ],
+      "extracted_imaging": [],
+      "extracted_neurological_findings": [
+        "mild sensory loss along the L5 dermatome",
+        "4+/5 left dorsiflexion strength",
+        "positive straight leg raise test at 45 degrees"
+      ],
+      "missing_evidence_flags": [],
+      "pain_score": "6/10",
+      "symptom_duration": "5 weeks",
+      "bmi": null,
+      "summary_text": "A 42-year-old female presents with 5 weeks of L5-S1 left leg radicular pain and positive neurological findings, having failed 4 weeks of physical therapy and oral steroids, with a request for a lumbar MRI.",
+      "guardrail_verification": "Strict extraction mode: All findings mapped directly from source clinical chart without inference."
+    },
+    "latest_policy_match": {
+      "policy_id": "POL-BCBS-2026-MRI-LUMBAR",
+      "payer_name": "Blue Cross Blue Shield",
+      "procedure_name": "Lumbar Spine MRI (Without Contrast)",
+      "matched_criteria": [
+        {
+          "id": "CRIT-3",
+          "description": "Objective neurological deficit documented on physical exam (motor weakness, sensory loss, or diminished reflexes)",
+          "required": true,
+          "evidence_note": "Mild sensory loss along the L5 dermatome and 4+/5 left dorsiflexion strength documented on physical exam.",
+          "review_flag": null
+        }
+      ],
+      "unmatched_criteria": [
+        {
+          "id": "CRIT-1",
+          "description": "Low back pain with radiculopathy (sciatica) persisting > 6 weeks",
+          "required": true,
+          "evidence_note": "Symptom duration is documented as 5 weeks, which fails the requirement of persisting > 6 weeks.",
+          "review_flag": "needs_human_review"
+        },
+        {
+          "id": "CRIT-2",
+          "description": "Failed minimum 6 weeks of conservative management (PT, chiropractic, or anti-inflammatory regimen)",
+          "required": true,
+          "evidence_note": "Patient completed 4 weeks of physical therapy and a 10-day steroid course, which fails the minimum 6 weeks requirement.",
+          "review_flag": "needs_human_review"
+        }
+      ],
+      "total_criteria_count": 3,
+      "compliance_score": 33.3,
+      "compliance_notes": "The request does not fully comply with all payer policy criteria. Specifically, symptom duration is 5 weeks (required > 6 weeks) and conservative management duration is 4 weeks (required minimum 6 weeks). Therefore, overall compliance cannot be established and requires human review.",
+      "policy_match_status": "partial_match"
+    },
+    "latest_justification": {
+      "case_id": "CASE-002",
+      "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+      "cpt_code": "72148",
+      "icd_10": "M54.16",
+      "confidence_score": 45,
+      "recommended_action": "rework_or_deny",
+      "routing_status": "needs_rework",
+      "routing_reason": "The request fails two critical Blue Cross Blue Shield policy requirements: symptom duration is 5 weeks (policy requires > 6 weeks), and conservative management duration is 4 weeks (policy requires a minimum of 6 weeks), despite the presence of objective neurological deficits.",
+      "confidence_rationale": "The confidence score of 45 reflects partial compliance (matching CRIT-3 for neurological deficits) but definitive gaps in duration criteria CRIT-1 (> 6 weeks symptoms) and CRIT-2 (6 weeks conservative management), necessitating rework or clinical exception.",
+      "requires_human_gate": true,
+      "justification_narrative": "Patient Jane Smith (PT-44209) is evaluated by Dr. Elena Rostova, MD, for lumbar radiculopathy (ICD-10: M54.16), presenting with L5-S1 left leg radicular pain and a pain score of 6/10. Physical examination reveals objective neurological deficits satisfying CRIT-3, specifically mild sensory loss along the L5 dermatome, 4+/5 left dorsiflexion strength, and a positive straight leg raise test at 45 degrees.\n\nHowever, under policy POL-BCBS-2026-MRI-LUMBAR, the current documentation does not fully meet all mandatory coverage criteria. The patient's symptom duration is documented at 5 weeks, falling short of the required > 6 weeks duration for CRIT-1. Additionally, the patient has completed 4 weeks of outpatient physical therapy and a 10-day course of oral Methylprednisolone, which fails to satisfy the minimum 6-week conservative management requirement under CRIT-2.\n\nGiven the presence of objective motor weakness (4+/5 left dorsiflexion) and sensory loss along the L5 dermatome, expedited imaging may become medically necessary if symptoms persist or if progressive neurological deficits develop. At this juncture, the case requires either additional duration of conservative management to meet policy thresholds or a peer-to-peer review highlighting acute neurological compromise to request an exception.",
+      "matched_criteria_count": 1,
+      "unmatched_criteria_count": 2
+    },
+    "latest_submission": {
+      "status": "needs_human_review",
+      "error": "Payer Integration Fault: call hung for 5.0s then timed out",
+      "exception_type": "TokenTimeoutError",
+      "escalated_to_human": true,
+      "handled_gracefully": true
+    }
+  },
+  {
+    "case_id": "CASE-003",
+    "patient_ref": "PT-90112 (Robert Johnson)",
+    "age": 58,
+    "gender": "Male",
+    "payer_id": "POL-AETNA-2026-KNEE",
+    "procedure_requested": "Total Knee Arthroplasty (Left Knee)",
+    "cpt_code": "27447",
+    "icd_10": "M17.12",
+    "physician": "Dr. Marcus Vance, MD (Orthopedics)",
+    "sla_hours_remaining": 72,
+    "status": "ready_for_intake",
+    "confidence_score": 0,
+    "chart_notes": "58-year-old male with chronic left knee stiffness and pain. Patient reports taking over-the-counter Tylenol occasionally. Exam shows moderate joint effusion. Patient tried home exercises for 3 weeks. X-ray standing view report not attached in chart. Height/Weight unrecorded in initial intake note. Physician requests prior authorization for left knee replacement."
+  },
+  {
+    "case_id": "CASE-004",
+    "patient_ref": "PT-11843 (Emily Davis)",
+    "age": 51,
+    "gender": "Female",
+    "payer_id": "POL-UHC-2026-CARD-CATH",
+    "procedure_requested": "Diagnostic Left Heart Catheterization",
+    "cpt_code": "93458",
+    "icd_10": "I25.10",
+    "physician": "Dr. Sterling Hayes, MD (Cardiology)",
+    "sla_hours_remaining": 36,
+    "status": "ready_for_intake",
+    "confidence_score": 0,
+    "chart_notes": "51-year-old female with atypical chest tightness occurring during strenuous exercise. Resting ECG shows normal sinus rhythm without ischemic changes. Patient has not undergone stress testing or echocardiogram. Baseline LVEF is 60%. Currently managed on low-dose aspirin and statin therapy. Physician requests diagnostic cardiac catheterization."
+  },
+  {
+    "case_id": "CASE-005",
+    "patient_ref": "PT-77210 (Michael Brown)",
+    "age": 49,
+    "gender": "Male",
+    "payer_id": "POL-BCBS-2026-MRI-LUMBAR",
+    "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+    "cpt_code": "72148",
+    "icd_10": "M54.16",
+    "physician": "Dr. Elena Rostova, MD (Neurology)",
+    "sla_hours_remaining": 8,
+    "status": "pending_human_approval",
+    "confidence_score": 92,
+    "chart_notes": "49-year-old male presenting with acute onset severe L4-L5 radiculopathy and progressive right foot drop (dorsiflexion weakness 2/5) over the past 8 days following heavy lifting. Patient completed 8 weeks of physical therapy previously for chronic low back pain. Absent right patellar reflex on examination. Urgent MRI requested to evaluate acute cauda equina / severe root compression."
+  },
+  {
+    "case_id": "CASE-006",
+    "patient_ref": "PT-60481 (Sarah Connor)",
+    "age": 37,
+    "gender": "Female",
+    "payer_id": "POL-BCBS-2026-MRI-LUMBAR",
+    "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+    "cpt_code": "72148",
+    "icd_10": "M54.5",
+    "physician": "Dr. Aris Thorne, MD (Spine Clinic)",
+    "sla_hours_remaining": 16,
+    "status": "appeal_submitted",
+    "confidence_score": 55,
+    "denial_reason": "Policy POL-BCBS-2026-MRI-LUMBAR Criterion CRIT-2 Not Met: Submitted documentation did not include verified 6-week Physical Therapy attendance logs or physician progress notes verifying conservative treatment failure.",
+    "chart_notes": "37-year-old female with persistent lower back pain and left leg numbness for 10 weeks. Initial submission was denied by BCBS for lack of PT records. UPDATED ATTACHMENT: Verified Physical Therapy Completion Log attached confirming 12 sessions of supervised PT between June 1 and July 20 (7 weeks duration), demonstrating no symptomatic improvement. Requesting immediate appeal for Lumbar MRI approval.",
+    "latest_appeal": {
+      "case_id": "CASE-006",
+      "denial_reason_cited": "Policy POL-BCBS-2026-MRI-LUMBAR Criterion CRIT-2 Not Met: Submitted documentation did not include verified 6-week Physical Therapy attendance logs or physician progress notes verifying conservative treatment failure.",
+      "status": "appeal_drafted",
+      "appeal_letter_narrative": "Dear Medical Director, We are submitting this formal appeal on behalf of our patient, Sarah Connor (PT-60481), to overturn the recent denial of a Lumbar Spine MRI without contrast (CPT 72148, ICD-10 M54.5). The initial adverse determination cited failure to meet Policy POL-BCBS-2026-MRI-LUMBAR Criterion CRIT-2 due to an absence of verified 6-week physical therapy attendance logs and physician progress notes confirming conservative treatment failure. We are writing to formally rebut this rationale with newly attached clinical documentation establishing clear fulfillment of all conservative care prerequisites.\n\nContrary to the prior determination, the patient has completed a rigorous, supervised course of conservative management. Specifically, the attached Physical Therapy Completion Log documents 12 completed sessions of structured physical therapy between June 1 and July 20, spanning a total duration of 7 weeks. Despite this dedicated 7-week therapeutic regimen, the patient experienced zero symptomatic relief, exhibiting persistent lower back pain and progressive left leg numbness lasting 10 weeks total. Physician progress notes from the Spine Clinic corroborate the complete failure of these conservative measures to mitigate the underlying pathology.\n\nGiven the persistence of radicular symptoms and neurological compromise (left leg numbness) lasting beyond six weeks despite documented physical therapy failure, advanced diagnostic imaging is clinically indicated to rule out structural nerve root compression, disc herniation, or other spinal pathology. Delaying imaging exposes the patient to the risk of permanent neurological deficit. We request an immediate reversal of this denial and prompt authorization for the requested lumbar spine MRI.",
+      "key_rebuttal_points": [
+        "Patient completed 12 supervised physical therapy sessions over a 7-week duration, satisfying the 6-week conservative treatment threshold under Criterion CRIT-2.",
+        "Attached physical therapy completion logs and physician progress notes verify total conservative treatment failure with no symptomatic relief.",
+        "Patient presents with persistent lower back pain and left leg numbness of 10 weeks duration, meeting clinical necessity criteria for advanced neuroimaging to assess potential radiculopathy or structural pathology."
+      ],
+      "attached_supplements": [
+        "Verified Physical Therapy Completion Log (June 1 - July 20)",
+        "Physician Progress Notes (Spine Clinic)",
+        "Updated Clinical Summary"
+      ],
+      "recommended_next_step": "Submit Level 1 appeal via payer portal immediately with the attached 7-week PT completion logs and updated physician progress notes.",
+      "handled_gracefully": true
+    }
+  },
+  {
+    "case_id": "CASE-007",
+    "patient_ref": "PT-31092 (Carlos Mendez)",
+    "age": 55,
+    "gender": "Male",
+    "payer_id": "POL-UHC-2026-CARD-CATH",
+    "procedure_requested": "Diagnostic Left Heart Catheterization",
+    "cpt_code": "93458",
+    "icd_10": "I25.10",
+    "physician": "Dr. Sterling Hayes, MD (Cardiology)",
+    "sla_hours_remaining": 14,
+    "status": "pending_human_approval",
+    "confidence_score": 94,
+    "chart_notes": "55-year-old male with refractory unstable angina pectoris despite dual antiplatelet and maximal beta-blocker therapy. Nuclear exercise stress test (completed 4 days ago) revealed moderate-to-severe reversible anterolateral wall ischemia. Baseline Echocardiogram demonstrates LVEF of 45%. Urgent diagnostic cardiac catheterization indicated."
+  },
+  {
+    "case_id": "CASE-008",
+    "patient_ref": "PT-19402 (Samantha Reed)",
+    "age": 34,
+    "gender": "Female",
+    "payer_id": "POL-BCBS-2026-MRI-LUMBAR",
+    "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+    "cpt_code": "72148",
+    "icd_10": "M54.16",
+    "physician": "Dr. Elena Rostova, MD (Neurology)",
+    "sla_hours_remaining": 30,
+    "status": "approved",
+    "authorization_number": "AUTH-BCBS-88219",
+    "confidence_score": 95,
+    "chart_notes": "34-year-old female with severe low back pain radiating down right leg (sciatica) for 9 weeks. Completed 7 weeks of supervised physical therapy with no improvement. Neurological exam reveals diminished right Achilles reflex and L5 numbness. Diagnostic Lumbar MRI approved."
+  },
+  {
+    "case_id": "CASE-009",
+    "patient_ref": "PT-55120 (David Miller)",
+    "age": 67,
+    "gender": "Male",
+    "payer_id": "POL-AETNA-2026-KNEE",
+    "procedure_requested": "Total Knee Arthroplasty (Left Knee)",
+    "cpt_code": "27447",
+    "icd_10": "M17.12",
+    "physician": "Dr. Marcus Vance, MD (Orthopedics)",
+    "sla_hours_remaining": 18,
+    "status": "ready_for_intake",
+    "confidence_score": 0,
+    "chart_notes": "67-year-old male with chronic end-stage left knee osteoarthritis. Pain 7/10 for 16 months. Completed 14 weeks of physical therapy and received 2 cortisone injections. Weight-bearing X-ray shows Kellgren-Lawrence Grade 3-4 joint narrowing. BMI 31.2 kg/m\u00b2. Scheduled for Left TKA."
+  },
+  {
+    "case_id": "CASE-010",
+    "patient_ref": "PT-82319 (Anita Patel)",
+    "age": 48,
+    "gender": "Female",
+    "payer_id": "POL-BCBS-2026-MRI-LUMBAR",
+    "procedure_requested": "Lumbar Spine MRI (Without Contrast)",
+    "cpt_code": "72148",
+    "icd_10": "M54.5",
+    "physician": "Dr. Aris Thorne, MD (Spine Clinic)",
+    "sla_hours_remaining": 52,
+    "status": "needs_rework",
+    "confidence_score": 40,
+    "chart_notes": "48-year-old female with mild lower back pain for 2 weeks following gardening. No radicular symptoms, normal motor and reflex exam. Patient has not tried physical therapy or prescription NSAIDs. Physician requested Lumbar MRI."
+  },
+  {
+    "case_id": "CASE-011",
+    "patient_ref": "PT-66014 (James Wilson)",
+    "age": 71,
+    "gender": "Male",
+    "payer_id": "POL-UHC-2026-CARD-CATH",
+    "procedure_requested": "Diagnostic Left Heart Catheterization",
+    "cpt_code": "93458",
+    "icd_10": "I25.10",
+    "physician": "Dr. Sterling Hayes, MD (Cardiology)",
+    "sla_hours_remaining": 10,
+    "status": "needs_human_review",
+    "confidence_score": 62,
+    "chart_notes": "71-year-old male presenting with exertional shortness of breath and mild chest pressure for 3 months. ECG shows nonspecific T-wave inversions. Non-invasive stress test report pending from outside hospital. Physician requests direct cardiac catheterization."
+  },
+  {
+    "case_id": "CASE-012",
+    "patient_ref": "PT-20981 (Linda Taylor)",
+    "age": 60,
+    "gender": "Female",
+    "payer_id": "POL-AETNA-2026-KNEE",
+    "procedure_requested": "Total Knee Arthroplasty (Right Knee)",
+    "cpt_code": "27447",
+    "icd_10": "M17.11",
+    "physician": "Dr. Aris Thorne, MD (Orthopedic Surgery)",
+    "sla_hours_remaining": 64,
+    "status": "approved",
+    "authorization_number": "AUTH-AETNA-34901",
+    "confidence_score": 96,
+    "chart_notes": "60-year-old female with severe right knee pain for 18 months. Verified 16 weeks of PT attendance log attached. Standing X-rays demonstrate complete joint space obliteration. BMI 28.4 kg/m\u00b2. Prior auth approved."
+  }
+]

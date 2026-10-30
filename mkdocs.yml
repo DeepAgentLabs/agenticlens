@@ -1,42 +1,82 @@
-site_name: AgenticLens
-site_description: Open-source evaluation and profiling for production-ready agentic AI systems.
+site_name: AgenticLens Documentation
+site_url: https://deepagentlabs.io/agenticlens/docs/
+site_description: Open-source observability, evaluation, and operational intelligence for production agentic AI systems.
+repo_url: https://github.com/DeepAgentLabs/agenticlens
+repo_name: DeepAgentLabs/agenticlens
+edit_uri: edit/main/docs/
+docs_dir: docs
+
 theme:
   name: material
   logo: assets/agenticlens-logo.jpeg
   favicon: assets/agenticlens-logo.jpeg
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: deep purple
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
   features:
     - navigation.sections
     - navigation.top
+    - navigation.tabs
     - content.code.copy
+    - content.code.annotate
 
+markdown_extensions:
+  - admonition
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+exclude_docs: |
+  patents/
+
+# A page missing from nav fails the strict build
 nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Architecture: architecture.md
+  - Features: features.md
+  - Configuration: configuration.md
+  - API reference: api-reference.md
+  - CLI reference: cli-reference.md
+  - Integrations: integrations.md
+  - Examples: examples.md
+  - AIOS Validation and OTel: aios-validation-and-otel.md
+  - Export formats: export-formats.md
+  - RAG chunk utility: rag-chunk-utility.md
+  - Trace and comparison: trace-and-comparison.md
+  - Evaluation and release gates: evaluation-and-release-gates.md
+  - Experiments and Statistical Comparison: experiments.md
+  - Diagnosis and Failure Attribution: diagnosis.md
+  - Multi-agent workflows: multi-agent-reference-workflows.md
+  - Workflow schema spec: workflow-schema-spec.md
+  - Troubleshooting: troubleshooting.md
+  - Limitations: limitations.md
+  - Roadmap: roadmap.md
   - AIOS v0.6 Compatibility: aios-v0.6.md
   - Sidecar 0.9 authority and privacy: sidecar-0.9.md
   - MCP 0.4 Compatibility: mcp-0.4-unified-workflows.md
   - Chaos 0.8 Compatibility: chaos-0.8.md
   - Chaos 0.7 Compatibility: chaos-0.7.md
-  - Home: index.md
-  - AIOS Validation and OTel: aios-validation-and-otel.md
-  - Export Formats: export-formats.md
-  - RAG Chunk Utility: rag-chunk-utility.md
-  - Workflow Schema Spec: workflow-schema-spec.md
-  - Trace and Comparison: trace-and-comparison.md
-  - Evaluation and Release Gates: evaluation-and-release-gates.md
   - Evals Native Report Contract: evals-report-contract.md
   - Test-Suite and Dataset Management: suite-management.md
-  - Experiments and Statistical Comparison: experiments.md
   - ModelFit Recommendations: modelfit.md
   - Advisory Runtime Routing: routing.md
-  - Diagnosis and Failure Attribution: diagnosis.md
   - Tower 0.6 Recovery: control-tower-0.6.md
   - Tower 0.7 Fleet Operations: tower-0.7-fleet-operations.md
   - Control Tower 0.8 Live Operations: tower-0.8-live-operations.md
-  - Multi-Agent Reference Workflows: multi-agent-reference-workflows.md
-
-markdown_extensions:
-  - admonition
-
-repo_url: https://github.com/DeepAgentLabs/agenticlens
-repo_name: DeepAgentLabs/agenticlens
-exclude_docs: |
-  patents/
+  - Evals 0.8 CLI: evals-0.8-cli.md
+  - Evals 0.9 Judge Reliability: evals-0.9-judge-reliability.md
+  - Sidecar Integration: sidecar-integration.md

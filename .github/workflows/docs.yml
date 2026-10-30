@@ -40,11 +40,7 @@ jobs:
       - name: Configure Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v6
-        with:
-          enablement: true
-
-      - name: Install docs dependencies
-        run: uv sync --extra docs --python 3.12
+        continue-on-error: true
 
       - name: Build docs
         run: uv run --no-project --with-requirements _docs-theme/scripts/docs-requirements.txt python _docs-theme/scripts/build_docs.py --project agenticlens --repo "$GITHUB_WORKSPACE" --output "$GITHUB_WORKSPACE/site/docs"
@@ -54,8 +50,14 @@ jobs:
           cp index.html site/index.html
           cp site.css site/site.css
           cp site.js site/site.js
-          cp og.png site/og.png
+          if [ -f og.png ]; then cp og.png site/og.png; fi
           touch site/.nojekyll
+
+      - name: Build and Package Use Cases in Connected Order
+        run: python scripts/build_usecases.py --site-dir site
+
+      - name: Verify use cases
+        run: python scripts/build_usecases.py --verify --site-dir site
 
       - name: Check rendered documentation
         run: python3 _docs-theme/scripts/check_docs_site.py site/docs

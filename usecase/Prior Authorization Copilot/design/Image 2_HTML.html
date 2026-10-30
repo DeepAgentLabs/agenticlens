@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PA-Copilot — Healthcare Prior Authorization Observability &amp; Resilience Lab</title>
+<!-- Google Fonts: Inter, Plus Jakarta Sans, JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with forms and container queries plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration matching design guidelines -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-dim": "#0a0e17",
+            "surface": "#0d131f",
+            "surface-container-low": "#111827",
+            "surface-container": "#151e30",
+            "surface-container-high": "#1c283f",
+            "surface-container-highest": "#23324d",
+            "outline": "#334155",
+            "outline-variant": "#1e293b",
+            "primary": "#4edea3",
+            "primary-container": "#10b981",
+            "secondary": "#4cd7f6",
+            "secondary-container": "#03b5d3",
+            "tertiary": "#ffb95f",
+            "tertiary-container": "#e29100",
+            "error": "#ff6b6b",
+            "error-container": "#93000a",
+            "on-surface": "#e1e2ec",
+            "on-surface-variant": "#94a3b8"
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            headline: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+<!-- Custom Aesthetics, Glassmorphism & Micro-animations -->
+<style data-purpose="custom-styling">
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334e68;
+    }
+    
+    .glow-cyan {
+      box-shadow: 0 0 25px -4px rgba(76, 215, 246, 0.28);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -4px rgba(78, 222, 163, 0.28);
+    }
+    .glow-card {
+      background: radial-gradient(120% 120% at 50% 0%, rgba(30, 41, 59, 0.45) 0%, rgba(13, 19, 31, 0.95) 100%);
+    }
+    .waterfall-track {
+      background: linear-gradient(90deg, #4cd7f6 0%, #4edea3 100%);
+    }
+
+    /* JSON highlighter */
+    .token-key { color: #4cd7f6; }
+    .token-str { color: #6ee7b7; }
+    .token-num { color: #fcd34d; }
+    .token-bool { color: #f472b6; }
+    .token-null { color: #94a3b8; }
+  </style>
+</head>
+<body class="bg-[#080c14] text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-cyan-500/25 selection:text-cyan-200">
+<!-- ========================================================================= -->
+<!-- 1. HEADER & GLOBAL TELEMETRY BAR                                         -->
+<!-- ========================================================================= -->
+<header class="sticky top-0 z-40 backdrop-blur-md bg-[#080d18]/85 border-b border-[#18263e] shadow-lg">
+<div class="max-w-[1760px] mx-auto px-4 lg:px-7 py-3 flex items-center justify-between gap-4 flex-wrap">
+<!-- Brand & Micro-Badges -->
+<div class="flex items-center space-x-3.5">
+<div class="relative flex items-center justify-center">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-blue-600/30 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+<!-- Medical Shield / Hex Waveform Icon -->
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 2l7 3.5v6.2c0 5-3.3 9.4-7 10.3-3.7-.9-7-5.3-7-10.3V5.5L12 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="absolute -top-1 -right-1 flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+</span>
+</div>
+<div>
+<div class="flex items-center gap-2.5">
+<h1 class="text-base font-headline font-bold text-white tracking-tight flex items-center gap-1.5">
+              PA-Copilot <span class="text-cyan-400 font-semibold font-mono text-xs">v2.6-RELEASE</span>
+</h1>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wider font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase">
+              ORCHESTRATOR
+            </span>
+</div>
+<p class="text-xs text-slate-400 tracking-wide flex items-center gap-2 mt-0.5">
+<span>Agentic Lens Observability</span>
+<span class="text-slate-600">•</span>
+<span>Fault-Resilience Chaos Lab</span>
+<span class="text-slate-600">•</span>
+<span class="text-slate-400 font-mono text-[11px]">SLO: 99.98%</span>
+</p>
+</div>
+</div>
+<!-- Right Telemetry Controls -->
+<div class="flex items-center space-x-2.5 sm:space-x-3.5">
+<!-- Live Environment Pill -->
+<div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-[#0e1726] border border-[#1b2b45] text-xs font-mono font-medium text-slate-300">
+<span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+<span>SYNTHETIC_SANDBOX</span>
+<span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">NO PHI</span>
+</div>
+<!-- Interactive Chaos Engine Toggle Pill -->
+<button class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold tracking-wide bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer" id="chaos-indicator-badge" onclick="toggleGlobalChaos()" title="Click to manually toggle chaos mode">
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="chaos-indicator-dot"></span>
+<span id="chaos-indicator-text">CHAOS ENGINE: INACTIVE</span>
+</button>
+<!-- Compliance Notice Modal Trigger -->
+<button class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-700/80 bg-[#101b2d] text-xs font-medium text-slate-300 hover:text-white hover:border-cyan-500/50 hover:bg-slate-800/80 transition shadow-sm" id="open-compliance-btn">
+<svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="hidden sm:inline">Compliance Notice</span>
+</button>
+<!-- Reset State Button -->
+<button class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-rose-900/40 bg-rose-950/20 text-xs font-medium text-rose-300 hover:bg-rose-900/40 hover:border-rose-700 transition" id="btn-reset-state" title="Reset all pipeline and chaos state">
+<svg class="w-3.5 h-3.5 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="hidden sm:inline">Reset State</span>
+</button>
+</div>
+</div>
+<!-- Segmented Navigation Bar with Keyboard Shortcuts -->
+<div class="max-w-[1760px] mx-auto px-4 lg:px-7 border-t border-[#142034] flex items-center justify-between">
+<nav aria-label="Tabs" class="flex space-x-2 sm:space-x-3 py-2">
+<!-- Tab 1: Queue -->
+<button class="tab-button flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-medium transition bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]" data-tab-target="tab-queue">
+<svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="font-headline font-semibold">Case Queue &amp; Human Gate</span>
+<span class="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-mono bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">12</span>
+<span class="text-[10px] text-slate-500 font-mono hidden md:inline ml-1">[Q]</span>
+</button>
+<!-- Tab 2: Lens -->
+<button class="tab-button flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent" data-tab-target="tab-lens">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="font-headline font-semibold">Agentic Lens (Trace &amp; Replay)</span>
+<span class="text-[10px] text-slate-500 font-mono hidden md:inline ml-1">[L]</span>
+</button>
+<!-- Tab 3: Chaos -->
+<button class="tab-button flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent" data-tab-target="tab-chaos">
+<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="font-headline font-semibold">Agentic Chaos &amp; Resilience Panel</span>
+<span class="ml-1.5 px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/30">4 Faults</span>
+<span class="text-[10px] text-slate-500 font-mono hidden md:inline ml-1">[C]</span>
+</button>
+</nav>
+<div class="text-right hidden sm:flex items-center space-x-3 text-xs text-slate-400 font-mono">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+<span>Gateway: 34ms</span>
+</span>
+<span class="text-slate-700">|</span>
+<span>Replay Buffer: 128 MB</span>
+</div>
+</div>
+</header>
+<!-- ========================================================================= -->
+<!-- MAIN WORKSPACE CONTAINER                                                  -->
+<!-- ========================================================================= -->
+<main class="flex-1 max-w-[1760px] w-full mx-auto p-4 sm:p-6 lg:p-7 space-y-6">
+<!-- ======================================================================= -->
+<!-- 2. TOP METRIC RIBBON (REDESIGNED & HIGH CRAFT)                          -->
+<!-- ======================================================================= -->
+<section aria-label="Observability Key Metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Metric 1: Total Active Cases -->
+<div class="glow-card border border-[#1b2a44] hover:border-cyan-500/40 rounded-xl p-4 sm:p-5 relative overflow-hidden transition shadow-md group">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Active Case Queue</span>
+<span class="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">+3 incoming</span>
+</div>
+<div class="flex items-baseline gap-3 mt-2">
+<span class="text-3xl sm:text-4xl font-extrabold font-headline text-white tracking-tight">12</span>
+<span class="text-xs text-slate-400">cases in flight</span>
+</div>
+<div class="w-full bg-slate-800/80 rounded-full h-1 mt-3 overflow-hidden">
+<div class="bg-cyan-400 h-1 rounded-full" style="width: 65%"></div>
+</div>
+<div class="text-xs text-slate-400 mt-2.5 flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+            Synthetic clinical chart cohort
+          </span>
+<span class="font-mono text-[11px] text-slate-400">100% trace log</span>
+</div>
+</div>
+<!-- Metric 2: Pending Human Review -->
+<div class="glow-card border border-[#1b2a44] hover:border-amber-500/40 rounded-xl p-4 sm:p-5 relative overflow-hidden transition shadow-md group">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Needs Human Review</span>
+<span class="text-xs font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">Gate Active</span>
+</div>
+<div class="flex items-baseline gap-3 mt-2">
+<span class="text-3xl sm:text-4xl font-extrabold font-headline text-amber-400 tracking-tight">6</span>
+<span class="text-xs text-slate-400">cases queued</span>
+</div>
+<div class="w-full bg-slate-800/80 rounded-full h-1 mt-3 overflow-hidden">
+<div class="bg-amber-400 h-1 rounded-full" style="width: 50%"></div>
+</div>
+<div class="text-xs text-amber-400/90 mt-2.5 flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            Triggered by &lt;85% AI confidence
+          </span>
+<span class="font-mono text-[11px] text-amber-400 font-semibold">50% of queue</span>
+</div>
+</div>
+<!-- Metric 3: Auto-Authorized -->
+<div class="glow-card border border-[#1b2a44] hover:border-emerald-500/40 rounded-xl p-4 sm:p-5 relative overflow-hidden transition shadow-md group">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Auto-Authorized</span>
+<span class="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">Zero Touch</span>
+</div>
+<div class="flex items-baseline gap-3 mt-2">
+<span class="text-3xl sm:text-4xl font-extrabold font-headline text-emerald-400 tracking-tight">4</span>
+<span class="text-xs text-slate-400">straight-through cleared</span>
+</div>
+<div class="w-full bg-slate-800/80 rounded-full h-1 mt-3 overflow-hidden">
+<div class="bg-emerald-400 h-1 rounded-full" style="width: 33%"></div>
+</div>
+<div class="text-xs text-emerald-400/90 mt-2.5 flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            Payer auth numbers granted
+          </span>
+<span class="font-mono text-[11px] text-emerald-400 font-semibold">Avg 1.2s</span>
+</div>
+</div>
+<!-- Metric 4: SLA At-Risk (<12 Hours) -->
+<div class="glow-card border border-rose-900/40 hover:border-rose-500/50 rounded-xl p-4 sm:p-5 relative overflow-hidden transition shadow-md group shadow-rose-950/20">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-rose-300 font-mono">SLA At-Risk (&lt;12 Hours)</span>
+<span class="text-xs font-mono text-rose-400 bg-rose-950/80 px-2 py-0.5 rounded border border-rose-500/40 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+            CMS Mandate
+          </span>
+</div>
+<div class="flex items-baseline gap-3 mt-2">
+<span class="text-3xl sm:text-4xl font-extrabold font-headline text-rose-400 tracking-tight">2</span>
+<span class="text-xs text-slate-400">urgent cases</span>
+</div>
+<div class="w-full bg-slate-800/80 rounded-full h-1 mt-3 overflow-hidden">
+<div class="bg-rose-500 h-1 rounded-full" style="width: 16%"></div>
+</div>
+<div class="text-xs text-rose-400/90 mt-2.5 flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            CMS 7-day turnaround deadline
+          </span>
+<span class="font-mono text-[11px] text-rose-400 font-bold">&lt; 8h critical</span>
+</div>
+</div>
+</section>
+<!-- ======================================================================= -->
+<!-- 3. VIEW 1: CASE QUEUE & HUMAN GATE                                      -->
+<!-- ======================================================================= -->
+<div class="tab-view block space-y-4" id="tab-queue">
+<!-- Control Bar: Search Filter, Policy Dropdown & Primary Action -->
+<div class="bg-[#0b1322] border border-[#17253b] rounded-xl p-3.5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-md">
+<div class="flex items-center gap-3 flex-1 flex-wrap">
+<!-- Search Input -->
+<div class="relative flex-1 min-w-[240px] max-w-md">
+<input class="w-full bg-[#08101d] border border-[#1f314d] text-white text-xs rounded-lg pl-9 pr-4 py-2 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 placeholder-slate-500 font-medium" id="queue-search-input" placeholder="Filter by Case ID, CPT, or patient name..." type="text"/>
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Policy Filter Dropdown -->
+<div class="relative">
+<select class="bg-[#08101d] border border-[#1f314d] text-slate-300 text-xs rounded-lg pl-3 pr-8 py-2 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 appearance-none font-medium" id="policy-filter-select">
+<option value="ALL">All Payer Policies (Aetna, BCBS, UHC)</option>
+<option value="POL-AETNA-2026-KNEE">POL-AETNA-2026-KNEE</option>
+<option value="POL-BCBS-2026-MRI-LUMBAR">POL-BCBS-2026-MRI-LUMBAR</option>
+<option value="POL-UHC-2026-CARD-CATH">POL-UHC-2026-CARD-CATH</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-slate-400">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+<!-- Execute All Primary Action -->
+<button class="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-500 hover:from-blue-500 hover:to-emerald-400 text-white font-headline font-semibold text-xs px-5 py-2.5 rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.35)] transition transform active:scale-95 whitespace-nowrap" id="btn-execute-all">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>⚡ Execute All Pending Pipelines (6)</span>
+</button>
+</div>
+<!-- High-Fidelity Data Table -->
+<section class="bg-[#0b1322] border border-[#17253b] rounded-xl overflow-hidden shadow-xl">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="border-b border-[#182740] bg-[#0c1626] text-slate-400 uppercase font-mono font-semibold text-[11px] tracking-wider sticky top-0">
+<th class="py-3.5 px-4" scope="col">Case ID &amp; Patient</th>
+<th class="py-3.5 px-4" scope="col">Requested Procedure &amp; CPT</th>
+<th class="py-3.5 px-4" scope="col">Payer Policy</th>
+<th class="py-3.5 px-4" scope="col">SLA Urgency</th>
+<th class="py-3.5 px-4" scope="col">AI Confidence &amp; Evidence</th>
+<th class="py-3.5 px-4" scope="col">Human-in-Loop Status</th>
+<th class="py-3.5 px-4 text-right" scope="col">Audit / Decisions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#132034] text-slate-200" id="case-table-body">
+<!-- CASE 001 Row -->
+<tr class="case-row hover:bg-[#111f36]/70 transition duration-150 group" data-case-id="CASE-001" data-policy="POL-AETNA-2026-KNEE">
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-mono text-[11px] font-bold flex items-center justify-center">01</span>
+<div>
+<div class="font-bold text-white font-mono text-xs flex items-center gap-1.5">
+                        CASE-001
+                        <span class="text-[9px] px-1 rounded bg-slate-800 text-slate-400">PRIORITY</span>
+</div>
+<div class="text-[11px] text-slate-400">PT-88391 (John Doe, 61M)</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="font-medium text-slate-100">Total Knee Arthroplasty (Right Knee)</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700">CPT: 27447</span>
+<span class="text-[11px] text-slate-400">ICD-10: M17.11</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-mono text-[11px] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-slate-300 inline-flex items-center gap-1">
+<svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    POL-AETNA-2026-KNEE
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-slate-300 font-medium font-mono text-xs">
+<svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    48 hrs left
+                  </div>
+</td>
+<td class="py-3.5 px-4">
+<div class="space-y-1">
+<div class="flex items-center justify-between text-xs font-mono">
+<span class="text-amber-400 font-bold">75% Confidence</span>
+<span class="text-slate-400 text-[10px]">3/4 criteria</span>
+</div>
+<div class="w-28 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+<div class="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    ● NEEDS CLINICIAN GATE
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right space-x-1.5">
+<button class="px-2.5 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 hover:text-white transition font-mono font-medium text-xs inline-flex items-center gap-1 shadow-sm" onclick="switchAndAudit('CASE-001')">
+                    Inspect Trace →
+                  </button>
+<button class="px-2 py-1 rounded bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/30 text-emerald-300 text-xs font-semibold" onclick="quickAction('CASE-001', 'Approved')" title="Clinician Quick Authorize">
+                    ✓
+                  </button>
+</td>
+</tr>
+<!-- CASE 002 Row -->
+<tr class="case-row hover:bg-[#111f36]/70 transition duration-150 group" data-case-id="CASE-002" data-policy="POL-BCBS-2026-MRI-LUMBAR">
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-mono text-[11px] font-bold flex items-center justify-center">02</span>
+<div>
+<div class="font-bold text-white font-mono text-xs flex items-center gap-1.5">CASE-002</div>
+<div class="text-[11px] text-slate-400">PT-44209 (Jane Smith, 45F)</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="font-medium text-slate-100">Lumbar Spine MRI (Without Contrast)</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700">CPT: 72148</span>
+<span class="text-[11px] text-slate-400">ICD-10: M54.5</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-mono text-[11px] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-slate-300 inline-flex items-center gap-1">
+<svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    POL-BCBS-2026-MRI-LUMBAR
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-slate-300 font-medium font-mono text-xs">
+<svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    24 hrs left
+                  </div>
+</td>
+<td class="py-3.5 px-4">
+<div class="space-y-1">
+<div class="flex items-center justify-between text-xs font-mono">
+<span class="text-amber-400 font-bold">68% Confidence</span>
+<span class="text-slate-400 text-[10px]">Ambiguous PT</span>
+</div>
+<div class="w-28 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+<div class="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full" style="width: 68%"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    ● NEEDS CLINICIAN GATE
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right space-x-1.5">
+<button class="px-2.5 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 hover:text-white transition font-mono font-medium text-xs inline-flex items-center gap-1 shadow-sm" onclick="switchAndAudit('CASE-002')">
+                    Inspect Trace →
+                  </button>
+<button class="px-2 py-1 rounded bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/30 text-emerald-300 text-xs font-semibold" onclick="quickAction('CASE-002', 'Approved')" title="Clinician Quick Authorize">
+                    ✓
+                  </button>
+</td>
+</tr>
+<!-- CASE 003 Row -->
+<tr class="case-row hover:bg-[#111f36]/70 transition duration-150 group" data-case-id="CASE-003" data-policy="POL-AETNA-2026-KNEE">
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 h-7 rounded-lg bg-purple-950/80 border border-purple-500/30 text-purple-300 font-mono text-[11px] font-bold flex items-center justify-center">03</span>
+<div>
+<div class="font-bold text-white font-mono text-xs flex items-center gap-1.5">CASE-003</div>
+<div class="text-[11px] text-slate-400">PT-90112 (Robert Johnson, 72M)</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="font-medium text-slate-100">Total Knee Arthroplasty (Left Knee)</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700">CPT: 27447</span>
+<span class="text-[11px] text-slate-400">ICD-10: M17.12</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-mono text-[11px] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-slate-300 inline-flex items-center gap-1">
+<svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    POL-AETNA-2026-KNEE
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-slate-300 font-medium font-mono text-xs">
+<svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    72 hrs left
+                  </div>
+</td>
+<td class="py-3.5 px-4">
+<div class="space-y-1">
+<div class="flex items-center justify-between text-xs font-mono">
+<span class="text-rose-400 font-bold">5% (Missing PT)</span>
+<span class="text-slate-400 text-[10px]">0/4 criteria</span>
+</div>
+<div class="w-28 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+<div class="bg-rose-500 h-1.5 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide bg-purple-500/10 text-purple-300 border border-purple-500/30">
+                    ▲ POLICY MISMATCH / REWORK
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right space-x-1.5">
+<button class="px-2.5 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 hover:text-white transition font-mono font-medium text-xs inline-flex items-center gap-1 shadow-sm" onclick="switchAndAudit('CASE-003')">
+                    Inspect Trace →
+                  </button>
+<button class="px-2 py-1 rounded bg-rose-950/60 hover:bg-rose-900/80 border border-rose-500/40 text-rose-300 text-xs font-semibold" onclick="quickAction('CASE-003', 'Rejected')" title="Request Re-intake">
+                    ✕
+                  </button>
+</td>
+</tr>
+<!-- CASE 004 Row -->
+<tr class="case-row hover:bg-[#111f36]/70 transition duration-150 group" data-case-id="CASE-004" data-policy="POL-UHC-2026-CARD-CATH">
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 h-7 rounded-lg bg-blue-950/80 border border-blue-500/30 text-blue-300 font-mono text-[11px] font-bold flex items-center justify-center">04</span>
+<div>
+<div class="font-bold text-white font-mono text-xs flex items-center gap-1.5">CASE-004</div>
+<div class="text-[11px] text-slate-400">PT-11843 (Emily Davis, 58F)</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="font-medium text-slate-100">Diagnostic Left Heart Catheterization</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700">CPT: 93458</span>
+<span class="text-[11px] text-slate-400">ICD-10: I25.10</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-mono text-[11px] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-slate-300 inline-flex items-center gap-1">
+<svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    POL-UHC-2026-CARD-CATH
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-slate-300 font-medium font-mono text-xs">
+<svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    36 hrs left
+                  </div>
+</td>
+<td class="py-3.5 px-4">
+<div class="space-y-1">
+<div class="flex items-center justify-between text-xs font-mono">
+<span class="text-purple-400 font-bold">12% Non-Invasive First</span>
+<span class="text-slate-400 text-[10px]">Stress test missing</span>
+</div>
+<div class="w-28 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+<div class="bg-purple-500 h-1.5 rounded-full" style="width: 12%"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide bg-purple-500/10 text-purple-300 border border-purple-500/30">
+                    ▲ POLICY MISMATCH / REWORK
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right space-x-1.5">
+<button class="px-2.5 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 hover:text-white transition font-mono font-medium text-xs inline-flex items-center gap-1 shadow-sm" onclick="switchAndAudit('CASE-004')">
+                    Inspect Trace →
+                  </button>
+<button class="px-2 py-1 rounded bg-rose-950/60 hover:bg-rose-900/80 border border-rose-500/40 text-rose-300 text-xs font-semibold" onclick="quickAction('CASE-004', 'Rejected')" title="Request Re-intake">
+                    ✕
+                  </button>
+</td>
+</tr>
+<!-- CASE 005 Row -->
+<tr class="case-row hover:bg-[#111f36]/70 transition duration-150 group bg-rose-950/10" data-case-id="CASE-005" data-policy="POL-BCBS-2026-MRI-LUMBAR">
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-mono text-[11px] font-bold flex items-center justify-center">05</span>
+<div>
+<div class="font-bold text-white font-mono text-xs flex items-center gap-1.5">
+                        CASE-005
+                        <span class="text-[9px] px-1 rounded bg-rose-900/60 text-rose-300 border border-rose-600/40">SLA CRITICAL</span>
+</div>
+<div class="text-[11px] text-slate-400">PT-77210 (Michael Lumber, 52M)</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="font-medium text-slate-100">Lumbar Spine MRI (Without Contrast)</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700">CPT: 72148</span>
+<span class="text-[11px] text-slate-400">ICD-10: M54.5</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-mono text-[11px] bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-slate-300 inline-flex items-center gap-1">
+<svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    POL-BCBS-2026-MRI-LUMBAR
+                  </span>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-rose-400 font-bold font-mono text-xs">
+<span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+                    8 hrs left
+                  </div>
+</td>
+<td class="py-3.5 px-4">
+<div class="space-y-1">
+<div class="flex items-center justify-between text-xs font-mono">
+<span class="text-emerald-400 font-bold">92% Meets Guideline</span>
+<span class="text-slate-400 text-[10px]">All 4 satisfied</span>
+</div>
+<div class="w-28 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+<div class="bg-gradient-to-r from-emerald-500 to-emerald-300 h-1.5 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    ✓ AUTO-ROUTED / PENDING HUMAN
+                  </span>
+</td>
+<td class="py-3.5 px-4 text-right space-x-1.5">
+<button class="px-2.5 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 hover:text-white transition font-mono font-medium text-xs inline-flex items-center gap-1 shadow-sm" onclick="switchAndAudit('CASE-005')">
+                    Inspect Trace →
+                  </button>
+<button class="px-2 py-1 rounded bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/30 text-emerald-300 text-xs font-semibold" onclick="quickAction('CASE-005', 'Approved')" title="Clinician Quick Authorize">
+                    ✓
+                  </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Pagination / Context -->
+<div class="bg-[#0c1524] px-4 py-3 border-t border-[#16253c] flex items-center justify-between text-xs text-slate-400 font-mono">
+<span>Showing 5 of 12 synthetic cases (Active Cohort: <strong>SYNTH-2026-Q1</strong>)</span>
+<div class="flex items-center gap-2">
+<span class="text-emerald-400 font-bold">● CMS Fast-Track Enforced</span>
+</div>
+</div>
+</section>
+</div>
+<!-- ======================================================================= -->
+<!-- 4. VIEW 2: AGENTIC LENS (TRACE & OBSERVABILITY REPLAY)                  -->
+<!-- ======================================================================= -->
+<div class="tab-view hidden space-y-4" id="tab-lens">
+<!-- Split Observatory Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+<!-- Left Pane: Latency Breakdown Waterfall & Telemetry -->
+<div class="lg:col-span-4 space-y-4">
+<!-- Case Selector Card -->
+<div class="bg-[#0b1322] border border-[#17253b] rounded-xl p-4 space-y-3 shadow-md">
+<label class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center justify-between" for="audit-case-select">
+<span>Auditing Case Target</span>
+<span class="text-[10px] text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">REPLAY READY</span>
+</label>
+<div class="relative">
+<select class="w-full bg-[#08101d] border border-[#1e304b] text-white text-xs rounded-lg px-3 py-2 pr-8 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono font-medium" id="audit-case-select">
+<option value="CASE-001">CASE-001 — PT-88391 (John Doe) Knee Arthroplasty</option>
+<option value="CASE-002">CASE-002 — PT-44209 (Jane Smith) Lumbar MRI</option>
+<option value="CASE-003">CASE-003 — PT-90112 (Robert Johnson) Knee Rework</option>
+<option value="CASE-004">CASE-004 — PT-11843 (Emily Davis) Heart Cath</option>
+<option value="CASE-005">CASE-005 — PT-77210 (Michael Lumber) Lumbar MRI</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+<!-- Step Latency Waterfall Card -->
+<div class="bg-[#0b1322] border border-[#17253b] rounded-xl p-4.5 space-y-4 shadow-md">
+<div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+<h3 class="text-xs font-bold font-mono uppercase tracking-wider text-slate-300">Pipeline Latency Waterfall</h3>
+<span class="text-xs font-mono text-cyan-400 font-semibold" id="telemetry-total-time">Total: 1,370 ms</span>
+</div>
+<!-- Waterfall Bars -->
+<div class="space-y-3 text-xs font-mono">
+<!-- Step 1 Latency -->
+<div class="space-y-1">
+<div class="flex justify-between text-slate-400 text-[11px]">
+<span class="text-slate-200">1. Intake Extraction</span>
+<span class="text-cyan-300">320 ms</span>
+</div>
+<div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+<div class="bg-cyan-400 h-2 rounded-full" style="width: 23%"></div>
+</div>
+</div>
+<!-- Step 2 Latency -->
+<div class="space-y-1">
+<div class="flex justify-between text-slate-400 text-[11px]">
+<span class="text-slate-200">2. Policy Match Matrix</span>
+<span class="text-amber-400">640 ms</span>
+</div>
+<div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+<div class="bg-amber-400 h-2 rounded-full" style="width: 47%"></div>
+</div>
+</div>
+<!-- Step 3 Latency -->
+<div class="space-y-1">
+<div class="flex justify-between text-slate-400 text-[11px]">
+<span class="text-slate-200">3. Justification Routing</span>
+<span class="text-emerald-400">410 ms</span>
+</div>
+<div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+<div class="bg-emerald-400 h-2 rounded-full" style="width: 30%"></div>
+</div>
+</div>
+</div>
+<!-- Cost & Token Telemetry Box -->
+<div class="bg-[#070d18] border border-[#16253c] rounded-lg p-3 text-xs font-mono space-y-2">
+<div class="flex justify-between items-center text-slate-400">
+<span>Model Orchestrator:</span>
+<span class="text-slate-200 font-semibold">Claude-3.5-Sonnet / RAG</span>
+</div>
+<div class="flex justify-between items-center text-slate-400">
+<span>Tokens Consumed:</span>
+<span class="text-cyan-300">2,140 tokens</span>
+</div>
+<div class="flex justify-between items-center text-slate-400">
+<span>Estimated Unit Cost:</span>
+<span class="text-emerald-400 font-bold">$0.0064 USD</span>
+</div>
+<div class="flex justify-between items-center text-slate-400 border-t border-slate-800 pt-1.5">
+<span>Trace Determinism:</span>
+<span class="text-cyan-400">SHA256 Verified ✓</span>
+</div>
+</div>
+</div>
+<!-- Replay Action Controller -->
+<div class="bg-[#0b1322] border border-[#17253b] rounded-xl p-4 space-y-2 shadow-md">
+<button class="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-200 text-xs font-headline font-semibold transition shadow-md" id="btn-replay-trace">
+<svg class="w-4 h-4 animate-spin hidden" fill="none" id="replay-spinner" viewbox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+<svg class="w-4 h-4" fill="none" id="replay-icon" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span id="replay-btn-text">Replay Full Execution Trace</span>
+</button>
+<p class="text-[11px] text-slate-500 text-center font-mono">Re-executes steps against frozen graph snapshot</p>
+</div>
+</div>
+<!-- Center / Right Pane: Trace Observatory with Dual View -->
+<div class="lg:col-span-8 space-y-4">
+<!-- Mode Switcher Header -->
+<div class="bg-[#0b1322] border border-[#17253b] rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-cyan-400 font-headline font-bold text-sm tracking-wide">
+                  Decision Trace Replay — <span id="current-trace-case-id">CASE-001</span>
+</span>
+<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-mono border border-slate-700">TRACE_ID: tr-9942a-87</span>
+</div>
+<p class="text-xs text-slate-400 mt-0.5">Step-by-step reasoning transcript logged into persistent JSONL</p>
+</div>
+<!-- View Mode Switch Buttons -->
+<div class="flex items-center p-1 rounded-lg bg-[#070d17] border border-[#182740]">
+<button class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 transition" id="view-plain-btn">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Clinician Plain-Language View</span>
+</button>
+<button class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition" id="view-tech-btn">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Technical Trace JSON (.jsonl)</span>
+</button>
+</div>
+</div>
+<!-- 1. PLAIN LANGUAGE TIMELINE CONTAINER -->
+<div class="space-y-3.5" id="plain-language-container">
+<!-- Step 1: Intake Agent -->
+<article class="bg-[#0b1322] border border-[#17253b] hover:border-cyan-500/40 rounded-xl p-5 relative overflow-hidden transition shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3">
+<span class="w-8 h-8 rounded-full bg-cyan-950/90 border border-cyan-400/50 flex items-center justify-center font-bold font-mono text-cyan-300 text-xs shadow-[0_0_10px_rgba(6,182,212,0.3)]">01</span>
+<div>
+<h4 class="text-sm font-headline font-bold text-white tracking-wide">INTAKE AGENT</h4>
+<div class="text-[11px] text-cyan-400 font-mono">Clinical Chart Extraction &amp; Document Parsing</div>
+</div>
+</div>
+<div class="text-right font-mono text-xs text-slate-400">
+<span class="text-slate-300">320 ms</span> | 15:31:47 UTC
+                </div>
+</div>
+<div class="mt-4 pl-11 space-y-2.5 text-xs text-slate-300 border-l border-slate-800 ml-4">
+<div class="bg-[#070e1c] p-3 rounded-lg border border-[#172740] space-y-1.5">
+<div class="font-semibold text-slate-200 flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    Synthesized Chart Findings (Patient: PT-88391)
+                  </div>
+<p class="text-slate-400 text-xs leading-relaxed">
+                    Extracted 1,482 clinical tokens from EHR notes. Primary diagnosis established: <strong class="text-slate-200">Right knee osteoarthrosis, secondary (M17.11)</strong>. Grade IV joint space narrowing verified on standing radiograph.
+                  </p>
+<div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
+<span class="px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">✓ PT Duration: 14 Weeks Completed</span>
+<span class="px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">✓ Steroid Injections Logged</span>
+<span class="px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">✓ NSAID Regimen Documented</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Step 2: Policy Match Agent -->
+<article class="bg-[#0b1322] border border-[#17253b] hover:border-amber-500/40 rounded-xl p-5 relative overflow-hidden transition shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3">
+<span class="w-8 h-8 rounded-full bg-amber-950/90 border border-amber-400/50 flex items-center justify-center font-bold font-mono text-amber-300 text-xs shadow-[0_0_10px_rgba(245,158,11,0.3)]">02</span>
+<div>
+<h4 class="text-sm font-headline font-bold text-white tracking-wide">POLICY MATCH AGENT</h4>
+<div class="text-[11px] text-amber-400 font-mono">Coverage Guidelines Cross-Evaluation &amp; Rules Engine</div>
+</div>
+</div>
+<div class="text-right font-mono text-xs text-slate-400">
+<span class="text-amber-400 font-semibold">640 ms</span> | 15:31:47 UTC
+                </div>
+</div>
+<div class="mt-4 pl-11 space-y-2.5 text-xs text-slate-300 border-l border-slate-800 ml-4">
+<div class="bg-[#070e1c] p-3 rounded-lg border border-[#172740] space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-semibold text-slate-200">Rule Evaluation Against Policy: <code class="text-cyan-300 font-mono">POL-AETNA-2026-KNEE</code></span>
+<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">COMPLIANCE: 75% (3/4)</span>
+</div>
+<div class="space-y-1 text-slate-400 text-xs">
+<div class="flex items-center gap-1.5 text-emerald-400">
+<span>✓</span> Criterion 1: Radiographic confirmation of severe joint disease (Grade III/IV) — <strong>SATISFIED</strong>
+</div>
+<div class="flex items-center gap-1.5 text-emerald-400">
+<span>✓</span> Criterion 2: Failure of non-surgical conservative modalities &gt; 12 weeks — <strong>SATISFIED</strong>
+</div>
+<div class="flex items-center gap-1.5 text-emerald-400">
+<span>✓</span> Criterion 3: Documented functional impairment interfering with ADLs — <strong>SATISFIED</strong>
+</div>
+<div class="flex items-center gap-1.5 text-amber-400 font-medium">
+<span>⚠</span> Criterion 4: Corticosteroid or hyaluronic acid injection within prior 6 months — <strong>AMBIGUOUS TIMESTAMPS</strong>
+</div>
+</div>
+<div class="p-2 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]">
+<strong>Orchestrator Decision:</strong> Ambiguous date on injection records triggers automated human clinician gate to avoid erroneous payer denial.
+                  </div>
+</div>
+</div>
+</article>
+<!-- Step 3: Justification Agent -->
+<article class="bg-[#0b1322] border border-[#17253b] hover:border-emerald-500/40 rounded-xl p-5 relative overflow-hidden transition shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3">
+<span class="w-8 h-8 rounded-full bg-emerald-950/90 border border-emerald-400/50 flex items-center justify-center font-bold font-mono text-emerald-300 text-xs shadow-[0_0_10px_rgba(16,185,129,0.3)]">03</span>
+<div>
+<h4 class="text-sm font-headline font-bold text-white tracking-wide">JUSTIFICATION AGENT</h4>
+<div class="text-[11px] text-emerald-400 font-mono">Autonomous Packet Assembly &amp; Prior Auth Packet Routing</div>
+</div>
+</div>
+<div class="text-right font-mono text-xs text-slate-400">
+<span class="text-emerald-400">410 ms</span> | 15:31:48 UTC
+                </div>
+</div>
+<div class="mt-4 pl-11 space-y-2.5 text-xs text-slate-300 border-l border-slate-800 ml-4">
+<div class="bg-[#070e1c] p-3 rounded-lg border border-[#172740] space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-semibold text-slate-200">Generated Prior Authorization Packet Summary:</span>
+<span class="font-mono text-amber-400 font-bold">CONFIDENCE: 75%</span>
+</div>
+<p class="text-slate-400 text-xs leading-relaxed">
+                    Prior authorization medical necessity dossier compiled with 4 attached clinical citations. Routed to Clinician Gate with pre-highlighted date discrepancies for rapid 1-click physician sign-off.
+                  </p>
+<div class="flex items-center justify-between pt-1">
+<span class="text-[11px] font-mono text-cyan-300">Packet Hash: 9f8a2b...38e1</span>
+<span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">STATUS: NEEDS HUMAN REVIEW</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- 2. TECHNICAL JSON TRACE CONTAINER (Initially Hidden) -->
+<div class="hidden bg-[#050912] border border-[#182842] rounded-xl overflow-hidden shadow-2xl" id="technical-trace-container">
+<div class="bg-[#0c1626] px-4 py-2.5 border-b border-[#182842] flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+<span class="text-xs font-mono text-slate-400 pl-2">traces/case_001_execution_trace.jsonl</span>
+</div>
+<button class="text-xs text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 transition" id="btn-copy-json">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span id="copy-btn-label">Copy JSON</span>
+</button>
+</div>
+<pre class="p-4 font-mono text-xs text-slate-300 overflow-x-auto leading-relaxed max-h-[540px] bg-[#060a14]"><code>{
+  <span class="token-key">"trace_id"</span>: <span class="token-str">"tr-9942a-87"</span>,
+  <span class="token-key">"case_id"</span>: <span class="token-str">"CASE-001"</span>,
+  <span class="token-key">"timestamp"</span>: <span class="token-str">"2026-09-25T15:31:47.012Z"</span>,
+  <span class="token-key">"model_id"</span>: <span class="token-str">"claude-3-5-sonnet-20241022"</span>,
+  <span class="token-key">"execution_pipeline"</span>: [
+    {
+      <span class="token-key">"step"</span>: <span class="token-num">1</span>,
+      <span class="token-key">"agent"</span>: <span class="token-str">"intake_agent"</span>,
+      <span class="token-key">"latency_ms"</span>: <span class="token-num">320.4</span>,
+      <span class="token-key">"inputs"</span>: {
+        <span class="token-key">"patient_id"</span>: <span class="token-str">"PT-88391"</span>,
+        <span class="token-key">"cpt_code"</span>: <span class="token-str">"27447"</span>,
+        <span class="token-key">"chart_notes_length_tokens"</span>: <span class="token-num">1482</span>
+      },
+      <span class="token-key">"extracted_evidence"</span>: {
+        <span class="token-key">"diagnosis"</span>: <span class="token-str">"Right knee osteoarthrosis, secondary"</span>,
+        <span class="token-key">"pt_duration_weeks"</span>: <span class="token-num">14</span>,
+        <span class="token-key">"steroid_injections"</span>: <span class="token-bool">true</span>,
+        <span class="token-key">"nsaid_regimen"</span>: <span class="token-bool">true</span>
+      },
+      <span class="token-key">"status"</span>: <span class="token-str">"SUCCESS"</span>
+    },
+    {
+      <span class="token-key">"step"</span>: <span class="token-num">2</span>,
+      <span class="token-key">"agent"</span>: <span class="token-str">"policy_match_agent"</span>,
+      <span class="token-key">"latency_ms"</span>: <span class="token-num">640.1</span>,
+      <span class="token-key">"policy_rule_id"</span>: <span class="token-str">"POL-AETNA-2026-KNEE"</span>,
+      <span class="token-key">"criteria_evaluated"</span>: <span class="token-num">4</span>,
+      <span class="token-key">"criteria_satisfied"</span>: <span class="token-num">3</span>,
+      <span class="token-key">"compliance_ratio"</span>: <span class="token-num">0.75</span>,
+      <span class="token-key">"flag"</span>: <span class="token-str">"BORDERLINE_COMPLIANCE"</span>
+    },
+    {
+      <span class="token-key">"step"</span>: <span class="token-num">3</span>,
+      <span class="token-key">"agent"</span>: <span class="token-str">"justification_agent"</span>,
+      <span class="token-key">"latency_ms"</span>: <span class="token-num">410.8</span>,
+      <span class="token-key">"packet_generated"</span>: <span class="token-bool">true</span>,
+      <span class="token-key">"confidence_score"</span>: <span class="token-num">0.75</span>,
+      <span class="token-key">"routing_decision"</span>: <span class="token-str">"NEEDS_HUMAN_REVIEW"</span>,
+      <span class="token-key">"escalation_reason"</span>: <span class="token-str">"Duration of conservative therapy falls within ambiguous guideline range."</span>
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<!-- ======================================================================= -->
+<!-- 5. VIEW 3: AGENTIC CHAOS & RESILIENCE PANEL                             -->
+<!-- ======================================================================= -->
+<div class="tab-view hidden space-y-5" id="tab-chaos">
+<!-- Resilience Split Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+<!-- Left Column: Fault Injection Matrix Cards -->
+<div class="lg:col-span-5 bg-[#0b1322] border border-[#17253b] rounded-xl p-5 space-y-4 shadow-md">
+<div class="flex items-center justify-between border-b border-[#182740] pb-3">
+<div>
+<h3 class="text-sm font-headline font-bold text-white tracking-wide">Interactive Fault Matrix</h3>
+<p class="text-xs text-slate-400 mt-0.5">Inject synthetic network &amp; payload failures to verify graceful degradation.</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/10 text-rose-300 border border-rose-500/30">CHAOS TEST LAB</span>
+</div>
+<!-- Fault List -->
+<div class="space-y-3 pt-1">
+<!-- Fault 1: 504 Timeout -->
+<div class="p-3.5 rounded-lg bg-[#070e1a] border border-[#1a2b45] hover:border-cyan-500/50 transition">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-white flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                  Payer Gateway Timeout (504)
+                </span>
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-semibold">NETWORK ERROR</span>
+</div>
+<p class="text-[11px] text-slate-400 mt-1 leading-normal">Simulates a 5-second socket hangup on clearinghouse connection.</p>
+<div class="mt-2.5 flex items-center justify-between">
+<button class="chaos-inject-btn px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('payer_timeout')">
+                  ⚡ Inject Anomaly
+                </button>
+<span class="text-[10px] font-mono text-slate-500 font-semibold" id="status-payer_timeout">READY</span>
+</div>
+</div>
+<!-- Fault 2: Malformed JSON -->
+<div class="p-3.5 rounded-lg bg-[#070e1a] border border-[#1a2b45] hover:border-cyan-500/50 transition">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-white flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                  Corrupted Non-JSON Payload
+                </span>
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">SCHEMA CONTRACT</span>
+</div>
+<p class="text-[11px] text-slate-400 mt-1 leading-normal">Payer API returns HTML error dump instead of standard JSON payload.</p>
+<div class="mt-2.5 flex items-center justify-between">
+<button class="chaos-inject-btn px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('malformed_json')">
+                  ⚡ Inject Anomaly
+                </button>
+<span class="text-[10px] font-mono text-slate-500 font-semibold" id="status-malformed_json">READY</span>
+</div>
+</div>
+<!-- Fault 3: Vague Denial -->
+<div class="p-3.5 rounded-lg bg-[#070e1a] border border-[#1a2b45] hover:border-cyan-500/50 transition">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-white flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                  Vague Denial Reason Code
+                </span>
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-semibold">POLICY AMBIGUITY</span>
+</div>
+<p class="text-[11px] text-slate-400 mt-1 leading-normal">Denial without specific clause mapping (tests rationale decomposition).</p>
+<div class="mt-2.5 flex items-center justify-between">
+<button class="chaos-inject-btn px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('vague_denial')">
+                  ⚡ Inject Anomaly
+                </button>
+<span class="text-[10px] font-mono text-slate-500 font-semibold" id="status-vague_denial">READY</span>
+</div>
+</div>
+<!-- Fault 4: Missing Field Mutation -->
+<div class="p-3.5 rounded-lg bg-[#070e1a] border border-[#1a2b45] hover:border-cyan-500/50 transition">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-white flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                  Null Authorization Token Mutation
+                </span>
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">NULL POINTER RISK</span>
+</div>
+<p class="text-[11px] text-slate-400 mt-1 leading-normal">Payer payload arrives approved but with null authorization identifier.</p>
+<div class="mt-2.5 flex items-center justify-between">
+<button class="chaos-inject-btn px-3 py-1 rounded bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 text-xs font-mono font-medium transition cursor-pointer" onclick="injectFault('missing_field')">
+                  ⚡ Inject Anomaly
+                </button>
+<span class="text-[10px] font-mono text-slate-500 font-semibold" id="status-missing_field">READY</span>
+</div>
+</div>
+</div>
+<!-- Controls Action Footer -->
+<div class="pt-2">
+<button class="w-full py-2.5 px-3 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white font-headline font-semibold text-xs tracking-wide transition shadow-sm" id="btn-disable-all-chaos">
+              Disable All Injected Faults
+            </button>
+</div>
+</div>
+<!-- Right Column: Empirical Resilience Scorecard & Live Chaos Stream -->
+<div class="lg:col-span-7 space-y-4">
+<!-- Scorecard Table -->
+<div class="bg-[#0b1322] border border-[#17253b] rounded-xl p-5 space-y-4 shadow-md">
+<div class="flex items-center justify-between border-b border-[#17253b] pb-3">
+<div>
+<h3 class="text-sm font-headline font-bold text-white tracking-wide">Empirical Resilience Scorecard</h3>
+<p class="text-xs text-slate-400 mt-0.5">Automated pass/fail evaluation of graceful recovery mechanisms.</p>
+</div>
+<span class="text-xs font-mono text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-1 rounded">
+                SLO: 99.9% FAULT ISOLATION
+              </span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs">
+<thead>
+<tr class="border-b border-[#182740] text-slate-400 uppercase font-mono font-semibold text-[10px] tracking-wider">
+<th class="py-2.5 px-3" scope="col">Fault Scenario</th>
+<th class="py-2.5 px-3" scope="col">Self-Healing Mechanism</th>
+<th class="py-2.5 px-3 text-right" scope="col">Resilience State</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#132034] text-slate-300 font-mono text-xs">
+<tr id="row-payer_timeout">
+<td class="py-3 px-3">
+<span class="font-bold text-white">payer_timeout</span>
+<div class="text-[10px] text-slate-400">Payer API Socket 504 Timeout</div>
+</td>
+<td class="py-3 px-3 text-slate-300">Gracefully catches timeout, auto-flags case as needs_human_review, prevents system crash</td>
+<td class="py-3 px-3 text-right">
+<span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">NOT TESTED</span>
+</td>
+</tr>
+<tr id="row-malformed_json">
+<td class="py-3 px-3">
+<span class="font-bold text-white">malformed_json</span>
+<div class="text-[10px] text-slate-400">Corrupted Non-JSON Payload</div>
+</td>
+<td class="py-3 px-3 text-slate-300">Traps JSON parsing error, isolates raw payload to quarantine bucket, flags corrupt response</td>
+<td class="py-3 px-3 text-right">
+<span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">NOT TESTED</span>
+</td>
+</tr>
+<tr id="row-vague_denial">
+<td class="py-3 px-3">
+<span class="font-bold text-white">vague_denial</span>
+<div class="text-[10px] text-slate-400">Boilerplate Non-Specific Denial</div>
+</td>
+<td class="py-3 px-3 text-slate-300">Identifies lack of clinical clause reference, auto-generates appeal prompt for clinician</td>
+<td class="py-3 px-3 text-right">
+<span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">NOT TESTED</span>
+</td>
+</tr>
+<tr id="row-missing_field">
+<td class="py-3 px-3">
+<span class="font-bold text-white">missing_field</span>
+<div class="text-[10px] text-slate-400">Missing Authorization Token</div>
+</td>
+<td class="py-3 px-3 text-slate-300">Detects null token mutation, blocks false-approval state, triggers synthetic clearinghouse probe</td>
+<td class="py-3 px-3 text-right">
+<span class="score-badge px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">NOT TESTED</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pt-2 border-t border-[#17253b] flex items-center justify-between text-xs text-slate-400 font-mono">
+<span>Engine Status: <strong class="text-emerald-400" id="chaos-state-desc">ALL CIRCUIT GUARDS ARMED</strong></span>
+<span>Policy: <strong class="text-cyan-400">CIRCUIT_BREAKER_V2</strong></span>
+</div>
+</div>
+<!-- Live Monospace Stream Terminal -->
+<div class="bg-[#050912] border border-[#17253b] rounded-xl overflow-hidden shadow-2xl">
+<div class="bg-[#0b1424] px-4 py-2 border-b border-[#17253b] flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+<span class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">Live Resilience Terminal Stream</span>
+</div>
+<span class="text-[11px] font-mono text-slate-400" id="chaos-console-status">Listening to Kernel Events</span>
+</div>
+<div class="p-4 font-mono text-xs text-emerald-400 h-44 overflow-y-auto space-y-1 bg-[#060a14]" id="chaos-terminal">
+<p class="text-slate-500">// Ready. Select any fault injection scenario from the left matrix to launch chaos replay...</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- ========================================================================= -->
+<!-- 6. COMPLIANCE MODAL (ENTERPRISE DESIGN)                                   -->
+<!-- ========================================================================= -->
+<aside class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4" id="compliance-modal">
+<div class="bg-[#0b1424] border border-[#1e304b] rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative text-left">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-sm">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h3 class="text-base font-headline font-bold text-white">System Compliance Notice</h3>
+<span class="text-[10px] font-mono text-cyan-400">GOVERNANCE &amp; CLINICAL AUDIT</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-white transition p-1 rounded hover:bg-slate-800" id="close-compliance-btn">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<div class="space-y-3 text-xs leading-relaxed text-slate-300">
+<p class="font-medium text-slate-100">
+          Synthetic Architecture &amp; Agentic Observability Demonstration:
+        </p>
+<p class="text-slate-400">
+          All patient identifiers, clinical chart documents, CPT codes, and insurance payer policy guidelines presented in this cockpit are synthetically generated for observability, resilience testing, and audit replay evaluation.
+        </p>
+<div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-300 text-[11px] space-y-1">
+<strong>Protected Health Information (PHI) Notice:</strong>
+<p class="text-amber-200/80">This deployment is not certified clinical HIPAA software. Do not upload or point this instance at real Protected Health Information (PHI).</p>
+</div>
+</div>
+<div class="pt-2 flex justify-end">
+<button class="px-5 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-headline font-semibold text-xs transition shadow-md" id="close-compliance-confirm">
+          Acknowledge &amp; Dismiss
+        </button>
+</div>
+</div>
+</aside>
+<!-- ========================================================================= -->
+<!-- 7. INTERACTIVE JAVASCRIPT & STATE ORCHESTRATION                          -->
+<!-- ========================================================================= -->
+<script data-purpose="core-interactivity">
+    // Primary Tab Switching with Keyboard Navigation [Q], [L], [C]
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabViews = document.querySelectorAll('.tab-view');
+
+    function setActiveTab(targetId) {
+      tabButtons.forEach(btn => {
+        const isMatch = btn.getAttribute('data-tab-target') === targetId;
+        if (isMatch) {
+          btn.className = "tab-button flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-medium transition bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]";
+        } else {
+          btn.className = "tab-button flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-medium transition text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent";
+        }
+      });
+
+      tabViews.forEach(view => {
+        if (view.id === targetId) {
+          view.classList.remove('hidden');
+        } else {
+          view.classList.add('hidden');
+        }
+      });
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setActiveTab(btn.getAttribute('data-tab-target'));
+      });
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      if (e.key === 'q' || e.key === 'Q') setActiveTab('tab-queue');
+      if (e.key === 'l' || e.key === 'L') setActiveTab('tab-lens');
+      if (e.key === 'c' || e.key === 'C') setActiveTab('tab-chaos');
+    });
+
+    // Switch directly into audit replay view from queue rows
+    window.switchAndAudit = function(caseId) {
+      setActiveTab('tab-lens');
+      const select = document.getElementById('audit-case-select');
+      if (select) {
+        select.value = caseId;
+        document.getElementById('current-trace-case-id').innerText = caseId;
+      }
+    };
+
+    // Quick authorize simulation
+    window.quickAction = function(caseId, action) {
+      const banner = document.createElement('div');
+      banner.className = "fixed bottom-5 right-5 z-50 px-4 py-3 rounded-lg bg-emerald-950 border border-emerald-500/50 text-emerald-300 text-xs font-mono shadow-2xl flex items-center gap-2";
+      banner.innerHTML = `<span>✓</span> Case <strong>${caseId}</strong> signed off as <strong>${action}</strong>. Audit trail updated.`;
+      document.body.appendChild(banner);
+      setTimeout(() => banner.remove(), 2500);
+    };
+
+    // Filter table by search and policy dropdown
+    const searchInput = document.getElementById('queue-search-input');
+    const policySelect = document.getElementById('policy-filter-select');
+    const rows = document.querySelectorAll('.case-row');
+
+    function filterTable() {
+      const query = (searchInput.value || '').toLowerCase();
+      const policy = policySelect.value;
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const rowPolicy = row.getAttribute('data-policy');
+        const matchesQuery = text.includes(query);
+        const matchesPolicy = (policy === 'ALL') || (rowPolicy === policy);
+
+        if (matchesQuery && matchesPolicy) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    policySelect.addEventListener('change', filterTable);
+
+    // Toggle between Clinician Plain Language & JSON View
+    const plainBtn = document.getElementById('view-plain-btn');
+    const techBtn = document.getElementById('view-tech-btn');
+    const plainContainer = document.getElementById('plain-language-container');
+    const techContainer = document.getElementById('technical-trace-container');
+    const caseSelect = document.getElementById('audit-case-select');
+    const traceCaseIdText = document.getElementById('current-trace-case-id');
+
+    plainBtn.addEventListener('click', () => {
+      plainBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 transition";
+      techBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition";
+      plainContainer.classList.remove('hidden');
+      techContainer.classList.add('hidden');
+    });
+
+    techBtn.addEventListener('click', () => {
+      techBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 transition";
+      plainBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition";
+      techContainer.classList.remove('hidden');
+      plainContainer.classList.add('hidden');
+    });
+
+    caseSelect.addEventListener('change', (e) => {
+      traceCaseIdText.innerText = e.target.value;
+    });
+
+    // Replay Simulation Interactive Button
+    const replayBtn = document.getElementById('btn-replay-trace');
+    const replaySpinner = document.getElementById('replay-spinner');
+    const replayIcon = document.getElementById('replay-icon');
+    const replayLabel = document.getElementById('replay-btn-text');
+
+    replayBtn.addEventListener('click', () => {
+      replaySpinner.classList.remove('hidden');
+      replayIcon.classList.add('hidden');
+      replayLabel.innerText = 'Replaying Trace Steps...';
+      replayBtn.disabled = true;
+
+      setTimeout(() => {
+        replaySpinner.classList.add('hidden');
+        replayIcon.classList.remove('hidden');
+        replayLabel.innerText = 'Replay Full Execution Trace';
+        replayBtn.disabled = false;
+      }, 850);
+    });
+
+    // Copy JSON Trace to Clipboard
+    const copyBtn = document.getElementById('btn-copy-json');
+    const copyLabel = document.getElementById('copy-btn-label');
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(document.querySelector('pre code').innerText).then(() => {
+        copyLabel.innerText = 'Copied!';
+        setTimeout(() => {
+          copyLabel.innerText = 'Copy JSON';
+        }, 1800);
+      });
+    });
+
+    // Chaos Simulator Operations
+    const terminal = document.getElementById('chaos-terminal');
+    const chaosBadge = document.getElementById('chaos-indicator-badge');
+    const chaosDot = document.getElementById('chaos-indicator-dot');
+    const chaosText = document.getElementById('chaos-indicator-text');
+    const chaosStatusDesc = document.getElementById('chaos-state-desc');
+    const disableAllBtn = document.getElementById('btn-disable-all-chaos');
+    const resetStateBtn = document.getElementById('btn-reset-state');
+
+    function logTerminal(message, type = 'info') {
+      const p = document.createElement('p');
+      const time = new Date().toISOString().substring(11, 19);
+      if (type === 'warn') {
+        p.className = 'text-amber-400';
+      } else if (type === 'error') {
+        p.className = 'text-rose-400 font-bold';
+      } else if (type === 'success') {
+        p.className = 'text-cyan-300';
+      } else {
+        p.className = 'text-slate-300';
+      }
+      p.innerHTML = `<span class="text-slate-600">[${time}]</span> ${message}`;
+      terminal.appendChild(p);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    let isChaosActive = false;
+
+    window.toggleGlobalChaos = function() {
+      if (!isChaosActive) {
+        injectFault('payer_timeout');
+      } else {
+        resetChaos();
+      }
+    };
+
+    window.injectFault = function(scenarioKey) {
+      isChaosActive = true;
+      chaosBadge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold tracking-wide bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 transition cursor-pointer";
+      chaosDot.className = "w-2 h-2 rounded-full bg-rose-400 animate-ping";
+      chaosText.innerText = "CHAOS ENGINE: ACTIVE";
+      chaosStatusDesc.innerText = "FAULT INJECTION IN PROGRESS";
+      chaosStatusDesc.className = "text-rose-400 font-bold";
+
+      const targetStatus = document.getElementById(`status-${scenarioKey}`);
+      if (targetStatus) {
+        targetStatus.innerText = "INJECTED";
+        targetStatus.className = "text-[10px] font-mono text-rose-400 font-bold";
+      }
+
+      logTerminal(`[CHAOS_KERNEL] Injected scenario: <strong class="text-white">${scenarioKey}</strong> into payer clearinghouse socket`, 'warn');
+
+      setTimeout(() => {
+        logTerminal(`[CIRCUIT_BREAKER] Tripped anomaly guard for ${scenarioKey}. Isolating payload...`, 'error');
+      }, 350);
+
+      setTimeout(() => {
+        logTerminal(`[RECOVERY_KERNEL] Graceful fallback engaged. Case tagged as needs_human_review. SLO preserved 100%.`, 'success');
+        
+        // Update scorecard row
+        const row = document.getElementById(`row-${scenarioKey}`);
+        if (row) {
+          const badge = row.querySelector('.score-badge');
+          if (badge) {
+            badge.className = "score-badge px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+            badge.innerText = "PASSED";
+          }
+        }
+      }, 850);
+    };
+
+    function resetChaos() {
+      isChaosActive = false;
+      chaosBadge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold tracking-wide bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer";
+      chaosDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+      chaosText.innerText = "CHAOS ENGINE: INACTIVE";
+      chaosStatusDesc.innerText = "ALL CIRCUIT GUARDS ARMED";
+      chaosStatusDesc.className = "text-emerald-400 font-bold";
+
+      ['payer_timeout', 'malformed_json', 'vague_denial', 'missing_field'].forEach(key => {
+        const status = document.getElementById(`status-${key}`);
+        if (status) {
+          status.innerText = "READY";
+          status.className = "text-[10px] font-mono text-slate-500 font-semibold";
+        }
+      });
+
+      document.querySelectorAll('.score-badge').forEach(badge => {
+        badge.className = "score-badge px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+        badge.innerText = "NOT TESTED";
+      });
+
+      terminal.innerHTML = '<p class="text-slate-500">// Chaos reset complete. All circuit breakers restored to standard sandbox operation.</p>';
+    }
+
+    disableAllBtn.addEventListener('click', resetChaos);
+    resetStateBtn.addEventListener('click', resetChaos);
+
+    // Modal Operations
+    const modal = document.getElementById('compliance-modal');
+    const openModalBtn = document.getElementById('open-compliance-btn');
+    const closeModalBtn = document.getElementById('close-compliance-btn');
+    const closeConfirmBtn = document.getElementById('close-compliance-confirm');
+
+    function toggleModal(show) {
+      if (show) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    openModalBtn.addEventListener('click', () => toggleModal(true));
+    closeModalBtn.addEventListener('click', () => toggleModal(false));
+    closeConfirmBtn.addEventListener('click', () => toggleModal(false));
+
+    // Execute All Pipelines Simulation
+    const execBtn = document.getElementById('btn-execute-all');
+    execBtn.addEventListener('click', () => {
+      const originalHTML = execBtn.innerHTML;
+      execBtn.innerHTML = `
+        <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Running 6 Autonomous Pipelines...</span>
+      `;
+      execBtn.disabled = true;
+
+      setTimeout(() => {
+        execBtn.innerHTML = originalHTML;
+        execBtn.disabled = false;
+        const banner = document.createElement('div');
+        banner.className = "fixed bottom-5 right-5 z-50 px-4 py-3 rounded-lg bg-emerald-950 border border-emerald-500/50 text-emerald-300 text-xs font-mono shadow-2xl flex items-center gap-2";
+        banner.innerHTML = `<span>⚡</span> Successfully executed 6 pipelines. 2 Auto-authorized, 4 routed to Human Gate.`;
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 3000);
+      }, 1200);
+    });
+  </script>
+</body></html>
