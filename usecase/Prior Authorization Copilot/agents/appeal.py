@@ -8,22 +8,21 @@ Guardrail: Vague denials (no specific clause cited, < 40 chars) are escalated
 to peer-to-peer medical director review instead of auto-drafting.
 """
 
-import os
-import json
 from dotenv import load_dotenv
-from agents.base import run_agent_step
+
 from agents import gemini_client
+from agents.base import run_agent_step
 
 load_dotenv()
 
 _SYSTEM_INSTRUCTION = (
-    "You are a clinical appeals specialist writing formal Prior Authorization "
-    "reconsideration letters for denied insurance claims. "
-    "Your appeal must: (1) Directly address and rebut the specific denial reason. "
-    "(2) Cite all available clinical evidence satisfying the unmet criteria. "
-    "(3) Use precise medical language for peer-to-peer medical review. "
-    "(4) Be professional and evidence-based. "
-    "Respond ONLY with valid JSON and no other text."
+    "You are a clinical appeals specialist writing formal Prior Authorization"
+    " reconsideration letters for denied insurance claims. Your appeal must: "
+    "(1) Directly address and rebut the specific denial reason. (2) Cite all "
+    "available clinical evidence satisfying the unmet criteria. (3) Use "
+    "precise medical language for peer-to-peer medical review. (4) Be "
+    "professional and evidence-based. Respond ONLY with valid JSON and no "
+    "other text."
 )
 
 _APPEAL_PROMPT = """Draft a formal Prior Authorization appeal letter for the following denied case.
@@ -48,13 +47,13 @@ Return a JSON object with exactly this structure:
   "appeal_letter_narrative": "Full formal appeal letter text (3-5 paragraphs)",
   "key_rebuttal_points": ["List of specific clinical facts rebutting the denial"],
   "attached_supplements": ["List of documentation items being attached"],
-  "recommended_next_step": "Specific next action (e.g. Submit Level 1 appeal via payer portal within 30 days)",
+  "recommended_next_step": "Specific next action (e.g. Submit Level 1 appeal via \
+payer portal within 30 days)",
   "handled_gracefully": true
 }}"""
 
 
-def _run_appeal(case_id: str, case_data: dict, denial_info: dict,
-                active_chaos: str = None) -> dict:
+def _run_appeal(case_id: str, case_data: dict, denial_info: dict, active_chaos: str = None) -> dict:
     denial_reason = (
         denial_info.get("reason")
         or case_data.get("denial_reason")
@@ -106,9 +105,9 @@ def _run_appeal(case_id: str, case_data: dict, denial_info: dict,
     }
 
 
-def run_appeal_agent(case_id: str, case_data: dict, denial_info: dict,
-                     active_chaos: str = None) -> dict:
+def run_appeal_agent(
+    case_id: str, case_data: dict, denial_info: dict, active_chaos: str = None
+) -> dict:
     return run_agent_step(
-        "appeal", case_id, _run_appeal,
-        case_data, denial_info, active_chaos=active_chaos
+        "appeal", case_id, _run_appeal, case_data, denial_info, active_chaos=active_chaos
     )

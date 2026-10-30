@@ -8,22 +8,25 @@ Guardrail: Confidence < 80 or unmatched mandatory criteria → auto-routes to
 human review. No case reaches submission without explicit human approval.
 """
 
-import os
 import json
+
 from dotenv import load_dotenv
-from agents.base import run_agent_step
+
 from agents import gemini_client
+from agents.base import run_agent_step
 
 load_dotenv()
 
 _SYSTEM_INSTRUCTION = (
     "You are a clinical documentation specialist writing Prior Authorization "
     "medical necessity justification narratives for insurance submissions. "
-    "Your output must be precise, evidence-based, and directly tied to payer policy criteria. "
-    "You must respond ONLY with valid JSON and no other text."
+    "Your output must be precise, evidence-based, and directly tied to payer "
+    "policy criteria. You must respond ONLY with valid JSON and no other "
+    "text."
 )
 
-_JUSTIFICATION_PROMPT = """Write a medical necessity justification for the following Prior Authorization request.
+_JUSTIFICATION_PROMPT = """\
+Write a medical necessity justification for the following Prior Authorization request.
 
 === CASE INFORMATION ===
 Patient: {patient_ref}
@@ -53,19 +56,28 @@ Return a JSON object with this exact structure:
   "recommended_action": <"approve" | "human_review" | "rework_or_deny">,
   "routing_status": <"pending_human_approval" | "needs_human_review" | "needs_rework">,
   "routing_reason": "Specific reason citing evidence gaps or strengths",
-  "justification_narrative": "Full medical necessity letter narrative (3-5 paragraphs citing criteria and findings)",
+  "justification_narrative": "Full medical necessity letter narrative (3-5 \
+paragraphs citing criteria and findings)",
   "confidence_rationale": "Brief explanation of why this confidence score was assigned"
 }}
 
 ROUTING RULES (follow exactly):
-- confidence >= 85 AND zero unmatched required criteria → recommended_action = "approve", routing_status = "pending_human_approval"
-- confidence >= 60 → recommended_action = "human_review", routing_status = "needs_human_review"
+- confidence >= 85 AND zero unmatched required criteria → recommended_action = \
+"approve", routing_status = "pending_human_approval"
+- confidence >= 60 → recommended_action = "human_review", routing_status = \
+"needs_human_review"
 - confidence < 60 → recommended_action = "rework_or_deny", routing_status = "needs_rework"
-- requires_human_gate is ALWAYS true — no case reaches submission without human approval."""
+- requires_human_gate is ALWAYS true — no case reaches submission without human \
+approval."""
 
 
-def _run_justification(case_id: str, clinical_summary: dict, match_result: dict,
-                       case_data: dict, active_chaos: str = None) -> dict:
+def _run_justification(
+    case_id: str,
+    clinical_summary: dict,
+    match_result: dict,
+    case_data: dict,
+    active_chaos: str = None,
+) -> dict:
     prompt = _JUSTIFICATION_PROMPT.format(
         patient_ref=case_data.get("patient_ref", ""),
         physician=case_data.get("physician", ""),
@@ -107,10 +119,19 @@ def _run_justification(case_id: str, clinical_summary: dict, match_result: dict,
     }
 
 
-def run_justification_agent(case_id: str, clinical_summary: dict,
-                            match_result: dict, case_data: dict,
-                            active_chaos: str = None) -> dict:
+def run_justification_agent(
+    case_id: str,
+    clinical_summary: dict,
+    match_result: dict,
+    case_data: dict,
+    active_chaos: str = None,
+) -> dict:
     return run_agent_step(
-        "justification", case_id, _run_justification,
-        clinical_summary, match_result, case_data, active_chaos=active_chaos
+        "justification",
+        case_id,
+        _run_justification,
+        clinical_summary,
+        match_result,
+        case_data,
+        active_chaos=active_chaos,
     )

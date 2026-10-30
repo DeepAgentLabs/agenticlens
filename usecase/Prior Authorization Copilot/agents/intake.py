@@ -8,21 +8,21 @@ Guardrail: Prompt explicitly forbids the model from inferring diagnoses or
 clinical facts not present verbatim in the source text.
 """
 
-import os
-import json
 from dotenv import load_dotenv
-from agents.base import run_agent_step
+
 from agents import gemini_client
+from agents.base import run_agent_step
 
 load_dotenv()
 
 _SYSTEM_INSTRUCTION = (
-    "You are a clinical intake specialist AI for a Prior Authorization Copilot system. "
-    "Your ONLY job is to extract structured clinical data from raw EHR chart notes. "
-    "STRICT GUARDRAILS: NEVER infer, assume, or add any clinical fact not explicitly "
-    "stated in the source text. If a field is not mentioned, use null. "
-    "Do not synthesize or interpret. Only extract. "
-    "You must respond ONLY with a valid JSON object and no other text."
+    "You are a clinical intake specialist AI for a Prior Authorization "
+    "Copilot system. Your ONLY job is to extract structured clinical data "
+    "from raw EHR chart notes. STRICT GUARDRAILS: NEVER infer, assume, or add"
+    " any clinical fact not explicitly stated in the source text. If a field "
+    "is not mentioned, use null. Do not synthesize or interpret. Only "
+    "extract. You must respond ONLY with a valid JSON object and no other "
+    "text."
 )
 
 _EXTRACTION_PROMPT = """Extract structured clinical information from the following EHR chart notes.
@@ -40,15 +40,18 @@ ICD-10: {icd_10}
 Return a JSON object with exactly these fields:
 {{
   "extracted_symptoms": ["list of symptoms explicitly mentioned"],
-  "extracted_treatments": ["list of conservative treatments tried, including duration if stated"],
+  "extracted_treatments": ["list of conservative treatments tried, including \
+duration if stated"],
   "extracted_imaging": ["list of imaging studies documented"],
-  "extracted_neurological_findings": ["neurological findings on exam if mentioned, else []"],
+  "extracted_neurological_findings": ["neurological findings on exam if mentioned, \
+else []"],
   "missing_evidence_flags": ["list of required documentation items that appear absent"],
   "pain_score": "numeric pain score if mentioned, else null",
   "symptom_duration": "duration of symptoms if mentioned, else null",
   "bmi": "BMI value if mentioned, else null",
   "summary_text": "1-2 sentence plain English summary of the clinical picture",
-  "guardrail_verification": "Strict extraction mode: All findings mapped directly from source clinical chart without inference."
+  "guardrail_verification": "Strict extraction mode: All findings mapped directly \
+from source clinical chart without inference."
 }}"""
 
 

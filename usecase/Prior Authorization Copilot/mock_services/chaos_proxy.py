@@ -12,13 +12,13 @@ Available fault names (passed as strings to set_active_chaos):
 """
 
 from agentic_chaos import (
-    chaos_session,
-    chaos_call,
-    TokenTimeoutFault,
-    RateLimitStormFault,
     HandoffCorruptionFault,
+    RateLimitStormFault,
     SilentDegradationFault,
+    TokenTimeoutFault,
     ToolCallFailureFault,
+    chaos_call,
+    chaos_session,
 )
 
 from mock_services.payer_api import real_mock_payer_call

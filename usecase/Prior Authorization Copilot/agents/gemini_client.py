@@ -11,9 +11,10 @@ Model cascade with high availability:
   4. gemini-3.5-flash (stable flash)
 """
 
-import os
 import json
 import logging
+import os
+
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types as genai_types
@@ -33,9 +34,13 @@ MODELS_CASCADE = [
 ]
 
 
-def generate(prompt: str, system_instruction: str,
-             temperature: float = 0.0, max_tokens: int = 2048,
-             json_mode: bool = True) -> str:
+def generate(
+    prompt: str,
+    system_instruction: str,
+    temperature: float = 0.0,
+    max_tokens: int = 2048,
+    json_mode: bool = True,
+) -> str:
     """
     Call Gemini with automatic model cascade across available models.
     Supports json_mode to enforce clean JSON formatting directly from the API.
@@ -65,14 +70,23 @@ def generate(prompt: str, system_instruction: str,
         except Exception as e:
             err_str = str(e)
             # Transient/capacity/deprecation errors fall through to the next model
-            if any(x in err_str for x in ["503", "UNAVAILABLE", "404", "NOT_FOUND", "no longer available", "ResourceExhausted", "429"]):
+            if any(
+                x in err_str
+                for x in [
+                    "503",
+                    "UNAVAILABLE",
+                    "404",
+                    "NOT_FOUND",
+                    "no longer available",
+                    "ResourceExhausted",
+                    "429",
+                ]
+            ):
                 last_error = e
                 continue
             raise  # Fatal auth errors etc.
 
-    raise RuntimeError(
-        f"All Gemini models failed. Last error: {last_error}"
-    )
+    raise RuntimeError(f"All Gemini models failed. Last error: {last_error}")
 
 
 def parse_json_response(raw: str) -> dict:
@@ -83,5 +97,5 @@ def parse_json_response(raw: str) -> dict:
         text = parts[1] if len(parts) > 1 else text
         if text.startswith("json"):
             text = text[4:]
-    text = text.strip().rstrip("```").strip()
+    text = text.strip().rstrip("`").strip()
     return json.loads(text)
