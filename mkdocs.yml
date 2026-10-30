@@ -65,3 +65,18 @@ nav:
   - Troubleshooting: troubleshooting.md
   - Limitations: limitations.md
   - Roadmap: roadmap.md
+  - AIOS v0.6 Compatibility: aios-v0.6.md
+  - Sidecar 0.9 authority and privacy: sidecar-0.9.md
+  - MCP 0.4 Compatibility: mcp-0.4-unified-workflows.md
+  - Chaos 0.8 Compatibility: chaos-0.8.md
+  - Chaos 0.7 Compatibility: chaos-0.7.md
+  - Evals Native Report Contract: evals-report-contract.md
+  - Test-Suite and Dataset Management: suite-management.md
+  - ModelFit Recommendations: modelfit.md
+  - Advisory Runtime Routing: routing.md
+  - Tower 0.6 Recovery: control-tower-0.6.md
+  - Tower 0.7 Fleet Operations: tower-0.7-fleet-operations.md
+  - Control Tower 0.8 Live Operations: tower-0.8-live-operations.md
+  - Evals 0.8 CLI: evals-0.8-cli.md
+  - Evals 0.9 Judge Reliability: evals-0.9-judge-reliability.md
+  - Sidecar Integration: sidecar-integration.md

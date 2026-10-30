@@ -6,6 +6,186 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.10.0 - 2026-10-18
+
+Delivers roadmap milestone v0.8 (Advisory Runtime Routing).
+
+### Added
+
+- `agenticlens.routing`: snapshot ModelFit evidence and versioned policies for
+  rule/score selection, additional fail-closed constraints, confidence thresholds,
+  bounded fallback chains and provider-diverse failover. Advisory mode is default.
+- Explicit callback execution, host human-escalation handoffs, deterministic
+  canary allocation and separately enabled, measured shadow calls. Only explicit
+  safe-to-retry errors trigger fallback; other failures stop execution.
+- Local append/fsync routing journal, canonical policy/report hashes, versioned
+  Lens-local schemas, routing result summaries, and `routing decide/summary` CLI.
+- Offline failover/shadow demo, regression tests and full routing guide.
+
+### Compatibility
+
+- Existing Evals, Chaos and Sidecar dependency ranges remain sufficient. MCP
+  0.3.12 pins Lens 0.10.0 and exposes read-only `lens.routing_decide`.
+- Routing does not replace Sidecar authority or Tower approvals and does not
+  change the normative AIOS contract. Callbacks own provider access/timeouts.
+
+## 0.9.0 - 2026-10-18
+
+Delivers roadmap milestone v0.7 (ModelFit).
+
+### Added — model recommendations (`agenticlens.modelfit`)
+
+- Experiment evidence: `load_experiment_evidence` reads an experiment report
+  (`agenticlens experiment run --save`) and records its file name and
+  SHA-256; `collect_candidates` turns every variant into a candidate with one
+  attempt per case per trial. Failed trials count as failed attempts with no
+  cost. Model names come from the `model` factor (`model_factor`); provider,
+  deployment, and capabilities from the config's `candidates` catalog, the
+  manifest's variant metadata, or `provider`/`deployment` factors.
+- Task taxonomy: `TaskCategory` selects cases by tag, `metadata.domain`, or
+  case ID; `derive_categories` creates one category per tag when none are
+  configured; the `all` category covers every case; `resolve_taxonomy`
+  reports uncategorized cases and categories that match nothing.
+- Hard constraints: `ModelConstraints` (`min_pass_rate`,
+  `min_pass_rate_lower_bound`, `max_cost_per_case_usd`,
+  `max_cost_per_success_usd`, `max_mean_latency_ms`, `max_p95_latency_ms`,
+  `min_consistency`, `min_safety_pass_rate`, `allowed_providers`,
+  `blocked_providers`, `allowed_deployments`, `required_capabilities`) with
+  config defaults and per-category overrides (`null` removes a default,
+  including for list constraints). `check_constraints` fails closed: a limit
+  the evidence cannot verify is a violation, including a block-list against
+  an unknown provider and a latency limit over partial latency evidence.
+- Scoring: `ScoringWeights` (quality, cost, latency, reliability; per-category
+  weights allowed) over feasible candidates, normalised to the cheapest and
+  fastest; per-category `pareto_frontier` (pass rate, cost per success,
+  latency) and `cost_per_success_ranking`.
+- Recommendations: `recommend_models` returns a `ModelFitReport` with one
+  `CategoryResult` per category. Each `Recommendation` has a status
+  (`recommended`, `no_feasible_model`, `no_evidence`), a confidence level
+  with reasons, an explanation citing measured values and every rejection,
+  ranked alternatives, a fallback on a different provider when one is
+  feasible, a `SavingsEstimate` against the reference variant (per case, per
+  success, and per month from `monthly_volume`, with attempts, case IDs, and
+  source indexes; unavailable when cost is incomplete or the two candidates
+  were measured on different cases), and `QualityRisk`s
+  (quality regression with significance, regressed, flaky, and safety-failed
+  cases, low evidence, unavailable cost, failed trials, no fallback).
+- Task-level model matrix: `ModelFitReport.matrix` (one row per category and
+  candidate, with its role), `render_matrix_csv`, and `render_markdown`.
+- Config and report I/O: `load_modelfit_config` (YAML or JSON),
+  `load_modelfit_report`, `save_modelfit_report`.
+
+### Added — CLI
+
+- `agenticlens modelfit recommend REPORT... [--config] [--manifest] [--save]
+  [--markdown] [--csv] [--json] [--fail-on-unfit] [--fail-on-low-confidence]`.
+  Exit 8 when a category has no feasible model (`--fail-on-unfit`) or a
+  recommendation is low confidence (`--fail-on-low-confidence`).
+- `agenticlens modelfit matrix MODELFIT_REPORT [--csv] [--markdown]` and
+  `agenticlens modelfit taxonomy REPORT... [--config] [--json]`.
+
+### Added — schemas, example, docs, CI
+
+- `schemas/modelfit/modelfit-config.schema.json` and
+  `schemas/modelfit/modelfit-report.schema.json` (`schema_version: "1.0"`).
+- `examples/modelfit_demo.py`: a recorded four-model experiment (two
+  providers, cloud and on-prem) on a ten-case support suite, with committed
+  artifacts reproduced by `tests/test_examples_modelfit.py`.
+- [ModelFit guide](docs/modelfit.md); README, roadmap, audit, and AGENTS
+  updates.
+- CI `modelfit` job: replays the experiment and runs
+  `modelfit recommend --fail-on-unfit`.
+
+### Ecosystem
+
+- No AIOS object or existing Lens artifact changes. Agentic Sidecar 0.8.4
+  widens its optional `agenticlens` extra from `<0.9` to `<1`; MCP 0.3.11
+  pins hosted images to 0.9.0 and adds a read-only `lens.modelfit_recommend`
+  tool; Control Tower, Chaos, and Evals already admit 0.9.0.
+
+## 0.8.0 - 2026-10-17
+
+Delivers roadmap milestone v0.6 (Test-Suite and Dataset Management).
+
+### Added — suite management (`agenticlens.suites`)
+
+- Imports from CSV (`|`-separated list columns, JSON `input`, `domain`,
+  `split`, `metadata.<key>`; unknown columns rejected), JSON, JSON Lines, and
+  YAML: `import_csv`, `import_json`, `import_cases`, `import_suite`.
+- Production trace conversion: `case_from_run` / `cases_from_runs` turn
+  successful runs into cases expecting their tool trajectory
+  (`required_tools`, `required_tool_order`) and latency/cost within a margin;
+  `include_output` also expects the recorded output. Failed runs, runs
+  without a recorded input, and runs with nothing to expect are skipped with
+  a reason.
+- User-feedback conversion: `FeedbackRecord`, `load_feedback`,
+  `case_from_feedback` / `cases_from_feedback`. Corrections and confirmed
+  outputs become expected outputs. A missing input is filled from the
+  referenced run. Uncorrected negative feedback is skipped with a reason.
+- Suite editors: `add_case`, `update_case`, `remove_cases`, `tag_cases`
+  (tags and domain categories), `review_cases`, `merge_suites`,
+  `filter_suite`, `summarize_suite`, `diff_suites`, `load_suite_file`,
+  `save_suite_file`. Case lineage (`source`), `review_status`,
+  `reviewed_by`, `review_notes`, `domain`, and `split` live in case metadata,
+  so suites stay plain agentic-evals `TestSuite`s.
+- Synthetic variations: `generate_variations` / `vary_case` (lowercase,
+  uppercase, whitespace, punctuation, typo, prefix). They are deterministic
+  per seed, keep expectations and split, skip masked values, are marked
+  `needs_review`, and are capped per original.
+- Duplicate detection: `find_duplicates` / `drop_duplicates` group exact and
+  near (word unigram+bigram Jaccard) duplicates and flag conflicting groups
+  (same input, different expectations).
+- PII masking: `PIIMasker`, `mask_suite`, `scan_suite`. Covers emails,
+  phones, Luhn-valid cards, US SSNs, IPv4, bearer tokens and API keys, and
+  whole-word sensitive keys, with a `redact` or salted `hash` strategy.
+  Reports carry the location and type, never the value.
+- Splits: `assign_splits` places cases by a stable hash of their lineage, so
+  cases keep their split as a suite grows and variants follow their original.
+- Approval and immutable versions: `SuiteStore.approve` checks review status,
+  unmasked PII, and conflicting duplicates. It then writes
+  `<store>/<name>/<version>.json` once, with the SHA-256 of the canonical
+  suite JSON and an `ApprovalRecord` (approver, time, notes, checks,
+  `parent_version`). Identical re-approval is idempotent; different content
+  is refused. Every read re-hashes the suite and the whole envelope
+  (`record_sha256`) (`get`, `load_suite`, `versions`, `latest`, `verify`). `load_suite` stamps
+  `metadata.agenticlens_suite_version` provenance.
+
+### Added — CLI
+
+- `agenticlens suite` command group: `import`, `from-traces`,
+  `from-feedback`, `add-case`, `remove-case`, `tag`, `review`, `mask`
+  (`--check` exits 7), `dedupe`, `vary`, `split`, `filter`, `summary`,
+  `approve` (exit 6 when refused), `versions`, `verify` (exit 6 when a
+  version is missing or altered), `export`, and `diff`. Imports and
+  conversions mask PII by default (`--no-mask`).
+
+### Added — schemas, examples, docs, CI
+
+- JSON Schemas in `schemas/suites/`: suite version, feedback batch,
+  duplicate report, masking report.
+- `examples/suite_management_demo.py` builds `support-regression@1.0.0` (15
+  cases) from a CSV, production traces, and feedback. It masks,
+  de-duplicates, varies, splits, reviews, approves, exports, evaluates, and
+  gates the suite, and commits the store and artifacts in `examples/suites/`
+  (reproduced by `tests/test_examples_suites.py`).
+- CI `regression-suite` job: `suite verify` → `suite export` → `evaluate
+  --strict-evidence` → `gate` on the committed store.
+- `docs/suite-management.md`. README, roadmap (v0.6 delivered), audit
+  follow-up, and AGENTS.md updated.
+
+### Compatibility
+
+- Additive only: no existing API, schema, or CLI behaviour changes. Requires
+  `agentic-evals>=0.7.1,<1` as before.
+
+## 0.7.1 - 2026-10-17
+
+### Added
+
+- Native `sidecar.correlation/1` decision readback with exact trace identity,
+  idempotency and atomic validation; governance outcomes preserve span/run health.
+- Diagnosis schema 1.1 adds `supervision_decision` incident timeline events.
+
 ## 0.7.0 - 2026-10-13
 
 Delivers roadmap milestone v0.5 (Advanced Evaluation and Diagnosis).

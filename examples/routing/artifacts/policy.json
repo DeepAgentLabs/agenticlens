@@ -1,0 +1,27 @@
+{
+  "name": "offline-demo",
+  "version": "1",
+  "mode": "enforce",
+  "strategy": "score",
+  "rules": {},
+  "constraints": {
+    "min_pass_rate": null,
+    "min_pass_rate_lower_bound": null,
+    "max_cost_per_case_usd": null,
+    "max_cost_per_success_usd": null,
+    "max_mean_latency_ms": null,
+    "max_p95_latency_ms": null,
+    "min_consistency": null,
+    "min_safety_pass_rate": null,
+    "allowed_providers": null,
+    "blocked_providers": [],
+    "allowed_deployments": null,
+    "required_capabilities": []
+  },
+  "minimum_confidence": "low",
+  "on_unroutable": "escalate",
+  "baseline_variant_id": null,
+  "canary_fraction": 0.1,
+  "allocation_salt": "lens-routing-v1",
+  "max_attempts": 3
+}

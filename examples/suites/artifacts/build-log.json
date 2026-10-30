@@ -1,0 +1,22 @@
+{
+  "skipped_traces": [
+    {
+      "source_id": "prod-0003",
+      "reason": "run did not succeed; convert corrected feedback instead"
+    }
+  ],
+  "skipped_feedback": [
+    {
+      "source_id": "fb-103",
+      "reason": "negative feedback needs a corrected_output to define the expectation"
+    },
+    {
+      "source_id": "fb-104",
+      "reason": "negative feedback needs a corrected_output to define the expectation"
+    }
+  ],
+  "variants_added": 8,
+  "rejected": [
+    "cancel-plan--prefix"
+  ]
+}

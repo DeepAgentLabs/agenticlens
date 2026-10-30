@@ -14,6 +14,27 @@ AgenticLens helps teams profile LLM applications, capture structured agent
 traces, calculate cost, diagnose memory and retry overhead, and compare
 candidate configurations against reviewed baselines.
 
+
+## Advisory runtime routing — 0.10.0
+
+Roadmap v0.8 is implemented: `agenticlens.routing.Router` turns saved ModelFit
+experiment evidence into explainable runtime decisions, with additional hard
+constraints, confidence thresholds, bounded fallback/provider failover, human
+escalation handoffs, shadow/canary modes and a local audit journal. Advisory is
+the default; execution requires explicit modes and caller-owned callbacks.
+
+```bash
+uv run python examples/routing_demo.py
+agenticlens routing decide examples/modelfit/artifacts/modelfit.json \
+  --category orders --request-id demo-1 \
+  --policy examples/routing/artifacts/policy.json
+```
+
+The offline demo explicitly permits low confidence; default policies require
+medium confidence. See the [routing guide](routing.md) for execution boundaries,
+measurement, audit limits and sibling compatibility. Next: roadmap v0.9
+Optimization Intelligence.
+
 ## What It Measures
 
 | Dimension | What AgenticLens captures |
@@ -29,6 +50,8 @@ candidate configurations against reviewed baselines.
 | Comparison | Success, tokens, latency, cost, variability, and regression deltas |
 | Diagnosis | Failure taxonomy, faulty step and agent, incident timeline, baseline anomalies |
 | Evaluation quality | Deterministic vs model-based scores, judge cost, evaluator disagreement |
+| Regression suites | Cases from CSV/JSON, traces, and feedback; PII masking, duplicates, splits, approved immutable versions |
+| Model selection | Per-task-category recommendations under hard constraints, with confidence, fallbacks, savings, and quality risks |
 
 ## Token Optimization Focus
 
@@ -65,13 +88,16 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [Integrations](integrations.md)
 - [Examples](examples.md)
 - [Workflow schema specification](workflow-schema-spec.md)
+- [AIOS v0.6 examples and extensions](aios-v0.6.md)
 - [AIOS validation and OTel export](aios-validation-and-otel.md)
 - [Export formats](export-formats.md)
 - [RAG chunk utility](rag-chunk-utility.md)
 - [Trace and comparison](trace-and-comparison.md)
 - [Evaluation and release gates](evaluation-and-release-gates.md)
+- [Test-suite and dataset management](suite-management.md)
 - [Diagnosis and failure attribution](diagnosis.md)
 - [Experiments and statistical comparison](experiments.md)
+- [ModelFit recommendations](modelfit.md)
 - [Multi-agent reference workflows](multi-agent-reference-workflows.md)
 - [Troubleshooting](troubleshooting.md)
 - [Limitations](limitations.md)

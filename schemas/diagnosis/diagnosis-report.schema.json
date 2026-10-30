@@ -1,6 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/diagnosis/diagnosis-report.schema.json",
   "$defs": {
     "Anomaly": {
       "description": "A metric far outside the baseline runs' distribution.",
@@ -732,6 +730,7 @@
         },
         "kind": {
           "enum": [
+            "supervision_decision",
             "run_started",
             "span_started",
             "span_completed",
@@ -803,7 +802,7 @@
   },
   "properties": {
     "schema_version": {
-      "default": "1.0",
+      "default": "1.1",
       "title": "Schema Version",
       "type": "string"
     },
@@ -908,5 +907,7 @@
     "timeline"
   ],
   "title": "DiagnosisReport",
-  "type": "object"
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/diagnosis/diagnosis-report.schema.json"
 }

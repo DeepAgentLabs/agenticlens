@@ -21,13 +21,18 @@ still has open evidence and provenance gates. The audit's
 [0.6.0 follow-up](ROADMAP_AUDIT.md#060-follow-up-2026-10-12) records v0.3
 acceptance and v0.4 delivery evidence, and the
 [0.7.0 follow-up](ROADMAP_AUDIT.md#070-follow-up-2026-10-13) records v0.5
+delivery evidence, and the
+[0.8.0 follow-up](ROADMAP_AUDIT.md#080-follow-up-2026-10-17) records v0.6
+delivery evidence, and the
+[0.9.0 follow-up](ROADMAP_AUDIT.md#090-follow-up-2026-10-18) records v0.7
 delivery evidence. Later milestones contain partial
 building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
-`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` (current, 2026-10-13) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0`
+(current, 2026-10-18) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -54,9 +59,20 @@ forward from `v0.5` and `v1.0`.
   investigation narratives, analysis guardrails, trace-aware evaluators, judge
   cost and prompt versioning, deterministic vs model-based scores with
   evaluator disagreement, rule-cited AIOS conformance summaries)
-- **v0.6** 🚧 Planned — Test-Suite and Dataset Management
-- **v0.7** 🚧 Planned — ModelFit
-- **v0.8** 🚧 Planned — Advisory Runtime Routing
+- **v0.6** ✅ Delivered in `0.8.0` — Test-Suite and Dataset Management
+  (CSV/JSON imports, production-trace and user-feedback conversion into
+  reviewable cases, suite editors, tags and domain categories, stable
+  lineage-aware splits, synthetic variations, duplicate and conflicting-label
+  detection, PII masking before storage, review and approval metadata, and
+  immutable hash-verified suite versions that CI verifies, exports, and
+  evaluates)
+- **v0.7** ✅ Delivered in `0.9.0` — ModelFit (task taxonomy, hard
+  quality/cost/latency/safety/provider/deployment constraints that fail
+  closed, weighted scoring, per-category Pareto frontier and cost-per-success
+  ranking, recommendation confidence and explanations, alternatives and
+  provider-diverse fallbacks, savings tied to experiment evidence, quality
+  risks, and a task-level model matrix)
+- **v0.8** ✅ Implemented in 0.10.0 — Advisory Runtime Routing
 - **v0.9** 🚧 Planned — Optimization Intelligence
 - **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
   partially pulled forward into `v0.3`)
@@ -150,7 +166,11 @@ cross-project coordination before they should be marked complete.
   with agentic-chaos's `chaos.injected` / `chaos.fault_type` /
   `chaos.event_id` attributes are diagnosed as injected faults and serve as
   ground truth for attribution accuracy (`agentic-chaos` 0.5.3 adds
-  `span_attributes()` to write them).
+  `span_attributes()` to write them). Chaos 0.6.0 reports add a call log
+  (`calls`, `calls_dropped`) and `unhandled_error`. `Workflow` loads them
+  unchanged and ignores the new fields, and `chaos_events` are analysed as
+  before. Chaos's pytest contracts read the same report Lens analyzes. Validated
+  in agentic-chaos's sibling-integration CI; no Lens change is needed.
 - `deep-agentic-core-mcp`
   Exposes AgenticLens capabilities through MCP and is a useful sibling check
   for CLI/API behavior that is expected to be consumable by hosts and tools.
@@ -231,9 +251,9 @@ here or in a linked public tracking issue.
 - [ ] Governance and maintainer responsibilities published and reviewed.
 - [ ] Licensing, dependency notices, onboarding, and security reporting reviewed.
 - [ ] Milestone examples reproduce from a clean installation. (v0.4's
-      recorded experiment and v0.5's diagnosis, controlled-failure, and
-      advanced evaluation examples reproduce their saved artifacts in CI;
-      other milestones remain open.)
+      recorded experiment, v0.5's diagnosis, controlled-failure, and
+      advanced evaluation examples, and v0.6's suite-management example
+      reproduce their saved artifacts in CI; other milestones remain open.)
 - [ ] Instrumentation overhead measured with a documented workload/environment.
 - [ ] Artifact interoperability demonstrated with versioned fixtures.
 - [ ] Independent feedback from two unaffiliated teams recorded and triaged.
@@ -380,6 +400,43 @@ The following capabilities are implemented in the current development line.
 - `diagnose`, `explain`, `trace show`, `trace timeline`, and
   `attribution-accuracy` CLI commands
 
+### Test-suite and dataset management
+
+- suite imports from CSV (unknown columns rejected), JSON, JSON Lines, and YAML
+- production-trace conversion: successful runs become cases expecting their
+  tool trajectory and latency/cost within a margin; failed runs are skipped
+  with a reason
+- user-feedback conversion: corrected or confirmed outputs become expected
+  outputs; uncorrected negative feedback is skipped with a reason
+- suite editors (add, update, remove, tag, domain, review, merge, filter, diff)
+- case lineage, review status, domain, and split recorded in case metadata
+- deterministic synthetic input variations that keep their parent's split
+- exact, near, and conflicting duplicate detection
+- PII masking (`redact` or salted `hash`) before storage, with value-free reports
+- stable, lineage-aware train/validation/test splits
+- approval checks (review, PII, conflicting duplicates) and an immutable,
+  hash-verified suite store with `verify`, `export`, `versions`, and `diff`
+
+### Model selection (ModelFit)
+
+- task taxonomy: categories select cases by tag, `metadata.domain`, or case
+  ID, or are derived from case tags; an `all` category covers every case
+- hard constraints per category (with default inheritance and explicit
+  removal): pass rate and its Wilson lower bound, cost per case and per
+  success, mean and p95 latency, consistency, suite-wide safety pass rate,
+  provider allow/block lists, deployment allow-list, required capabilities;
+  unverifiable limits are violations
+- weighted scoring of feasible candidates (quality, cost, latency,
+  reliability), Pareto frontier, and cost-per-success ranking per category
+- recommendation confidence with stated reasons, explanations citing measured
+  values, alternatives, and provider-diverse fallbacks
+- savings against a reference variant on the same cases, with attempts, case
+  IDs, and the experiment report's SHA-256; quality regressions, regressed,
+  flaky, and safety-failed cases, thin evidence, and failed trials reported
+  as separate risks
+- task-level model matrix (JSON, CSV, Markdown) and `agenticlens modelfit`
+  `recommend`, `matrix`, and `taxonomy` commands
+
 ### Artifact contracts
 
 - versioned trace schema
@@ -387,6 +444,8 @@ The following capabilities are implemented in the current development line.
 - versioned comparison-report schema
 - experiment manifest/report, diagnosis report, attribution-accuracy report,
   and score-analysis schemas
+- suite-version, feedback-batch, duplicate-report, and masking-report schemas
+- ModelFit config and report schemas
 - schema inclusion in wheel distributions
 
 ## Capability Architecture
@@ -738,12 +797,62 @@ Support the creation, review, versioning, and reuse of evaluation datasets.
 - PII masking
 - approval metadata
 
+### Delivered in `0.8.0`
+
+- test-case and suite editors: `agenticlens.suites` (`add_case`,
+  `update_case`, `remove_cases`, `tag_cases`, `review_cases`, `merge_suites`,
+  `filter_suite`, `diff_suites`) and `agenticlens suite add-case`,
+  `remove-case`, `tag`, `review`, `filter`, `diff`, `summary`
+- immutable suite versions: `SuiteStore.approve()` / `suite approve` writes
+  `<store>/<name>/<version>.json` once (exclusive create) with the SHA-256 of
+  the suite's canonical JSON; identical re-approval is idempotent, different
+  content is refused, and every read re-hashes (`suite verify`, exit 6)
+- CSV and JSON imports: `import_csv`, `import_json` (JSON, JSON Lines, YAML),
+  `suite import`
+- production trace conversion: `case_from_run`, `cases_from_runs`,
+  `suite from-traces`
+- user-feedback conversion: `FeedbackRecord`, `cases_from_feedback`,
+  `suite from-feedback` (missing inputs filled from the referenced run)
+- synthetic variation generation: `generate_variations`, `suite vary`
+  (lowercase, uppercase, whitespace, punctuation, typo, prefix)
+- tags and domain categories: case `tags` and `metadata.domain`, with
+  filtering and summaries
+- train, validation, and test splits: `assign_splits`, `suite split`
+- duplicate detection: `find_duplicates`, `drop_duplicates`, `suite dedupe`
+- PII masking: `PIIMasker`, `mask_suite`, `scan_suite`, `suite mask [--check]`
+  (exit 7)
+- approval metadata: `ApprovalRecord` (approver, time, notes, recorded
+  checks) and per-case `review_status` / `reviewed_by` / `review_notes`
+- JSON Schemas: `schemas/suites/`
+- example: `examples/suite_management_demo.py` with its committed store and
+  artifacts, reproduced by `tests/test_examples_suites.py`; CI's
+  `regression-suite` job verifies, exports, evaluates, and gates it
+
 ### Completion criteria
 
-- traces can be converted into reviewable test cases
-- approved suite versions are immutable
-- regression suites can run in CI
-- sensitive fields can be masked before storage
+- [x] traces can be converted into reviewable test cases (converted cases are
+      `needs_review` and record trace and run IDs; skipped runs are reported
+      with a reason)
+- [x] approved suite versions are immutable (write-once store, content hash
+      re-verified on every read, conflicting re-approval refused)
+- [x] regression suites can run in CI (`suite verify` → `suite export` →
+      `evaluate`/`evaluate-live` → `gate`, exercised by this repository's CI)
+- [x] sensitive fields can be masked before storage (masking is on by default
+      for every import and conversion, and approval refuses unmasked PII)
+
+Known limits: PII detection is pattern- and key-based and misses names, free-text
+street addresses, and locale-specific identifiers; synthetic variations are
+surface perturbations, not paraphrases; duplicate detection is lexical and
+pairwise; approval records an approver name but does not authenticate it; the
+store is local files, not a multi-user registry.
+
+### Follow-on work
+
+- semantic (embedding or judge-based) duplicate detection and paraphrase
+  variations as optional extensions
+- an interactive review surface (the CLI and Python API are the editors today)
+- signed approvals and a shared registry, tracked under v1.0 audit logs and
+  model and prompt registries
 
 ## v0.7 — ModelFit
 
@@ -764,14 +873,72 @@ safety, provider, and deployment constraints.
 - alternative and fallback models
 - task-level model matrix
 
+### Delivered in `0.9.0`
+
+- task taxonomy: `TaskCategory` (tags, domains, case IDs), derived per-tag
+  categories, the `all` category, and `agenticlens modelfit taxonomy`
+- constraint configuration: `ModelConstraints` defaults with per-category
+  overrides (`ModelConstraints.merged`), loaded from YAML or JSON with
+  `load_modelfit_config`
+- weighted scoring: `ScoringWeights` (quality, cost, latency, reliability),
+  with per-category weights
+- Pareto frontier: `pareto_frontier` over pass rate, cost per success, and
+  latency, per category
+- cost-per-success ranking: `cost_per_success_ranking`, per category
+- recommendation confidence: `high`/`medium`/`low` with reasons (evidence
+  volume, close and non-significant runner-up, interval below the minimum,
+  incomplete cost, a high-severity quality or safety trade-off)
+- recommendation explanation: per-category lines citing measured pass rates,
+  intervals, costs, latency, scores, and every rejection reason
+- alternative and fallback models: ranked alternatives and a fallback on a
+  different provider when one is feasible
+- task-level model matrix: `ModelFitReport.matrix`, `render_matrix_csv`,
+  `render_markdown`, `agenticlens modelfit matrix`
+- `recommend_models` / `agenticlens modelfit recommend` (exit 8 with
+  `--fail-on-unfit` or `--fail-on-low-confidence`)
+- JSON Schemas: `schemas/modelfit/`
+- example: `examples/modelfit_demo.py` with a recorded four-model experiment
+  and committed artifacts, reproduced by `tests/test_examples_modelfit.py`;
+  CI's `modelfit` job replays the experiment and requires a feasible model
+  for every category
+
 ### Completion criteria
 
-- recommendations are generated by task category
-- hard constraints are enforced
-- savings estimates are tied to experiment evidence
-- quality risks and alternatives are reported
+- [x] recommendations are generated by task category (one `CategoryResult`
+      per taxonomy category, plus `all`)
+- [x] hard constraints are enforced (infeasible candidates are never
+      recommended; unverifiable limits are violations; a category without a
+      feasible candidate reports `no_feasible_model`)
+- [x] savings estimates are tied to experiment evidence (same cases as the
+      reference, attempts and case IDs recorded, source report SHA-256, and
+      `available: false` when cost evidence is incomplete)
+- [x] quality risks and alternatives are reported (regressions with
+      significance, regressed, flaky, and safety-failed cases, thin evidence,
+      failed trials, alternatives, fallbacks)
+
+Known limits: recommendations are only as representative as the suite and
+trials; costs are the experiment's recorded costs; monthly savings assume the
+production mix matches the category's cases; provider, deployment, and
+capability facts are declared, not verified; intervals and significance tests
+treat case attempts as independent; ModelFit recommends and does not route.
+
+### Follow-on work
+
+- price-sheet re-costing of recorded token usage, so savings track price
+  changes without re-running the experiment
+- confidence from bootstrap resampling across cases rather than pooled
+  attempts
+- feeding recommendations and fallbacks into v0.8 advisory runtime routing
 
 ## v0.8 — Advisory Runtime Routing
+
+Implemented in package **0.10.0**. See [routing guide](docs/routing.md),
+[offline example](examples/routing_demo.py), `tests/test_routing.py` and
+`tests/test_examples_routing.py`. Python provides bounded callback execution;
+CLI/MCP only select and explain. Human escalation hands off to the host;
+local journals are not enterprise governance logs. Shadow metrics measure
+explicitly executed callback pairs. Completion criteria below are covered by
+the offline acceptance tests; real-provider production validation is separate.
 
 ### Objective
 
@@ -985,3 +1152,135 @@ on Sidecar v0.7–v0.8 lifecycle work.
       completeness or truth of an untrusted producer's reported execution.
 - [ ] Expose verification/coverage status and causal policy/action links to Tower
       and MCP; keep failed, unknown and incomplete verification visibly distinct.
+
+## Sidecar 0.8 compatibility
+
+Lens 0.7.1 reads `sidecar.correlation/1` through
+`agenticlens.integrations.sidecar.attach_decisions(run, records)`. Records must
+match the exact run, trace and existing span IDs. Duplicate decisions are
+idempotent; conflicting identities and mixed invalid batches are rejected.
+All seven outcomes appear as `supervision_decision` timeline events in diagnosis
+schema 1.1. BLOCK/ESCALATE do not mark spans, runs or deployments unhealthy.
+Decision evidence is not proof of tool execution; the Sidecar journal carries
+actual dispatch/completion and must be verified separately. Reasons may contain
+sensitive information: callers must authorize recipients. Shared/Exclusive
+context privacy and delegated authority remain Sidecar 0.9 validation work.
+No Sidecar runtime dependency is added.
+
+See [integration details](docs/sidecar-integration.md).
+
+## Tower 0.6.0 integration
+
+Native Lens run evidence supports Tower's approved staging recovery, shipped
+with its combined Phase 6/6A and MCP 0.3.6. Lens retains analysis ownership. See
+[compatibility and examples](docs/control-tower-0.6.md).
+
+## Evals 0.8.0 CLI interoperability
+
+Evals 0.8.0 runs Lens 0.8.0 approved suite exports directly with `agentic-evals evaluate` or `live`, then applies release policy with `gate`. Lens retains dataset curation, approval, lineage and diagnosis. The existing `agentic-evals>=0.7.1,<1` dependency admits 0.8.0; no floor increase is needed.
+
+See [CLI usage and compatibility](docs/evals-0.8-cli.md).
+
+## Chaos 0.7.0 interoperability
+
+Chaos 0.7.0 adds sequential fault cascades, deterministic monotonic breaking-point
+search, synthetic response poisoning (including prompt/tool-response instruction
+and policy-bypass payloads), and explicit-price retry cost estimates. Native
+child event IDs and fault types remain intact; cascade IDs/stages and poisoning
+strategy/payload/seed are additive event detail. Existing report readers and
+AIOS exports remain compatible.
+
+See the [v0.7 guide and offline synthetic example](https://github.com/DeepAgentLabs/agentic-chaos/blob/v0.7.0/docs/v0.7.md).
+The example includes observed synthetic dispatches and a bypassed negative
+control. Injection or recovery alone does not prove containment. No new shared
+schema, automatic adapter, hosted execution capability or containment guarantee
+is introduced.
+
+Lens continues to read chaos_events and diagnose marked spans through existing Chaos span adapters. Suite conversion rules are unchanged. No dependency bump or Lens patch release is needed.
+
+## Control Tower 0.7.0 fleet operations
+
+Tower 0.7.0 adds frozen environment/capability targeting, bulk desired settings,
+separate approval, durable per-target results and bounded stop/MCP-revocation
+acknowledgement through Python, HTTP and CLI. No fleet atomicity or automatic
+rollback/resume is claimed. Timed-out/requested commands need host reconciliation.
+
+Lens retains trace capture, diagnosis and suite management. Enhanced-tracing fleet settings are desired configuration only until a host explicitly applies them; native evidence and health stay independent.
+
+Existing optional dependency ranges remain sufficient. No sibling runtime or
+native evidence schema changes are required; this documentation alignment needs
+no patch release. See the [operator guide](https://github.com/DeepAgentLabs/agenticops-control-tower/blob/v0.7.0/docs/fleet-operations.md).
+
+## 0.9.0 ecosystem compatibility
+
+ModelFit is Lens-owned analysis over Lens experiment reports. It adds no
+cross-package object, event meaning, or AIOS schema, and changes no existing
+trace, finding, experiment, diagnosis, or suite contract.
+
+- `agentic-sidecar`: its optional `agenticlens` extra capped Lens below 0.9.
+  Sidecar 0.8.4 widens the range to `>=0.7.1,<1` and moves its locked
+  ecosystem check to Lens 0.9.x. Sidecar correlation (`attach_decisions`) is
+  unchanged.
+- `agenticops-control-tower`: the optional `agenticlens>=0.7,<1` extra already
+  admits 0.9.0. A ModelFit report is local analysis, not fleet health or
+  native evidence posture; Tower does not read it.
+- `agentic-chaos`: `agenticlens>=0.7.0` admits 0.9.0; chaos span adapters and
+  `chaos_events` analysis are unchanged.
+- `agentic-evals`: Lens keeps `agentic-evals>=0.7.1,<1`; ModelFit reads the
+  native evaluation reports embedded in experiment trials and computes no
+  release gate.
+- `deep-agentic-core-mcp`: MCP 0.3.11 pins its hosted images to
+  `agenticlens==0.9.0` and adds a read-only `lens.modelfit_recommend` tool
+  over supplied experiment reports; existing Lens-backed tools are
+  unchanged.
+- `ai-operations-spec`: no spec change; ModelFit schemas are Lens-local.
+
+## Chaos 0.8.0 interoperability
+
+Chaos 0.8.0 adds:
+
+- multi-stage chaos workflows: steps, steady-state health checks, parallel
+  branches, approval gates that can be resumed, and reusable templates
+- declarative YAML/JSON/TOML experiments, with validation that never executes
+  targets and cron schedule previews
+- `Scope` explosion-radius control (steps, providers and exclusions) on every
+  built-in fault and `cascade()`; custom faults get it by calling
+  `BaseFault.__init__`, setting `scope` or overriding `in_scope()`
+- a topology fuzzer that weights fault placement by fan-out
+
+Native event IDs and fault types are unchanged. Workflow provenance
+(`detail.workflow`) and an optional `ChaosReport.workflow` summary are
+additive. A workflow's steps merge into one native report for contracts and
+AIOS export.
+
+See the [v0.8 guide](https://github.com/DeepAgentLabs/agentic-chaos/blob/v0.8.0/docs/v0.8.md)
+and the [offline examples](https://github.com/DeepAgentLabs/agentic-chaos/tree/v0.8.0/examples/workflows).
+Workflow statuses, health checks and fuzz outcomes are resilience evidence.
+They are not scores, release gates or proof of containment. No new shared
+schema, automatic adapter or hosted execution capability is introduced.
+
+Lens reads workflow reports and merged reports as `Workflow` JSON and analyzes their `chaos_events` as before. `detail.workflow` is producer-specific event detail under schema v1.1. Suite conversion rules are unchanged. Chaos's optional `agenticlens>=0.7.0` extra is unchanged, so no dependency bump or Lens patch release is needed.
+
+## Evals 0.9.0 judge reliability compatibility
+
+Evals 0.9.0 records the same `judge_*` usage keys that `structured_judge()`
+writes and `analyze_scores()` reads. Its own rubric and judge evaluators now
+produce them too, and it totals them in `summary.judge`. A judge that raises
+now yields an unavailable score that never passes instead of aborting the
+suite. `samples=N` adds `judge_agreement`. Lens 0.10.0's tests pass unchanged,
+and `agentic-evals>=0.7.1,<1` already covers 0.9.0. No Lens release is needed.
+See [the compatibility note](docs/evals-0.9-judge-reliability.md).
+
+## MCP 0.4.0 unified release checks
+
+MCP 0.4.0's `core.release_check` consumes the Lens `ComparisonReport` and the Evals
+gate re-exported by `agenticlens.evaluation`. Lens needs no runtime change or release.
+A comparison field rename would be a breaking change for MCP's validation.
+See [the compatibility guide](docs/mcp-0.4-unified-workflows.md)
+and the [MCP guide](https://github.com/DeepAgentLabs/mcp-server/blob/v0.4.0/docs/unified-workflows.md).
+
+## AIOS v0.6 compatibility
+
+See [canonical example and extension guidance](docs/aios-v0.6.md). The AIOS
+v0.6 layer is exploratory; export schemas remain v0.4 and dependency floors
+are unchanged. Lens-local suite, ModelFit and routing contracts remain native.

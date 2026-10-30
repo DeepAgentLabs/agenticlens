@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from agentic_evals import __version__ as evals_version
 
 from agenticlens.experiments import load_experiment_suite, load_manifest, run_experiment
 
@@ -42,10 +43,23 @@ def test_recorded_experiment_reproduces_saved_results(tmp_path: Path) -> None:
     saved = json.loads((source / "artifacts" / "support-experiment.json").read_text())
 
     fresh = json.loads(report.model_dump_json())
+    # Saved examples retain the producer version they were generated with.
+    # Assert current provenance independently before comparing stable results.
+    for variant in fresh["variants"]:
+        for trial in variant["trials"]:
+            if trial["report"]:
+                for case in trial["report"]["cases"]:
+                    for score in case["scores"]:
+                        if score["evaluator"] == "agentic_evals.builtin":
+                            assert score["evaluator_version"] == evals_version
     for document in (fresh, saved):
         document.pop("created_at")
         for variant in document["variants"]:
             for trial in variant["trials"]:
                 if trial["report"]:
                     trial["report"].pop("created_at")
+                    for case in trial["report"]["cases"]:
+                        for score in case["scores"]:
+                            if score["evaluator"] == "agentic_evals.builtin":
+                                assert score.pop("evaluator_version")
     assert _rounded(fresh) == _rounded(saved)

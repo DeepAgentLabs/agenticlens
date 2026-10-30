@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "reasons": [],
+  "observed": {
+    "pass_rate": 1.0,
+    "average_score": 1.0,
+    "failed_cases": 0,
+    "average_latency_ms": 360.0,
+    "total_cost_usd": 0.0009000000000000001
+  }
+}

@@ -1,0 +1,1521 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/modelfit/modelfit-report.schema.json",
+  "$defs": {
+    "Alternative": {
+      "properties": {
+        "variant_id": {
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "role": {
+          "enum": [
+            "alternative",
+            "fallback"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "weighted_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Score"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate"
+        },
+        "cost_per_success_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Usd"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variant_id",
+        "model",
+        "role",
+        "reason"
+      ],
+      "title": "Alternative",
+      "type": "object"
+    },
+    "CandidateMetrics": {
+      "description": "One candidate's measured evidence on one task category.",
+      "properties": {
+        "variant_id": {
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "variant_name": {
+          "title": "Variant Name",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "deployment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deployment"
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "factors": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Factors",
+          "type": "object"
+        },
+        "source_index": {
+          "description": "Index into the report's `sources`.",
+          "minimum": 0,
+          "title": "Source Index",
+          "type": "integer"
+        },
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Ids",
+          "type": "array"
+        },
+        "attempts": {
+          "minimum": 0,
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "passes": {
+          "minimum": 0,
+          "title": "Passes",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate"
+        },
+        "pass_rate_interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConfidenceInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "failed_trial_attempts": {
+          "default": 0,
+          "description": "Attempts lost because the whole trial failed.",
+          "minimum": 0,
+          "title": "Failed Trial Attempts",
+          "type": "integer"
+        },
+        "mean_latency_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Latency Ms"
+        },
+        "p95_latency_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P95 Latency Ms"
+        },
+        "cost_complete": {
+          "description": "Every completed attempt reported a cost; otherwise costs are unavailable.",
+          "title": "Cost Complete",
+          "type": "boolean"
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Cost Usd"
+        },
+        "cost_per_case_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Case Usd"
+        },
+        "cost_per_success_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Usd"
+        },
+        "consistency_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consistency Rate"
+        },
+        "flaky_case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flaky Case Ids",
+          "type": "array"
+        },
+        "safety_attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Safety Attempts",
+          "type": "integer"
+        },
+        "safety_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Safety Pass Rate"
+        },
+        "failed_safety_case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failed Safety Case Ids",
+          "type": "array"
+        },
+        "feasible": {
+          "default": false,
+          "title": "Feasible",
+          "type": "boolean"
+        },
+        "violations": {
+          "items": {
+            "$ref": "#/$defs/Violation"
+          },
+          "title": "Violations",
+          "type": "array"
+        },
+        "component_scores": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Component Scores",
+          "type": "object"
+        },
+        "weighted_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only feasible candidates are scored.",
+          "title": "Weighted Score"
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Rank among feasible candidates.",
+          "title": "Rank"
+        },
+        "pareto_optimal": {
+          "default": false,
+          "title": "Pareto Optimal",
+          "type": "boolean"
+        },
+        "cost_per_success_rank": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Rank"
+        }
+      },
+      "required": [
+        "variant_id",
+        "variant_name",
+        "model",
+        "source_index",
+        "case_ids",
+        "attempts",
+        "passes",
+        "cost_complete"
+      ],
+      "title": "CandidateMetrics",
+      "type": "object"
+    },
+    "CategoryResult": {
+      "properties": {
+        "category": {
+          "$ref": "#/$defs/TaskCategory"
+        },
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Ids",
+          "type": "array"
+        },
+        "constraints": {
+          "$ref": "#/$defs/ModelConstraints",
+          "description": "Effective constraints after overrides."
+        },
+        "weights": {
+          "$ref": "#/$defs/ScoringWeights",
+          "description": "Effective scoring weights."
+        },
+        "candidates": {
+          "description": "Feasible candidates by rank, then infeasible ones.",
+          "items": {
+            "$ref": "#/$defs/CandidateMetrics"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "pareto_frontier_variant_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Pareto Frontier Variant Ids",
+          "type": "array"
+        },
+        "cost_per_success_ranking": {
+          "description": "Candidates with known cost per success, cheapest first.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Cost Per Success Ranking",
+          "type": "array"
+        },
+        "recommendation": {
+          "$ref": "#/$defs/Recommendation"
+        }
+      },
+      "required": [
+        "category",
+        "case_ids",
+        "constraints",
+        "weights",
+        "candidates",
+        "recommendation"
+      ],
+      "title": "CategoryResult",
+      "type": "object"
+    },
+    "ConfidenceInterval": {
+      "properties": {
+        "lower": {
+          "title": "Lower",
+          "type": "number"
+        },
+        "upper": {
+          "title": "Upper",
+          "type": "number"
+        },
+        "confidence_level": {
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lower",
+        "upper",
+        "confidence_level",
+        "method"
+      ],
+      "title": "ConfidenceInterval",
+      "type": "object"
+    },
+    "EvidenceSource": {
+      "description": "One experiment report the recommendations were computed from.",
+      "properties": {
+        "experiment_name": {
+          "title": "Experiment Name",
+          "type": "string"
+        },
+        "experiment_version": {
+          "title": "Experiment Version",
+          "type": "string"
+        },
+        "suite_name": {
+          "title": "Suite Name",
+          "type": "string"
+        },
+        "suite_version": {
+          "title": "Suite Version",
+          "type": "string"
+        },
+        "baseline_variant_id": {
+          "title": "Baseline Variant Id",
+          "type": "string"
+        },
+        "trial_count": {
+          "minimum": 1,
+          "title": "Trial Count",
+          "type": "integer"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "variant_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Variant Ids",
+          "type": "array"
+        },
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Report file name, without directories.",
+          "title": "File"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "SHA-256 of the report file bytes, when loaded from a file.",
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "experiment_name",
+        "experiment_version",
+        "suite_name",
+        "suite_version",
+        "baseline_variant_id",
+        "trial_count",
+        "created_at",
+        "variant_ids"
+      ],
+      "title": "EvidenceSource",
+      "type": "object"
+    },
+    "MatrixRow": {
+      "description": "One cell of the task-level model matrix: a category x candidate pair.",
+      "properties": {
+        "category_id": {
+          "title": "Category Id",
+          "type": "string"
+        },
+        "variant_id": {
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "role": {
+          "enum": [
+            "recommended",
+            "alternative",
+            "fallback",
+            "feasible",
+            "infeasible"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "feasible": {
+          "title": "Feasible",
+          "type": "boolean"
+        },
+        "attempts": {
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate"
+        },
+        "cost_per_success_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Usd"
+        },
+        "mean_latency_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Latency Ms"
+        },
+        "weighted_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Score"
+        },
+        "violations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Violations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category_id",
+        "variant_id",
+        "model",
+        "role",
+        "feasible",
+        "attempts"
+      ],
+      "title": "MatrixRow",
+      "type": "object"
+    },
+    "ModelConstraints": {
+      "description": "Hard constraints a candidate must satisfy to be recommended.\n\nEvery limit is optional. A limit that cannot be checked because the\nevidence is missing (for example an unpriced trial under a cost limit, or\nan unknown provider under a provider allow-list) is a violation: ModelFit\nnever assumes a candidate passes a constraint it has no evidence for.",
+      "properties": {
+        "min_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Pass Rate"
+        },
+        "min_pass_rate_lower_bound": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum lower bound of the pass rate's Wilson confidence interval.",
+          "title": "Min Pass Rate Lower Bound"
+        },
+        "max_cost_per_case_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Cost Per Case Usd"
+        },
+        "max_cost_per_success_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Cost Per Success Usd"
+        },
+        "max_mean_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Mean Latency Ms"
+        },
+        "max_p95_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max P95 Latency Ms"
+        },
+        "min_consistency": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum share of cases with the same outcome on every attempt.",
+          "title": "Min Consistency"
+        },
+        "min_safety_pass_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum pass rate over every safety-tagged case in the suite.",
+          "title": "Min Safety Pass Rate"
+        },
+        "allowed_providers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Providers"
+        },
+        "blocked_providers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`null` in an override clears the default block-list.",
+          "title": "Blocked Providers"
+        },
+        "allowed_deployments": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Deployments"
+        },
+        "required_capabilities": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`null` in an override clears the default requirement.",
+          "title": "Required Capabilities"
+        }
+      },
+      "title": "ModelConstraints",
+      "type": "object"
+    },
+    "ModelFitSummary": {
+      "properties": {
+        "categories": {
+          "minimum": 0,
+          "title": "Categories",
+          "type": "integer"
+        },
+        "recommended": {
+          "minimum": 0,
+          "title": "Recommended",
+          "type": "integer"
+        },
+        "unfit_category_ids": {
+          "description": "Categories with no feasible candidate or no evidence.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Unfit Category Ids",
+          "type": "array"
+        },
+        "low_confidence_category_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Low Confidence Category Ids",
+          "type": "array"
+        },
+        "candidates": {
+          "minimum": 0,
+          "title": "Candidates",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "categories",
+        "recommended",
+        "candidates"
+      ],
+      "title": "ModelFitSummary",
+      "type": "object"
+    },
+    "QualityRisk": {
+      "properties": {
+        "kind": {
+          "enum": [
+            "quality_regression",
+            "regressed_cases",
+            "flaky_cases",
+            "safety_failures",
+            "low_evidence",
+            "cost_unavailable",
+            "failed_trials",
+            "no_fallback"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "severity",
+        "message"
+      ],
+      "title": "QualityRisk",
+      "type": "object"
+    },
+    "Recommendation": {
+      "properties": {
+        "category_id": {
+          "title": "Category Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "recommended",
+            "no_feasible_model",
+            "no_evidence"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "variant_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variant Id"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "weighted_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Score"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "confidence_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Confidence Reasons",
+          "type": "array"
+        },
+        "explanation": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Explanation",
+          "type": "array"
+        },
+        "alternatives": {
+          "items": {
+            "$ref": "#/$defs/Alternative"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "fallback": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Alternative"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "savings": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SavingsEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quality_risks": {
+          "items": {
+            "$ref": "#/$defs/QualityRisk"
+          },
+          "title": "Quality Risks",
+          "type": "array"
+        },
+        "rejected_variant_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rejected Variant Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category_id",
+        "status"
+      ],
+      "title": "Recommendation",
+      "type": "object"
+    },
+    "SavingsEstimate": {
+      "description": "Cost of the recommendation relative to the reference, from the same evidence.\n\nPositive `cost_per_case_savings_usd` means the recommendation is cheaper.\nSavings are only stated when both candidates' costs are complete.",
+      "properties": {
+        "reference_variant_id": {
+          "title": "Reference Variant Id",
+          "type": "string"
+        },
+        "recommended_variant_id": {
+          "title": "Recommended Variant Id",
+          "type": "string"
+        },
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "reason": {
+          "default": "",
+          "title": "Reason",
+          "type": "string"
+        },
+        "reference_cost_per_case_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference Cost Per Case Usd"
+        },
+        "recommended_cost_per_case_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Cost Per Case Usd"
+        },
+        "cost_per_case_savings_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Case Savings Usd"
+        },
+        "cost_per_case_savings_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Case Savings Ratio"
+        },
+        "reference_cost_per_success_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference Cost Per Success Usd"
+        },
+        "recommended_cost_per_success_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Cost Per Success Usd"
+        },
+        "cost_per_success_savings_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Savings Usd"
+        },
+        "monthly_volume": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Monthly Volume"
+        },
+        "projected_monthly_savings_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Projected Monthly Savings Usd"
+        },
+        "reference_pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference Pass Rate"
+        },
+        "recommended_pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Pass Rate"
+        },
+        "pass_rate_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate Delta"
+        },
+        "pass_rate_p_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pass Rate P Value"
+        },
+        "reference_attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Reference Attempts",
+          "type": "integer"
+        },
+        "recommended_attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Recommended Attempts",
+          "type": "integer"
+        },
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Ids",
+          "type": "array"
+        },
+        "source_indexes": {
+          "description": "Indexes into the report's `sources`.",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Source Indexes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "reference_variant_id",
+        "recommended_variant_id",
+        "available"
+      ],
+      "title": "SavingsEstimate",
+      "type": "object"
+    },
+    "ScoringWeights": {
+      "description": "Relative weights of the four normalised components of a candidate's score.\n\nComponents are each in [0, 1]: `quality` is the pass rate; `cost` and\n`latency` are the cheapest (fastest) feasible candidate's cost per success\n(mean latency) divided by this candidate's; `reliability` is the share of\ncases with a consistent outcome across attempts.",
+      "properties": {
+        "quality": {
+          "default": 0.5,
+          "minimum": 0,
+          "title": "Quality",
+          "type": "number"
+        },
+        "cost": {
+          "default": 0.3,
+          "minimum": 0,
+          "title": "Cost",
+          "type": "number"
+        },
+        "latency": {
+          "default": 0.1,
+          "minimum": 0,
+          "title": "Latency",
+          "type": "number"
+        },
+        "reliability": {
+          "default": 0.1,
+          "minimum": 0,
+          "title": "Reliability",
+          "type": "number"
+        }
+      },
+      "title": "ScoringWeights",
+      "type": "object"
+    },
+    "TaskCategory": {
+      "description": "A task category and the suite cases that belong to it.\n\nA case belongs to the category when its ID is listed in `case_ids`, it\ncarries any of `tags`, or its `metadata[\"domain\"]` is in `domains`. A\ncase can belong to several categories.",
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "domains": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Domains",
+          "type": "array"
+        },
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case Ids",
+          "type": "array"
+        },
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelConstraints"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overrides for the config's default constraints."
+        },
+        "weights": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScoringWeights"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Replaces the config's default weights for this category."
+        },
+        "monthly_volume": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected requests per month, for savings projections.",
+          "title": "Monthly Volume"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TaskCategory",
+      "type": "object"
+    },
+    "Violation": {
+      "properties": {
+        "constraint": {
+          "title": "Constraint",
+          "type": "string"
+        },
+        "limit": {
+          "default": null,
+          "title": "Limit"
+        },
+        "observed": {
+          "default": null,
+          "title": "Observed"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "constraint",
+        "message"
+      ],
+      "title": "Violation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "model_factor": {
+      "title": "Model Factor",
+      "type": "string"
+    },
+    "reference_variant_id": {
+      "title": "Reference Variant Id",
+      "type": "string"
+    },
+    "safety_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Safety Tags",
+      "type": "array"
+    },
+    "minimum_attempts": {
+      "minimum": 1,
+      "title": "Minimum Attempts",
+      "type": "integer"
+    },
+    "confidence_level": {
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/EvidenceSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "summary": {
+      "$ref": "#/$defs/ModelFitSummary"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/CategoryResult"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "matrix": {
+      "items": {
+        "$ref": "#/$defs/MatrixRow"
+      },
+      "title": "Matrix",
+      "type": "array"
+    },
+    "uncategorized_case_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Uncategorized Case Ids",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "model_factor",
+    "reference_variant_id",
+    "minimum_attempts",
+    "confidence_level",
+    "sources",
+    "summary",
+    "categories"
+  ],
+  "title": "AgenticLens ModelFit Report",
+  "type": "object"
+}

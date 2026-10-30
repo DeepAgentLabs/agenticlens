@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/suites/suite-version.schema.json",
+  "$defs": {
+    "ApprovalCheck": {
+      "description": "One check run before a suite version was approved.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "passed",
+        "detail"
+      ],
+      "title": "ApprovalCheck",
+      "type": "object"
+    },
+    "ApprovalRecord": {
+      "properties": {
+        "approved_by": {
+          "minLength": 1,
+          "title": "Approved By",
+          "type": "string"
+        },
+        "approved_at": {
+          "format": "date-time",
+          "title": "Approved At",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/ApprovalCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "approved_by",
+        "approved_at"
+      ],
+      "title": "ApprovalRecord",
+      "type": "object"
+    }
+  },
+  "description": "An approved, immutable suite version.\n\n`suite` is the agentic-evals `TestSuite` JSON exactly as approved;\n`content_sha256` is computed over its canonical JSON (sorted keys, no\nwhitespace). `record_sha256` covers the whole envelope except itself, so\nlater edits to the approval record, case count, or parent version are\ndetected as well as edits to the suite.",
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    },
+    "status": {
+      "const": "approved",
+      "default": "approved",
+      "title": "Status",
+      "type": "string"
+    },
+    "content_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Sha256",
+      "type": "string"
+    },
+    "record_sha256": {
+      "default": "",
+      "description": "SHA-256 of the canonical envelope without this field.",
+      "title": "Record Sha256",
+      "type": "string"
+    },
+    "case_count": {
+      "minimum": 1,
+      "title": "Case Count",
+      "type": "integer"
+    },
+    "parent_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Version"
+    },
+    "approval": {
+      "$ref": "#/$defs/ApprovalRecord"
+    },
+    "suite": {
+      "additionalProperties": true,
+      "title": "Suite",
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "content_sha256",
+    "case_count",
+    "approval",
+    "suite"
+  ],
+  "title": "AgenticLens Suite Version",
+  "type": "object"
+}
