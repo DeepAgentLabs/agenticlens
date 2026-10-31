@@ -2315,3 +2315,8 @@ Lens reads scored reports as `Workflow` JSON and analyzes their `chaos_events` a
 See [AIOS v0.6.1 compatibility](docs/aios-0.6.1.md) for the new `0.6-draft` provenance
 records, portable conformance suite and naming conventions. Exports stay
 `0.4-draft`; no runtime dependency bump or package release is required.
+
+## MCP 0.5.0 hosted access control
+
+[MCP 0.5.0](https://github.com/DeepAgentLabs/mcp-server/releases/tag/v0.5.0) completes MCP Phase 5 with hosted access control. Each hosted key can carry allow and deny tool globs, an expiry and a task scope. The server enforces them at dispatch, outside the model: before each hosted handler runs, it re-authenticates the key and reloads its policy. Revocation, a narrower policy or expiry therefore stops queued calls, retries and calls on existing connections. Calls already running finish. Denied calls return an MCP-local `mcp.access-decision.v1` record, and every hosted call logs `dispatch`/`completion` records that share a `correlation_id`. These records are not AIOS artifacts. `core.access_status` reports a key's effective policy, and operators use `deep-agentic-core-mcp-admin` to narrow or revoke a key by user ID.
+See [the compatibility guide](docs/mcp-0.5-access-control.md).
