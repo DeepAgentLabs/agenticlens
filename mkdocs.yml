@@ -80,4 +80,5 @@ nav:
   - Control Tower 0.8 Live Operations: tower-0.8-live-operations.md
   - Evals 0.8 CLI: evals-0.8-cli.md
   - Evals 0.9 Judge Reliability: evals-0.9-judge-reliability.md
+  - Evals 0.10 AIOS Evidence: evals-0.10-aios-evidence.md
   - Sidecar Integration: sidecar-integration.md
