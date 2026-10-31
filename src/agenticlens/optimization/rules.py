@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from agenticlens.modelfit.models import Confidence
-from agenticlens.models.trace import Run, Span, SpanType
+from agenticlens.models.trace import Run, RunStatus, Span, SpanType
 from agenticlens.optimization.models import (
     Opportunity,
     OpportunityEvidence,
@@ -671,9 +671,180 @@ class MemoryRule:
         ]
 
 
+class ToolCachingRule:
+    """Successful tool calls repeated with identical arguments in one run.
+
+    Tools that declare `idempotent: false` or `side_effects: true` are skipped.
+    """
+
+    rule_id = "tool_caching"
+    version = "1"
+
+    def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
+        per_tool: dict[str, Savings] = defaultdict(Savings)
+        declared: dict[str, bool] = {}
+        for run in runs:
+            calls: dict[tuple[str, str], list[Span]] = defaultdict(list)
+            for span in run.spans:
+                if span.span_type is not SpanType.TOOL_CALL or span.status is not (
+                    RunStatus.SUCCEEDED
+                ):
+                    continue
+                attrs = span.attributes
+                if attrs.get("idempotent") is False or attrs.get("side_effects") is True:
+                    continue
+                args = attrs.get("tool_args")
+                key = "args:" + fingerprint(args) if args is not None else input_fingerprint(span)
+                if key is None:
+                    continue
+                tool = span.tool_name or span.name
+                calls[(tool, key)].append(span)
+                declared[tool] = declared.get(tool, True) and attrs.get("idempotent") is True
+            for (tool, _), spans in sorted(calls.items()):
+                if len(spans) < config.tool_cache_min_repeats:
+                    continue
+                repeats = spans[1:]
+                per_tool[tool].add_spans(repeats)
+                per_tool[tool].evidence.append(
+                    OpportunityEvidence(
+                        run_id=run.run_id,
+                        span_ids=[s.span_id for s in spans],
+                        measurements={
+                            "calls": len(spans),
+                            "repeat_tokens": sum(s.total_tokens for s in repeats),
+                            "repeat_latency_ms": sum(s.latency_ms for s in repeats),
+                        },
+                        reasoning="Identical arguments returned successfully more than once.",
+                    )
+                )
+
+        found: list[Opportunity] = []
+        for tool, savings in sorted(per_tool.items()):
+            idempotent = declared.get(tool, False)
+            found.append(
+                build_opportunity(
+                    self,
+                    area="tool",
+                    kind="tool_result_caching",
+                    title=f"Cache results of tool '{tool}'",
+                    summary=(
+                        f"'{tool}' was called repeatedly with identical arguments in "
+                        f"{len(savings.evidence)} runs."
+                    ),
+                    action=f"Memoize '{tool}' by arguments for the duration of a run.",
+                    subject={"tool_name": tool},
+                    thresholds={"tool_cache_min_repeats": config.tool_cache_min_repeats},
+                    runs=runs,
+                    savings=savings,
+                    basis="Measured tokens, cost and latency of every repeat after the first.",
+                    config=config,
+                    risks=[
+                        QualityRisk(
+                            kind="stale_result",
+                            severity="low" if idempotent else "medium",
+                            description=(
+                                "The tool is declared idempotent; cached results can still "
+                                "go stale if they outlive the data."
+                                if idempotent
+                                else "The tool does not declare idempotent: true; caching "
+                                "may hide state changes between calls."
+                            ),
+                        )
+                    ],
+                )
+            )
+        return found
+
+
+def _retry_recovered(run: Run, span: Span) -> bool:
+    return span.status is RunStatus.SUCCEEDED or any(
+        child.status is RunStatus.SUCCEEDED for child in subtree(run, span)[1:]
+    )
+
+
+def _retry_trigger(run: Run, span: Span) -> str:
+    by_id = {s.span_id: s for s in run.spans}
+    parent = by_id.get(span.parent_span_id or "")
+    if parent is not None and parent.status is RunStatus.FAILED:
+        return parent.error_type or "unknown"
+    index = run.spans.index(span)
+    for earlier in reversed(run.spans[:index]):
+        if earlier.status is RunStatus.FAILED and earlier.span_type is not SpanType.RETRY:
+            return earlier.error_type or "unknown"
+    return span.error_type or "unknown"
+
+
+class RetryPolicyRule:
+    """Retries of an error type that no observed retry ever recovered."""
+
+    rule_id = "retry_policy"
+    version = "1"
+
+    def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
+        failed: dict[str, Savings] = defaultdict(Savings)
+        recovered: dict[str, int] = defaultdict(int)
+        for run in runs:
+            by_error: dict[str, list[Span]] = defaultdict(list)
+            for span in run.spans:
+                if span.span_type is not SpanType.RETRY:
+                    continue
+                error = _retry_trigger(run, span)
+                if _retry_recovered(run, span):
+                    recovered[error] += 1
+                else:
+                    by_error[error].append(span)
+            for error, spans in sorted(by_error.items()):
+                failed[error].add_spans(spans)
+                failed[error].evidence.append(
+                    OpportunityEvidence(
+                        run_id=run.run_id,
+                        span_ids=[s.span_id for s in spans],
+                        measurements={"unrecovered_retries": len(spans), "error_type": error},
+                        reasoning="Retries after this error type did not recover.",
+                    )
+                )
+
+        found: list[Opportunity] = []
+        for error, savings in sorted(failed.items()):
+            attempts = sum(len(item.span_ids) for item in savings.evidence)
+            if recovered[error] or attempts < config.retry_min_unrecovered:
+                continue
+            found.append(
+                build_opportunity(
+                    self,
+                    area="tool",
+                    kind="retry_policy",
+                    title=f"Stop retrying '{error}'",
+                    summary=(
+                        f"{attempts} retries after '{error}' were observed and none recovered."
+                    ),
+                    action=(f"Treat '{error}' as non-retryable: fail fast or route to a fallback."),
+                    subject={"error_type": error},
+                    thresholds={"retry_min_unrecovered": config.retry_min_unrecovered},
+                    runs=runs,
+                    savings=savings,
+                    basis="Measured tokens, cost and latency of the unrecovered retry spans.",
+                    config=config,
+                    risks=[
+                        QualityRisk(
+                            kind="transient_error",
+                            severity="medium" if attempts < 5 else "low",
+                            description=(
+                                f"{attempts} retries were observed; the error may be "
+                                "transient on traffic not in these traces."
+                            ),
+                        )
+                    ],
+                )
+            )
+        return found
+
+
 DEFAULT_RULES: tuple[OptimizationRule, ...] = (
     PromptCachingRule(),
     PromptCompressionRule(),
     RetrievalRule(),
     MemoryRule(),
+    ToolCachingRule(),
+    RetryPolicyRule(),
 )
