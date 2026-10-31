@@ -1271,6 +1271,16 @@ suite. `samples=N` adds `judge_agreement`. Lens 0.10.0's tests pass unchanged,
 and `agentic-evals>=0.7.1,<1` already covers 0.9.0. No Lens release is needed.
 See [the compatibility note](docs/evals-0.9-judge-reliability.md).
 
+## Evals 0.10.0 evaluation evidence compatibility
+
+Evals 0.10.0 exports its reports as AIOS `0.4-draft` `evaluation` evidence and
+merges it into an existing Run. `agenticlens validate` reports the merged
+example as aligned. Mapping Evals cases to Lens-exported steps stays explicit;
+judge usage stays in evaluation attributes, never in the Run's cost. Lens
+0.10.0's tests pass unchanged, and `agentic-evals>=0.7.1,<1` covers 0.10.0. No
+Lens release is needed.
+See [the compatibility note](docs/evals-0.10-aios-evidence.md).
+
 ## MCP 0.4.0 unified release checks
 
 MCP 0.4.0's `core.release_check` consumes the Lens `ComparisonReport` and the Evals
