@@ -2171,6 +2171,16 @@ suite. `samples=N` adds `judge_agreement`. Lens 0.10.0's tests pass unchanged,
 and `agentic-evals>=0.7.1,<1` already covers 0.9.0. No Lens release is needed.
 See [the compatibility note](docs/evals-0.9-judge-reliability.md).
 
+## Evals 0.10.0 evaluation evidence compatibility
+
+Evals 0.10.0 exports its reports as AIOS `0.4-draft` `evaluation` evidence and
+merges it into an existing Run. `agenticlens validate` reports the merged
+example as aligned. Mapping Evals cases to Lens-exported steps stays explicit;
+judge usage stays in evaluation attributes, never in the Run's cost. Lens
+0.10.0's tests pass unchanged, and `agentic-evals>=0.7.1,<1` covers 0.10.0. No
+Lens release is needed.
+See [the compatibility note](docs/evals-0.10-aios-evidence.md).
+
 ## MCP 0.4.0 unified release checks
 
 [MCP 0.4.0](https://github.com/DeepAgentLabs/mcp-server/releases/tag/v0.4.0) completes Phase 4 with its unified workflows: `core.compare_runs`, a fail-closed `core.release_check`, `core.incident_summary` and `core.export_report`. MCP judges nothing itself; it composes Lens comparisons, the Evals release gate and Chaos run reports. Malformed or failed-call evidence always blocks readiness, and so does missing evidence of a required kind; all three kinds are required by default and `required_evidence` narrows that.
