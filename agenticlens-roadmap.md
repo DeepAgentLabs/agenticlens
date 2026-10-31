@@ -25,14 +25,16 @@ delivery evidence, and the
 [0.8.0 follow-up](ROADMAP_AUDIT.md#080-follow-up-2026-10-17) records v0.6
 delivery evidence, and the
 [0.9.0 follow-up](ROADMAP_AUDIT.md#090-follow-up-2026-10-18) records v0.7
+delivery evidence, and the
+[0.11.0 follow-up](ROADMAP_AUDIT.md#0110-follow-up-2026-10-31) records v0.9
 delivery evidence. Later milestones contain partial
 building blocks; planned scope is not a claim of completion.
 
 ## Release Status
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
-`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0`
-(current, 2026-10-18) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0` →
+`0.10.0` → `0.11.0` (current, 2026-10-31) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -72,8 +74,16 @@ forward from `v0.5` and `v1.0`.
   ranking, recommendation confidence and explanations, alternatives and
   provider-diverse fallbacks, savings tied to experiment evidence, quality
   risks, and a task-level model matrix)
-- **v0.8** ✅ Implemented in 0.10.0 — Advisory Runtime Routing
-- **v0.9** 🚧 Planned — Optimization Intelligence
+- **v0.8** ✅ Delivered in `0.10.0` — Advisory Runtime Routing (routing SDK,
+  rule/score selection, fail-closed policy constraints, bounded fallback and
+  provider failover, confidence thresholds, host escalation handoffs,
+  shadow/canary modes, and a local routing journal)
+- **v0.9** ✅ Delivered in `0.11.0` — Optimization Intelligence (prompt caching
+  and compression, retrieval pruning and reranking, memory summarization, tool
+  caching and retry policy, redundant-step and unnecessary-handoff detection,
+  quality-cost trade-offs, projected benefit with separate confidence and
+  quality risk, accepted/rejected/adopted tracking, and post-adoption outcome
+  evaluation)
 - **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
   partially pulled forward into `v0.3`)
 
@@ -436,6 +446,25 @@ The following capabilities are implemented in the current development line.
   as separate risks
 - task-level model matrix (JSON, CSV, Markdown) and `agenticlens modelfit`
   `recommend`, `matrix`, and `taxonomy` commands
+
+### Optimization intelligence
+
+- trace-level rules over many runs: prompt caching (recorded prefix hashes,
+  provider cache hits skipped) and compression, retrieval top-k pruning that
+  never cuts a used chunk and reranking upper bounds, memory summarization and
+  retention, tool-result caching that skips side-effecting tools, non-retryable
+  error types, redundant steps, and handoffs that add no work
+- quality-cost trade-offs between experiment variants: Wilson intervals, Pareto
+  status, success and cost deltas, and significance against a baseline
+- every opportunity cites run and span evidence and the thresholds used, and
+  keeps projected benefit (with its basis; cost unavailable when incomplete),
+  graded confidence with reasons, and quality risks separate
+- an append-only decision ledger bound to the report hash, with enforced
+  accepted/rejected/adopted/reverted transitions
+- post-adoption outcome evaluation reporting projected and observed per-run
+  tokens, cost, latency, and success side by side, with a rule re-check
+- `agenticlens optimize analyze|decide|status|outcome` (exit 9 with
+  `--fail-on-regression`)
 
 ### Artifact contracts
 
@@ -982,12 +1011,57 @@ tools, models, and multi-agent workflows.
 - projected benefit, confidence, and risk
 - accepted and rejected recommendation tracking
 
+### Delivered in `0.11.0`
+
+- prompt compression and caching: `PromptCompressionRule` (input-heavy model
+  calls; reduction is a configured target, so confidence is capped at medium)
+  and `PromptCachingRule` (repeated `prompt.prefix_sha256` prefixes without a
+  provider cache hit, priced with the cached-read ratio)
+- retrieval and reranking: `RetrievalRule` lowers top-k only to the deepest
+  chunk any observed answer used, and reports reranking as a perfect-reranker
+  upper bound
+- memory retention and summarization: `MemoryRule` (memory-read share and
+  token budget, with growth detection that adds a retention window)
+- tool caching and retry: `ToolCachingRule` (identical successful calls;
+  side-effecting and non-idempotent tools are never cached) and
+  `RetryPolicyRule` (error types no observed retry recovered)
+- redundant-step and unnecessary-handoff detection: `RedundantStepRule` (same
+  input and output in one run) and `UnnecessaryHandoffRule` (receiver did no
+  work or echoed its input)
+- quality-cost trade-off analysis: `analyze_tradeoffs` and
+  `QualityCostTradeoffRule` over measured variant runs
+- projected benefit, confidence, and risk: `ProjectedBenefit` with a stated
+  basis, graded confidence with reasons, and separate `QualityRisk`s
+- accepted and rejected recommendation tracking: `RecommendationLedger` and
+  `agenticlens optimize decide/status`
+- outcome evaluation: `evaluate_outcome` and `agenticlens optimize outcome`
+- JSON Schemas: `schemas/optimization/`
+- example: `examples/optimization_demo.py` with recorded before/after traces
+  and committed artifacts, reproduced by `tests/test_examples_optimization.py`;
+  CI's `optimization` job records an adoption and runs
+  `optimize outcome --fail-on-regression`
+
 ### Completion criteria
 
-- recommendations cite measured evidence
-- expected benefit and quality risk are separated
-- projected and observed outcomes are reported independently
-- recommendation outcomes can be evaluated after adoption
+- [x] recommendations cite measured evidence (run IDs, span IDs, measurements,
+      and thresholds on every opportunity; spans without a signal are skipped)
+- [x] expected benefit and quality risk are separated (`benefit` and `risks`
+      are distinct fields and never netted)
+- [x] projected and observed outcomes are reported independently (the
+      projection is copied unchanged beside observed per-run deltas)
+- [x] recommendation outcomes can be evaluated after adoption (ledger status,
+      rule re-check, realized ratio, and `quality_regressed` with exit 9)
+
+Known limits: projections assume future traffic resembles the analysed traces;
+compression and reranking benefits are assumptions until measured;
+prompt-caching cost is pro-rated by token share; outcome evaluation compares
+two traffic windows, not a controlled experiment; recommendations are advisory.
+
+### Follow-on work
+
+- price-sheet re-costing of projected and observed savings
+- outcome evaluation over routing canary cohorts instead of time windows
+- measured compression and reranking reductions from experiment variants
 
 ## v1.0 — Production and Enterprise Readiness
 
