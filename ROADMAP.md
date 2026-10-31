@@ -204,3 +204,12 @@ Lens reads scored reports as `Workflow` JSON and analyzes their `chaos_events` a
 See [AIOS v0.6.1 compatibility](docs/aios-0.6.1.md) for the new `0.6-draft` provenance
 records, portable conformance suite and naming conventions. Exports stay
 `0.4-draft`; no runtime dependency bump or package release is required.
+
+## Control Tower 0.9.0 integration alignment
+
+Tower Phase 9 implements versioned runbooks with exact-digest approval, bounded
+steps, compensation, cancellation, lease-based reconciliation and verified
+recovery. Resolving a runbook requires a fresh successful native Lens run whose run ID differs from the detection run, with no failed Lens run recorded for that run ID. Tower does not compute diagnosis, trace integrity or routing decisions.
+
+See [compatibility and operator example](docs/tower-0.9-runbooks.md).
+No sibling runtime change or patch release is required.
