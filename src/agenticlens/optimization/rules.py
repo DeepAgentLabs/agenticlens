@@ -840,6 +840,156 @@ class RetryPolicyRule:
         return found
 
 
+class RedundantStepRule:
+    """Steps re-executed with identical input and output in one run."""
+
+    rule_id = "redundant_step"
+    version = "1"
+    span_types = frozenset(
+        {
+            SpanType.MODEL_CALL,
+            SpanType.RETRIEVAL,
+            SpanType.PLANNING,
+            SpanType.VALIDATION,
+            SpanType.MEMORY_READ,
+        }
+    )
+
+    def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
+        per_step: dict[tuple[str, str], Savings] = defaultdict(Savings)
+        for run in runs:
+            seen: dict[tuple[str, str, str, str], list[Span]] = defaultdict(list)
+            for span in run.spans:
+                if span.span_type not in self.span_types:
+                    continue
+                source, result = input_fingerprint(span), output_fingerprint(span)
+                if source is None or result is None:
+                    continue
+                seen[(span.span_type.value, span.name, source, result)].append(span)
+            for (kind, name, _, _), spans in sorted(seen.items()):
+                if len(spans) < config.redundant_step_min_repeats:
+                    continue
+                per_step[(kind, name)].add_spans(spans[1:])
+                per_step[(kind, name)].evidence.append(
+                    OpportunityEvidence(
+                        run_id=run.run_id,
+                        span_ids=[s.span_id for s in spans],
+                        measurements={"executions": len(spans)},
+                        reasoning="Same input produced the same output again.",
+                    )
+                )
+
+        return [
+            build_opportunity(
+                self,
+                area="workflow",
+                kind="redundant_step",
+                title=f"Remove the repeated '{name}' step",
+                summary=(
+                    f"'{name}' ({kind}) re-ran with identical input and output in "
+                    f"{len(savings.evidence)} runs."
+                ),
+                action=f"Reuse the first '{name}' result instead of re-executing it.",
+                subject={"span_type": kind, "span_name": name},
+                thresholds={"redundant_step_min_repeats": config.redundant_step_min_repeats},
+                runs=runs,
+                savings=savings,
+                basis="Measured tokens, cost and latency of every identical re-execution.",
+                config=config,
+                risks=[
+                    QualityRisk(
+                        kind="intentional_repeat",
+                        severity="low",
+                        description=(
+                            "Repeats can be deliberate (self-consistency sampling, polling); "
+                            "confirm before removing."
+                        ),
+                    )
+                ],
+            )
+            for (kind, name), savings in sorted(per_step.items())
+        ]
+
+
+class UnnecessaryHandoffRule:
+    """Delegations where the receiving agent did no work or echoed its input."""
+
+    rule_id = "unnecessary_handoff"
+    version = "1"
+
+    def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
+        per_pair: dict[tuple[str, str], Savings] = defaultdict(Savings)
+        for run in runs:
+            for span in run.spans:
+                if span.span_type is not SpanType.DELEGATION:
+                    continue
+                tree = subtree(run, span)
+                source = span.attributes.get("from_agent") or span.agent_name or "unknown"
+                target = next(
+                    (
+                        value
+                        for key in _HANDOFF_TARGET_KEYS
+                        if isinstance(value := span.attributes.get(key), str) and value
+                    ),
+                    next((c.agent_name for c in tree[1:] if c.agent_name), "unknown"),
+                )
+                did_work = any(child.span_type in _WORK_SPANS for child in tree[1:])
+                echoed = input_fingerprint(span) is not None and input_fingerprint(
+                    span
+                ) == output_fingerprint(span)
+                if did_work and not echoed:
+                    continue
+                pair = (str(source), str(target))
+                per_pair[pair].add_spans(tree)
+                per_pair[pair].evidence.append(
+                    OpportunityEvidence(
+                        run_id=run.run_id,
+                        span_ids=[s.span_id for s in tree],
+                        measurements={
+                            "subtree_spans": len(tree),
+                            "receiver_did_work": did_work,
+                            "output_equals_input": echoed,
+                        },
+                        reasoning=(
+                            "The receiving agent returned its input unchanged."
+                            if echoed
+                            else "The receiving agent made no model, tool or retrieval call."
+                        ),
+                    )
+                )
+
+        return [
+            build_opportunity(
+                self,
+                area="workflow",
+                kind="unnecessary_handoff",
+                title=f"Skip the handoff {source} -> {target}",
+                summary=(
+                    f"{len(savings.evidence)} handoffs from {source} to {target} added no work."
+                ),
+                action=f"Let {source} continue directly, or merge {target} into it.",
+                subject={"from_agent": source, "to_agent": target},
+                thresholds={"handoff_min_occurrences": config.handoff_min_occurrences},
+                runs=runs,
+                savings=savings,
+                basis="Measured tokens, cost and latency of each handoff and its subtree.",
+                config=config,
+                risks=[
+                    QualityRisk(
+                        kind="handoff_semantics",
+                        severity="medium",
+                        description=(
+                            "A handoff can carry authorization, audit, or ownership "
+                            "semantics that tokens do not show."
+                        ),
+                    )
+                ],
+            )
+            for (source, target), savings in sorted(per_pair.items())
+            if len(savings.evidence) >= config.handoff_min_occurrences
+        ]
+
+
 DEFAULT_RULES: tuple[OptimizationRule, ...] = (
     PromptCachingRule(),
     PromptCompressionRule(),
@@ -847,4 +997,6 @@ DEFAULT_RULES: tuple[OptimizationRule, ...] = (
     MemoryRule(),
     ToolCachingRule(),
     RetryPolicyRule(),
+    RedundantStepRule(),
+    UnnecessaryHandoffRule(),
 )
