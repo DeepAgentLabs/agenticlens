@@ -43,6 +43,8 @@ on GitHub.
 | Drift detection across rolling windows | Planned |
 | Lineage and provenance fields (Workflow Spec v1.x) | Planned |
 | Evaluation and audit evidence fields (Workflow Spec v1.x) | Planned |
+| Price-sheet re-costing of optimization savings | Planned |
+| Optimization outcome evaluation with controlled rollouts (canary cohorts) | Planned |
 
 ---
 

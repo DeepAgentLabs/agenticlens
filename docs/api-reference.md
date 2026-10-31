@@ -290,6 +290,33 @@ save_dashboard_html(
 
 ---
 
+## Optimization API
+
+```python
+from agenticlens.optimization import (
+    OptimizationConfig,
+    RecommendationDecision,
+    RecommendationLedger,
+    analyze_optimizations,
+    evaluate_outcome,
+    load_traces,
+)
+```
+
+| Name | Purpose |
+|------|---------|
+| `analyze_optimizations(runs, config=None, *, rules=None, baseline_variant_id=None)` | Run every rule; returns an `OptimizationReport` |
+| `analyze_tradeoffs(runs, config, *, baseline_variant_id=None)` | Per-variant success, cost, Pareto status, and deltas |
+| `RecommendationLedger(path).record(report, decision)` | Append a decision; enforces transitions and the report hash |
+| `evaluate_outcome(report, opportunity_id, before, after, *, ledger=None)` | Projected vs observed outcome after adoption |
+| `render_optimization_markdown`, `render_outcome_markdown` | Markdown views |
+
+Custom rules implement `rule_id`, `version`, and
+`analyze(runs, config) -> list[Opportunity]` and are passed with `rules=`.
+See [Optimization intelligence](optimization.md).
+
+---
+
 ## Adapters
 
 ```python

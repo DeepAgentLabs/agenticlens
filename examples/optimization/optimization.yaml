@@ -1,0 +1,15 @@
+# Optimization thresholds for the support-agent example. Unknown keys are
+# rejected. Every opportunity records the thresholds it used.
+monthly_runs: 30000
+prompt_cache_min_prefix_tokens: 1000
+prompt_cache_read_price_ratio: 0.1
+prompt_compression_min_input_tokens: 4000
+prompt_compression_min_ratio: 20
+retrieval_min_chunks: 4
+retrieval_max_utility: 0.5
+memory_max_share: 0.4
+memory_token_budget: 2000
+# A 25% success drop is far too much for production; this example allows it
+# so the trade-off is reported together with its high quality risk.
+tradeoff_max_success_rate_drop: 0.25
+tradeoff_min_cost_reduction: 0.2

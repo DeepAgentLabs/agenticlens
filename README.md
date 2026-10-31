@@ -62,8 +62,12 @@ quality, cost, latency, safety, provider, and deployment, weighted scoring,
 per-category Pareto frontiers and cost-per-success rankings, recommendation
 confidence and explanations, alternatives and provider-diverse fallbacks,
 savings tied to experiment evidence, and a task-level model matrix.
-Release 0.10.0 delivers v0.8 advisory runtime routing. Development continues
-with optimization intelligence (v0.9). The
+Release 0.10.0 delivers v0.8 advisory runtime routing. Release 0.11.0
+delivers v0.9 optimization intelligence: evidence-backed recommendations across
+prompts, retrieval, memory, tools, workflows, and models, with separate
+projected benefit and quality risk, decision tracking, and post-adoption
+outcome evaluation. Development continues with production and enterprise
+readiness (v1.0). The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
@@ -72,6 +76,27 @@ not a claim of AAIF acceptance or completed independent validation.
 The [code-backed roadmap audit](ROADMAP_AUDIT.md) records implemented, partial,
 and missing features with source/test evidence and open acceptance gates.
 
+
+## Optimization intelligence — 0.11.0
+
+Roadmap v0.9 is implemented: `agenticlens optimize` turns recorded traces into
+ranked, evidence-backed recommendations for prompt caching and compression,
+retrieval pruning and reranking, memory summarization, tool caching, retry
+policy, redundant steps, unnecessary handoffs, and quality-cost trade-offs
+between variants. Projected benefit, confidence, and quality risk are separate
+fields; decisions are tracked in a local ledger; and adopted changes are
+evaluated against traces recorded afterwards, with projected and observed
+outcomes reported side by side.
+
+```bash
+uv run python examples/optimization_demo.py
+agenticlens optimize analyze examples/optimization/traces/before \
+  --config examples/optimization/optimization.yaml --baseline-variant large
+```
+
+Recommendations are advisory and never change prompts, models, or tools. See
+the [optimization guide](docs/optimization.md) for the signals each rule reads, ledger
+transitions, outcome statuses, and known limits.
 
 ## Advisory runtime routing — 0.10.0
 
@@ -109,6 +134,7 @@ Optimization Intelligence.
 - [Diagnosis and Failure Attribution](#diagnosis-and-failure-attribution)
 - [Test-Suite and Dataset Management](#test-suite-and-dataset-management)
 - [ModelFit Model Recommendations](#modelfit-model-recommendations)
+- [Optimization Intelligence](#optimization-intelligence)
 - [Using Regression Checks in CI](#using-regression-checks-in-ci)
 - [Portable Schemas](#portable-schemas)
 - [Features](#features)
@@ -281,7 +307,9 @@ research trace API is experimental and may evolve before a stable 1.0 release.
 | Persistent local trace history (`--db`, `/history`, `agenticlens history`) | Implemented, experimental |
 | Local HTML dashboard (timeline, cost, findings, gate, comparison) | Implemented, experimental |
 | Framework trace adapters (native LangChain/LangGraph instrumentation, not already-OTel data) | Planned |
-| Advisory runtime routing and governance | Planned |
+| Advisory runtime routing (policies, failover, shadow/canary, local journal) | Implemented, experimental |
+| Optimization recommendations across prompts, retrieval, memory, tools, workflows, and models | Implemented, experimental |
+| Quality-cost trade-offs, accepted/rejected tracking, post-adoption outcome evaluation | Implemented, experimental |
 
 ## Evaluation and Release Gates
 
@@ -658,6 +686,42 @@ Exit code `8` signals `--fail-on-unfit` (a category with no feasible model)
 or `--fail-on-low-confidence`. Schemas are in `schemas/modelfit/`. The
 reproducible example is [`examples/modelfit_demo.py`](examples/modelfit_demo.py).
 Full guide: [docs/modelfit.md](docs/modelfit.md).
+
+## Optimization Intelligence
+
+`agenticlens optimize` analyses recorded `Run` traces across many runs and
+recommends where to save tokens, cost, and latency, and what each change could
+cost in quality:
+
+```bash
+agenticlens optimize analyze traces/ --config optimization.yaml \
+  --baseline-variant large --save report.json --markdown report.md
+agenticlens optimize decide report.json OPPORTUNITY_ID --status accepted \
+  --by platform-team --ledger ledger.jsonl
+agenticlens optimize decide report.json OPPORTUNITY_ID --status adopted \
+  --by platform-team --change my-repo#412 --ledger ledger.jsonl
+agenticlens optimize outcome report.json OPPORTUNITY_ID \
+  --before traces/ --after traces-after/ --ledger ledger.jsonl --fail-on-regression
+```
+
+- **Areas**: prompt caching and compression, retrieval top-k pruning and
+  reranking, memory summarization and retention, tool-result caching,
+  non-retryable errors, redundant steps, handoffs that add no work, and
+  quality-cost trade-offs between experiment variants.
+- **Evidence**: every opportunity cites run and span IDs, measurements, and the
+  thresholds used. Spans missing a signal are skipped, not estimated.
+- **Benefit and risk are separate**: projected tokens, cost, and latency per run
+  (cost stays unavailable when any span lacks cost) state their basis;
+  confidence carries reasons; quality risks are listed and never netted.
+- **Tracking**: an append-only ledger records accepted, rejected, adopted, and
+  reverted decisions, bound to the report's SHA-256.
+- **Outcomes**: post-adoption traces give observed per-run deltas and success
+  rate beside the unchanged projection, plus whether the rule still fires.
+
+Exit code `9` signals `--fail-on-regression` (quality regressed after
+adoption). Schemas are in `schemas/optimization/`. The reproducible example is
+[`examples/optimization_demo.py`](examples/optimization_demo.py). Full guide:
+[docs/optimization.md](docs/optimization.md).
 
 ## Dashboard Report
 

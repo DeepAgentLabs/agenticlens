@@ -60,8 +60,12 @@ duplicates, PII masking, approval, and an immutable suite store) shipped in
 0.8.0; v0.7 (ModelFit: task taxonomy, fail-closed hard constraints,
 weighted scoring, Pareto frontiers, cost-per-success ranking, confidence,
 explanations, fallbacks, evidence-tied savings, quality risks, and a
-task-level model matrix) shipped in 0.9.0. v0.8 Advisory Runtime Routing ships in 0.10.0. The next milestone is v0.9
-Optimization Intelligence. New work here should deepen evidence quality and
+task-level model matrix) shipped in 0.9.0. v0.8 Advisory Runtime Routing
+shipped in 0.10.0; v0.9 Optimization Intelligence (trace-level prompt,
+retrieval, memory, tool, retry, workflow, and model-trade-off recommendations
+with separate benefit and risk, decision tracking, and post-adoption outcomes)
+ships in 0.11.0. The next milestone is v1.0 Production and Enterprise
+Readiness. New work here should deepen evidence quality and
 repeatable analysis, not drift into spec stewardship or chaos simulation.
 
 ### Before You Build Here
@@ -107,6 +111,7 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
 | `src/agenticlens/diagnosis/` | Failure taxonomy, diagnosis rules, attribution, timelines, anomalies, guardrails, narratives, attribution accuracy |
 | `src/agenticlens/suites/` | Suite imports, trace/feedback conversion, editors, variations, duplicates, PII masking, splits, approval, immutable store |
 | `src/agenticlens/routing/` | Evidence-based routing, constraints, failover, shadow/canary, local journal |
+| `src/agenticlens/optimization/` | Optimization rules over traces, quality-cost trade-offs, decision ledger, outcome evaluation |
 | `src/agenticlens/modelfit/` | ModelFit: experiment evidence, task taxonomy, constraints, scoring, Pareto analysis, recommendations, model matrix |
 | `src/agenticlens/exporters/` | JSON, CSV, Markdown, Jira exports |
 | `src/agenticlens/metrics/` | Cost and performance calculation |
@@ -116,7 +121,7 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
 | `src/agenticlens/reports/` | Trace inspection rendering |
 | `src/agenticlens/cli/` | Typer CLI and Rich rendering |
 | `src/agenticlens/utils/` | Shared utilities |
-| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments, diagnosis, score analysis, suites, modelfit) |
+| `schemas/` | Versioned JSON Schemas (trace, finding, report, experiments, diagnosis, score analysis, suites, modelfit, routing, optimization) |
 | `tests/` | Pytest test suite |
 | `docs/` | MkDocs documentation source |
 | `Makefile` | Local dev automation |
@@ -169,6 +174,19 @@ repeatable analysis, not drift into spec stewardship or chaos simulation.
 4. Regenerate `schemas/modelfit/` when a published model changes, and re-run
    `uv run python examples/modelfit_demo.py` if the example output changes
    (`tests/test_examples_modelfit.py` checks it)
+
+## Changing Optimization Rules
+
+1. Read only what the trace records; skip a span that lacks a signal instead
+   of estimating it. Never price savings from list prices
+2. Keep `benefit` and `risks` separate, and keep cost `None` when any affected
+   span lacks a cost
+3. A rule whose benefit rests on an assumption must cap its confidence
+4. Opportunity IDs hash the kind and subject; changing a subject changes the
+   ID and detaches existing ledger decisions
+5. Regenerate `schemas/optimization/` when a published model changes, and
+   re-run `uv run python examples/optimization_demo.py` if the example output
+   changes (`tests/test_examples_optimization.py` checks it)
 
 ## Adding a New Recommender
 

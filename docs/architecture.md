@@ -135,6 +135,15 @@ AIOS draft schema and semantic conformance checks backed by local
 
 ---
 
+### Optimization (`optimization/`)
+
+Trace-level, cross-run optimization intelligence. Rules read `Run` traces and
+return `Opportunity` objects with run/span evidence, a projected benefit and
+its basis, confidence with reasons, and separate quality risks. A local ledger
+tracks accepted, rejected, adopted, and reverted decisions, and
+`evaluate_outcome` compares projected and observed results after adoption.
+See [Optimization intelligence](optimization.md).
+
 ## Workflow artifact
 
 Artifacts are portable local JSON files. The core format is the

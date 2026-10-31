@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/optimization/outcome-evaluation.schema.json",
+  "$defs": {
+    "MetricChange": {
+      "additionalProperties": false,
+      "description": "Per-run means before and after adoption; `None` when not measurable.",
+      "properties": {
+        "before": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before"
+        },
+        "after": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delta"
+        }
+      },
+      "title": "MetricChange",
+      "type": "object"
+    },
+    "ObservedOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "before_runs": {
+          "title": "Before Runs",
+          "type": "integer"
+        },
+        "after_runs": {
+          "title": "After Runs",
+          "type": "integer"
+        },
+        "tokens_per_run": {
+          "$ref": "#/$defs/MetricChange"
+        },
+        "cost_usd_per_run": {
+          "$ref": "#/$defs/MetricChange"
+        },
+        "latency_ms_per_run": {
+          "$ref": "#/$defs/MetricChange"
+        },
+        "success_rate": {
+          "$ref": "#/$defs/MetricChange"
+        },
+        "success_p_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Success P Value"
+        },
+        "still_detected": {
+          "description": "The same rule still finds this opportunity in the after runs.",
+          "title": "Still Detected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "before_runs",
+        "after_runs",
+        "tokens_per_run",
+        "cost_usd_per_run",
+        "latency_ms_per_run",
+        "success_rate",
+        "still_detected"
+      ],
+      "title": "ObservedOutcome",
+      "type": "object"
+    },
+    "ProjectedBenefit": {
+      "additionalProperties": false,
+      "description": "Expected per-run savings derived from measured spans and a stated basis.\n\nCost is `None` whenever any affected span lacks a recorded cost; it is never\nestimated from list prices. Values are projections, not measurements.",
+      "properties": {
+        "tokens_per_run": {
+          "minimum": 0,
+          "title": "Tokens Per Run",
+          "type": "number"
+        },
+        "cost_usd_per_run": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd Per Run"
+        },
+        "latency_ms_per_run": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Latency Ms Per Run",
+          "type": "number"
+        },
+        "monthly_cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Monthly Cost Usd"
+        },
+        "cost_available": {
+          "title": "Cost Available",
+          "type": "boolean"
+        },
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tokens_per_run",
+        "cost_available",
+        "basis"
+      ],
+      "title": "ProjectedBenefit",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Projected and observed values side by side, never blended.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "opportunity_id": {
+      "title": "Opportunity Id",
+      "type": "string"
+    },
+    "report_sha256": {
+      "title": "Report Sha256",
+      "type": "string"
+    },
+    "decision_status": {
+      "anyOf": [
+        {
+          "enum": [
+            "proposed",
+            "accepted",
+            "rejected",
+            "adopted",
+            "reverted"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Status"
+    },
+    "projected": {
+      "$ref": "#/$defs/ProjectedBenefit"
+    },
+    "observed": {
+      "$ref": "#/$defs/ObservedOutcome"
+    },
+    "realized_basis": {
+      "anyOf": [
+        {
+          "enum": [
+            "tokens",
+            "cost_usd"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Which per-run metric the realized ratio compares.",
+      "title": "Realized Basis"
+    },
+    "realized_ratio": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Observed per-run saving divided by the projected saving.",
+      "title": "Realized Ratio"
+    },
+    "status": {
+      "enum": [
+        "realized",
+        "partially_realized",
+        "not_realized",
+        "quality_regressed",
+        "insufficient_evidence"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    }
+  },
+  "required": [
+    "opportunity_id",
+    "report_sha256",
+    "projected",
+    "observed",
+    "status"
+  ],
+  "title": "OutcomeEvaluation",
+  "type": "object"
+}

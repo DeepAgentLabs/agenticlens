@@ -15,6 +15,27 @@ traces, calculate cost, diagnose memory and retry overhead, and compare
 candidate configurations against reviewed baselines.
 
 
+## Optimization intelligence — 0.11.0
+
+Roadmap v0.9 is implemented: `agenticlens optimize` turns recorded traces into
+ranked, evidence-backed recommendations for prompt caching and compression,
+retrieval pruning and reranking, memory summarization, tool caching, retry
+policy, redundant steps, unnecessary handoffs, and quality-cost trade-offs
+between variants. Projected benefit, confidence, and quality risk are separate
+fields; decisions are tracked in a local ledger; and adopted changes are
+evaluated against traces recorded afterwards, with projected and observed
+outcomes reported side by side.
+
+```bash
+uv run python examples/optimization_demo.py
+agenticlens optimize analyze examples/optimization/traces/before \
+  --config examples/optimization/optimization.yaml --baseline-variant large
+```
+
+Recommendations are advisory and never change prompts, models, or tools. See
+the [optimization guide](optimization.md) for the signals each rule reads, ledger
+transitions, outcome statuses, and known limits.
+
 ## Advisory runtime routing — 0.10.0
 
 Roadmap v0.8 is implemented: `agenticlens.routing.Router` turns saved ModelFit

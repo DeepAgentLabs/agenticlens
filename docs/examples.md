@@ -167,6 +167,23 @@ agenticlens conformance run.json --version 0.4 --save conformance-report.json
 
 ---
 
+## Optimization intelligence
+
+**File:** `examples/optimization_demo.py`
+
+Analyses 8 recorded support-agent runs (two variants), records accept, adopt,
+and reject decisions, and evaluates the adopted tool-caching change against
+traces recorded afterwards. No model or network calls; artifacts are committed
+in `examples/optimization/artifacts/`.
+
+```bash
+python examples/optimization_demo.py
+agenticlens optimize analyze examples/optimization/traces/before \
+  --config examples/optimization/optimization.yaml --baseline-variant large
+```
+
+---
+
 ## LangGraph supervisor reference workflow
 
 **File:** `examples/reference_workflows/langgraph_supervisor.py`

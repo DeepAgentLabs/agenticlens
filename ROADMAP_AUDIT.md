@@ -109,6 +109,28 @@ Still open: recommendations reflect the suite and recorded costs only;
 provider/deployment facts are declared, not verified; intervals treat case
 attempts as independent; runtime routing is v0.8.
 
+## 0.11.0 follow-up (2026-10-31)
+
+Release 0.11.0 delivers the v0.9 deliverables and completion criteria. The v0.9
+table below is updated in place; other sections still describe earlier
+snapshots.
+
+| Earlier gap | Resolution | Evidence |
+| --- | --- | --- |
+| Repeated-prompt rule only; no measured compression workflow | Trace-level `prompt_caching` (recorded prefix hashes, skips provider cache hits) and `prompt_compression` (input/output ratio, confidence capped at medium) | `tests/test_optimization_rules.py` |
+| Chunk utility from supplied signals; no reranking evidence | `retrieval_pruning` never cuts below the deepest used chunk; `retrieval_reranking` reports a perfect-reranker upper bound | `tests/test_optimization_rules.py` |
+| Long-history guidance only | `memory_summarization` from memory-read share and budget, with growth detection | `tests/test_optimization_rules.py` |
+| No measured retry-policy optimization | `tool_result_caching` (skips side effects and non-idempotent tools) and `retry_policy` (only error types no retry recovered) | `tests/test_optimization_rules.py` |
+| No general redundancy detector | `redundant_step` (same input and output) and `unnecessary_handoff` (receiver did no work or echoed input) | `tests/test_optimization_rules.py` |
+| No measured quality frontier | `analyze_tradeoffs`: Wilson intervals, Pareto status, deltas and p-values; `quality_cost_tradeoff` within an allowed drop | `tests/test_optimization_tradeoffs.py` |
+| Benefit/confidence/risk not universal | Every `Opportunity` has a `ProjectedBenefit` with basis, graded confidence with reasons, and separate `QualityRisk`s; unpriced cost stays `null` | `tests/test_optimization_rules.py`, `tests/test_optimization_engine.py` |
+| No accepted/rejected tracking | Append-only `RecommendationLedger`, report-hash binding, enforced transitions, `optimize decide/status` | `tests/test_optimization_tracking.py`, `tests/test_cli_optimize.py` |
+| No post-adoption measurement | `evaluate_outcome`: projected and observed side by side, rule re-check, statuses; CI `optimization` job uses `--fail-on-regression` | `tests/test_optimization_outcomes.py`, `tests/test_examples_optimization.py`, `.github/workflows/ci.yml` |
+
+Still open: projections assume traffic like the analysed traces; compression
+and reranking reductions are assumptions until measured; outcome windows are
+not controlled experiments; savings use recorded costs, not a price sheet.
+
 ## How to read this audit
 
 - **Implemented (I):** usable code exists for the stated scope; evidence and test
@@ -133,8 +155,8 @@ Missing entries are repository-scoped findings, not claims about sibling project
 | v0.5 Advanced evaluation | Implemented (0.7.0) | Independent controlled-failure corpora; semantic (non-lexical) evaluators; judge provider clients |
 | v0.6 Datasets | Implemented (0.8.0) | Semantic deduplication and paraphrases; authenticated approvals and a shared registry (v1.0) |
 | v0.7 ModelFit | Implemented (0.9.0) | Price-sheet re-costing; case-level bootstrap confidence; routing integration (v0.8) |
-| v0.8 Routing | Missing | Runtime selection, failover, shadow/canary execution, escalation, audit |
-| v0.9 Optimization | Partial | Outcome tracking, measured quality tradeoffs, broader optimization coverage |
+| v0.8 Routing | Implemented (0.10.0) | Production-provider validation; authenticated approvals; tamper-proof journal |
+| v0.9 Optimization | Implemented (0.11.0) | Price-sheet re-costing; controlled (canary) outcome windows; measured compression/reranking reductions |
 | v1.0 Enterprise | Partial building blocks | Stable contracts, identity/access, registries, retention, audit/compliance, deployment and security acceptance |
 
 ## Evidence index
@@ -152,6 +174,7 @@ not every possible behavior of an entire milestone.
 | CAL | [calibration](src/agenticlens/evaluation/calibration.py) | [test_calibration.py](tests/test_calibration.py) |
 | GATE | [gate](src/agenticlens/evaluation/gate.py), [CLI](src/agenticlens/cli/main.py) | [test_evaluation.py](tests/test_evaluation.py) |
 | RECS | [recommendation engine](src/agenticlens/recommenders/engine.py), [rules](src/agenticlens/recommenders), [recommendation model](src/agenticlens/models/recommendation.py) | [test_recommenders.py](tests/test_recommenders.py), [test_recommender_rules.py](tests/test_recommender_rules.py), [test_chaos_impact.py](tests/test_chaos_impact.py) |
+| OPT | [optimization rules](src/agenticlens/optimization/rules.py), [trade-offs](src/agenticlens/optimization/tradeoffs.py), [ledger](src/agenticlens/optimization/tracking.py), [outcomes](src/agenticlens/optimization/outcomes.py), [CLI](src/agenticlens/cli/optimize.py) | [test_optimization_rules.py](tests/test_optimization_rules.py), [test_optimization_tradeoffs.py](tests/test_optimization_tradeoffs.py), [test_optimization_tracking.py](tests/test_optimization_tracking.py), [test_optimization_outcomes.py](tests/test_optimization_outcomes.py), [test_cli_optimize.py](tests/test_cli_optimize.py), [test_examples_optimization.py](tests/test_examples_optimization.py) |
 | SWAP | [model swap](src/agenticlens/recommenders/model_swap.py), [settings](src/agenticlens/config/settings.py) | [test_model_swap.py](tests/test_model_swap.py) |
 | OTLP | [OTLP exporter](src/agenticlens/exporters/otlp_trace_exporter.py), TRACE | [test_exporters.py](tests/test_exporters.py), [test_trace.py](tests/test_trace.py); HTTP export is mocked |
 | AIOS | [draft validator](src/agenticlens/validation/aios.py) | [test_aios_validation.py](tests/test_aios_validation.py), [test_cli.py](tests/test_cli.py), [local fixtures](tests/fixtures/ai-operations-spec) |
@@ -354,20 +377,24 @@ is made. See [scope and limits](docs/routing.md).
 
 ## v0.9 Optimization Intelligence
 
+Updated for 0.11.0 (2026-10-31).
+
 | Roadmap deliverable | Status | Evidence / remaining boundary |
 | --- | --- | --- |
-| Prompt compression/caching recommendations | P | RECS repeated-prompt/cache suggestions; no measured compression workflow |
-| Retrieval/reranking recommendations | P | RECS excess chunks and utility scoring using supplied signals; no reranking experiment |
-| Memory retention/summarization recommendations | P | RECS long-history and DIAG memory-share guidance |
-| Tool caching/retry recommendations | P | RECS duplicate tools and DIAG retry analysis; no measured retry-policy optimization |
-| Redundant steps/unnecessary handoffs | P | Duplicate tool/context and handoff-bloat rules; no general redundancy detector |
-| Quality-cost tradeoffs | P | SWAP projected costs and RECS risk fields; no measured quality frontier |
-| Projected benefit/confidence/risk | P | RECS fields populated for some rules; not universal or calibrated |
-| Accepted/rejected recommendation tracking | M | No persistence/feedback workflow |
+| Prompt compression/caching recommendations | I | OPT `prompt_caching`, `prompt_compression`; compression reduction is a configured target |
+| Retrieval/reranking recommendations | I | OPT `retrieval_pruning`, `retrieval_reranking`; reranking benefit is an upper bound |
+| Memory retention/summarization recommendations | I | OPT `memory_summarization` with growth detection |
+| Tool caching/retry recommendations | I | OPT `tool_result_caching`, `retry_policy` |
+| Redundant steps/unnecessary handoffs | I | OPT `redundant_step`, `unnecessary_handoff` |
+| Quality-cost tradeoffs | I | OPT `analyze_tradeoffs`, `quality_cost_tradeoff` from measured variant runs |
+| Projected benefit/confidence/risk | I | OPT `ProjectedBenefit` (with basis), graded confidence, separate `QualityRisk` on every opportunity |
+| Accepted/rejected recommendation tracking | I | OPT `RecommendationLedger`, `optimize decide/status` |
 
-Acceptance: source evidence exists for rules but can fall back to generic
-workflow evidence. Projected savings and risk fields do not establish observed
-benefit. Post-adoption outcome measurement and feedback remain **M**.
+Acceptance: recommendations cite run and span evidence; benefit and risk are
+separate fields; projected and observed outcomes are reported independently by
+`evaluate_outcome`; and the CI `optimization` job evaluates an adopted change
+after adoption. Recommendations remain advisory. Workflow-level recommenders
+(RECS) keep their earlier behaviour.
 
 ## v1.0 Production and Enterprise Readiness
 

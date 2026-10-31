@@ -96,6 +96,41 @@ jobs:
       - name: Show the task-level model matrix
         run: uv run agenticlens modelfit matrix build/modelfit.json
 
+  optimization:
+    # Analyses the recorded support-agent traces, records the adoption of tool
+    # caching, and fails if quality regressed in the traces recorded afterwards.
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      OPPORTUNITY: tool_result_caching-412a72bac9f5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --extra dev --python 3.12
+      - name: Analyse recorded traces
+        run: >
+          uv run agenticlens optimize analyze examples/optimization/traces/before
+          --config examples/optimization/optimization.yaml --baseline-variant large
+          --save build/optimization.json --markdown build/optimization.md
+      - name: Record the adoption
+        run: |
+          for status in accepted adopted; do
+            uv run agenticlens optimize decide build/optimization.json "$OPPORTUNITY" \
+              --status "$status" --by ci --change "$GITHUB_SHA" --ledger build/ledger.jsonl
+          done
+      - name: Evaluate the outcome after adoption
+        run: >
+          uv run agenticlens optimize outcome build/optimization.json "$OPPORTUNITY"
+          --before examples/optimization/traces/before
+          --after examples/optimization/traces/after
+          --ledger build/ledger.jsonl --fail-on-regression
+
   package:
     runs-on: ubuntu-latest
     needs: test

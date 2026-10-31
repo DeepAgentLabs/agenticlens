@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "opportunity_id": "tool_result_caching-412a72bac9f5",
+  "report_sha256": "6f6f1cbfdce0a467c434f3b7bde676d9e169cb0e2026b6da821741bd6060be33",
+  "decision_status": "adopted",
+  "projected": {
+    "tokens_per_run": 300.0,
+    "cost_usd_per_run": 0.0008249999999999999,
+    "latency_ms_per_run": 400.0,
+    "monthly_cost_usd": 24.749999999999996,
+    "cost_available": true,
+    "basis": "Measured tokens, cost and latency of every repeat after the first. Averaged over every observed run, including unaffected ones."
+  },
+  "observed": {
+    "before_runs": 8,
+    "after_runs": 8,
+    "tokens_per_run": {
+      "before": 15950.0,
+      "after": 15650.0,
+      "delta": -300.0
+    },
+    "cost_usd_per_run": {
+      "before": 0.025384499999999997,
+      "after": 0.024559499999999998,
+      "delta": -0.0008249999999999993
+    },
+    "latency_ms_per_run": {
+      "before": 4590.0,
+      "after": 4190.0,
+      "delta": -400.0
+    },
+    "success_rate": {
+      "before": 0.875,
+      "after": 0.875,
+      "delta": 0.0
+    },
+    "success_p_value": 1.0,
+    "still_detected": false
+  },
+  "realized_basis": "tokens",
+  "realized_ratio": 1.0,
+  "status": "realized",
+  "reasons": []
+}

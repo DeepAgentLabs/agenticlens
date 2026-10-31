@@ -14,6 +14,21 @@ documents the supporting research program, experimental metrics, benchmark
 design, and publication plan. Research proposals are not product commitments
 until they appear in the canonical product roadmap.
 
+## 0.11.0: Optimization Intelligence
+
+Roadmap v0.9 ships in 0.11.0: `agenticlens.optimization` and
+`agenticlens optimize` recommend prompt caching and compression, retrieval
+pruning and reranking, memory summarization, tool caching, retry policy,
+redundant-step and unnecessary-handoff removal, and quality-cost trade-offs from
+recorded traces. Projected benefit, confidence, and quality risk are separate;
+an append-only ledger tracks accepted, rejected, adopted, and reverted
+recommendations; and `optimize outcome` reports projected and observed results
+after adoption. See [the guide](docs/optimization.md) and the
+[offline example](examples/optimization_demo.py). MCP 0.4.3 pins Lens 0.11.0 and
+exposes read-only `lens.optimization_analyze`. Existing Evals, Chaos, Sidecar,
+and Tower dependency ranges remain sufficient; AIOS needs no change because the
+artifacts are Lens-local. Next is v1.0 Production and Enterprise Readiness.
+
 ## 0.10.0: Advisory Runtime Routing
 
 Roadmap v0.8 ships with the routing SDK, rules/scores, fail-closed constraints,
@@ -22,7 +37,6 @@ shadow/canary modes and a local routing journal. See [the guide](docs/routing.md
 and [offline acceptance example](examples/routing_demo.py). MCP 0.3.12 pins
 Lens 0.10.0 and exposes read-only routing decisions. Existing Evals, Chaos and
 Sidecar dependency ranges remain sufficient; Tower and AIOS need no runtime change.
-Next is v0.9 Optimization Intelligence.
 
 ## 0.9.0: ModelFit
 

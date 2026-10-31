@@ -382,6 +382,33 @@ agenticlens dataset export-samples dataset-split.json \
 
 ---
 
+## `optimize`
+
+Evidence-backed optimization recommendations from trace files or directories.
+See [Optimization intelligence](optimization.md).
+
+```bash
+agenticlens optimize analyze <traces>... [--config FILE] [--baseline-variant ID] \
+  [--ledger FILE] [--save FILE] [--markdown FILE]
+agenticlens optimize decide <report.json> <opportunity-id> --status STATUS --by NAME \
+  --ledger FILE [--reason TEXT] [--change REF]
+agenticlens optimize status <report.json> --ledger FILE
+agenticlens optimize outcome <report.json> <opportunity-id> --before PATH --after PATH \
+  [--ledger FILE] [--min-runs N] [--save FILE] [--markdown FILE] [--fail-on-regression]
+```
+
+| Command | Purpose |
+|---------|---------|
+| `analyze` | Rank opportunities by projected cost saving, with evidence, confidence, and risks |
+| `decide` | Append `accepted`, `rejected`, `adopted`, or `reverted` to the ledger |
+| `status` | Latest decision status per opportunity, with counts |
+| `outcome` | Projected vs observed per-run tokens, cost, latency, and success after adoption |
+
+**Exit codes:** `0` = success, `1` = invalid input or refused transition,
+`9` = `outcome --fail-on-regression` and quality regressed.
+
+---
+
 ## `calibrate`
 
 Compare LLM judge verdicts against human-labeled references.

@@ -6,6 +6,65 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.11.0 - 2026-10-31
+
+Delivers roadmap milestone v0.9 (Optimization Intelligence).
+
+### Added — optimization recommendations (`agenticlens.optimization`)
+
+- Trace-level rules over many runs, each citing run and span evidence and the
+  thresholds used: prompt caching (repeated `prompt.prefix_sha256` prefixes
+  without a provider cache hit) and compression (input-heavy model calls),
+  retrieval top-k pruning (never below the deepest used chunk) and reranking
+  (perfect-reranker upper bound), memory summarization and retention windows,
+  tool-result caching (side-effecting and non-idempotent tools are skipped),
+  non-retryable error types (no observed retry recovered), redundant steps
+  (same input and output), and handoffs whose receiver did no work.
+- Quality-cost trade-offs: `analyze_tradeoffs` reports per-variant success with
+  Wilson intervals, cost per success, Pareto status, and deltas and p-values
+  against a baseline; `QualityCostTradeoffRule` proposes cheaper variants within
+  an allowed success drop and reports any drop as a separate risk.
+- Every `Opportunity` keeps a `ProjectedBenefit` (tokens, cost, latency per
+  run and per month, with its basis; cost unavailable when any span lacks it),
+  graded confidence with reasons (capped for assumed reductions and small
+  samples), and separate `QualityRisk`s. Stable IDs hash the kind and subject.
+- `RecommendationLedger`: append-only JSONL decisions bound to the report's
+  SHA-256 with enforced accepted/rejected/adopted/reverted transitions.
+- `evaluate_outcome`: projected and observed per-run tokens, cost, latency, and
+  success rate side by side after adoption, a re-check of the originating
+  rule, a realized ratio, and `realized`, `partially_realized`,
+  `not_realized`, `quality_regressed`, or `insufficient_evidence`.
+- Reproducible `OptimizationReport` (no wall-clock values), YAML/JSON configs
+  that reject unknown keys, Markdown renderers, and schemas in
+  `schemas/optimization/`.
+
+### Added — CLI
+
+- `agenticlens optimize analyze TRACES... [--config] [--baseline-variant]
+  [--ledger] [--save] [--markdown]`
+- `agenticlens optimize decide REPORT ID --status --by --ledger [--reason]
+  [--change]` and `agenticlens optimize status REPORT --ledger`
+- `agenticlens optimize outcome REPORT ID --before --after [--ledger]
+  [--min-runs] [--save] [--markdown] [--fail-on-regression]` (exit 9)
+
+### Added — examples, CI, docs
+
+- `examples/optimization_demo.py` with recorded before/after support-agent
+  traces and committed artifacts; CI's `optimization` job records an adoption
+  and gates on post-adoption regression.
+- Optimization guide, CLI/API reference, roadmap acceptance, and audit
+  evidence.
+
+### Compatibility
+
+- Additive. Existing workflow recommenders, routing, and ModelFit are
+  unchanged. Evals, Chaos, Sidecar (`<1`), and Tower (`<1`) dependency ranges
+  remain sufficient. MCP 0.4.3 pins Lens 0.11.0 and exposes read-only
+  `lens.optimization_analyze`.
+- Optimization artifacts are Lens-local, not part of the normative AIOS
+  contract. Recommendations are advisory and never change prompts, models,
+  tools, or routes.
+
 ## 0.10.0 - 2026-10-18
 
 Delivers roadmap milestone v0.8 (Advisory Runtime Routing).
