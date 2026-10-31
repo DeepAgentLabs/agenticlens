@@ -4,11 +4,23 @@ the committed artifacts meet the milestone's completion criteria."""
 import json
 import runpy
 from pathlib import Path
+from typing import Any
 
 from agenticlens.optimization import OptimizationReport, OutcomeEvaluation
 
 EXAMPLE = Path(__file__).resolve().parents[1] / "examples" / "optimization"
 DEMO = EXAMPLE.parent / "optimization_demo.py"
+
+
+def _normalize(value: Any) -> Any:
+    # Python 3.12 sums floats with compensation, so the last digits differ by version.
+    if isinstance(value, dict):
+        return {key: _normalize(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_normalize(item) for item in value]
+    if isinstance(value, float):
+        return round(value, 9)
+    return value
 
 
 def test_recorded_traces_are_reproducible(tmp_path: Path, monkeypatch) -> None:
@@ -27,7 +39,11 @@ def test_demo_reproduces_committed_artifacts(tmp_path: Path) -> None:
     assert result["outcome"] == "realized"
     assert result["statuses"]["tool_result_caching"] == "adopted"
     assert result["statuses"]["unnecessary_handoff"] == "rejected"
-    for name in ("report.json", "report.md", "ledger.jsonl", "outcome.json", "outcome.md"):
+    for name in ("report.json", "outcome.json"):
+        committed = json.loads((EXAMPLE / "artifacts" / name).read_text("utf-8"))
+        produced = json.loads((tmp_path / name).read_text("utf-8"))
+        assert _normalize(produced) == _normalize(committed), name
+    for name in ("report.md", "ledger.jsonl", "outcome.md"):
         committed = (EXAMPLE / "artifacts" / name).read_text("utf-8")
         assert (tmp_path / name).read_text("utf-8") == committed, name
 
