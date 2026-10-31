@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "opportunity_id": "tool_result_caching-412a72bac9f5",
-  "report_sha256": "fc71904099c936f03365336ba9b8a0a8cdcd9b201d6488d439a1445d7f255e78",
+  "report_sha256": "6f6f1cbfdce0a467c434f3b7bde676d9e169cb0e2026b6da821741bd6060be33",
   "decision_status": "adopted",
   "projected": {
     "tokens_per_run": 300.0,

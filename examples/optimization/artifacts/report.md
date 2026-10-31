@@ -23,7 +23,7 @@
 - Projected benefit: 0 tokens, $0.023075, 0 ms per run; $692.250000 per month
 - Basis: Difference between the variants' measured mean per-run cost. Averaged over every observed run, including unaffected ones.
 - Confidence: medium — Observed in 8 of 8 runs (100%). Fewer than 30 runs per variant.
-- Evidence: 8 of 8 runs, 0 spans
+- Evidence: 8 of 8 runs, 128 spans
 - Risk (medium, quality_regression): Success rate 75% vs 100% (p=0.285).
 - Risk (medium, sample_size): 4 and 4 runs; small samples cannot rule out a quality drop larger than the allowed threshold.
 

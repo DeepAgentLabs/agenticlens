@@ -116,7 +116,24 @@
       "evidence": [
         {
           "run_id": "before-small-1",
-          "span_ids": [],
+          "span_ids": [
+            "before-small-1-01",
+            "before-small-1-02",
+            "before-small-1-03",
+            "before-small-1-04",
+            "before-small-1-05",
+            "before-small-1-06",
+            "before-small-1-07",
+            "before-small-1-08",
+            "before-small-1-09",
+            "before-small-1-10",
+            "before-small-1-11",
+            "before-small-1-12",
+            "before-small-1-13",
+            "before-small-1-14",
+            "before-small-1-15",
+            "before-small-1-16"
+          ],
           "measurements": {
             "variant_id": "small",
             "task_success": true,
@@ -127,7 +144,24 @@
         },
         {
           "run_id": "before-small-2",
-          "span_ids": [],
+          "span_ids": [
+            "before-small-2-01",
+            "before-small-2-02",
+            "before-small-2-03",
+            "before-small-2-04",
+            "before-small-2-05",
+            "before-small-2-06",
+            "before-small-2-07",
+            "before-small-2-08",
+            "before-small-2-09",
+            "before-small-2-10",
+            "before-small-2-11",
+            "before-small-2-12",
+            "before-small-2-13",
+            "before-small-2-14",
+            "before-small-2-15",
+            "before-small-2-16"
+          ],
           "measurements": {
             "variant_id": "small",
             "task_success": true,
@@ -138,7 +172,24 @@
         },
         {
           "run_id": "before-small-3",
-          "span_ids": [],
+          "span_ids": [
+            "before-small-3-01",
+            "before-small-3-02",
+            "before-small-3-03",
+            "before-small-3-04",
+            "before-small-3-05",
+            "before-small-3-06",
+            "before-small-3-07",
+            "before-small-3-08",
+            "before-small-3-09",
+            "before-small-3-10",
+            "before-small-3-11",
+            "before-small-3-12",
+            "before-small-3-13",
+            "before-small-3-14",
+            "before-small-3-15",
+            "before-small-3-16"
+          ],
           "measurements": {
             "variant_id": "small",
             "task_success": true,
@@ -149,7 +200,24 @@
         },
         {
           "run_id": "before-small-4",
-          "span_ids": [],
+          "span_ids": [
+            "before-small-4-01",
+            "before-small-4-02",
+            "before-small-4-03",
+            "before-small-4-04",
+            "before-small-4-05",
+            "before-small-4-06",
+            "before-small-4-07",
+            "before-small-4-08",
+            "before-small-4-09",
+            "before-small-4-10",
+            "before-small-4-11",
+            "before-small-4-12",
+            "before-small-4-13",
+            "before-small-4-14",
+            "before-small-4-15",
+            "before-small-4-16"
+          ],
           "measurements": {
             "variant_id": "small",
             "task_success": false,
@@ -160,7 +228,24 @@
         },
         {
           "run_id": "before-large-1",
-          "span_ids": [],
+          "span_ids": [
+            "before-large-1-01",
+            "before-large-1-02",
+            "before-large-1-03",
+            "before-large-1-04",
+            "before-large-1-05",
+            "before-large-1-06",
+            "before-large-1-07",
+            "before-large-1-08",
+            "before-large-1-09",
+            "before-large-1-10",
+            "before-large-1-11",
+            "before-large-1-12",
+            "before-large-1-13",
+            "before-large-1-14",
+            "before-large-1-15",
+            "before-large-1-16"
+          ],
           "measurements": {
             "variant_id": "large",
             "task_success": true,
@@ -171,7 +256,24 @@
         },
         {
           "run_id": "before-large-2",
-          "span_ids": [],
+          "span_ids": [
+            "before-large-2-01",
+            "before-large-2-02",
+            "before-large-2-03",
+            "before-large-2-04",
+            "before-large-2-05",
+            "before-large-2-06",
+            "before-large-2-07",
+            "before-large-2-08",
+            "before-large-2-09",
+            "before-large-2-10",
+            "before-large-2-11",
+            "before-large-2-12",
+            "before-large-2-13",
+            "before-large-2-14",
+            "before-large-2-15",
+            "before-large-2-16"
+          ],
           "measurements": {
             "variant_id": "large",
             "task_success": true,
@@ -182,7 +284,24 @@
         },
         {
           "run_id": "before-large-3",
-          "span_ids": [],
+          "span_ids": [
+            "before-large-3-01",
+            "before-large-3-02",
+            "before-large-3-03",
+            "before-large-3-04",
+            "before-large-3-05",
+            "before-large-3-06",
+            "before-large-3-07",
+            "before-large-3-08",
+            "before-large-3-09",
+            "before-large-3-10",
+            "before-large-3-11",
+            "before-large-3-12",
+            "before-large-3-13",
+            "before-large-3-14",
+            "before-large-3-15",
+            "before-large-3-16"
+          ],
           "measurements": {
             "variant_id": "large",
             "task_success": true,
@@ -193,7 +312,24 @@
         },
         {
           "run_id": "before-large-4",
-          "span_ids": [],
+          "span_ids": [
+            "before-large-4-01",
+            "before-large-4-02",
+            "before-large-4-03",
+            "before-large-4-04",
+            "before-large-4-05",
+            "before-large-4-06",
+            "before-large-4-07",
+            "before-large-4-08",
+            "before-large-4-09",
+            "before-large-4-10",
+            "before-large-4-11",
+            "before-large-4-12",
+            "before-large-4-13",
+            "before-large-4-14",
+            "before-large-4-15",
+            "before-large-4-16"
+          ],
           "measurements": {
             "variant_id": "large",
             "task_success": true,
