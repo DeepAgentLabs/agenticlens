@@ -597,8 +597,83 @@ class RetrievalRule:
         ]
 
 
+class MemoryRule:
+    """Memory reads that dominate a run's input tokens."""
+
+    rule_id = "memory"
+    version = "1"
+
+    def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
+        savings = Savings()
+        growing_runs = 0
+        for run in runs:
+            reads = [s for s in run.spans if s.span_type is SpanType.MEMORY_READ]
+            memory = sum(s.total_tokens for s in reads)
+            share = memory / run.total_tokens if run.total_tokens else 0.0
+            if share <= config.memory_max_share or memory <= config.memory_token_budget:
+                continue
+            sizes = [s.total_tokens for s in reads]
+            growing = len(sizes) >= 3 and all(a < b for a, b in zip(sizes, sizes[1:], strict=False))
+            growing_runs += growing
+            excess = memory - config.memory_token_budget
+            price = run_cost_per_token(run)
+            savings.add(excess, excess * price if price is not None else None)
+            savings.evidence.append(
+                OpportunityEvidence(
+                    run_id=run.run_id,
+                    span_ids=[s.span_id for s in reads],
+                    measurements={
+                        "memory_tokens": memory,
+                        "run_tokens": run.total_tokens,
+                        "memory_share": round(share, 4),
+                        "grows_every_read": growing,
+                    },
+                    reasoning="Memory reads exceed the configured share and token budget.",
+                )
+            )
+        if not savings.evidence:
+            return []
+        budget = config.memory_token_budget
+        action = f"Summarize older memory into a digest of about {budget} tokens"
+        if growing_runs:
+            action += " and add a retention window, since memory grew on every read"
+        return [
+            build_opportunity(
+                self,
+                area="memory",
+                kind="memory_summarization",
+                title="Bound memory with summarization and retention",
+                summary=(
+                    f"Memory reads took over {config.memory_max_share:.0%} of tokens in "
+                    f"{len(savings.evidence)} runs; {growing_runs} grew on every read."
+                ),
+                action=action + ".",
+                subject={"span_type": SpanType.MEMORY_READ.value},
+                thresholds={
+                    "memory_max_share": config.memory_max_share,
+                    "memory_token_budget": config.memory_token_budget,
+                },
+                runs=runs,
+                savings=savings,
+                basis=(
+                    "Memory tokens above the configured budget, priced at each run's "
+                    "blended cost per token."
+                ),
+                config=config,
+                risks=[
+                    QualityRisk(
+                        kind="fact_loss",
+                        severity="medium",
+                        description="Summaries can drop facts that later turns rely on.",
+                    )
+                ],
+            )
+        ]
+
+
 DEFAULT_RULES: tuple[OptimizationRule, ...] = (
     PromptCachingRule(),
     PromptCompressionRule(),
     RetrievalRule(),
+    MemoryRule(),
 )
