@@ -7,6 +7,7 @@ of being guessed.
 
 import hashlib
 import json
+import math
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
@@ -85,8 +86,16 @@ def subtree(run: Run, root: Span) -> list[Span]:
     return found
 
 
+def run_cost(run: Run) -> float | None:
+    """Exactly rounded, so reports match across Python versions; None if any span is unpriced."""
+    costs = [span.estimated_cost_usd for span in run.spans]
+    if not costs or any(cost is None for cost in costs):
+        return None
+    return math.fsum(cost for cost in costs if cost is not None)
+
+
 def run_cost_per_token(run: Run) -> float | None:
-    cost = run.estimated_cost_usd
+    cost = run_cost(run)
     return cost / run.total_tokens if cost is not None and run.total_tokens else None
 
 

@@ -14,7 +14,7 @@ from agenticlens.optimization.models import (
     OutcomeEvaluation,
     OutcomeStatus,
 )
-from agenticlens.optimization.rules import DEFAULT_RULES, OptimizationRule
+from agenticlens.optimization.rules import DEFAULT_RULES, OptimizationRule, run_cost
 from agenticlens.optimization.tracking import RecommendationLedger, report_sha256
 from agenticlens.optimization.tradeoffs import QualityCostTradeoffRule
 
@@ -81,8 +81,8 @@ def evaluate_outcome(
             _mean([float(r.total_tokens) for r in after]),
         ),
         cost_usd_per_run=_change(
-            _mean([r.estimated_cost_usd for r in before]),
-            _mean([r.estimated_cost_usd for r in after]),
+            _mean([run_cost(r) for r in before]),
+            _mean([run_cost(r) for r in after]),
         ),
         latency_ms_per_run=_change(
             _mean([r.total_latency_ms for r in before]),

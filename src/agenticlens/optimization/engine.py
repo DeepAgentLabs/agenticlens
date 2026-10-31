@@ -1,5 +1,6 @@
 """Run every optimization rule over a set of traces."""
 
+import math
 from collections.abc import Sequence
 
 from agenticlens.models.trace import Run
@@ -9,7 +10,7 @@ from agenticlens.optimization.models import (
     OptimizationReport,
     RunSource,
 )
-from agenticlens.optimization.rules import DEFAULT_RULES, OptimizationRule
+from agenticlens.optimization.rules import DEFAULT_RULES, OptimizationRule, run_cost
 from agenticlens.optimization.tradeoffs import QualityCostTradeoffRule, analyze_tradeoffs
 
 
@@ -48,7 +49,7 @@ def analyze_optimizations(
     found = [o.opportunity_id for o in opportunities]
     if len(found) != len(set(found)):
         raise ValueError("rules produced duplicate opportunity IDs")
-    costs = [run.estimated_cost_usd for run in runs]
+    costs = [run_cost(run) for run in runs]
     return OptimizationReport(
         runs=[
             RunSource(
@@ -56,13 +57,13 @@ def analyze_optimizations(
                 variant_id=run.variant_id,
                 spans=len(run.spans),
                 tokens=run.total_tokens,
-                cost_usd=run.estimated_cost_usd,
+                cost_usd=run_cost(run),
                 task_success=run.task_success,
             )
             for run in runs
         ],
         total_tokens=sum(run.total_tokens for run in runs),
-        total_cost_usd=sum(c for c in costs if c is not None) if None not in costs else None,
+        total_cost_usd=math.fsum(c for c in costs if c is not None) if None not in costs else None,
         config=config,
         opportunities=sorted(opportunities, key=_sort_key),
         tradeoffs=analyze_tradeoffs(runs, config, baseline_variant_id=baseline_variant_id),

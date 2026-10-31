@@ -1,5 +1,6 @@
 """Quality-cost trade-offs between experiment variants, from measured runs only."""
 
+import math
 import statistics
 from collections import defaultdict
 from collections.abc import Sequence
@@ -14,15 +15,15 @@ from agenticlens.optimization.models import (
     TradeoffAnalysis,
     VariantTradeoff,
 )
-from agenticlens.optimization.rules import Savings, build_opportunity
+from agenticlens.optimization.rules import Savings, build_opportunity, run_cost
 
 
 def _variant(variant_id: str, runs: list[Run], config: OptimizationConfig) -> VariantTradeoff:
     successes = sum(bool(run.task_success) for run in runs)
-    costs = [run.estimated_cost_usd for run in runs]
+    costs = [run_cost(run) for run in runs]
     known = [cost for cost in costs if cost is not None]
     mean_cost = statistics.fmean(known) if known and len(known) == len(costs) else None
-    per_success = sum(known) / successes if mean_cost is not None and successes else None
+    per_success = math.fsum(known) / successes if mean_cost is not None and successes else None
     return VariantTradeoff(
         variant_id=variant_id,
         runs=len(runs),
@@ -154,7 +155,7 @@ class QualityCostTradeoffRule:
                     measurements={
                         "variant_id": run.variant_id,
                         "task_success": run.task_success,
-                        "cost_usd": run.estimated_cost_usd,
+                        "cost_usd": run_cost(run),
                         "tokens": run.total_tokens,
                     },
                     reasoning="Measured run in the compared variants.",
