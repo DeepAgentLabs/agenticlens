@@ -80,8 +80,8 @@ needs is skipped, not estimated.
 | `unnecessary_handoff` | `unnecessary_handoff` | delegation spans, `from_agent`/`to_agent`, the delegated subtree | the receiver made no model, tool, retrieval, or planning call, or returned its input unchanged |
 | `quality_cost_tradeoff` | `quality_cost_tradeoff` | `variant_id`, `task_success`, run cost | a variant costs at least `tradeoff_min_cost_reduction` less with success within `tradeoff_max_success_rate_drop` of the baseline |
 
-Tools that declare `idempotent: false` or `side_effects: true` are never
-recommended for caching. An error type is called non-retryable only when no
+A tool with any call that declares `idempotent: false` or
+`side_effects: true` is never recommended for caching. An error type is called non-retryable only when no
 observed retry of it recovered. Top-k is never lowered below the deepest chunk
 any observed answer used.
 
@@ -135,8 +135,10 @@ reference (PR, commit, config version). Transitions are enforced:
 | `adopted` | `accepted` |
 | `reverted` | `adopted` |
 
-A decision whose `report_sha256` does not match the report is refused, so
-decisions never attach to a regenerated report by accident. The ledger is a
+A decision whose `report_sha256` does not match the report is refused, and
+statuses and transitions only count decisions made on the same report, so an
+acceptance recorded against an earlier report never authorizes adoption, or
+shows as the status, on a regenerated one. The ledger is a
 single-writer local file, not a governance system.
 
 ## Evaluating outcomes after adoption
