@@ -56,6 +56,7 @@ def test_rule_separates_saving_from_quality_risk():
     runs = _variant("big", 0.10, [True] * 4) + _variant("small", 0.02, [True] * 3 + [False])
     [found] = QualityCostTradeoffRule("big").analyze(runs, CONFIG)
     assert found.benefit.cost_usd_per_run == pytest.approx(0.08)
+    assert all(e.span_ids == [f"{e.run_id}-1"] for e in found.evidence)
     assert found.risks[0].kind == "quality_regression"
     # Fewer than 30 runs per variant caps confidence.
     assert found.confidence == "medium"

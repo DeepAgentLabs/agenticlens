@@ -152,6 +152,8 @@ class QualityCostTradeoffRule:
             savings.evidence = [
                 OpportunityEvidence(
                     run_id=run.run_id,
+                    # Every span contributes to the run's measured cost and tokens.
+                    span_ids=[span.span_id for span in run.spans],
                     measurements={
                         "variant_id": run.variant_id,
                         "task_success": run.task_success,
