@@ -41,6 +41,13 @@ Live pricing is fetched from provider APIs and cached. Pricing may lag
 behind actual rate changes. Cost estimates are for budgeting and trend
 analysis, not billing.
 
+### Optimization projections assume similar traffic
+
+`agenticlens optimize` projects savings from the analysed traces. Compression
+and reranking benefits are configured or best-case assumptions, prompt-caching
+cost is pro-rated by token share, and outcome evaluation compares two traffic
+windows without controlling for other changes shipped in between.
+
 ### Comparison is descriptive only
 
 `agenticlens compare` reports descriptive statistics (mean, median, P95,
