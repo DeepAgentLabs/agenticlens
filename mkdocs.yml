@@ -69,6 +69,7 @@ nav:
   - Sidecar 0.9 authority and privacy: sidecar-0.9.md
   - MCP 0.4 Compatibility: mcp-0.4-unified-workflows.md
   - Chaos 0.8 Compatibility: chaos-0.8.md
+  - Chaos 0.9 Compatibility: chaos-0.9.md
   - Chaos 0.7 Compatibility: chaos-0.7.md
   - Evals Native Report Contract: evals-report-contract.md
   - Test-Suite and Dataset Management: suite-management.md
