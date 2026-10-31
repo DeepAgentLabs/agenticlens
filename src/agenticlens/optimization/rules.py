@@ -388,7 +388,217 @@ class PromptCompressionRule:
         return found
 
 
+@dataclass
+class _Chunk:
+    rank: int
+    tokens: int
+    used: bool
+
+
+def _chunks(span: Span) -> list[_Chunk] | None:
+    raw = _first(span.attributes, "retrieval.chunks", "chunks")
+    if not isinstance(raw, list) or not raw:
+        return None
+    chunks: list[_Chunk] = []
+    for index, item in enumerate(raw, start=1):
+        if not isinstance(item, dict):
+            return None
+        used = _first(item, "used", "cited")
+        tokens = _int(item.get("tokens"))
+        rank = _int(item.get("rank")) or index
+        if not isinstance(used, bool) or tokens is None:
+            return None
+        chunks.append(_Chunk(rank=rank, tokens=tokens, used=used))
+    return sorted(chunks, key=lambda chunk: chunk.rank)
+
+
+def _downstream_cost_per_token(run: Run, span: Span) -> float | None:
+    """Price retrieved context at the next model call that consumed it."""
+    index = run.spans.index(span)
+    for later in run.spans[index + 1 :]:
+        if later.span_type is SpanType.MODEL_CALL:
+            if later.estimated_cost_usd is None or not later.total_tokens:
+                return None
+            return later.estimated_cost_usd / later.total_tokens
+    return None
+
+
+class RetrievalRule:
+    """Retrieved chunks the answer never used, and used chunks ranked too deep.
+
+    Reads `retrieval.chunks` (or `chunks`): a list of objects with `tokens`,
+    `used` (or `cited`), and optional `rank`. Spans without complete chunk
+    usage are skipped.
+    """
+
+    rule_id = "retrieval"
+    version = "1"
+
+    def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
+        groups: dict[str, list[tuple[Run, Span, list[_Chunk]]]] = defaultdict(list)
+        for run in runs:
+            for span in run.spans:
+                if span.span_type is not SpanType.RETRIEVAL:
+                    continue
+                chunks = _chunks(span)
+                if chunks is not None and len(chunks) >= config.retrieval_min_chunks:
+                    groups[span.name].append((run, span, chunks))
+
+        found: list[Opportunity] = []
+        for name, spans in sorted(groups.items()):
+            found.extend(self._pruning(name, spans, runs, config))
+            found.extend(self._reranking(name, spans, runs, config))
+        return found
+
+    def _pruning(
+        self,
+        name: str,
+        spans: list[tuple[Run, Span, list[_Chunk]]],
+        runs: Sequence[Run],
+        config: OptimizationConfig,
+    ) -> list[Opportunity]:
+        low_utility = [
+            item
+            for item in spans
+            if sum(c.used for c in item[2]) / len(item[2]) <= config.retrieval_max_utility
+        ]
+        if not low_utility:
+            return []
+        # Never cut a chunk any observed answer used.
+        top_k = max((c.rank for _, _, chunks in spans for c in chunks if c.used), default=1)
+        savings = Savings()
+        for run, span, chunks in low_utility:
+            cut = [c for c in chunks if c.rank > top_k]
+            if not cut:
+                continue
+            tokens = sum(c.tokens for c in cut)
+            price = _downstream_cost_per_token(run, span)
+            savings.add(tokens, tokens * price if price is not None else None)
+            savings.evidence.append(
+                OpportunityEvidence(
+                    run_id=run.run_id,
+                    span_ids=[span.span_id],
+                    measurements={
+                        "retrieved_chunks": len(chunks),
+                        "used_chunks": sum(c.used for c in chunks),
+                        "chunks_cut": len(cut),
+                        "tokens_cut": tokens,
+                    },
+                    reasoning=f"No used chunk was ranked below {top_k}.",
+                )
+            )
+        if not savings.evidence:
+            return []
+        retrieved = max(len(chunks) for _, _, chunks in spans)
+        return [
+            build_opportunity(
+                self,
+                area="retrieval",
+                kind="retrieval_pruning",
+                title=f"Lower top-k for '{name}'",
+                summary=(
+                    f"'{name}' retrieved up to {retrieved} chunks, but no answer across "
+                    f"{len(spans)} retrievals used a chunk ranked below {top_k}."
+                ),
+                action=f"Reduce top-k from {retrieved} to {top_k}.",
+                subject={"span_name": name, "recommended_top_k": top_k},
+                thresholds={
+                    "retrieval_min_chunks": config.retrieval_min_chunks,
+                    "retrieval_max_utility": config.retrieval_max_utility,
+                },
+                runs=runs,
+                savings=savings,
+                basis=(
+                    "Tokens of chunks ranked below the deepest used chunk, priced at the "
+                    "next model call's cost per token."
+                ),
+                config=config,
+                risks=[
+                    QualityRisk(
+                        kind="recall_loss",
+                        severity="medium" if len(spans) < 5 else "low",
+                        description=(
+                            f"{len(spans)} retrievals were observed; unseen queries may "
+                            "need deeper chunks."
+                        ),
+                    )
+                ],
+            )
+        ]
+
+    def _reranking(
+        self,
+        name: str,
+        spans: list[tuple[Run, Span, list[_Chunk]]],
+        runs: Sequence[Run],
+        config: OptimizationConfig,
+    ) -> list[Opportunity]:
+        savings = Savings()
+        for run, span, chunks in spans:
+            deepest = max((c.rank for c in chunks if c.used), default=0)
+            if deepest < config.retrieval_rerank_min_rank:
+                continue
+            skipped = [c for c in chunks if not c.used and c.rank < deepest]
+            if not skipped:
+                continue
+            tokens = sum(c.tokens for c in skipped)
+            price = _downstream_cost_per_token(run, span)
+            savings.add(tokens, tokens * price if price is not None else None)
+            savings.evidence.append(
+                OpportunityEvidence(
+                    run_id=run.run_id,
+                    span_ids=[span.span_id],
+                    measurements={
+                        "deepest_used_rank": deepest,
+                        "unused_chunks_ranked_above": len(skipped),
+                        "tokens_ranked_above": tokens,
+                    },
+                    reasoning="A used chunk was ranked below unused ones.",
+                )
+            )
+        if not savings.evidence:
+            return []
+        return [
+            build_opportunity(
+                self,
+                area="retrieval",
+                kind="retrieval_reranking",
+                title=f"Rerank results of '{name}'",
+                summary=(
+                    f"In {len(savings.evidence)} retrievals the answer used a chunk ranked "
+                    f"{config.retrieval_rerank_min_rank} or lower while higher-ranked chunks "
+                    "went unused."
+                ),
+                action="Add a reranker, then lower top-k to the reranked depth that answers use.",
+                subject={"span_name": name},
+                thresholds={"retrieval_rerank_min_rank": config.retrieval_rerank_min_rank},
+                runs=runs,
+                savings=savings,
+                basis=(
+                    "Upper bound: tokens of unused chunks ranked above the deepest used chunk, "
+                    "which a perfect reranker would drop. Reranker cost and latency excluded."
+                ),
+                config=config,
+                risks=[
+                    QualityRisk(
+                        kind="reranker_overhead",
+                        severity="low",
+                        description="A reranker adds its own latency and cost per query.",
+                    ),
+                    QualityRisk(
+                        kind="reranker_quality",
+                        severity="medium",
+                        description="A reranker can demote chunks answers need; evaluate it.",
+                    ),
+                ],
+                confidence_cap="medium",
+                confidence_reasons=["Benefit assumes a perfect reranker."],
+            )
+        ]
+
+
 DEFAULT_RULES: tuple[OptimizationRule, ...] = (
     PromptCachingRule(),
     PromptCompressionRule(),
+    RetrievalRule(),
 )
