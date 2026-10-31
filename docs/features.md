@@ -92,6 +92,20 @@ confidence, quality risk, estimated token savings, and dollar-savings projection
 
 ---
 
+## Optimization intelligence (traces)
+
+**Status:** Experimental (0.11.0)
+
+`agenticlens optimize` works on structured `Run` traces across many runs. It
+recommends prompt caching and compression, retrieval pruning and reranking,
+memory summarization, tool-result caching, non-retryable errors, removal of
+redundant steps and handoffs that add no work, and cheaper experiment variants
+within an allowed quality drop. Projected benefit, confidence, and quality
+risk are separate; decisions are tracked in a ledger; and adopted changes are
+evaluated against later traces. See [Optimization intelligence](optimization.md).
+
+---
+
 ## Repeated-run comparison
 
 **Status:** Experimental
