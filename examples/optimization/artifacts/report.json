@@ -1,0 +1,1559 @@
+{
+  "schema_version": "1.0",
+  "runs": [
+    {
+      "run_id": "before-large-1",
+      "variant_id": "large",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.036921999999999996,
+      "task_success": true
+    },
+    {
+      "run_id": "before-large-2",
+      "variant_id": "large",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.036921999999999996,
+      "task_success": true
+    },
+    {
+      "run_id": "before-large-3",
+      "variant_id": "large",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.036921999999999996,
+      "task_success": true
+    },
+    {
+      "run_id": "before-large-4",
+      "variant_id": "large",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.036921999999999996,
+      "task_success": true
+    },
+    {
+      "run_id": "before-small-1",
+      "variant_id": "small",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.013847,
+      "task_success": true
+    },
+    {
+      "run_id": "before-small-2",
+      "variant_id": "small",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.013847,
+      "task_success": true
+    },
+    {
+      "run_id": "before-small-3",
+      "variant_id": "small",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.013847,
+      "task_success": true
+    },
+    {
+      "run_id": "before-small-4",
+      "variant_id": "small",
+      "spans": 16,
+      "tokens": 15950,
+      "cost_usd": 0.013847,
+      "task_success": false
+    }
+  ],
+  "total_tokens": 127600,
+  "total_cost_usd": 0.20307599999999998,
+  "config": {
+    "prompt_cache_min_prefix_tokens": 1000,
+    "prompt_cache_min_repeats": 2,
+    "prompt_cache_read_price_ratio": 0.1,
+    "prompt_compression_min_input_tokens": 4000,
+    "prompt_compression_min_ratio": 20.0,
+    "prompt_compression_target_reduction": 0.3,
+    "retrieval_min_chunks": 4,
+    "retrieval_max_utility": 0.5,
+    "retrieval_rerank_min_rank": 4,
+    "memory_max_share": 0.4,
+    "memory_token_budget": 2000,
+    "tool_cache_min_repeats": 2,
+    "retry_min_unrecovered": 2,
+    "redundant_step_min_repeats": 2,
+    "handoff_min_occurrences": 1,
+    "tradeoff_min_runs": 3,
+    "tradeoff_max_success_rate_drop": 0.25,
+    "tradeoff_min_cost_reduction": 0.2,
+    "confidence_level": 0.95,
+    "high_confidence_min_runs": 3,
+    "high_confidence_min_share": 0.5,
+    "monthly_runs": 30000
+  },
+  "opportunities": [
+    {
+      "opportunity_id": "quality_cost_tradeoff-7ce924e57bba",
+      "rule_id": "quality_cost_tradeoff",
+      "rule_version": "1",
+      "area": "model",
+      "kind": "quality_cost_tradeoff",
+      "title": "Switch from 'large' to 'small'",
+      "summary": "'small' cost 62% less per run with success 75% vs 100%.",
+      "action": "Trial 'small' behind advisory routing or a canary before replacing the baseline.",
+      "subject": {
+        "baseline_variant_id": "large",
+        "variant_id": "small"
+      },
+      "thresholds": {
+        "tradeoff_min_runs": 3,
+        "tradeoff_min_cost_reduction": 0.2,
+        "tradeoff_max_success_rate_drop": 0.25
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-small-1",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "small",
+            "task_success": true,
+            "cost_usd": 0.013847,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "small",
+            "task_success": true,
+            "cost_usd": 0.013847,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "small",
+            "task_success": true,
+            "cost_usd": 0.013847,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "small",
+            "task_success": false,
+            "cost_usd": 0.013847,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-large-1",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "large",
+            "task_success": true,
+            "cost_usd": 0.036921999999999996,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "large",
+            "task_success": true,
+            "cost_usd": 0.036921999999999996,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "large",
+            "task_success": true,
+            "cost_usd": 0.036921999999999996,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [],
+          "measurements": {
+            "variant_id": "large",
+            "task_success": true,
+            "cost_usd": 0.036921999999999996,
+            "tokens": 15950
+          },
+          "reasoning": "Measured run in the compared variants."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 0.0,
+        "cost_usd_per_run": 0.023075,
+        "latency_ms_per_run": 0.0,
+        "monthly_cost_usd": 692.25,
+        "cost_available": true,
+        "basis": "Difference between the variants' measured mean per-run cost. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "medium",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%).",
+        "Fewer than 30 runs per variant."
+      ],
+      "risks": [
+        {
+          "kind": "quality_regression",
+          "severity": "medium",
+          "description": "Success rate 75% vs 100% (p=0.285)."
+        },
+        {
+          "kind": "sample_size",
+          "severity": "medium",
+          "description": "4 and 4 runs; small samples cannot rule out a quality drop larger than the allowed threshold."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "memory_summarization-4774cb4162b2",
+      "rule_id": "memory",
+      "rule_version": "1",
+      "area": "memory",
+      "kind": "memory_summarization",
+      "title": "Bound memory with summarization and retention",
+      "summary": "Memory reads took over 40% of tokens in 8 runs; 8 grew on every read.",
+      "action": "Summarize older memory into a digest of about 2000 tokens and add a retention window, since memory grew on every read.",
+      "subject": {
+        "span_type": "memory_read"
+      },
+      "thresholds": {
+        "memory_max_share": 0.4,
+        "memory_token_budget": 2000
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-03",
+            "before-large-1-04",
+            "before-large-1-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-03",
+            "before-large-2-04",
+            "before-large-2-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-03",
+            "before-large-3-04",
+            "before-large-3-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-03",
+            "before-large-4-04",
+            "before-large-4-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-03",
+            "before-small-1-04",
+            "before-small-1-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-03",
+            "before-small-2-04",
+            "before-small-2-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-03",
+            "before-small-3-04",
+            "before-small-3-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-03",
+            "before-small-4-04",
+            "before-small-4-05"
+          ],
+          "measurements": {
+            "memory_tokens": 6700,
+            "run_tokens": 15950,
+            "memory_share": 0.4201,
+            "grows_every_read": true
+          },
+          "reasoning": "Memory reads exceed the configured share and token budget."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 4700.0,
+        "cost_usd_per_run": 0.007480072100313477,
+        "latency_ms_per_run": 0.0,
+        "monthly_cost_usd": 224.40216300940432,
+        "cost_available": true,
+        "basis": "Memory tokens above the configured budget, priced at each run's blended cost per token. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "fact_loss",
+          "severity": "medium",
+          "description": "Summaries can drop facts that later turns rely on."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "prompt_caching-103f82ac55d9",
+      "rule_id": "prompt_caching",
+      "rule_version": "1",
+      "area": "prompt",
+      "kind": "prompt_caching",
+      "title": "Cache a repeated prompt prefix",
+      "summary": "A 1200-token prompt prefix was sent 16 times without a provider cache hit.",
+      "action": "Move the shared prefix to the start of the prompt and enable provider prompt caching (or a local prefix cache).",
+      "subject": {
+        "prefix_sha256": "a1f3c9a1f3c9a1f3c9a1f3c9a1f3c9a1f3c9a1f3c9a1f3c9a1f3c9a1f3c9d2e4"
+      },
+      "thresholds": {
+        "prompt_cache_min_prefix_tokens": 1000,
+        "prompt_cache_min_repeats": 2,
+        "prompt_cache_read_price_ratio": 0.1
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-large"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-01"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 1500,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-15"
+          ],
+          "measurements": {
+            "prefix_tokens": 1200,
+            "input_tokens": 5200,
+            "model": "support-small"
+          },
+          "reasoning": "Uncached repeat of a prefix already sent in an earlier call."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 2025.0,
+        "cost_usd_per_run": 0.0054,
+        "latency_ms_per_run": 0.0,
+        "monthly_cost_usd": 162.0,
+        "cost_available": true,
+        "basis": "Billable-equivalent prefix tokens on every repeat after the first, discounted by the configured cached-read price ratio. Cost is the span cost pro-rated by token share, an upper bound when output tokens are priced above input tokens. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "cache_invalidation",
+          "severity": "low",
+          "description": "Dynamic content inside the prefix, or calls outside the provider cache lifetime, will miss the cache."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "prompt_compression-ee01f0be5920",
+      "rule_id": "prompt_compression",
+      "rule_version": "1",
+      "area": "prompt",
+      "kind": "prompt_compression",
+      "title": "Compress the prompt of 'answer'",
+      "summary": "'answer' sent at least 4000 input tokens per call for 8 calls with output 20x smaller.",
+      "action": "Trim boilerplate, deduplicate context, or summarize long inputs; evaluate the compressed prompt on the suite before adopting.",
+      "subject": {
+        "span_name": "answer",
+        "agent_name": "triage"
+      },
+      "thresholds": {
+        "prompt_compression_min_input_tokens": 4000,
+        "prompt_compression_min_ratio": 20.0,
+        "prompt_compression_target_reduction": 0.3
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-15"
+          ],
+          "measurements": {
+            "input_tokens": 5200,
+            "output_tokens": 150,
+            "input_output_ratio": 34.67
+          },
+          "reasoning": "Input-to-output ratio exceeds the configured threshold."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 1560.0,
+        "cost_usd_per_run": 0.0042899999999999995,
+        "latency_ms_per_run": 0.0,
+        "monthly_cost_usd": 128.7,
+        "cost_available": true,
+        "basis": "The configured 30% target reduction of measured input tokens; the reduction itself is an assumption until measured. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "medium",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%).",
+        "The reduction is a configured target, not measured."
+      ],
+      "risks": [
+        {
+          "kind": "instruction_loss",
+          "severity": "medium",
+          "description": "Compression can drop instructions or facts the model needs; require a passing evaluation before rollout."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "retrieval_pruning-0995adc226bf",
+      "rule_id": "retrieval",
+      "rule_version": "1",
+      "area": "retrieval",
+      "kind": "retrieval_pruning",
+      "title": "Lower top-k for 'kb_search'",
+      "summary": "'kb_search' retrieved up to 8 chunks, but no answer across 8 retrievals used a chunk ranked below 5.",
+      "action": "Reduce top-k from 8 to 5.",
+      "subject": {
+        "span_name": "kb_search",
+        "recommended_top_k": 5
+      },
+      "thresholds": {
+        "retrieval_min_chunks": 4,
+        "retrieval_max_utility": 0.5
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 2,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 2,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 2,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 1,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 2,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 2,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 2,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-02"
+          ],
+          "measurements": {
+            "retrieved_chunks": 8,
+            "used_chunks": 1,
+            "chunks_cut": 3,
+            "tokens_cut": 450
+          },
+          "reasoning": "No used chunk was ranked below 5."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 450.0,
+        "cost_usd_per_run": 0.0012375,
+        "latency_ms_per_run": 0.0,
+        "monthly_cost_usd": 37.125,
+        "cost_available": true,
+        "basis": "Tokens of chunks ranked below the deepest used chunk, priced at the next model call's cost per token. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "recall_loss",
+          "severity": "low",
+          "description": "8 retrievals were observed; unseen queries may need deeper chunks."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "unnecessary_handoff-3fb69147c860",
+      "rule_id": "unnecessary_handoff",
+      "rule_version": "1",
+      "area": "workflow",
+      "kind": "unnecessary_handoff",
+      "title": "Skip the handoff triage -> billing",
+      "summary": "8 handoffs from triage to billing added no work.",
+      "action": "Let triage continue directly, or merge billing into it.",
+      "subject": {
+        "from_agent": "triage",
+        "to_agent": "billing"
+      },
+      "thresholds": {
+        "handoff_min_occurrences": 1
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-11",
+            "before-large-1-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-11",
+            "before-large-2-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-11",
+            "before-large-3-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-11",
+            "before-large-4-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-11",
+            "before-small-1-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-11",
+            "before-small-2-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-11",
+            "before-small-3-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-11",
+            "before-small-4-12"
+          ],
+          "measurements": {
+            "subtree_spans": 2,
+            "receiver_did_work": false,
+            "output_equals_input": false
+          },
+          "reasoning": "The receiving agent made no model, tool or retrieval call."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 420.0,
+        "cost_usd_per_run": 0.0011550000000000002,
+        "latency_ms_per_run": 140.0,
+        "monthly_cost_usd": 34.650000000000006,
+        "cost_available": true,
+        "basis": "Measured tokens, cost and latency of each handoff and its subtree. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "handoff_semantics",
+          "severity": "medium",
+          "description": "A handoff can carry authorization, audit, or ownership semantics that tokens do not show."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "retry_policy-1122fb6d6ba6",
+      "rule_id": "retry_policy",
+      "rule_version": "1",
+      "area": "tool",
+      "kind": "retry_policy",
+      "title": "Stop retrying 'auth_error'",
+      "summary": "16 retries after 'auth_error' were observed and none recovered.",
+      "action": "Treat 'auth_error' as non-retryable: fail fast or route to a fallback.",
+      "subject": {
+        "error_type": "auth_error"
+      },
+      "thresholds": {
+        "retry_min_unrecovered": 2
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-09",
+            "before-large-1-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-09",
+            "before-large-2-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-09",
+            "before-large-3-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-09",
+            "before-large-4-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-09",
+            "before-small-1-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-09",
+            "before-small-2-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-09",
+            "before-small-3-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-09",
+            "before-small-4-10"
+          ],
+          "measurements": {
+            "unrecovered_retries": 2,
+            "error_type": "auth_error"
+          },
+          "reasoning": "Retries after this error type did not recover."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 360.0,
+        "cost_usd_per_run": 0.0009900000000000002,
+        "latency_ms_per_run": 500.0,
+        "monthly_cost_usd": 29.700000000000006,
+        "cost_available": true,
+        "basis": "Measured tokens, cost and latency of the unrecovered retry spans. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "transient_error",
+          "severity": "low",
+          "description": "16 retries were observed; the error may be transient on traffic not in these traces."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "redundant_step-f0cff7cb49f8",
+      "rule_id": "redundant_step",
+      "rule_version": "1",
+      "area": "workflow",
+      "kind": "redundant_step",
+      "title": "Remove the repeated 'policy_check' step",
+      "summary": "'policy_check' (validation) re-ran with identical input and output in 8 runs.",
+      "action": "Reuse the first 'policy_check' result instead of re-executing it.",
+      "subject": {
+        "span_type": "validation",
+        "span_name": "policy_check"
+      },
+      "thresholds": {
+        "redundant_step_min_repeats": 2
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-13",
+            "before-large-1-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-13",
+            "before-large-2-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-13",
+            "before-large-3-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-13",
+            "before-large-4-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-13",
+            "before-small-1-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-13",
+            "before-small-2-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-13",
+            "before-small-3-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-13",
+            "before-small-4-14"
+          ],
+          "measurements": {
+            "executions": 2
+          },
+          "reasoning": "Same input produced the same output again."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 310.0,
+        "cost_usd_per_run": 0.0008525000000000001,
+        "latency_ms_per_run": 60.0,
+        "monthly_cost_usd": 25.575000000000003,
+        "cost_available": true,
+        "basis": "Measured tokens, cost and latency of every identical re-execution. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "intentional_repeat",
+          "severity": "low",
+          "description": "Repeats can be deliberate (self-consistency sampling, polling); confirm before removing."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "tool_result_caching-412a72bac9f5",
+      "rule_id": "tool_caching",
+      "rule_version": "1",
+      "area": "tool",
+      "kind": "tool_result_caching",
+      "title": "Cache results of tool 'lookup_order'",
+      "summary": "'lookup_order' was called repeatedly with identical arguments in 8 runs.",
+      "action": "Memoize 'lookup_order' by arguments for the duration of a run.",
+      "subject": {
+        "tool_name": "lookup_order"
+      },
+      "thresholds": {
+        "tool_cache_min_repeats": 2
+      },
+      "runs_observed": 8,
+      "runs_affected": 8,
+      "evidence": [
+        {
+          "run_id": "before-large-1",
+          "span_ids": [
+            "before-large-1-06",
+            "before-large-1-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-large-2",
+          "span_ids": [
+            "before-large-2-06",
+            "before-large-2-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-06",
+            "before-large-3-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-large-4",
+          "span_ids": [
+            "before-large-4-06",
+            "before-large-4-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-small-1",
+          "span_ids": [
+            "before-small-1-06",
+            "before-small-1-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-small-2",
+          "span_ids": [
+            "before-small-2-06",
+            "before-small-2-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-06",
+            "before-small-3-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        },
+        {
+          "run_id": "before-small-4",
+          "span_ids": [
+            "before-small-4-06",
+            "before-small-4-07"
+          ],
+          "measurements": {
+            "calls": 2,
+            "repeat_tokens": 300,
+            "repeat_latency_ms": 400.0
+          },
+          "reasoning": "Identical arguments returned successfully more than once."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 300.0,
+        "cost_usd_per_run": 0.0008249999999999999,
+        "latency_ms_per_run": 400.0,
+        "monthly_cost_usd": 24.749999999999996,
+        "cost_available": true,
+        "basis": "Measured tokens, cost and latency of every repeat after the first. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "high",
+      "confidence_reasons": [
+        "Observed in 8 of 8 runs (100%)."
+      ],
+      "risks": [
+        {
+          "kind": "stale_result",
+          "severity": "low",
+          "description": "The tool is declared idempotent; cached results can still go stale if they outlive the data."
+        }
+      ]
+    },
+    {
+      "opportunity_id": "retrieval_reranking-f8904867cad8",
+      "rule_id": "retrieval",
+      "rule_version": "1",
+      "area": "retrieval",
+      "kind": "retrieval_reranking",
+      "title": "Rerank results of 'kb_search'",
+      "summary": "In 2 retrievals the answer used a chunk ranked 4 or lower while higher-ranked chunks went unused.",
+      "action": "Add a reranker, then lower top-k to the reranked depth that answers use.",
+      "subject": {
+        "span_name": "kb_search"
+      },
+      "thresholds": {
+        "retrieval_rerank_min_rank": 4
+      },
+      "runs_observed": 8,
+      "runs_affected": 2,
+      "evidence": [
+        {
+          "run_id": "before-large-3",
+          "span_ids": [
+            "before-large-3-02"
+          ],
+          "measurements": {
+            "deepest_used_rank": 5,
+            "unused_chunks_ranked_above": 3,
+            "tokens_ranked_above": 450
+          },
+          "reasoning": "A used chunk was ranked below unused ones."
+        },
+        {
+          "run_id": "before-small-3",
+          "span_ids": [
+            "before-small-3-02"
+          ],
+          "measurements": {
+            "deepest_used_rank": 5,
+            "unused_chunks_ranked_above": 3,
+            "tokens_ranked_above": 450
+          },
+          "reasoning": "A used chunk was ranked below unused ones."
+        }
+      ],
+      "benefit": {
+        "tokens_per_run": 112.5,
+        "cost_usd_per_run": 0.00030937499999999997,
+        "latency_ms_per_run": 0.0,
+        "monthly_cost_usd": 9.28125,
+        "cost_available": true,
+        "basis": "Upper bound: tokens of unused chunks ranked above the deepest used chunk, which a perfect reranker would drop. Reranker cost and latency excluded. Averaged over every observed run, including unaffected ones."
+      },
+      "confidence": "medium",
+      "confidence_reasons": [
+        "Observed in 2 of 8 runs (25%).",
+        "Benefit assumes a perfect reranker."
+      ],
+      "risks": [
+        {
+          "kind": "reranker_overhead",
+          "severity": "low",
+          "description": "A reranker adds its own latency and cost per query."
+        },
+        {
+          "kind": "reranker_quality",
+          "severity": "medium",
+          "description": "A reranker can demote chunks answers need; evaluate it."
+        }
+      ]
+    }
+  ],
+  "tradeoffs": {
+    "baseline_variant_id": "large",
+    "variants": [
+      {
+        "variant_id": "large",
+        "runs": 4,
+        "successes": 4,
+        "success_rate": 1.0,
+        "success_interval": [
+          0.5101091635454027,
+          1.0
+        ],
+        "mean_cost_usd": 0.036921999999999996,
+        "cost_per_success_usd": 0.036921999999999996,
+        "mean_latency_ms": 4590.0,
+        "mean_tokens": 15950.0,
+        "pareto_optimal": true,
+        "success_rate_delta": null,
+        "cost_delta_usd": null,
+        "p_value": null
+      },
+      {
+        "variant_id": "small",
+        "runs": 4,
+        "successes": 3,
+        "success_rate": 0.75,
+        "success_interval": [
+          0.300641842582402,
+          0.9544127391902995
+        ],
+        "mean_cost_usd": 0.013847,
+        "cost_per_success_usd": 0.018462666666666665,
+        "mean_latency_ms": 4590.0,
+        "mean_tokens": 15950.0,
+        "pareto_optimal": true,
+        "success_rate_delta": -0.25,
+        "cost_delta_usd": -0.023075,
+        "p_value": 0.28504940740261286
+      }
+    ],
+    "excluded": {}
+  }
+}
