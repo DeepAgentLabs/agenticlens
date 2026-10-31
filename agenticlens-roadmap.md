@@ -1403,3 +1403,10 @@ containment. No new shared schema, automatic adapter or hosted execution
 capability is introduced.
 
 Lens reads scored reports as `Workflow` JSON and analyzes their `chaos_events` as before. The chaos-impact recommender does not consume `probes` or `resilience`, so Lens cost, latency and diagnosis findings do not change. Suite conversion rules are unchanged. Chaos's optional `agenticlens>=0.7.0` extra is unchanged, so no dependency bump or Lens patch release is needed.
+
+## AIOS v0.6.1 compatibility
+
+See [provenance and conformance suite guidance](docs/aios-0.6.1.md). Exports and
+`agenticlens conformance` stay on `0.4-draft`; running the portable suite and a
+provenance exporter for Lens findings are candidates, not shipped. Dependency
+floors are unchanged.
