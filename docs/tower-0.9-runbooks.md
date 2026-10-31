@@ -1,8 +1,8 @@
 # Control Tower 0.9.0 runbooks compatibility
 
 Control Tower 0.9.0 adds versioned runbooks and recovery workflows. Installed
-runbook versions are immutable and declare prerequisites, typed parameters and
-ordered steps with per-step timeouts, retry limits and optional rollback actions.
+runbook versions are immutable and declare prerequisites, named string parameters
+(each constrained by a pattern, length and optional allowed list) and ordered steps with per-step timeouts, retry limits and optional rollback actions.
 Recommendations come only from installed versions. A writer previews an exact
 digest, a separate human approves it, and Tower claims each step before
 dispatching it to a host-installed connector. Clean failures retry within the step
