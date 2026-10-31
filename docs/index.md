@@ -110,6 +110,7 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [Examples](examples.md)
 - [Workflow schema specification](workflow-schema-spec.md)
 - [AIOS v0.6 examples and extensions](aios-v0.6.md)
+- [AIOS v0.6.1 provenance and conformance suite](aios-0.6.1.md)
 - [AIOS validation and OTel export](aios-validation-and-otel.md)
 - [Export formats](export-formats.md)
 - [RAG chunk utility](rag-chunk-utility.md)
