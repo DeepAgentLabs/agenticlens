@@ -81,6 +81,7 @@ nav:
   - Tower 0.6 Recovery: control-tower-0.6.md
   - Tower 0.7 Fleet Operations: tower-0.7-fleet-operations.md
   - Control Tower 0.8 Live Operations: tower-0.8-live-operations.md
+  - Control Tower 0.9 Runbooks: tower-0.9-runbooks.md
   - Evals 0.8 CLI: evals-0.8-cli.md
   - Evals 0.9 Judge Reliability: evals-0.9-judge-reliability.md
   - Evals 0.10 AIOS Evidence: evals-0.10-aios-evidence.md
