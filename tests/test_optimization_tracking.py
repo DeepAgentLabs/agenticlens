@@ -68,3 +68,17 @@ def test_decision_must_match_report_and_opportunity(tmp_path, report):
     with pytest.raises(KeyError):
         ledger.record(report, _decision(report, "accepted", opportunity_id="missing"))
     assert not ledger.path.exists()
+
+
+def test_decisions_on_an_earlier_report_do_not_carry_over(tmp_path, report):
+    ledger = RecommendationLedger(tmp_path / "ledger.jsonl")
+    ledger.record(report, _decision(report, "accepted"))
+    regenerated = analyze_optimizations(
+        [retrieval_run("a", [1]), retrieval_run("b", [2]), retrieval_run("c", [1])]
+    )
+    target = report.opportunities[0].opportunity_id
+    assert target in {o.opportunity_id for o in regenerated.opportunities}
+    assert ledger.summary(regenerated)[target] == "proposed"
+    with pytest.raises(ValueError, match="cannot move"):
+        ledger.record(regenerated, _decision(regenerated, "adopted", opportunity_id=target))
+    assert ledger.status(target) == "accepted"

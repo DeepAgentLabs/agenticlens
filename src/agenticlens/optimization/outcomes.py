@@ -65,7 +65,8 @@ def evaluate_outcome(
     opportunity = report.opportunity(opportunity_id)
     config = report.config
     reasons: list[str] = []
-    decision = ledger.status(opportunity_id) if ledger is not None else None
+    digest = report_sha256(report)
+    decision = ledger.status(opportunity_id, digest) if ledger is not None else None
     if decision is not None and decision != "adopted":
         reasons.append(f"The ledger status is {decision!r}, not 'adopted'.")
 
@@ -138,7 +139,7 @@ def evaluate_outcome(
 
     return OutcomeEvaluation(
         opportunity_id=opportunity_id,
-        report_sha256=report_sha256(report),
+        report_sha256=digest,
         decision_status=decision,
         projected=opportunity.benefit,
         observed=observed,

@@ -41,10 +41,13 @@ class RecommendationLedger:
         lines = self.path.read_text(encoding="utf-8").splitlines()
         return [RecommendationDecision.model_validate_json(line) for line in lines if line]
 
-    def status(self, opportunity_id: str) -> DecisionStatus:
+    def status(self, opportunity_id: str, report_digest: str | None = None) -> DecisionStatus:
+        """Latest status; with `report_digest`, only decisions made on that report count."""
         latest: DecisionStatus = "proposed"
         for decision in self.decisions():
-            if decision.opportunity_id == opportunity_id:
+            if decision.opportunity_id == opportunity_id and (
+                report_digest is None or decision.report_sha256 == report_digest
+            ):
                 latest = decision.status
         return latest
 
@@ -54,7 +57,8 @@ class RecommendationLedger:
         report.opportunity(decision.opportunity_id)
         if decision.report_sha256 != report_sha256(report):
             raise ValueError("decision report_sha256 does not match the report")
-        current = self.status(decision.opportunity_id)
+        # Decisions on an earlier report never authorize transitions on this one.
+        current = self.status(decision.opportunity_id, decision.report_sha256)
         if current not in _ALLOWED[decision.status]:
             raise ValueError(f"cannot move from {current!r} to {decision.status!r}")
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -66,9 +70,11 @@ class RecommendationLedger:
 
     def summary(self, report: OptimizationReport) -> dict[str, DecisionStatus]:
         """Latest status of every opportunity in the report, in report order."""
+        digest = report_sha256(report)
         latest: dict[str, DecisionStatus] = {}
         for decision in self.decisions():
-            latest[decision.opportunity_id] = decision.status
+            if decision.report_sha256 == digest:
+                latest[decision.opportunity_id] = decision.status
         return {
             item.opportunity_id: latest.get(item.opportunity_id, "proposed")
             for item in report.opportunities
