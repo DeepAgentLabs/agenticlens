@@ -115,7 +115,12 @@ class QualityCostTradeoffRule:
         self.baseline_variant_id = baseline_variant_id
 
     def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
-        analysis = analyze_tradeoffs(runs, config, baseline_variant_id=self.baseline_variant_id)
+        try:
+            analysis = analyze_tradeoffs(runs, config, baseline_variant_id=self.baseline_variant_id)
+        except ValueError:
+            # The baseline is absent, e.g. when re-checking traces recorded after a
+            # switch. analyze_optimizations still reports a bad explicit baseline.
+            return []
         baseline = next(
             (v for v in analysis.variants if v.variant_id == analysis.baseline_variant_id), None
         )

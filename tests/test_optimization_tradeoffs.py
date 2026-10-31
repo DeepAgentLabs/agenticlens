@@ -82,3 +82,8 @@ def test_unpriced_variants_produce_no_tradeoff_opportunity():
     assert QualityCostTradeoffRule("big").analyze(runs, CONFIG) == []
     x = next(v for v in analyze_tradeoffs(runs, CONFIG).variants if v.variant_id == "x")
     assert x.mean_cost_usd is None and x.pareto_optimal is False
+
+
+def test_rule_finds_nothing_when_the_baseline_is_absent():
+    runs = _variant("small", 0.02, [True] * 4)
+    assert QualityCostTradeoffRule("big").analyze(runs, CONFIG) == []
