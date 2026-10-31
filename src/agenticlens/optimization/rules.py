@@ -692,6 +692,17 @@ class ToolCachingRule:
     def analyze(self, runs: Sequence[Run], config: OptimizationConfig) -> list[Opportunity]:
         per_tool: dict[str, Savings] = defaultdict(Savings)
         declared: dict[str, bool] = {}
+        # The action memoizes the whole tool, so one unsafe call anywhere excludes it.
+        unsafe = {
+            span.tool_name or span.name
+            for run in runs
+            for span in run.spans
+            if span.span_type is SpanType.TOOL_CALL
+            and (
+                span.attributes.get("idempotent") is False
+                or span.attributes.get("side_effects") is True
+            )
+        }
         for run in runs:
             calls: dict[tuple[str, str], list[Span]] = defaultdict(list)
             for span in run.spans:
@@ -700,13 +711,13 @@ class ToolCachingRule:
                 ):
                     continue
                 attrs = span.attributes
-                if attrs.get("idempotent") is False or attrs.get("side_effects") is True:
+                tool = span.tool_name or span.name
+                if tool in unsafe:
                     continue
                 args = attrs.get("tool_args")
                 key = "args:" + fingerprint(args) if args is not None else input_fingerprint(span)
                 if key is None:
                     continue
-                tool = span.tool_name or span.name
                 calls[(tool, key)].append(span)
                 declared[tool] = declared.get(tool, True) and attrs.get("idempotent") is True
             for (tool, _), spans in sorted(calls.items()):

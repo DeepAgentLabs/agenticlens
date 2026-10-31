@@ -271,3 +271,18 @@ def test_opportunity_ids_are_stable_across_runs():
     first = [o.opportunity_id for o in RetrievalRule().analyze(runs, CONFIG)]
     second = [o.opportunity_id for o in RetrievalRule().analyze(list(reversed(runs)), CONFIG)]
     assert first == second
+
+
+def test_one_unsafe_call_excludes_the_whole_tool():
+    safe = [
+        span("a", i, SpanType.TOOL_CALL, tool_name="lookup", attributes={"tool_args": {"id": 1}})
+        for i in (1, 2)
+    ]
+    unsafe = span(
+        "b",
+        1,
+        SpanType.TOOL_CALL,
+        tool_name="lookup",
+        attributes={"tool_args": {"id": 2}, "side_effects": True},
+    )
+    assert ToolCachingRule().analyze([run("a", safe), run("b", [unsafe])], CONFIG) == []
