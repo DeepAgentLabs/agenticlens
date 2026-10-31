@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/optimization/optimization-config.schema.json",
+  "additionalProperties": false,
+  "description": "Thresholds for every rule. Each finding records the thresholds it used.",
+  "properties": {
+    "prompt_cache_min_prefix_tokens": {
+      "default": 512,
+      "minimum": 1,
+      "title": "Prompt Cache Min Prefix Tokens",
+      "type": "integer"
+    },
+    "prompt_cache_min_repeats": {
+      "default": 2,
+      "minimum": 2,
+      "title": "Prompt Cache Min Repeats",
+      "type": "integer"
+    },
+    "prompt_cache_read_price_ratio": {
+      "default": 0.1,
+      "description": "Cached-read price as a fraction of the uncached input price.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Prompt Cache Read Price Ratio",
+      "type": "number"
+    },
+    "prompt_compression_min_input_tokens": {
+      "default": 4000,
+      "minimum": 1,
+      "title": "Prompt Compression Min Input Tokens",
+      "type": "integer"
+    },
+    "prompt_compression_min_ratio": {
+      "default": 20.0,
+      "exclusiveMinimum": 0,
+      "title": "Prompt Compression Min Ratio",
+      "type": "number"
+    },
+    "prompt_compression_target_reduction": {
+      "default": 0.3,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Prompt Compression Target Reduction",
+      "type": "number"
+    },
+    "retrieval_min_chunks": {
+      "default": 4,
+      "minimum": 1,
+      "title": "Retrieval Min Chunks",
+      "type": "integer"
+    },
+    "retrieval_max_utility": {
+      "default": 0.5,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Retrieval Max Utility",
+      "type": "number"
+    },
+    "retrieval_rerank_min_rank": {
+      "default": 4,
+      "description": "A used chunk ranked at or below this position suggests reranking.",
+      "minimum": 2,
+      "title": "Retrieval Rerank Min Rank",
+      "type": "integer"
+    },
+    "memory_max_share": {
+      "default": 0.4,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Memory Max Share",
+      "type": "number"
+    },
+    "memory_token_budget": {
+      "default": 2000,
+      "minimum": 0,
+      "title": "Memory Token Budget",
+      "type": "integer"
+    },
+    "tool_cache_min_repeats": {
+      "default": 2,
+      "minimum": 2,
+      "title": "Tool Cache Min Repeats",
+      "type": "integer"
+    },
+    "retry_min_unrecovered": {
+      "default": 2,
+      "minimum": 1,
+      "title": "Retry Min Unrecovered",
+      "type": "integer"
+    },
+    "redundant_step_min_repeats": {
+      "default": 2,
+      "minimum": 2,
+      "title": "Redundant Step Min Repeats",
+      "type": "integer"
+    },
+    "handoff_min_occurrences": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Handoff Min Occurrences",
+      "type": "integer"
+    },
+    "tradeoff_min_runs": {
+      "default": 3,
+      "minimum": 1,
+      "title": "Tradeoff Min Runs",
+      "type": "integer"
+    },
+    "tradeoff_max_success_rate_drop": {
+      "default": 0.05,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Tradeoff Max Success Rate Drop",
+      "type": "number"
+    },
+    "tradeoff_min_cost_reduction": {
+      "default": 0.1,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Tradeoff Min Cost Reduction",
+      "type": "number"
+    },
+    "confidence_level": {
+      "default": 0.95,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "high_confidence_min_runs": {
+      "default": 3,
+      "minimum": 1,
+      "title": "High Confidence Min Runs",
+      "type": "integer"
+    },
+    "high_confidence_min_share": {
+      "default": 0.5,
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "High Confidence Min Share",
+      "type": "number"
+    },
+    "monthly_runs": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Monthly Runs"
+    }
+  },
+  "title": "OptimizationConfig",
+  "type": "object"
+}

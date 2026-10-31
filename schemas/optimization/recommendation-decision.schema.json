@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/optimization/recommendation-decision.schema.json",
+  "additionalProperties": false,
+  "description": "One ledger entry: a person or process deciding on an opportunity.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "opportunity_id": {
+      "minLength": 1,
+      "title": "Opportunity Id",
+      "type": "string"
+    },
+    "report_sha256": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Report Sha256",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "accepted",
+        "rejected",
+        "adopted",
+        "reverted"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "decided_by": {
+      "minLength": 1,
+      "title": "Decided By",
+      "type": "string"
+    },
+    "decided_at": {
+      "format": "date-time",
+      "title": "Decided At",
+      "type": "string"
+    },
+    "reason": {
+      "default": "",
+      "title": "Reason",
+      "type": "string"
+    },
+    "change_reference": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "PR, commit, or config version that adopted the change.",
+      "title": "Change Reference"
+    }
+  },
+  "required": [
+    "opportunity_id",
+    "report_sha256",
+    "status",
+    "decided_by",
+    "decided_at"
+  ],
+  "title": "RecommendationDecision",
+  "type": "object"
+}

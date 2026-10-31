@@ -1,0 +1,667 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/agenticlens/schemas/optimization/optimization-report.schema.json",
+  "$defs": {
+    "Opportunity": {
+      "additionalProperties": false,
+      "properties": {
+        "opportunity_id": {
+          "description": "Stable hash of rule and subject.",
+          "title": "Opportunity Id",
+          "type": "string"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "rule_version": {
+          "title": "Rule Version",
+          "type": "string"
+        },
+        "area": {
+          "enum": [
+            "prompt",
+            "retrieval",
+            "memory",
+            "tool",
+            "workflow",
+            "model"
+          ],
+          "title": "Area",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "subject": {
+          "additionalProperties": true,
+          "title": "Subject",
+          "type": "object"
+        },
+        "thresholds": {
+          "additionalProperties": true,
+          "title": "Thresholds",
+          "type": "object"
+        },
+        "runs_observed": {
+          "minimum": 0,
+          "title": "Runs Observed",
+          "type": "integer"
+        },
+        "runs_affected": {
+          "minimum": 0,
+          "title": "Runs Affected",
+          "type": "integer"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/OpportunityEvidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "benefit": {
+          "$ref": "#/$defs/ProjectedBenefit"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "confidence_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Confidence Reasons",
+          "type": "array"
+        },
+        "risks": {
+          "items": {
+            "$ref": "#/$defs/QualityRisk"
+          },
+          "title": "Risks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "opportunity_id",
+        "rule_id",
+        "rule_version",
+        "area",
+        "kind",
+        "title",
+        "summary",
+        "action",
+        "runs_observed",
+        "runs_affected",
+        "evidence",
+        "benefit",
+        "confidence"
+      ],
+      "title": "Opportunity",
+      "type": "object"
+    },
+    "OpportunityEvidence": {
+      "additionalProperties": false,
+      "description": "One measured observation backing an opportunity.",
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "span_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Span Ids",
+          "type": "array"
+        },
+        "measurements": {
+          "additionalProperties": true,
+          "title": "Measurements",
+          "type": "object"
+        },
+        "reasoning": {
+          "title": "Reasoning",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "reasoning"
+      ],
+      "title": "OpportunityEvidence",
+      "type": "object"
+    },
+    "OptimizationConfig": {
+      "additionalProperties": false,
+      "description": "Thresholds for every rule. Each finding records the thresholds it used.",
+      "properties": {
+        "prompt_cache_min_prefix_tokens": {
+          "default": 512,
+          "minimum": 1,
+          "title": "Prompt Cache Min Prefix Tokens",
+          "type": "integer"
+        },
+        "prompt_cache_min_repeats": {
+          "default": 2,
+          "minimum": 2,
+          "title": "Prompt Cache Min Repeats",
+          "type": "integer"
+        },
+        "prompt_cache_read_price_ratio": {
+          "default": 0.1,
+          "description": "Cached-read price as a fraction of the uncached input price.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Prompt Cache Read Price Ratio",
+          "type": "number"
+        },
+        "prompt_compression_min_input_tokens": {
+          "default": 4000,
+          "minimum": 1,
+          "title": "Prompt Compression Min Input Tokens",
+          "type": "integer"
+        },
+        "prompt_compression_min_ratio": {
+          "default": 20.0,
+          "exclusiveMinimum": 0,
+          "title": "Prompt Compression Min Ratio",
+          "type": "number"
+        },
+        "prompt_compression_target_reduction": {
+          "default": 0.3,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Prompt Compression Target Reduction",
+          "type": "number"
+        },
+        "retrieval_min_chunks": {
+          "default": 4,
+          "minimum": 1,
+          "title": "Retrieval Min Chunks",
+          "type": "integer"
+        },
+        "retrieval_max_utility": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Retrieval Max Utility",
+          "type": "number"
+        },
+        "retrieval_rerank_min_rank": {
+          "default": 4,
+          "description": "A used chunk ranked at or below this position suggests reranking.",
+          "minimum": 2,
+          "title": "Retrieval Rerank Min Rank",
+          "type": "integer"
+        },
+        "memory_max_share": {
+          "default": 0.4,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Memory Max Share",
+          "type": "number"
+        },
+        "memory_token_budget": {
+          "default": 2000,
+          "minimum": 0,
+          "title": "Memory Token Budget",
+          "type": "integer"
+        },
+        "tool_cache_min_repeats": {
+          "default": 2,
+          "minimum": 2,
+          "title": "Tool Cache Min Repeats",
+          "type": "integer"
+        },
+        "retry_min_unrecovered": {
+          "default": 2,
+          "minimum": 1,
+          "title": "Retry Min Unrecovered",
+          "type": "integer"
+        },
+        "redundant_step_min_repeats": {
+          "default": 2,
+          "minimum": 2,
+          "title": "Redundant Step Min Repeats",
+          "type": "integer"
+        },
+        "handoff_min_occurrences": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Handoff Min Occurrences",
+          "type": "integer"
+        },
+        "tradeoff_min_runs": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Tradeoff Min Runs",
+          "type": "integer"
+        },
+        "tradeoff_max_success_rate_drop": {
+          "default": 0.05,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Tradeoff Max Success Rate Drop",
+          "type": "number"
+        },
+        "tradeoff_min_cost_reduction": {
+          "default": 0.1,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Tradeoff Min Cost Reduction",
+          "type": "number"
+        },
+        "confidence_level": {
+          "default": 0.95,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "high_confidence_min_runs": {
+          "default": 3,
+          "minimum": 1,
+          "title": "High Confidence Min Runs",
+          "type": "integer"
+        },
+        "high_confidence_min_share": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "High Confidence Min Share",
+          "type": "number"
+        },
+        "monthly_runs": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Monthly Runs"
+        }
+      },
+      "title": "OptimizationConfig",
+      "type": "object"
+    },
+    "ProjectedBenefit": {
+      "additionalProperties": false,
+      "description": "Expected per-run savings derived from measured spans and a stated basis.\n\nCost is `None` whenever any affected span lacks a recorded cost; it is never\nestimated from list prices. Values are projections, not measurements.",
+      "properties": {
+        "tokens_per_run": {
+          "minimum": 0,
+          "title": "Tokens Per Run",
+          "type": "number"
+        },
+        "cost_usd_per_run": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd Per Run"
+        },
+        "latency_ms_per_run": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Latency Ms Per Run",
+          "type": "number"
+        },
+        "monthly_cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Monthly Cost Usd"
+        },
+        "cost_available": {
+          "title": "Cost Available",
+          "type": "boolean"
+        },
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tokens_per_run",
+        "cost_available",
+        "basis"
+      ],
+      "title": "ProjectedBenefit",
+      "type": "object"
+    },
+    "QualityRisk": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "severity",
+        "description"
+      ],
+      "title": "QualityRisk",
+      "type": "object"
+    },
+    "RunSource": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "variant_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variant Id"
+        },
+        "spans": {
+          "title": "Spans",
+          "type": "integer"
+        },
+        "tokens": {
+          "title": "Tokens",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
+        },
+        "task_success": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Success"
+        }
+      },
+      "required": [
+        "run_id",
+        "spans",
+        "tokens"
+      ],
+      "title": "RunSource",
+      "type": "object"
+    },
+    "TradeoffAnalysis": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_variant_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Variant Id"
+        },
+        "variants": {
+          "items": {
+            "$ref": "#/$defs/VariantTradeoff"
+          },
+          "title": "Variants",
+          "type": "array"
+        },
+        "excluded": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Variant ID to the reason it was not compared.",
+          "title": "Excluded",
+          "type": "object"
+        }
+      },
+      "title": "TradeoffAnalysis",
+      "type": "object"
+    },
+    "VariantTradeoff": {
+      "additionalProperties": false,
+      "description": "Measured quality and cost of one experiment variant across its runs.",
+      "properties": {
+        "variant_id": {
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "runs": {
+          "title": "Runs",
+          "type": "integer"
+        },
+        "successes": {
+          "title": "Successes",
+          "type": "integer"
+        },
+        "success_rate": {
+          "title": "Success Rate",
+          "type": "number"
+        },
+        "success_interval": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Success Interval",
+          "type": "array"
+        },
+        "mean_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Cost Usd"
+        },
+        "cost_per_success_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Per Success Usd"
+        },
+        "mean_latency_ms": {
+          "title": "Mean Latency Ms",
+          "type": "number"
+        },
+        "mean_tokens": {
+          "title": "Mean Tokens",
+          "type": "number"
+        },
+        "pareto_optimal": {
+          "default": false,
+          "title": "Pareto Optimal",
+          "type": "boolean"
+        },
+        "success_rate_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Versus the baseline variant; negative is worse.",
+          "title": "Success Rate Delta"
+        },
+        "cost_delta_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Versus the baseline variant; negative is cheaper.",
+          "title": "Cost Delta Usd"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        }
+      },
+      "required": [
+        "variant_id",
+        "runs",
+        "successes",
+        "success_rate",
+        "success_interval",
+        "mean_latency_ms",
+        "mean_tokens"
+      ],
+      "title": "VariantTradeoff",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Reproducible: no wall-clock values, ordered deterministically.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "runs": {
+      "items": {
+        "$ref": "#/$defs/RunSource"
+      },
+      "title": "Runs",
+      "type": "array"
+    },
+    "total_tokens": {
+      "title": "Total Tokens",
+      "type": "integer"
+    },
+    "total_cost_usd": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Total Cost Usd"
+    },
+    "config": {
+      "$ref": "#/$defs/OptimizationConfig"
+    },
+    "opportunities": {
+      "items": {
+        "$ref": "#/$defs/Opportunity"
+      },
+      "title": "Opportunities",
+      "type": "array"
+    },
+    "tradeoffs": {
+      "$ref": "#/$defs/TradeoffAnalysis"
+    }
+  },
+  "required": [
+    "runs",
+    "total_tokens",
+    "config"
+  ],
+  "title": "OptimizationReport",
+  "type": "object"
+}
