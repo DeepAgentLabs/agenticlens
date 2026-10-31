@@ -67,6 +67,7 @@ nav:
   - Roadmap: roadmap.md
   - AIOS v0.6 Compatibility: aios-v0.6.md
   - AIOS v0.6.1 Compatibility: aios-0.6.1.md
+  - MCP 0.5 Hosted Access Control: mcp-0.5-access-control.md
   - Sidecar 0.9 authority and privacy: sidecar-0.9.md
   - MCP 0.4 Compatibility: mcp-0.4-unified-workflows.md
   - Chaos 0.8 Compatibility: chaos-0.8.md
