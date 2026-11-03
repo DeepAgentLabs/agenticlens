@@ -16,7 +16,7 @@ resolution-markers = [
 
 [[package]]
 name = "agentic-evals"
-version = "0.7.1"
+version = "0.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -24,9 +24,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "referencing" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/c4/8904c6f55178a79b67d3b564968c92c3d912b8f26d6255e52e9e5413a40b/agentic_evals-0.7.1.tar.gz", hash = "sha256:c78b16d51977fd61678fa7a115fa2871eef5376ff2337b65e086dde25467323c", size = 283028, upload-time = "2026-10-12T20:44:09.331Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fd/6b/0aeaabab1750fb6e88ff816c6a4a780f101d851ed64524434937f5d73927/agentic_evals-0.11.0.tar.gz", hash = "sha256:c2777b86a6881fb32f59eb6f1cce7b5e3ceca247c81a6aab4ac6394eb7f73bb0", size = 454285, upload-time = "2026-11-03T10:47:43.057Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/b7/ad6d5678a10d5ae060b9ce292d188c92e67a6029987570175a6fa78c9d17/agentic_evals-0.7.1-py3-none-any.whl", hash = "sha256:e41e4b6b4f7cb50b9845afc4217f5e2516556edc107ffef431fad75044dc8fc5", size = 76781, upload-time = "2026-10-12T20:44:07.976Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/1a/22f53ec52be8dbf440287a3c13a5858e9634b0eb8b8b6355175a4aa9c792/agentic_evals-0.11.0-py3-none-any.whl", hash = "sha256:b361b61122eab5d64035a01304d84003814a993b6cd48cbdf8173ae13dee2c15", size = 123410, upload-time = "2026-11-03T10:47:41.581Z" },
 ]
 
 [[package]]
@@ -72,7 +72,7 @@ multi-agent = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agentic-evals", specifier = ">=0.7.1,<1" },
+    { name = "agentic-evals", specifier = ">=0.11.0,<1" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
     { name = "fastapi", marker = "extra == 'dev'", specifier = ">=0.115,<1" },
