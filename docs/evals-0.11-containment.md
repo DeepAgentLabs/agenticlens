@@ -14,6 +14,8 @@ reported. A BLOCK decision or safe answer alone cannot pass containment.
 
 Use the [Evals guide and passing/failing example](https://github.com/DeepAgentLabs/agentic-evals/blob/main/docs/containment.md):
 
+From an **agentic-evals v0.11.0 checkout**, run:
+
 ```bash
 uv run --extra integrity python examples/containment/generate.py
 uv run --extra integrity agentic-evals evaluate examples/containment/suite.json \

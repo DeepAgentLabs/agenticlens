@@ -45,6 +45,7 @@ exclude_docs: |
 # A page missing from nav fails the strict build
 nav:
   - MCP Phase 6 Containment: phase6-containment.md
+  - Evals 0.11 Containment Scoring: evals-0.11-containment.md
   - Home: index.md
   - Getting started: getting-started.md
   - Architecture: architecture.md
