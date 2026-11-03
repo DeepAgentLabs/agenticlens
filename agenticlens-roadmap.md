@@ -1,5 +1,14 @@
 # AgenticLens Product Roadmap
 
+## Release sequencing
+
+The final package-local roadmap phase uses **v0.13**, followed by further
+minor releases as needed. **v1.0 is reserved for one coordinated DeepAgentLabs
+ecosystem release**, after the shared readiness and compatibility gates pass.
+Completing this minor milestone does not independently declare stable APIs or
+AIOS conformance. Existing acceptance criteria remain required. See the
+[ecosystem release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+
 ## Correctness follow-up
 
 The four verified audit gaps were fixed in `0.5.0`: structured-output validation
@@ -34,7 +43,7 @@ building blocks; planned scope is not a claim of completion.
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
 `0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0` →
-`0.10.0` → `0.11.0` (current, 2026-10-31) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.10.0` → `0.11.0` → `0.12.0` → `0.12.1` (current, 2026-11-03) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -84,7 +93,7 @@ forward from `v0.5` and `v1.0`.
   quality-cost trade-offs, projected benefit with separate confidence and
   quality risk, accepted/rejected/adopted tracking, and post-adoption outcome
   evaluation)
-- **v1.0** 🚧 Planned — Production and Enterprise Readiness (release gates
+- **v0.13** 🚧 Planned — Production and Enterprise Readiness (release gates
   partially pulled forward into `v0.3`)
 
 ## Purpose
@@ -641,7 +650,7 @@ suites.
 This pulled forward parts of the semantic, safety, RAG, and LLM-judge scoring
 originally planned for [v0.5](#v05--advanced-evaluation-and-diagnosis), and
 part of the release-gate concept originally planned for
-[v1.0](#v10--production-and-enterprise-readiness), via the shared evaluator
+[v0.13](#v013--production-and-enterprise-readiness), via the shared evaluator
 contract rather than as separate subsystems.
 
 ### Follow-on work
@@ -880,7 +889,7 @@ store is local files, not a multi-user registry.
 - semantic (embedding or judge-based) duplicate detection and paraphrase
   variations as optional extensions
 - an interactive review surface (the CLI and Python API are the editors today)
-- signed approvals and a shared registry, tracked under v1.0 audit logs and
+- signed approvals and a shared registry, tracked under v0.13 audit logs and
   model and prompt registries
 
 ## v0.7 — ModelFit
@@ -1063,12 +1072,13 @@ two traffic windows, not a controlled experiment; recommendations are advisory.
 - outcome evaluation over routing canary cohorts instead of time windows
 - measured compression and reranking reductions from experiment variants
 
-## v1.0 — Production and Enterprise Readiness
+## v0.13 — Production and Enterprise Readiness
 
 ### Objective
 
-Provide stable contracts, policy controls, audit evidence, and supported
-deployment options.
+Prepare contract stability, policy controls, audit evidence, and supported
+deployment options in minor releases. The stable public commitment is part
+of the coordinated ecosystem v1.0 release, not an independent Lens major.
 
 ### Planned deliverables
 
@@ -1196,7 +1206,7 @@ The supporting research plan is maintained in
 `AgenticLens_Research_and_Development_Roadmap.md`. Research metrics described
 there remain experimental until implemented and validated.
 
-## Verifiable execution evidence (in progress, v1.0 readiness)
+## Verifiable execution evidence (in progress, v0.13 readiness)
 
 Implemented in 0.12.0 (2026-11-02): Lens-local authenticated snapshot manifests, ordered hash
 chains, HMAC trust-store verification, explicit verified/failed/unknown/incomplete

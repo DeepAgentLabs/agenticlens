@@ -1,5 +1,14 @@
 # AgenticLens Roadmap
 
+## Release sequencing
+
+The final package-local roadmap phase uses **v0.13**, followed by further
+minor releases as needed. **v1.0 is reserved for one coordinated DeepAgentLabs
+ecosystem release**, after the shared readiness and compatibility gates pass.
+Completing this minor milestone does not independently declare stable APIs or
+AIOS conformance. Existing acceptance criteria remain required. See the
+[ecosystem release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+
 See the [implementation audit](ROADMAP_AUDIT.md) for evidence-backed status and
 remaining acceptance gaps across every product milestone.
 
@@ -27,7 +36,7 @@ after adoption. See [the guide](docs/optimization.md) and the
 [offline example](examples/optimization_demo.py). MCP 0.4.3 pins Lens 0.11.0 and
 exposes read-only `lens.optimization_analyze`. Existing Evals, Chaos, Sidecar,
 and Tower dependency ranges remain sufficient; AIOS needs no change because the
-artifacts are Lens-local. Next is v1.0 Production and Enterprise Readiness.
+artifacts are Lens-local. Next is v0.13 Production and Enterprise Readiness, followed by the coordinated ecosystem v1.0 release.
 
 ## 0.10.0: Advisory Runtime Routing
 
