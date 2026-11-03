@@ -62,7 +62,10 @@ execution/access event schema remain separate work.
 `agenticlens.integrity.execution` now exports a native `Run` plus explicitly
 supplied `ExecutionRecord` observations to an AIOS `0.4-draft` Run. Both the
 spec-owned schema and semantic conformance checks run on export and import.
-The packaged schemas are used offline; no remote schemas are fetched.
+The packaged schemas are used offline; no remote schemas are fetched. Their
+upstream commit and exact SHA-256 digests are recorded in
+`schemas/aios/specification/v0.4/SOURCE.json`. Installed wheels need no sibling
+repository checkout. Explicit caller-selected spec roots remain supported.
 
 Spans map to steps, each with a run `contains` relationship and an optional
 `parent-of` relationship. Runtime statuses map `succeeded` to `completed`,
