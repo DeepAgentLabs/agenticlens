@@ -224,5 +224,9 @@ v0.11 reusable containment scoring remains the following milestone.
 
 ## Evals 0.11 containment scoring
 
-Lens keeps agentic-evals>=0.7.1,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
+Lens 0.12.1 requires agentic-evals>=0.11.0,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
 See [the compatibility matrix and operator example](docs/evals-0.11-containment.md).
+
+Lens 0.12.1 refreshes embedded Evals schemas/examples and preserves native
+reports for failed live-target trials. Wrong answers remain completed trials.
+The runtime Evals floor becomes 0.11.0; Lens integrity semantics are unchanged.

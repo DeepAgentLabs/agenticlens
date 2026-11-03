@@ -29,6 +29,10 @@ and expected scope belong to the host, never the evaluated sample.
 
 Native report/gate schema 1.0 is unchanged. Existing optional ranges remain
 sufficient except MCP's exact pin, which requires its 0.6.1 patch release.
-Documentation alignment alone requires no other package release.
+Lens 0.12.1 also updates report schemas, examples and live-target failure handling.
 
-Lens keeps agentic-evals>=0.7.1,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
+Lens 0.12.1 requires agentic-evals>=0.11.0,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
+
+Lens 0.12.1 refreshes embedded Evals schemas/examples and preserves native
+reports for failed live-target trials. Wrong answers remain completed trials.
+The runtime Evals floor becomes 0.11.0; Lens integrity semantics are unchanged.
