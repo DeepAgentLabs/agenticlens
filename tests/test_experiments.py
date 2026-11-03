@@ -241,7 +241,10 @@ def test_run_experiment_preserves_partial_results_after_trial_failure(tmp_path: 
     assert baseline.summary.completed_trials == 2
     assert baseline.summary.failed_trials == 1
     assert baseline.summary.pass_rate is not None
-    assert any(trial.status == "failed" for trial in baseline.trials)
+    failed = next(trial for trial in baseline.trials if trial.status == "failed")
+    assert failed.report is not None
+    assert failed.report.cases[0].target_status == "error"
+    assert failed.error_message == "Live target failed for cases: case-1"
     assert len(report.comparisons) == 2
 
 
