@@ -2,7 +2,7 @@
 
 MCP 0.6.0 pairs with Chaos 0.10.0 and Sidecar 0.9.2. Lens 0.12.0,
 Evals 0.10.0, Tower 0.9.0 and AIOS 0.6.1 remain compatible. See the
-[MCP operator guide and tested matrix](https://github.com/DeepAgentLabs/mcp-server/blob/main/docs/phase6-containment.md).
+[MCP operator guide and tested matrix](https://github.com/DeepAgentLabs/mcp-server/blob/c18f73decdc75aaac3e2e95004ae88589d587e75/docs/phase6-containment.md).
 
 MCP binds hosted Tower credentials per authenticated user; tool policies still
 apply and approval remains human-only in Tower. The independent operator stop
