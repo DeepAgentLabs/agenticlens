@@ -30,3 +30,7 @@ Sidecar 0.9.2 widens optional Chaos dependencies to `<0.11`. Other existing
 optional ranges remain sufficient, so no other sibling runtime release is needed.
 Hosted arbitrary chaos execution stays disabled. Reproduce the isolated seed-601
 acceptance suite from the MCP guide; it requires the actual adapters without skips.
+
+AIOS 0.6.1 denotes the existing Run/schema compatibility baseline. The new
+exploratory access profile is in the coordinated spec repository revision,
+not the historical v0.6.1 tag. It is not promoted to a normative schema family.
