@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from agenticlens.integrity import Coverage, Manifest, Verification, seal, verify
 from agenticlens.models.trace import Run, RunStatus
 from agenticlens.validation import validate_aios_artifact
+from agenticlens.validation.aios import SpecUnavailableError
 
 NAMESPACE = "io.deepagentlabs.agenticlens.execution"
 
@@ -56,13 +57,22 @@ class ExecutionBundle(BaseModel):
     manifest: Manifest
 
 
+class ExecutionValidationUnavailableError(ValueError):
+    """Verifier setup failed independently of the authenticity of the evidence."""
+
+
 def _validate(artifact: dict[str, Any]) -> None:
     # Reuse the packaged AIOS schemas and semantic checker. Temporary files are
     # internal only: no caller paths, fetching, imports or execution occur here.
-    with tempfile.TemporaryDirectory() as directory:
-        path = Path(directory) / "run.json"
-        path.write_text(json.dumps(artifact, allow_nan=False), encoding="utf-8")
-        report = validate_aios_artifact(path)
+    try:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "run.json"
+            path.write_text(json.dumps(artifact, allow_nan=False), encoding="utf-8")
+            report = validate_aios_artifact(path)
+    except (SpecUnavailableError, OSError, json.JSONDecodeError):
+        raise ExecutionValidationUnavailableError(
+            "Execution validation resources unavailable"
+        ) from None
     if report.summary is None or report.summary.status != "aligned":
         raise ValueError("Invalid AIOS Run schema or semantic relationships")
 
@@ -203,6 +213,10 @@ def verify_execution(
             run, _ = import_execution(bundle.artifact)
             if run.run_id != expected_run_id:
                 raise ValueError("Run mismatch")
+        except ExecutionValidationUnavailableError:
+            return Verification(
+                status="unknown", reason="Execution validation resources unavailable"
+            )
         except (ValueError, TypeError, KeyError):
             return Verification(
                 status="failed", reason="Invalid execution mapping or AIOS conformance"
