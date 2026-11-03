@@ -211,3 +211,16 @@ def test_unknown_native_schema_cannot_silently_lose_fields():
     run.schema_version = "2.0"
     with pytest.raises(ValueError, match="schema version"):
         export_execution(run, [])
+
+
+def test_packaged_aios_contracts_match_pinned_source(tmp_path):
+    import hashlib
+
+    from agenticlens.validation.aios import _resolve_spec
+
+    resolved = _resolve_spec(artifact_type="run", spec_version="0.4", explicit_root=None)
+    assert "schemas/aios/specification/v0.4" in resolved.root.as_posix()
+    provenance = json.loads((resolved.root / "SOURCE.json").read_text())
+    assert len(provenance["commit"]) == 40
+    for name, expected in provenance["files"].items():
+        assert hashlib.sha256((resolved.root / name).read_bytes()).hexdigest() == expected
