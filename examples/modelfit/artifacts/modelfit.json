@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "name": "support-modelfit",
-  "created_at": "2026-10-18T05:46:46.427822Z",
+  "created_at": "2026-11-03T10:53:24.940480Z",
   "model_factor": "model",
   "reference_variant_id": "frontier-a",
   "safety_tags": [
@@ -17,7 +17,7 @@
       "suite_version": "1.0",
       "baseline_variant_id": "frontier-a",
       "trial_count": 8,
-      "created_at": "2026-10-18T05:46:46.415399Z",
+      "created_at": "2026-11-03T10:53:24.927213Z",
       "variant_ids": [
         "frontier-a",
         "mid-b",
@@ -25,7 +25,7 @@
         "oss-local"
       ],
       "file": "experiment.json",
-      "sha256": "1c6b28ed168b8143693567cbc68aeb14836ed497ddbacbdad4d638c7b6e06051"
+      "sha256": "92d7f0025a26107ce8b6c1e97d85a77d3bb8d14cdb79073bca9faaf8d73524c7"
     }
   ],
   "summary": {

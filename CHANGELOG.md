@@ -6,6 +6,18 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.12.1 - 2026-11-03
+
+### Fixed
+
+- Preserve failed live-target trials and their native reports when Evals records
+  target errors/timeouts instead of raising. Wrong answers remain completed trials.
+- Refresh embedded Evals report schemas and executable example artifacts for
+  Evals 0.11, including judge/live summaries; exclude measured judge total latency
+  from deterministic example comparisons.
+- Raise the Evals compatibility floor to 0.11.0; integrity authentication and
+  producer-declared coverage semantics are unchanged.
+
 ## 0.12.0 - 2026-11-02
 
 ### Added

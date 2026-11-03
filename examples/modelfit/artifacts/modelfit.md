@@ -4,7 +4,7 @@
 
 ## Evidence
 
-- Experiment `support-model-selection` 2026-10 on suite `modelfit-support-suite` 1.0, 8 trials per variant (`experiment.json`, sha256 `1c6b28ed168b`)
+- Experiment `support-model-selection` 2026-10 on suite `modelfit-support-suite` 1.0, 8 trials per variant (`experiment.json`, sha256 `92d7f0025a26`)
 
 ## Recommendations
 

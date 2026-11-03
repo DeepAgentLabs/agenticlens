@@ -359,7 +359,7 @@ values and recommend the one with the best balanced accuracy.
 ### Evidence behind every score
 
 Every score names the evaluator that produced it and that evaluator's version
-(`Score.evaluator`, `Score.evaluator_version`, from `agentic-evals` 0.7.1).
+(`Score.evaluator`, `Score.evaluator_version`, introduced in `agentic-evals` 0.7.1; current minimum 0.11.0).
 Built-in checks are attributed to `agentic_evals.builtin` at the installed
 package version; registered evaluators to their registry name and declared
 `version=`. Each case also records whether its cost was `measured` or
@@ -2344,3 +2344,12 @@ See the [execution guide](docs/evidence-verification.md#aios-execution-export-an
 Compatibility, ownership, dependency ranges and reproducible containment acceptance
 for MCP 0.6.0 / Chaos 0.10.0 / Sidecar 0.9.2 are documented in the
 [Phase 6 guide](docs/phase6-containment.md).
+
+## Evals 0.11 containment scoring
+
+Lens 0.12.1 requires agentic-evals>=0.11.0,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
+See [the compatibility matrix and operator example](docs/evals-0.11-containment.md).
+
+Lens 0.12.1 refreshes embedded Evals schemas/examples and preserves native
+reports for failed live-target trials. Wrong answers remain completed trials.
+The runtime Evals floor becomes 0.11.0; Lens integrity semantics are unchanged.

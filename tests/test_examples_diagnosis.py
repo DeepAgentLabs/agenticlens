@@ -7,7 +7,7 @@ from typing import Any
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 #: Wall-clock measurements that legitimately differ between runs.
-MEASURED = {"judge_latency_ms", "latency_ms"}
+MEASURED = {"judge_latency_ms", "latency_ms", "total_latency_ms"}
 
 
 def _without_measured(value: Any) -> Any:

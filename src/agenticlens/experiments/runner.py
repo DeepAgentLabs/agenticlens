@@ -201,7 +201,7 @@ def _case_results(
         for trial in trials:
             evaluation = (
                 next((item for item in trial.report.cases if item.case_id == case.id), None)
-                if trial.report is not None
+                if trial.report is not None and trial.status == "succeeded"
                 else None
             )
             if evaluation is None:
@@ -521,8 +521,19 @@ def run_experiment(
                 )
             )
             continue
+        target_failures = [
+            case for case in report.cases if case.target_status in {"error", "timed_out"}
+        ]
         trial_results_by_variant[variant.id].append(
-            ExperimentTrialResult(trial_index=trial_index, status="succeeded", report=report)
+            ExperimentTrialResult(
+                trial_index=trial_index,
+                status="failed" if target_failures else "succeeded",
+                report=report,
+                error_message="Live target failed for cases: "
+                + ", ".join(case.case_id for case in target_failures)
+                if target_failures
+                else None,
+            )
         )
 
     variant_results: list[ExperimentVariantResult] = []

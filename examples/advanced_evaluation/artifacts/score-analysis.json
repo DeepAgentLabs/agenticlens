@@ -46,7 +46,7 @@
         },
         "input_tokens": 1920,
         "output_tokens": 255,
-        "latency_ms": 0.018
+        "latency_ms": 0.013000000000000001
       }
     ]
   },

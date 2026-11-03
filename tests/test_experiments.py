@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from agenticlens.evaluation import (
     EvaluationContext,
     EvaluatorConfig,
@@ -241,7 +243,10 @@ def test_run_experiment_preserves_partial_results_after_trial_failure(tmp_path: 
     assert baseline.summary.completed_trials == 2
     assert baseline.summary.failed_trials == 1
     assert baseline.summary.pass_rate is not None
-    assert any(trial.status == "failed" for trial in baseline.trials)
+    failed = next(trial for trial in baseline.trials if trial.status == "failed")
+    assert failed.report is not None
+    assert failed.report.cases[0].target_status == "error"
+    assert failed.error_message == "Live target failed for cases: case-1"
     assert len(report.comparisons) == 2
 
 
@@ -559,3 +564,52 @@ def _manifest_from_inline_targets(
         encoding="utf-8",
     )
     return manifest_file
+
+
+@pytest.mark.parametrize(
+    ("body", "target_status", "trial_status"),
+    [
+        ("import asyncio; await asyncio.sleep(1)", "timed_out", "failed"),
+        ("return {'output': 'wrong', 'trace': {}}", "ok", "succeeded"),
+    ],
+)
+def test_live_trial_distinguishes_timeouts_from_wrong_answers(
+    tmp_path: Path, body: str, target_status: str, trial_status: str
+) -> None:
+    target = tmp_path / "classification.py"
+    target.write_text("async def run(payload, *, case):\n    " + body + "\n")
+    manifest_file = tmp_path / "manifest.json"
+    manifest_file.write_text(
+        json.dumps(
+            {
+                "name": "classification",
+                "version": "1",
+                "baseline_variant_id": "baseline",
+                "trial_count": 1,
+                "variants": [
+                    dict(
+                        id=name,
+                        name=name,
+                        target_kind="python",
+                        target=f"{target}:run",
+                        timeout_seconds=0.1,
+                    )
+                    for name in ("baseline", "two", "three")
+                ],
+            }
+        )
+    )
+    suite = EvaluationTestSuite(
+        name="quality",
+        version="1",
+        cases=[EvaluationTestCase(id="answer", name="Expected answer", expected_output="ok")],
+    )
+    report = run_experiment(load_manifest(manifest_file), suite)
+    variant = report.variants[0]
+    trial = variant.trials[0]
+    assert trial.status == trial_status
+    assert trial.report is not None
+    assert trial.report.cases[0].target_status == target_status
+    assert not trial.report.cases[0].passed
+    assert variant.summary.completed_trials == int(trial_status == "succeeded")
+    assert variant.summary.failed_trials == int(trial_status == "failed")

@@ -117,7 +117,7 @@
       ]
     ]
   },
-  "created_at": "2026-10-12T21:04:28.082303Z",
+  "created_at": "2026-11-03T10:40:54.715675Z",
   "variants": [
     {
       "variant_id": "baseline",
@@ -137,7 +137,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080857Z",
+            "created_at": "2026-11-03T10:40:54.714186Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -213,7 +213,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -231,7 +233,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -244,7 +246,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -257,7 +259,7 @@
                     "explanation": "Latency 1369.1 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -267,6 +269,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -287,7 +292,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -300,7 +305,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -310,6 +315,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -330,7 +338,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -343,7 +351,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -353,6 +361,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -373,7 +384,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -386,7 +397,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -396,6 +407,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -416,7 +430,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -426,6 +440,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -442,7 +459,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079943Z",
+            "created_at": "2026-11-03T10:40:54.712730Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -518,7 +535,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -536,7 +555,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -549,7 +568,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -562,7 +581,7 @@
                     "explanation": "Latency 1522.2 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -572,6 +591,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -592,7 +614,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -605,7 +627,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -615,6 +637,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -635,7 +660,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -648,7 +673,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -658,6 +683,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -678,7 +706,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -691,7 +719,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -701,6 +729,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -721,7 +752,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -731,6 +762,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -747,7 +781,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080364Z",
+            "created_at": "2026-11-03T10:40:54.713200Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -823,7 +857,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -841,7 +877,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -854,7 +890,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -867,7 +903,7 @@
                     "explanation": "Latency 1423.2 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -877,6 +913,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -897,7 +936,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -910,7 +949,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -920,6 +959,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -940,7 +982,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -953,7 +995,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -963,6 +1005,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -983,7 +1028,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -996,7 +1041,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1006,6 +1051,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -1026,7 +1074,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1036,6 +1084,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -1052,7 +1103,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080933Z",
+            "created_at": "2026-11-03T10:40:54.714268Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -1128,7 +1179,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -1146,7 +1199,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1159,7 +1212,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1172,7 +1225,7 @@
                     "explanation": "Latency 1336.3 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1182,6 +1235,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -1202,7 +1258,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1215,7 +1271,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1225,6 +1281,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -1245,7 +1304,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1258,7 +1317,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1268,6 +1327,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -1288,7 +1350,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1301,7 +1363,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1311,6 +1373,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -1331,7 +1396,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1341,6 +1406,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -1357,7 +1425,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080515Z",
+            "created_at": "2026-11-03T10:40:54.713375Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -1433,7 +1501,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -1451,7 +1521,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1464,7 +1534,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1477,7 +1547,7 @@
                     "explanation": "Latency 1313.2 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1487,6 +1557,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -1507,7 +1580,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1520,7 +1593,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1530,6 +1603,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -1550,7 +1626,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1563,7 +1639,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1573,6 +1649,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -1593,7 +1672,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1606,7 +1685,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1616,6 +1695,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -1636,7 +1718,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1646,6 +1728,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -1662,7 +1747,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.078772Z",
+            "created_at": "2026-11-03T10:40:54.711455Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -1738,7 +1823,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -1756,7 +1843,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1769,7 +1856,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1782,7 +1869,7 @@
                     "explanation": "Latency 1410.7 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1792,6 +1879,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -1812,7 +1902,7 @@
                     "explanation": "Output is missing required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1825,7 +1915,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1835,6 +1925,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -1855,7 +1948,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1868,7 +1961,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1878,6 +1971,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -1898,7 +1994,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -1911,7 +2007,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1921,6 +2017,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -1941,7 +2040,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -1951,6 +2050,9 @@
                 "cost_usd": 0.0042,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -2170,7 +2272,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080205Z",
+            "created_at": "2026-11-03T10:40:54.713027Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -2246,7 +2348,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -2264,7 +2368,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2277,7 +2381,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2290,7 +2394,7 @@
                     "explanation": "Latency 752.5 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2300,6 +2404,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -2320,7 +2427,7 @@
                     "explanation": "Output is missing required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2333,7 +2440,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2343,6 +2450,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -2363,7 +2473,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2376,7 +2486,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2386,6 +2496,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -2406,7 +2519,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2419,7 +2532,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2429,6 +2542,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -2449,7 +2565,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2459,6 +2575,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -2475,7 +2594,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080671Z",
+            "created_at": "2026-11-03T10:40:54.713541Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 2,
@@ -2551,7 +2670,9 @@
                   "pass_rate": 0.0,
                   "average_score": 0.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -2569,7 +2690,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2582,7 +2703,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2595,7 +2716,7 @@
                     "explanation": "Latency 597.0 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2605,6 +2726,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -2625,7 +2749,7 @@
                     "explanation": "Output is missing required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2638,7 +2762,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2648,6 +2772,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -2668,7 +2795,7 @@
                     "explanation": "Output is missing required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2681,7 +2808,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2691,6 +2818,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -2711,7 +2841,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2724,7 +2854,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2734,6 +2864,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -2754,7 +2887,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2764,6 +2897,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -2780,7 +2916,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080776Z",
+            "created_at": "2026-11-03T10:40:54.714093Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -2856,7 +2992,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -2874,7 +3012,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2887,7 +3025,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2900,7 +3038,7 @@
                     "explanation": "Latency 512.0 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2910,6 +3048,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -2930,7 +3071,7 @@
                     "explanation": "Output is missing required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2943,7 +3084,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2953,6 +3094,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -2973,7 +3117,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -2986,7 +3130,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -2996,6 +3140,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -3016,7 +3163,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3029,7 +3176,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3039,6 +3186,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -3059,7 +3209,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3069,6 +3219,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -3085,7 +3238,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080282Z",
+            "created_at": "2026-11-03T10:40:54.713113Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -3161,7 +3314,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -3179,7 +3334,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3192,7 +3347,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3205,7 +3360,7 @@
                     "explanation": "Latency 612.2 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3215,6 +3370,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -3235,7 +3393,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3248,7 +3406,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3258,6 +3416,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -3278,7 +3439,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3291,7 +3452,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3301,6 +3462,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -3321,7 +3485,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3334,7 +3498,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3344,6 +3508,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -3364,7 +3531,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3374,6 +3541,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -3390,7 +3560,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079513Z",
+            "created_at": "2026-11-03T10:40:54.712189Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -3466,7 +3636,9 @@
                   "pass_rate": 0.0,
                   "average_score": 0.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -3484,7 +3656,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3497,7 +3669,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3510,7 +3682,7 @@
                     "explanation": "Latency 552.6 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3520,6 +3692,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -3540,7 +3715,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3553,7 +3728,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3563,6 +3738,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -3583,7 +3761,7 @@
                     "explanation": "Output is missing required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3596,7 +3774,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3606,6 +3784,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -3626,7 +3807,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3639,7 +3820,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3649,6 +3830,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -3669,7 +3853,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3679,6 +3863,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -3695,7 +3882,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079701Z",
+            "created_at": "2026-11-03T10:40:54.712385Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -3771,7 +3958,9 @@
                   "pass_rate": 0.0,
                   "average_score": 0.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -3789,7 +3978,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3802,7 +3991,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3815,7 +4004,7 @@
                     "explanation": "Latency 665.0 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3825,6 +4014,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -3845,7 +4037,7 @@
                     "explanation": "Output is missing required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3858,7 +4050,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3868,6 +4060,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -3888,7 +4083,7 @@
                     "explanation": "Output is missing required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3901,7 +4096,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3911,6 +4106,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -3931,7 +4129,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -3944,7 +4142,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3954,6 +4152,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -3974,7 +4175,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -3984,6 +4185,9 @@
                 "cost_usd": 0.0009,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -4204,7 +4408,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080022Z",
+            "created_at": "2026-11-03T10:40:54.712824Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -4280,7 +4484,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -4298,7 +4504,7 @@
                     "explanation": "Output is missing required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4311,7 +4517,7 @@
                     "explanation": "Required tool 'policy_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4324,7 +4530,7 @@
                     "explanation": "Latency 1031.6 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4334,6 +4540,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -4354,7 +4563,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4367,7 +4576,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4377,6 +4586,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -4397,7 +4609,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4410,7 +4622,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4420,6 +4632,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -4440,7 +4655,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4453,7 +4668,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4463,6 +4678,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -4483,7 +4701,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4493,6 +4711,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -4509,7 +4730,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079249Z",
+            "created_at": "2026-11-03T10:40:54.711925Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -4585,7 +4806,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -4603,7 +4826,7 @@
                     "explanation": "Output is missing required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4616,7 +4839,7 @@
                     "explanation": "Required tool 'policy_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4629,7 +4852,7 @@
                     "explanation": "Latency 1123.4 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4639,6 +4862,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -4659,7 +4885,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4672,7 +4898,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4682,6 +4908,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -4702,7 +4931,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4715,7 +4944,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4725,6 +4954,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -4745,7 +4977,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4758,7 +4990,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4768,6 +5000,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -4788,7 +5023,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4798,6 +5033,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -4814,7 +5052,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079780Z",
+            "created_at": "2026-11-03T10:40:54.712516Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -4890,7 +5128,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -4908,7 +5148,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4921,7 +5161,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4934,7 +5174,7 @@
                     "explanation": "Latency 1273.4 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4944,6 +5184,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -4964,7 +5207,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -4977,7 +5220,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -4987,6 +5230,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5007,7 +5253,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5020,7 +5266,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5030,6 +5276,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -5050,7 +5299,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5063,7 +5312,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5073,6 +5322,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -5093,7 +5345,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5103,6 +5355,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -5119,7 +5374,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.078430Z",
+            "created_at": "2026-11-03T10:40:54.711142Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -5195,7 +5450,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -5213,7 +5470,7 @@
                     "explanation": "Output is missing required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5226,7 +5483,7 @@
                     "explanation": "Required tool 'policy_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5239,7 +5496,7 @@
                     "explanation": "Latency 1204.1 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5249,6 +5506,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5269,7 +5529,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5282,7 +5542,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5292,6 +5552,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5312,7 +5575,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5325,7 +5588,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5335,6 +5598,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -5355,7 +5621,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5368,7 +5634,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5378,6 +5644,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -5398,7 +5667,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5408,6 +5677,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -5424,7 +5696,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079862Z",
+            "created_at": "2026-11-03T10:40:54.712635Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 3,
@@ -5500,7 +5772,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -5518,7 +5792,7 @@
                     "explanation": "Output is missing required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5531,7 +5805,7 @@
                     "explanation": "Required tool 'policy_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5544,7 +5818,7 @@
                     "explanation": "Latency 1172.8 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5554,6 +5828,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5574,7 +5851,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5587,7 +5864,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5597,6 +5874,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5617,7 +5897,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5630,7 +5910,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5640,6 +5920,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -5660,7 +5943,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5673,7 +5956,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5683,6 +5966,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -5703,7 +5989,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5713,6 +5999,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -5729,7 +6018,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079592Z",
+            "created_at": "2026-11-03T10:40:54.712302Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 2,
@@ -5805,7 +6094,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -5823,7 +6114,7 @@
                     "explanation": "Output is missing required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5836,7 +6127,7 @@
                     "explanation": "Required tool 'policy_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5849,7 +6140,7 @@
                     "explanation": "Latency 1266.0 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5859,6 +6150,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5879,7 +6173,7 @@
                     "explanation": "Output is missing required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5892,7 +6186,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5902,6 +6196,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -5922,7 +6219,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5935,7 +6232,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5945,6 +6242,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -5965,7 +6265,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -5978,7 +6278,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -5988,6 +6288,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -6008,7 +6311,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6018,6 +6321,9 @@
                 "cost_usd": 0.0031,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -6238,7 +6544,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079054Z",
+            "created_at": "2026-11-03T10:40:54.711712Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -6314,7 +6620,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -6332,7 +6640,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6345,7 +6653,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6358,7 +6666,7 @@
                     "explanation": "Latency 1526.6 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6368,6 +6676,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -6388,7 +6699,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6401,7 +6712,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6411,6 +6722,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -6431,7 +6745,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6444,7 +6758,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6454,6 +6768,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -6474,7 +6791,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6487,7 +6804,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6497,6 +6814,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -6517,7 +6837,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6527,6 +6847,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -6543,7 +6866,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080592Z",
+            "created_at": "2026-11-03T10:40:54.713458Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -6619,7 +6942,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -6637,7 +6962,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6650,7 +6975,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6663,7 +6988,7 @@
                     "explanation": "Latency 1774.6 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6673,6 +6998,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -6693,7 +7021,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6706,7 +7034,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6716,6 +7044,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -6736,7 +7067,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6749,7 +7080,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6759,6 +7090,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -6779,7 +7113,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6792,7 +7126,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6802,6 +7136,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -6822,7 +7159,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6832,6 +7169,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -6848,7 +7188,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.081013Z",
+            "created_at": "2026-11-03T10:40:54.714347Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -6924,7 +7264,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -6942,7 +7284,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6955,7 +7297,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -6968,7 +7310,7 @@
                     "explanation": "Latency 1869.6 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -6978,6 +7320,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -6998,7 +7343,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7011,7 +7356,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7021,6 +7366,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7041,7 +7389,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7054,7 +7402,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7064,6 +7412,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -7084,7 +7435,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7097,7 +7448,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7107,6 +7458,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -7127,7 +7481,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7137,6 +7491,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -7153,7 +7510,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080099Z",
+            "created_at": "2026-11-03T10:40:54.712910Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -7229,7 +7586,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -7247,7 +7606,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7260,7 +7619,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7273,7 +7632,7 @@
                     "explanation": "Latency 1597.6 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7283,6 +7642,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7303,7 +7665,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7316,7 +7678,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7326,6 +7688,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7346,7 +7711,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7359,7 +7724,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7369,6 +7734,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -7389,7 +7757,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7402,7 +7770,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7412,6 +7780,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -7432,7 +7803,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7442,6 +7813,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -7458,7 +7832,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.080438Z",
+            "created_at": "2026-11-03T10:40:54.713282Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 5,
@@ -7534,7 +7908,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -7552,7 +7928,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7565,7 +7941,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7578,7 +7954,7 @@
                     "explanation": "Latency 1840.8 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7588,6 +7964,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7608,7 +7987,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7621,7 +8000,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7631,6 +8010,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7651,7 +8033,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7664,7 +8046,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7674,6 +8056,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -7694,7 +8079,7 @@
                     "explanation": "Output contains required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7707,7 +8092,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7717,6 +8102,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -7737,7 +8125,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7747,6 +8135,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
@@ -7763,7 +8154,7 @@
             "schema_version": "1.0",
             "suite_name": "support-experiment-suite",
             "suite_version": "1.0",
-            "created_at": "2026-10-12T21:04:28.079166Z",
+            "created_at": "2026-11-03T10:40:54.711839Z",
             "summary": {
               "total_cases": 5,
               "passed_cases": 4,
@@ -7839,7 +8230,9 @@
                   "pass_rate": 1.0,
                   "average_score": 1.0
                 }
-              }
+              },
+              "judge": null,
+              "live": null
             },
             "cases": [
               {
@@ -7857,7 +8250,7 @@
                     "explanation": "Output contains required text: '30 days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7870,7 +8263,7 @@
                     "explanation": "Required tool 'policy_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7883,7 +8276,7 @@
                     "explanation": "Latency 1734.2 ms meets the 2500.0 ms limit.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7893,6 +8286,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7913,7 +8309,7 @@
                     "explanation": "Output contains required text: 'replacement'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7926,7 +8322,7 @@
                     "explanation": "Required tool 'order_lookup' was called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7936,6 +8332,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "policy"
                 ],
@@ -7956,7 +8355,7 @@
                     "explanation": "Output contains required text: 'escalated'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -7969,7 +8368,7 @@
                     "explanation": "Forbidden tool 'issue_refund' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -7979,6 +8378,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "safety"
                 ],
@@ -7999,7 +8401,7 @@
                     "explanation": "Output is missing required text: 'business days'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   },
                   {
@@ -8012,7 +8414,7 @@
                     "explanation": "Required tool 'order_lookup' was not called.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -8022,6 +8424,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "orders"
                 ],
@@ -8042,7 +8447,7 @@
                     "explanation": "Output contains required text: 'reset link'.",
                     "evaluator_type": "deterministic",
                     "evaluator": "agentic_evals.builtin",
-                    "evaluator_version": "0.7.1",
+                    "evaluator_version": "0.11.0",
                     "metadata": {}
                   }
                 ],
@@ -8052,6 +8457,9 @@
                 "cost_usd": 0.0048,
                 "cost_source": "estimated",
                 "sample_available": true,
+                "target_status": null,
+                "target_attempts": null,
+                "target_error": null,
                 "tags": [
                   "account"
                 ],
