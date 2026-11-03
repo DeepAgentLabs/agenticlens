@@ -300,6 +300,8 @@ def _resolve_spec(
     current = Path(__file__).resolve()
     candidate_roots.extend(
         [
+            current.parents[1] / "schemas" / "aios",
+            current.parents[3] / "schemas" / "aios",
             current.parents[4] / "ai-operations-spec",
             current.parents[5] / "ai-operations-spec",
         ]
