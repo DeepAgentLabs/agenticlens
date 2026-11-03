@@ -1201,8 +1201,9 @@ there remain experimental until implemented and validated.
 Implemented in 0.12.0 (2026-11-02): Lens-local authenticated snapshot manifests, ordered hash
 chains, HMAC trust-store verification, explicit verified/failed/unknown/incomplete
 results, CLI verification and offline record replay. AIOS 0.4-draft execution
-export/import, whole-artifact authentication, CLI replay and downstream MCP/Tower
-verification with host-owned trust are also implemented. See
+export/import, whole-artifact authentication, CLI replay and Lens-side redacted
+verification summaries are also implemented. Downstream integration ships
+separately in MCP 0.5.2 and Tower 0.9.1 after Lens publication. See
 [trust model and coverage](docs/evidence-verification.md). Execution event semantics remain Lens-local extensions; this does not freeze
 a shared AIOS access-event contract or establish runtime containment.
 
@@ -1232,7 +1233,7 @@ on Sidecar v0.7–v0.8 lifecycle work.
       Editable local chains or ordinary checksums do not establish authenticity.
 - [x] Publish tampering fixtures. Explain that record integrity does not establish
       completeness or truth of an untrusted producer's reported execution.
-- [x] Expose verification/coverage status and causal policy/action links to Tower
+- [ ] Expose verification/coverage status and causal policy/action links to Tower
       and MCP; keep failed, unknown and incomplete verification visibly distinct.
 
 ## Sidecar 0.8 compatibility
