@@ -2344,3 +2344,8 @@ See the [execution guide](docs/evidence-verification.md#aios-execution-export-an
 Compatibility, ownership, dependency ranges and reproducible containment acceptance
 for MCP 0.6.0 / Chaos 0.10.0 / Sidecar 0.9.2 are documented in the
 [Phase 6 guide](docs/phase6-containment.md).
+
+## Evals 0.11 containment scoring
+
+Lens keeps agentic-evals>=0.7.1,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
+See [the compatibility matrix and operator example](docs/evals-0.11-containment.md).
