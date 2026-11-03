@@ -5,7 +5,8 @@ profile pinned to upstream semantic conventions 1.37.0, tested retry examples,
 and a strict MkDocs publishing pipeline. Run/Workflow remain `0.4-draft`;
 provenance remains `0.6-draft`. Independent-review gates remain open.
 
-Existing trace exports and conformance checks keep their current meaning. The companion profile does not establish a shipped Lens OTel adapter.
+Existing trace exports and conformance checks keep their current meaning. Lens already supports [OTLP/HTTP export](aios-validation-and-otel.md);
+this release does not change it or claim that it implements the new companion profile.
 
 No runtime dependency floor changes or package patch release are required.
 This is documentation alignment; it does not add an automatic exporter or
