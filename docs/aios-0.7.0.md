@@ -21,5 +21,5 @@ See the [migration guide](https://github.com/DeepAgentLabs/ai-operations-spec/bl
 [OTel profile](https://github.com/DeepAgentLabs/ai-operations-spec/blob/v0.7.0/specification/v0.6/otel-binding.md)
 and [dependency matrix](https://github.com/DeepAgentLabs/ai-operations-spec/blob/v0.7.0/docs/v0.7.0-ecosystem.md).
 
-Repository v0.7.0 supersedes the same-day v0.6.2 publication; the historical
-tag remains available. Artifact markers and independent-review gates do not change.
+Repository v0.7.0 corrects the next-phase release number; the incorrect
+v0.6.2 publication and tag have been removed. Artifact markers and independent-review gates do not change.
