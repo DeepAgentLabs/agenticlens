@@ -7,7 +7,7 @@ import pytest
 from typer.testing import CliRunner
 
 from agenticlens.cli.main import app
-from agenticlens.integrity import Coverage, seal
+from agenticlens.integrity import Coverage, Manifest, Verification, seal
 from agenticlens.integrity.execution import (
     NAMESPACE,
     ExecutionBundle,
@@ -187,6 +187,8 @@ def test_schema_files_match_models():
     from agenticlens.integrity.execution import ExecutionRecord
 
     for name, model in [
+        ("manifest", Manifest),
+        ("verification", Verification),
         ("execution-bundle", ExecutionBundle),
         ("execution-record", ExecutionRecord),
     ]:
@@ -224,3 +226,25 @@ def test_packaged_aios_contracts_match_pinned_source(tmp_path):
     assert len(provenance["commit"]) == 40
     for name, expected in provenance["files"].items():
         assert hashlib.sha256((resolved.root / name).read_bytes()).hexdigest() == expected
+
+
+@pytest.mark.parametrize("failure", ["missing", "unreadable", "invalid-catalog"])
+def test_verifier_setup_errors_are_unknown_and_redacted(monkeypatch, failure):
+    from agenticlens.integrity import execution
+    from agenticlens.validation.aios import SpecUnavailableError
+
+    run, _, bundle = capture()
+    errors = {
+        "missing": SpecUnavailableError("sensitive-local-path"),
+        "unreadable": OSError("sensitive-local-path"),
+        "invalid-catalog": json.JSONDecodeError("sensitive-value", "bad", 0),
+    }
+
+    def unavailable(*args, **kwargs):
+        raise errors[failure]
+
+    monkeypatch.setattr(execution, "validate_aios_artifact", unavailable)
+    summary = execution_summary(bundle, trusted_keys={"test": KEY}, expected_run_id=run.run_id)
+    assert summary["verification"]["status"] == "unknown"
+    assert summary["causal_links"] == []
+    assert "sensitive" not in json.dumps(summary)
