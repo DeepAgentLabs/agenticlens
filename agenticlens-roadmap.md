@@ -1443,9 +1443,9 @@ Evals v0.11 reusable containment scoring now ships in 0.11.0. Lens 0.12.1
 synchronizes embedded Evals schemas/examples, retains failed live-target reports
 and requires Evals >=0.11.0,<1. See [the compatibility matrix](docs/evals-0.11-containment.md).
 
-## AIOS v0.6.2 implementation guidance
+## AIOS v0.7.0 implementation guidance
 
-AIOS v0.6.2 adds cumulative-layer migration guidance, a non-normative OTel
+AIOS v0.7.0 adds cumulative-layer migration guidance, a non-normative OTel
 companion profile and strict documentation publication. Lens exports, native
 traces and existing OTLP/HTTP behavior remain unchanged; no dependency bump
-or patch release is needed. See [compatibility and offline checks](docs/aios-0.6.2.md).
+or patch release is needed. See [compatibility and offline checks](docs/aios-0.7.0.md).
