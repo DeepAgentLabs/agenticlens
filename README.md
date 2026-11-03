@@ -2338,3 +2338,9 @@ AIOS `0.4-draft` execution export/import, authenticated offline replay and
 Lens-side verification summaries are available in 0.12.0. MCP 0.5.2 and
 Tower 0.9.1 integrations are distributed separately after this release.
 See the [execution guide](docs/evidence-verification.md#aios-execution-export-and-downstream-integration).
+
+## MCP Phase 6 coordinated containment
+
+Compatibility, ownership, dependency ranges and reproducible containment acceptance
+for MCP 0.6.0 / Chaos 0.10.0 / Sidecar 0.9.2 are documented in the
+[Phase 6 guide](docs/phase6-containment.md).

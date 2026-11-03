@@ -1433,3 +1433,10 @@ recovery. Resolving a runbook requires a fresh successful native Lens run whose 
 
 See [compatibility and operator example](docs/tower-0.9-runbooks.md).
 No sibling runtime change or patch release is required.
+
+## MCP Phase 6 paired compatibility
+
+MCP 0.6.0 / Chaos 0.10.0 / Sidecar 0.9.2 use Lens 0.12.0 authenticated
+snapshots and native stop/dispatch evidence. See the
+[operator guide and limitations](https://github.com/DeepAgentLabs/mcp-server/blob/c18f73decdc75aaac3e2e95004ae88589d587e75/docs/phase6-containment.md).
+Evals v0.11 reusable containment scoring remains planned.
