@@ -64,7 +64,7 @@ task-level model matrix) shipped in 0.9.0. v0.8 Advisory Runtime Routing
 shipped in 0.10.0; v0.9 Optimization Intelligence (trace-level prompt,
 retrieval, memory, tool, retry, workflow, and model-trade-off recommendations
 with separate benefit and risk, decision tracking, and post-adoption outcomes)
-ships in 0.11.0. The next milestone is v1.0 Production and Enterprise
+ships in 0.11.0. The next milestone is v0.13 Production and Enterprise
 Readiness. New work here should deepen evidence quality and
 repeatable analysis, not drift into spec stewardship or chaos simulation.
 
@@ -251,3 +251,12 @@ The GitHub Release title is the tag name, and its body is copied from the
 matching `CHANGELOG.md` section so the changelog, tag, PyPI release, and
 GitHub Releases page stay aligned. (`release-testpypi.yml` is a separate,
 manual `workflow_dispatch` staging flow — unaffected.)
+
+## Coordinated major release policy
+
+Keep the remaining local roadmap phases on minor versions. Reserve v1.0 for
+one coordinated ecosystem release after each project's acceptance and
+compatibility gates pass. Follow the current minor target in ROADMAP.md and
+[the shared release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+A documentation-only roadmap update does not bump package metadata or publish
+a new package release. Schema versions remain independent of package versions.
