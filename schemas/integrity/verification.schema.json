@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "Coverage": {
+      "additionalProperties": false,
+      "description": "Caller-declared snapshot boundary; not proof of complete execution.",
+      "properties": {
+        "stream_id": {
+          "minLength": 1,
+          "title": "Stream Id",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "stream_id",
+        "description",
+        "complete"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    }
+  },
+  "description": "Consumers must require verified; other statuses never establish coverage.",
+  "properties": {
+    "status": {
+      "enum": [
+        "verified",
+        "failed",
+        "unknown",
+        "incomplete"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "authenticated": {
+      "default": false,
+      "title": "Authenticated",
+      "type": "boolean"
+    },
+    "coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Coverage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "record_count": {
+      "default": 0,
+      "title": "Record Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "status",
+    "reason"
+  ],
+  "title": "Verification",
+  "type": "object"
+}
