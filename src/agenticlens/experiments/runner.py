@@ -201,7 +201,7 @@ def _case_results(
         for trial in trials:
             evaluation = (
                 next((item for item in trial.report.cases if item.case_id == case.id), None)
-                if trial.report is not None
+                if trial.report is not None and trial.status == "succeeded"
                 else None
             )
             if evaluation is None:
