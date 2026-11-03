@@ -2327,3 +2327,13 @@ See [operator compatibility and ownership](docs/tower-0.9-runbooks.md) for versi
 exact-digest approval, bounded steps, compensation, cancellation and verified
 recovery. Existing native contracts and optional dependency ranges remain
 compatible; no runtime or patch release is required here.
+
+### Authenticated evidence snapshots
+
+Use `agenticlens.integrity` and `agenticlens evidence verify` for authenticated
+ordered-record snapshots, explicit coverage and offline replay. See the
+[evidence verification guide](docs/evidence-verification.md) for trust setup and limits.
+
+AIOS `0.4-draft` execution export/import, authenticated offline replay and
+MCP/Tower verification integration are available in the 0.12.0.
+See the [execution guide](docs/evidence-verification.md#aios-execution-export-and-downstream-integration).
