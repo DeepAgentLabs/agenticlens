@@ -43,7 +43,7 @@ building blocks; planned scope is not a claim of completion.
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
 `0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0` →
-`0.10.0` → `0.11.0` (current, 2026-10-31) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.10.0` → `0.11.0` → `0.12.0` → `0.12.1` (current, 2026-11-03) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
