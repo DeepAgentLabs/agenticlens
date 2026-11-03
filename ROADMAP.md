@@ -221,3 +221,8 @@ stop/revoke, hosted Tower user bindings and authenticated native assertions.
 See the [tested matrix, limitations and commands](docs/phase6-containment.md).
 Release acceptance requires CI and publication of the paired wheels. Evals
 v0.11 reusable containment scoring remains the following milestone.
+
+## Evals 0.11 containment scoring
+
+Lens keeps agentic-evals>=0.7.1,<1. Its integrity verifier remains optional to Evals and supplies verified/failed/unknown/incomplete status. Snapshot authentication does not establish exhaustive capture or runtime enforcement.
+See [the compatibility matrix and operator example](docs/evals-0.11-containment.md).
