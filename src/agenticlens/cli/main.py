@@ -11,6 +11,7 @@ from rich.table import Table
 
 from agenticlens.adapters import load_otlp_export, safe_trace_filename
 from agenticlens.api.store import PersistentTraceStore
+from agenticlens.cli.integrity import integrity_app
 from agenticlens.cli.modelfit import modelfit_app
 from agenticlens.cli.optimize import optimize_app
 from agenticlens.cli.render import (
@@ -115,6 +116,7 @@ app.add_typer(suite_app, name="suite")
 app.add_typer(routing_app, name="routing")
 app.add_typer(modelfit_app, name="modelfit")
 app.add_typer(optimize_app, name="optimize")
+app.add_typer(integrity_app, name="evidence")
 console = Console()
 
 
