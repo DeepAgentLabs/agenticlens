@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "suite_name": "support-regression",
   "suite_version": "1.0.0",
-  "created_at": "2026-10-17T21:15:26.368974Z",
+  "created_at": "2026-11-03T10:40:54.947009Z",
   "summary": {
     "total_cases": 15,
     "passed_cases": 15,
@@ -123,7 +123,9 @@
         "pass_rate": 1.0,
         "average_score": 1.0
       }
-    }
+    },
+    "judge": null,
+    "live": null
   },
   "cases": [
     {
@@ -141,7 +143,7 @@
           "explanation": "Output contains required text: '30 days'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -154,7 +156,7 @@
           "explanation": "Required tool 'lookup_policy' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -164,6 +166,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "smoke"
       ],
@@ -192,7 +197,7 @@
           "explanation": "Output contains required text: 'reset link'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -205,7 +210,7 @@
           "explanation": "Required tool 'send_reset_link' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -215,6 +220,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "smoke"
       ],
@@ -243,7 +251,7 @@
           "explanation": "Output contains required text: 'cancelled'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -256,7 +264,7 @@
           "explanation": "Forbidden tool 'delete_account' was not called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -266,6 +274,9 @@
       "cost_usd": 0.0001,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [],
       "metadata": {
         "source": {
@@ -292,7 +303,7 @@
           "explanation": "Output contains required text: 'business days'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -305,7 +316,7 @@
           "explanation": "Required tool 'lookup_order' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -315,6 +326,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [],
       "metadata": {
         "source": {
@@ -341,7 +355,7 @@
           "explanation": "Required tool 'lookup_policy' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -354,7 +368,7 @@
           "explanation": "Latency 300.0 ms meets the 1350.0 ms limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -367,7 +381,7 @@
           "explanation": "Cost $0.000050 meets the $0.000210 limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -377,6 +391,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-trace",
         "production"
@@ -408,7 +425,7 @@
           "explanation": "Required tool 'cancel_subscription' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -421,7 +438,7 @@
           "explanation": "Required tool 'lookup_account' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -434,7 +451,7 @@
           "explanation": "Tools were first called in the required order ['lookup_account', 'cancel_subscription'].",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -447,7 +464,7 @@
           "explanation": "Latency 600.0 ms meets the 1800.0 ms limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -460,7 +477,7 @@
           "explanation": "Cost $0.000100 meets the $0.000210 limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -470,6 +487,9 @@
       "cost_usd": 0.0001,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-trace",
         "production"
@@ -501,7 +521,7 @@
           "explanation": "Output exactly matches the reference.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -511,6 +531,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-feedback"
       ],
@@ -541,7 +564,7 @@
           "explanation": "Output exactly matches the reference.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -551,6 +574,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-feedback"
       ],
@@ -583,7 +609,7 @@
           "explanation": "Output contains required text: '30 days'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -596,7 +622,7 @@
           "explanation": "Required tool 'lookup_policy' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -606,6 +632,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "smoke",
         "synthetic",
@@ -639,7 +668,7 @@
           "explanation": "Output contains required text: 'reset link'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -652,7 +681,7 @@
           "explanation": "Required tool 'send_reset_link' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -662,6 +691,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "smoke",
         "synthetic",
@@ -695,7 +727,7 @@
           "explanation": "Output contains required text: 'business days'.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -708,7 +740,7 @@
           "explanation": "Required tool 'lookup_order' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -718,6 +750,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "synthetic",
         "variation:prefix"
@@ -750,7 +785,7 @@
           "explanation": "Required tool 'lookup_policy' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -763,7 +798,7 @@
           "explanation": "Latency 300.0 ms meets the 1350.0 ms limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -776,7 +811,7 @@
           "explanation": "Cost $0.000050 meets the $0.000210 limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -786,6 +821,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-trace",
         "production",
@@ -820,7 +858,7 @@
           "explanation": "Required tool 'cancel_subscription' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -833,7 +871,7 @@
           "explanation": "Required tool 'lookup_account' was called.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -846,7 +884,7 @@
           "explanation": "Tools were first called in the required order ['lookup_account', 'cancel_subscription'].",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -859,7 +897,7 @@
           "explanation": "Latency 600.0 ms meets the 1800.0 ms limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         },
         {
@@ -872,7 +910,7 @@
           "explanation": "Cost $0.000100 meets the $0.000210 limit.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -882,6 +920,9 @@
       "cost_usd": 0.0001,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-trace",
         "production",
@@ -916,7 +957,7 @@
           "explanation": "Output exactly matches the reference.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -926,6 +967,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-feedback",
         "synthetic",
@@ -960,7 +1004,7 @@
           "explanation": "Output exactly matches the reference.",
           "evaluator_type": "deterministic",
           "evaluator": "agentic_evals.builtin",
-          "evaluator_version": "0.7.1",
+          "evaluator_version": "0.11.0",
           "metadata": {}
         }
       ],
@@ -970,6 +1014,9 @@
       "cost_usd": 5e-05,
       "cost_source": "estimated",
       "sample_available": true,
+      "target_status": null,
+      "target_attempts": null,
+      "target_error": null,
       "tags": [
         "from-feedback",
         "synthetic",
