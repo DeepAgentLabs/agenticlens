@@ -2354,9 +2354,9 @@ Lens 0.12.1 refreshes embedded Evals schemas/examples and preserves native
 reports for failed live-target trials. Wrong answers remain completed trials.
 The runtime Evals floor becomes 0.11.0; Lens integrity semantics are unchanged.
 
-## AIOS v0.6.2 implementation guidance
+## AIOS v0.7.0 implementation guidance
 
-AIOS v0.6.2 publishes cumulative-layer migration guidance, a non-normative
+AIOS v0.7.0 publishes cumulative-layer migration guidance, a non-normative
 OpenTelemetry companion profile and a strict documentation site build.
 Existing draft markers, native evidence and runtime dependencies are unchanged;
-no package patch release is needed. See [compatibility and offline example](docs/aios-0.6.2.md).
+no package patch release is needed. See [compatibility and offline example](docs/aios-0.7.0.md).
