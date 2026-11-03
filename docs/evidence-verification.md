@@ -110,12 +110,16 @@ Run `uv run python examples/evidence/execution_demo.py` for a complete offline
 capture-export-import example. Capture order is preserved, not timestamp-sorted;
 replay neither calls providers/tools nor reruns arbitrary evaluators.
 
-MCP exposes `lens.execution_verify` with a bundle and an expected `run_id`.
+The separately distributed MCP 0.5.2 integration exposes `lens.execution_verify` with a bundle and an expected `run_id`.
 Its trust store is configured on the host through
 `DEEP_AGENTIC_CORE_MCP_LENS_TRUST_STORE`; callers cannot supply keys or paths.
-Tower accepts `execution_bundle` evidence with an explicit Lens source, run ID
+The separately distributed Tower 0.9.1 integration accepts `execution_bundle` evidence with an explicit Lens source, run ID
 and `0.4-draft` version. Its host injects trusted keys into `EvidenceStore` or
 HTTP `create_app`. Both delegate authentication and conformance to Lens.
 Verified summaries expose causal IDs; failed, unknown and incomplete summaries
 expose no causal claims or native payloads. Neither is an Evals containment score.
 Older installed Lens versions degrade to unavailable/unknown until upgraded.
+
+Verifier setup failures, such as missing or unreadable local validation resources,
+produce `unknown` with a redacted configuration reason. They do not label an
+authenticated snapshot as tampered evidence.
