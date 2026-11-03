@@ -359,7 +359,7 @@ values and recommend the one with the best balanced accuracy.
 ### Evidence behind every score
 
 Every score names the evaluator that produced it and that evaluator's version
-(`Score.evaluator`, `Score.evaluator_version`, from `agentic-evals` 0.7.1).
+(`Score.evaluator`, `Score.evaluator_version`, introduced in `agentic-evals` 0.7.1; current minimum 0.11.0).
 Built-in checks are attributed to `agentic_evals.builtin` at the installed
 package version; registered evaluators to their registry name and declared
 `version=`. Each case also records whether its cost was `measured` or

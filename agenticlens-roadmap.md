@@ -1439,4 +1439,6 @@ No sibling runtime change or patch release is required.
 MCP 0.6.0 / Chaos 0.10.0 / Sidecar 0.9.2 use Lens 0.12.0 authenticated
 snapshots and native stop/dispatch evidence. See the
 [operator guide and limitations](https://github.com/DeepAgentLabs/mcp-server/blob/c18f73decdc75aaac3e2e95004ae88589d587e75/docs/phase6-containment.md).
-Evals v0.11 reusable containment scoring remains planned.
+Evals v0.11 reusable containment scoring now ships in 0.11.0. Lens 0.12.1
+synchronizes embedded Evals schemas/examples, retains failed live-target reports
+and requires Evals >=0.11.0,<1. See [the compatibility matrix](docs/evals-0.11-containment.md).
