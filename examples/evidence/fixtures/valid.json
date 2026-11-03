@@ -1,0 +1,212 @@
+{
+  "artifact": {
+    "spec_version": "0.4-draft",
+    "artifact_type": "run",
+    "id": "run-evidence",
+    "started_at": "2026-11-02T17:27:37.998043+00:00",
+    "status": "completed",
+    "requests": [],
+    "steps": [
+      {
+        "id": "tool",
+        "name": "read",
+        "category": "tool_call",
+        "status": "running",
+        "started_at": "2026-11-02T17:27:37.998028+00:00"
+      }
+    ],
+    "relationships": [
+      {
+        "id": "contains:tool",
+        "type": "contains",
+        "source": {
+          "id": "run-evidence",
+          "type": "run"
+        },
+        "target": {
+          "id": "tool",
+          "type": "step"
+        }
+      }
+    ],
+    "events": [
+      {
+        "event_id": "0",
+        "event_name": "io.deepagentlabs.agenticlens.execution.proposed",
+        "occurred_at": "2026-11-02T10:00:00Z",
+        "object_id": "tool",
+        "object_type": "step",
+        "extensions": {
+          "io.deepagentlabs.agenticlens.execution": {
+            "event_id": "0",
+            "run_id": "run-evidence",
+            "span_id": "tool",
+            "occurred_at": "2026-11-02T10:00:00Z",
+            "kind": "proposed",
+            "producer": "fixture-host",
+            "decision_id": "decision-1",
+            "action_id": "action-1",
+            "actor": "test-agent",
+            "policy_version": "p1",
+            "approval_id": "approval-1",
+            "outcome": null,
+            "attributes": {
+              "secret": "private"
+            }
+          }
+        }
+      },
+      {
+        "event_id": "1",
+        "event_name": "io.deepagentlabs.agenticlens.execution.allowed",
+        "occurred_at": "2026-11-02T10:00:00Z",
+        "object_id": "tool",
+        "object_type": "step",
+        "extensions": {
+          "io.deepagentlabs.agenticlens.execution": {
+            "event_id": "1",
+            "run_id": "run-evidence",
+            "span_id": "tool",
+            "occurred_at": "2026-11-02T10:00:00Z",
+            "kind": "allowed",
+            "producer": "fixture-host",
+            "decision_id": "decision-1",
+            "action_id": "action-1",
+            "actor": "test-agent",
+            "policy_version": "p1",
+            "approval_id": "approval-1",
+            "outcome": null,
+            "attributes": {
+              "secret": "private"
+            }
+          }
+        }
+      },
+      {
+        "event_id": "2",
+        "event_name": "io.deepagentlabs.agenticlens.execution.dispatched",
+        "occurred_at": "2026-11-02T10:00:00Z",
+        "object_id": "tool",
+        "object_type": "step",
+        "extensions": {
+          "io.deepagentlabs.agenticlens.execution": {
+            "event_id": "2",
+            "run_id": "run-evidence",
+            "span_id": "tool",
+            "occurred_at": "2026-11-02T10:00:00Z",
+            "kind": "dispatched",
+            "producer": "fixture-host",
+            "decision_id": "decision-1",
+            "action_id": "action-1",
+            "actor": "test-agent",
+            "policy_version": "p1",
+            "approval_id": "approval-1",
+            "outcome": null,
+            "attributes": {
+              "secret": "private"
+            }
+          }
+        }
+      },
+      {
+        "event_id": "3",
+        "event_name": "io.deepagentlabs.agenticlens.execution.completed",
+        "occurred_at": "2026-11-02T10:00:00Z",
+        "object_id": "tool",
+        "object_type": "step",
+        "extensions": {
+          "io.deepagentlabs.agenticlens.execution": {
+            "event_id": "3",
+            "run_id": "run-evidence",
+            "span_id": "tool",
+            "occurred_at": "2026-11-02T10:00:00Z",
+            "kind": "completed",
+            "producer": "fixture-host",
+            "decision_id": "decision-1",
+            "action_id": "action-1",
+            "actor": "test-agent",
+            "policy_version": "p1",
+            "approval_id": "approval-1",
+            "outcome": null,
+            "attributes": {
+              "secret": "private"
+            }
+          }
+        }
+      }
+    ],
+    "extensions": {
+      "io.deepagentlabs.agenticlens.execution": {
+        "format": "lens.execution/1",
+        "native_run": {
+          "schema_version": "1.0",
+          "run_id": "run-evidence",
+          "trace_id": "trace-evidence",
+          "application_name": "demo",
+          "framework": null,
+          "framework_version": null,
+          "task_id": null,
+          "task_type": null,
+          "experiment_id": null,
+          "variant_id": null,
+          "started_at": "2026-11-02T17:27:37.998043Z",
+          "completed_at": null,
+          "status": "succeeded",
+          "spans": [
+            {
+              "span_id": "tool",
+              "parent_span_id": null,
+              "name": "read",
+              "span_type": "tool_call",
+              "agent_name": null,
+              "model_name": null,
+              "provider": null,
+              "started_at": "2026-11-02T17:27:37.998028Z",
+              "completed_at": null,
+              "latency_ms": 0.0,
+              "input_tokens": 0,
+              "output_tokens": 0,
+              "estimated_cost_usd": null,
+              "tool_name": null,
+              "retry_number": null,
+              "status": "running",
+              "error_type": null,
+              "error_message": null,
+              "input_reference": null,
+              "output_reference": null,
+              "input_data": null,
+              "output_data": null,
+              "attributes": {}
+            }
+          ],
+          "task_success": null,
+          "error_type": null,
+          "metadata": {}
+        },
+        "capture_order": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "mapping": "Lens spans to steps; explicit producer records to extension events",
+        "limitations": [
+          "No inferred dispatch or completeness",
+          "Extension event semantics are Lens-local"
+        ]
+      }
+    }
+  },
+  "manifest": {
+    "format": "lens.evidence-manifest/1",
+    "key_id": "test",
+    "coverage": {
+      "stream_id": "run-evidence",
+      "description": "fixture",
+      "complete": true
+    },
+    "record_count": 1,
+    "root_sha256": "9d18fcf212004293e89747c27e1a97fa9ef3ed1e016fbd59695400f161c3a713",
+    "authentication": "dab86fe5154dcb874b8ec86d95259c80d80f8ac50735a4ddfa0ae70df27f900d"
+  }
+}

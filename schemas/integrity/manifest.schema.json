@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "Coverage": {
+      "additionalProperties": false,
+      "description": "Caller-declared snapshot boundary; not proof of complete execution.",
+      "properties": {
+        "stream_id": {
+          "minLength": 1,
+          "title": "Stream Id",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "stream_id",
+        "description",
+        "complete"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "lens.evidence-manifest/1",
+      "default": "lens.evidence-manifest/1",
+      "title": "Format",
+      "type": "string"
+    },
+    "key_id": {
+      "minLength": 1,
+      "title": "Key Id",
+      "type": "string"
+    },
+    "coverage": {
+      "$ref": "#/$defs/Coverage"
+    },
+    "record_count": {
+      "minimum": 0,
+      "title": "Record Count",
+      "type": "integer"
+    },
+    "root_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Root Sha256",
+      "type": "string"
+    },
+    "authentication": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Authentication",
+      "type": "string"
+    }
+  },
+  "required": [
+    "key_id",
+    "coverage",
+    "record_count",
+    "root_sha256",
+    "authentication"
+  ],
+  "title": "Manifest",
+  "type": "object"
+}

@@ -148,3 +148,20 @@ jobs:
         run: |
           uv run python -m build
           uv run python -m twine check dist/*
+      - name: Verify installed wheel execution evidence outside checkout
+        run: |
+          smoke_dir="$(mktemp -d)"
+          uv venv "$smoke_dir/venv"
+          uv pip install --python "$smoke_dir/venv/bin/python" dist/*.whl
+          cd "$smoke_dir"
+          "$smoke_dir/venv/bin/python" - <<'PY'
+          from agenticlens.integrity import Coverage
+          from agenticlens.integrity.execution import capture_execution, replay_execution
+          from agenticlens.models.trace import Run
+          key = b"CI-test-only-key-at-least-32-bytes"
+          run = Run(run_id="installed-wheel", application_name="smoke")
+          bundle = capture_execution(run, [], key_id="ci", key=key,
+              coverage=Coverage(stream_id=run.run_id, description="empty CI capture", complete=True))
+          restored, events = replay_execution(bundle, trusted_keys={"ci": key}, expected_run_id=run.run_id)
+          assert restored == run and events == []
+          PY

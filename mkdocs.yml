@@ -78,6 +78,7 @@ nav:
   - ModelFit Recommendations: modelfit.md
   - Advisory Runtime Routing: routing.md
   - Optimization Intelligence: optimization.md
+  - Execution Evidence Verification: evidence-verification.md
   - Tower 0.6 Recovery: control-tower-0.6.md
   - Tower 0.7 Fleet Operations: tower-0.7-fleet-operations.md
   - Control Tower 0.8 Live Operations: tower-0.8-live-operations.md

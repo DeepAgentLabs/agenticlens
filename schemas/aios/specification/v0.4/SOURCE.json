@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/DeepAgentLabs/ai-operations-spec",
+  "commit": "4c475081cb30c9ff80f47aa65268938fe18de920",
+  "files": {
+    "schemas/common.schema.json": "d0236f74f78ab1545c4b332b0f8789f88a2638621d94a10d2a8e14f449f99ab0",
+    "schemas/run.schema.json": "a282ec1aefd882a24f9cebc3602e1a48c885e0ce4b5dc4c1a19c9432305d2518",
+    "schemas/workflow.schema.json": "9c69c1282710cab1f0e2f8febd084204fadbcb7cd2089f125e5933508286030b",
+    "conformance.md": "cbae5dd0f14fb31d2cc36917e74197d43720ec680e523da83c67ad947a693fac",
+    "conformance-rules.json": "bfdd6f011d15f185548c7ddb3deca7cb214b199fd97034f2ff7da31d949c9faf"
+  }
+}

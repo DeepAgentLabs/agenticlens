@@ -112,6 +112,10 @@ class ConformanceReport(BaseModel):
     summary: ConformanceSummary | None = None
 
 
+class SpecUnavailableError(ValueError):
+    """Required local validation resources are not installed or accessible."""
+
+
 @dataclass(frozen=True)
 class _ResolvedSpec:
     version: str
@@ -300,6 +304,8 @@ def _resolve_spec(
     current = Path(__file__).resolve()
     candidate_roots.extend(
         [
+            current.parents[1] / "schemas" / "aios",
+            current.parents[3] / "schemas" / "aios",
             current.parents[4] / "ai-operations-spec",
             current.parents[5] / "ai-operations-spec",
         ]
@@ -315,7 +321,7 @@ def _resolve_spec(
                 schema_path=schema_path,
                 conformance_path=conformance_path,
             )
-    raise ValueError(
+    raise SpecUnavailableError(
         "Unable to locate ai-operations-spec v0.4 draft schemas. "
         "Pass --spec-root with the sibling repo path if it is not checked out next to agenticlens."
     )

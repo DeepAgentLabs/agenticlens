@@ -6,6 +6,15 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.12.0 - 2026-11-02
+
+### Added
+
+- Add authenticated evidence snapshots, coverage-aware verification, offline
+  record replay and `evidence verify` CLI.
+- Add AIOS 0.4-draft Run execution export/import, authenticated bundle replay,
+  CLI export/replay and redacted Lens-owned summaries for MCP and Tower.
+
 ## 0.11.0 - 2026-10-31
 
 Delivers roadmap milestone v0.9 (Optimization Intelligence).
