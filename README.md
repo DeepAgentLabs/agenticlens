@@ -1,5 +1,14 @@
 # AgenticLens
 
+## Release sequencing
+
+The final package-local roadmap phase uses **v0.13**, followed by further
+minor releases as needed. **v1.0 is reserved for one coordinated DeepAgentLabs
+ecosystem release**, after the shared readiness and compatibility gates pass.
+Completing this minor milestone does not independently declare stable APIs or
+AIOS conformance. Existing acceptance criteria remain required. See the
+[ecosystem release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+
 <p align="center">
   <img src="docs/assets/agenticlens-logo.jpeg" alt="AgenticLens logo" width="420">
 </p>
@@ -67,7 +76,7 @@ delivers v0.9 optimization intelligence: evidence-backed recommendations across
 prompts, retrieval, memory, tools, workflows, and models, with separate
 projected benefit and quality risk, decision tracking, and post-adoption
 outcome evaluation. Development continues with production and enterprise
-readiness (v1.0). The
+readiness (v0.13), ahead of the coordinated ecosystem v1.0 release. The
 [open-source readiness plan](agenticlens-roadmap.md#open-source-readiness-alongside-feature-delivery)
 tracks reproducible examples, artifact interoperability, independent validation,
 governance, and onboarding alongside those features. These are planned goals,
