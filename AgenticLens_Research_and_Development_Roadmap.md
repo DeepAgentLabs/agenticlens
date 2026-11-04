@@ -1132,3 +1132,7 @@ evidence-backed optimization
 
 Research outputs must remain reproducible, versioned, explicit about
 limitations, and separable from committed product claims.
+
+## Tower 0.10 contract readiness compatibility
+
+Tower publishes the local candidate `tower.capabilities.v1` and validates Python/Node HTTP workers. Lens remains the telemetry/analysis owner; reported capabilities are not authenticated evidence. No Lens dependency or package release is needed. See [operator guidance](docs/tower-0.10-compatibility.md). The coordinated ecosystem v1.0 acceptance remains open.

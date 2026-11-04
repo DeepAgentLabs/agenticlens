@@ -1474,3 +1474,7 @@ or patch release is needed. See [compatibility and offline checks](docs/aios-0.7
 ## Evals 0.12 candidate compatibility
 
 See [compatibility and the unchanged report contract](docs/evals-0.12.md).
+
+## Tower 0.10 contract readiness compatibility
+
+Tower publishes the local candidate `tower.capabilities.v1` and validates Python/Node HTTP workers. Lens remains the telemetry/analysis owner; reported capabilities are not authenticated evidence. No Lens dependency or package release is needed. See [operator guidance](docs/tower-0.10-compatibility.md). The coordinated ecosystem v1.0 acceptance remains open.
