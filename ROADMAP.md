@@ -273,3 +273,7 @@ The existing OTLP developer receiver stays separate. See the
 This delivers the local readiness implementation; external security/deployment
 acceptance and the coordinated v1.0 API freeze remain open. Kubernetes/Helm
 recipes are candidates requiring operator validation, not certified deployments.
+
+## Tower 0.10 capability contract readiness
+
+See [compatibility, operator example and dependency boundaries](docs/tower-0.10-compatibility.md). Tower publishes the local candidate `tower.capabilities.v1` with Python/Node HTTP validation. Lens owns telemetry, analysis and execution verification. Reported capability metadata is not authenticated evidence. Existing optional dependencies remain sufficient; no package release or stable ecosystem claim is introduced.
