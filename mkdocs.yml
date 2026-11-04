@@ -44,6 +44,7 @@ exclude_docs: |
 
 # A page missing from nav fails the strict build
 nav:
+  - Tower 0.10 contract readiness: tower-0.10-compatibility.md
   - Production readiness candidate: production-readiness.md
   - Public compatibility policy: compatibility-policy.md
   - Lens 0.13 ecosystem matrix: lens-0.13-compatibility.md
