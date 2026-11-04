@@ -64,8 +64,8 @@ task-level model matrix) shipped in 0.9.0. v0.8 Advisory Runtime Routing
 shipped in 0.10.0; v0.9 Optimization Intelligence (trace-level prompt,
 retrieval, memory, tool, retry, workflow, and model-trade-off recommendations
 with separate benefit and risk, decision tracking, and post-adoption outcomes)
-ships in 0.11.0. The next milestone is v0.13 Production and Enterprise
-Readiness. New work here should deepen evidence quality and
+ships in 0.11.0. The v0.13 local production-readiness candidate ships in 0.13.0; independent
+security/deployment acceptance and coordinated v1.0 stability remain open. New work here should deepen evidence quality and
 repeatable analysis, not drift into spec stewardship or chaos simulation.
 
 ### Before You Build Here

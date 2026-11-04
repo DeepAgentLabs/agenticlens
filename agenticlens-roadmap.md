@@ -43,7 +43,7 @@ building blocks; planned scope is not a claim of completion.
 
 Shipped PyPI releases: `0.1.1` → `0.1.2` → `0.2.0` → `0.3.0` → `0.4.0` →
 `0.5.0` → `0.6.0` → `0.6.1` → `0.7.0` → `0.7.1` → `0.8.0` → `0.9.0` →
-`0.10.0` → `0.11.0` → `0.12.0` → `0.12.1` (current, 2026-11-03) — see [CHANGELOG.md](CHANGELOG.md). The version labels
+`0.10.0` → `0.11.0` → `0.12.0` → `0.12.1` → `0.13.0` (current, 2026-11-04) — see [CHANGELOG.md](CHANGELOG.md). The version labels
 below are this roadmap's release-plan sequence, not PyPI tags — shipped
 `0.4.0` already covers most of planned `v0.2` and `v0.3`, and pulled pieces
 forward from `v0.5` and `v1.0`.
@@ -93,7 +93,7 @@ forward from `v0.5` and `v1.0`.
   quality-cost trade-offs, projected benefit with separate confidence and
   quality risk, accepted/rejected/adopted tracking, and post-adoption outcome
   evaluation)
-- **v0.13** 🚧 Planned — Production and Enterprise Readiness (release gates
+- **v0.13** 🚧 Local candidate delivered in `0.13.0`; external acceptance open — Production and Enterprise Readiness (release gates
   partially pulled forward into `v0.3`)
 
 ## Purpose
@@ -1080,6 +1080,17 @@ Prepare contract stability, policy controls, audit evidence, and supported
 deployment options in minor releases. The stable public commitment is part
 of the coordinated ecosystem v1.0 release, not an independent Lens major.
 
+### Local candidate delivered in 0.13.0
+
+See [the production guide](docs/production-readiness.md) for scoped artifact
+storage/authentication, audit, metadata registries, policy-as-code Evals receipts,
+retention/PII handling, private evaluator composition and candidate Helm/container
+recipes. Existing native schemas remain unchanged. The compatibility policy and
+migration/rollback instructions are published. Tests cover access isolation,
+redaction, immutable-version races, retention, reproducibility and audit rollback.
+Independent security review and operator deployment acceptance remain open;
+stable APIs/schemas await the coordinated v1.0 gate.
+
 ### Planned deliverables
 
 - stable public APIs and schemas
@@ -1096,11 +1107,11 @@ of the coordinated ecosystem v1.0 release, not an independent Lens major.
 
 ### Completion criteria
 
-- public compatibility policy is published
-- upgrade and migration paths are documented
-- governance decisions produce audit evidence
-- release gates are reproducible
-- supported deployment modes pass security review
+- [x] candidate public compatibility policy is published
+- [x] upgrade and migration paths are documented
+- [x] artifact-service authorization/mutations produce local audit evidence; runtime governance stays Sidecar-owned
+- [x] release gates are reproducible from saved report, policy and pinned versions
+- [ ] independent security review and operator deployment acceptance for candidate recipes
 
 ## Ecosystem Integrations
 
