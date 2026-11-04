@@ -44,6 +44,7 @@ exclude_docs: |
 
 # A page missing from nav fails the strict build
 nav:
+  - MCP 0.7 readiness: mcp-0.7-readiness.md
   - Chaos 0.11 ChaosHub: chaos-0.11-chaoshub.md
   - Tower 0.10 contract readiness: tower-0.10-compatibility.md
   - Production readiness candidate: production-readiness.md
