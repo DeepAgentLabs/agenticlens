@@ -1,3 +1,7 @@
+{{- $image := required "Set image to an operator-built digest-pinned image" .Values.image -}}
+{{- if not (regexMatch "^[^@ ]+@sha256:[a-f0-9]{64}$" $image) -}}
+{{- fail "image must use an immutable @sha256:<64 lowercase hex> digest" -}}
+{{- end -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -37,7 +41,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: lens
-          image: {{ required "Set image to an operator-built digest-pinned image" .Values.image | quote }}
+          image: {{ $image | quote }}
           ports:
             - containerPort: 8000
           env:

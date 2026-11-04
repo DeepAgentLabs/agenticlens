@@ -191,5 +191,9 @@ jobs:
           version: v3.17.3
       - name: Validate restricted deployment recipe
         run: |
-          helm lint deploy/helm/agenticlens --set image=example/lens:test --set configSecret=lens-config
-          helm template lens deploy/helm/agenticlens --set image=example/lens:test --set configSecret=lens-config > build-chart.yaml
+          helm lint deploy/helm/agenticlens --set image=example/lens@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --set configSecret=lens-config
+          helm template lens deploy/helm/agenticlens --set image=example/lens@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --set configSecret=lens-config > build-chart.yaml
+          if helm template rejected deploy/helm/agenticlens --set image=example/lens:mutable --set configSecret=lens-config; then
+            echo "Mutable image tags must be rejected"
+            exit 1
+          fi
