@@ -2402,5 +2402,6 @@ See [compatibility, operator example and dependency boundaries](docs/tower-0.10-
 
 ## Chaos 0.11 ChaosHub compatibility — 2026-11-04
 
-Lens 0.13.0 continues reading native Chaos reports and caller-created span markers. Instrument target spans explicitly; recipe names do not establish ground truth for quality or containment. Existing optional ranges admit Chaos 0.11; no Lens release is needed.
+Lens 0.13.0 continues reading native Chaos reports and caller-created span markers. Instrument target spans explicitly; recipe names do not establish ground truth for quality or containment. Chaos's existing optional Lens range admits Lens 0.13.0; Lens core has no
+Chaos dependency and no Lens release is needed.
 See [the compatibility guide and offline operator example](docs/chaos-0.11-chaoshub.md).

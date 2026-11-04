@@ -1,6 +1,7 @@
 # Chaos 0.11 ChaosHub compatibility
 
-Lens 0.13.0 continues reading native Chaos reports and caller-created span markers. Instrument target spans explicitly; recipe names do not establish ground truth for quality or containment. Existing optional ranges admit Chaos 0.11; no Lens release is needed.
+Lens 0.13.0 continues reading native Chaos reports and caller-created span markers. Instrument target spans explicitly; recipe names do not establish ground truth for quality or containment. Chaos's existing optional Lens range admits Lens 0.13.0; Lens core has no
+Chaos dependency and no Lens release is needed.
 
 Chaos 0.11.0 adds six offline framework-neutral starter recipes, explicit
 commit-pinned GitHub registry exchange and opt-in installed fault plugins.
@@ -25,6 +26,6 @@ Remote access needs an explicit repository and full commit SHA; plugin loading
 executes trusted installed code only when explicitly requested. The native
 Chaos report and AIOS export formats are unchanged.
 
-See the [ChaosHub guide](https://github.com/DeepAgentLabs/agentic-chaos/blob/main/docs/v0.11.md)
-and [offline app](https://github.com/DeepAgentLabs/agentic-chaos/blob/main/examples/chaoshub_app.py).
+See the [ChaosHub guide](https://github.com/DeepAgentLabs/agentic-chaos/blob/4b60f2e8deb7b68a469a10d3219e60fdc3f3c562/docs/v0.11.md)
+and [offline app](https://github.com/DeepAgentLabs/agentic-chaos/blob/4b60f2e8deb7b68a469a10d3219e60fdc3f3c562/examples/chaoshub_app.py).
 Coordinated ecosystem v1.0 acceptance remains open.
