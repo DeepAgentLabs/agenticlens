@@ -2399,3 +2399,9 @@ recipes are candidates requiring operator validation, not certified deployments.
 ## Tower 0.10 capability contract readiness
 
 See [compatibility, operator example and dependency boundaries](docs/tower-0.10-compatibility.md). Tower publishes the local candidate `tower.capabilities.v1` with Python/Node HTTP validation. Lens owns telemetry, analysis and execution verification. Reported capability metadata is not authenticated evidence. Existing optional dependencies remain sufficient; no package release or stable ecosystem claim is introduced.
+
+## Chaos 0.11 ChaosHub compatibility — 2026-11-04
+
+Lens 0.13.0 continues reading native Chaos reports and caller-created span markers. Instrument target spans explicitly; recipe names do not establish ground truth for quality or containment. Chaos's existing optional Lens range admits Lens 0.13.0; Lens core has no
+Chaos dependency and no Lens release is needed.
+See [the compatibility guide and offline operator example](docs/chaos-0.11-chaoshub.md).

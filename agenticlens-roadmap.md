@@ -1478,3 +1478,10 @@ See [compatibility and the unchanged report contract](docs/evals-0.12.md).
 ## Tower 0.10 contract readiness compatibility
 
 Tower publishes the local candidate `tower.capabilities.v1` and validates Python/Node HTTP workers. Lens remains the telemetry/analysis owner; reported capabilities are not authenticated evidence. No Lens dependency or package release is needed. See [operator guidance](docs/tower-0.10-compatibility.md). The coordinated ecosystem v1.0 acceptance remains open.
+
+## ChaosHub 0.11 compatibility — 2026-11-04
+
+Lens continues reading native events and caller-created span markers from
+Chaos 0.11.0; no Lens runtime change is required. Chaos optionally depends on
+Lens, and Lens core does not require Chaos. See [the guide and offline operator
+example](docs/chaos-0.11-chaoshub.md). Shared v1.0 acceptance remains open.
