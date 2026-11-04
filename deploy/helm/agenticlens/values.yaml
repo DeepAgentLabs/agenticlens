@@ -1,0 +1,4 @@
+image: "" # Required: operator-built image pinned by digest
+configSecret: "" # Required: existing Secret containing config.json (token digests only)
+storageClass: ""
+storageSize: 1Gi
