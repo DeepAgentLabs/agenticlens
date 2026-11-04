@@ -6,6 +6,30 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.13.0 - 2026-11-04
+
+### Added
+
+- Candidate single-node organization/project artifact storage, bearer credentials
+  bound to reader/writer/admin roles, atomic local audit records and metadata-only
+  compliance exports. The opt-in API is separate from the developer OTLP receiver.
+- Immutable model/prompt metadata registries, mandatory common-secret/email
+  redaction, age/count trace retention and explicit admin purge.
+- Reproducible release receipts delegating gate computation to Evals, retaining
+  exact policy, report digest and installed package versions; private evaluators
+  remain local trusted Python code, never uploaded/executed by the service.
+- Candidate compatibility policy, migration/rollback guide, offline acceptance
+  example, non-root container and restricted single-replica Helm recipe.
+
+### Compatibility and limits
+
+- Existing native schemas and dependency ranges stay unchanged. MCP 0.6.4 pairs
+  hosted recipes with Lens 0.13.0; other siblings need documentation only.
+- Audit integrity and compliance certification are explicitly unverified/not
+  assessed. Independent security review and deployment acceptance remain open;
+  stable public API commitments are reserved for coordinated ecosystem v1.0.
+
+
 ## 0.12.1 - 2026-11-03
 
 ### Fixed

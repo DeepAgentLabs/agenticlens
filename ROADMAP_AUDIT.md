@@ -470,3 +470,14 @@ Synthetic checks reproduced ignored enum constraints, boolean/integer acceptance
 
 Keep existing feature sequencing. Do not add a new enterprise roadmap that
 duplicates these commitments.
+
+## 0.13.0 readiness follow-up — 2026-11-04
+
+The enterprise local candidate is implemented in `src/agenticlens/enterprise/`;
+`tests/test_enterprise.py` covers project/role isolation, common-secret redaction
+without corrupting usage, registry conflict/idempotency under concurrency,
+retention/restart, bounded request errors, reproducible gate receipts and rollback
+when audit insertion fails. See `docs/production-readiness.md` for the threat
+boundary, migration and candidate deployment recipes. External security review,
+cluster deployment/restore acceptance and stable API freeze remain open. This
+release does not claim comprehensive PII discovery, signed audit or certification.

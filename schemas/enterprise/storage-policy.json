@@ -1,0 +1,29 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "max_age_days": {
+      "default": 30,
+      "maximum": 3650,
+      "minimum": 1,
+      "title": "Max Age Days",
+      "type": "integer"
+    },
+    "max_traces": {
+      "default": 1000,
+      "maximum": 100000,
+      "minimum": 1,
+      "title": "Max Traces",
+      "type": "integer"
+    },
+    "redact": {
+      "const": true,
+      "default": true,
+      "title": "Redact",
+      "type": "boolean"
+    }
+  },
+  "title": "StoragePolicy",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.io/agenticlens/enterprise/1-candidate/storage-policy.json"
+}

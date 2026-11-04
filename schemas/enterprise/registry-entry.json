@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "description": "Immutable metadata; prompt bodies and executable evaluators stay outside the registry.",
+  "properties": {
+    "kind": {
+      "enum": [
+        "model",
+        "prompt"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.-]+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "content_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Content Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kind",
+    "name",
+    "version",
+    "content_sha256"
+  ],
+  "title": "RegistryEntry",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.io/agenticlens/enterprise/1-candidate/registry-entry.json"
+}

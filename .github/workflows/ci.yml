@@ -164,4 +164,36 @@ jobs:
               coverage=Coverage(stream_id=run.run_id, description="empty CI capture", complete=True))
           restored, events = replay_execution(bundle, trusted_keys={"ci": key}, expected_run_id=run.run_id)
           assert restored == run and events == []
+          from pathlib import Path
+          from agenticlens.enterprise import EnterpriseStore, Project, StoragePolicy
+          store = EnterpriseStore(Path("installed-enterprise.db"))
+          project = Project(organization="ci", name="wheel")
+          store.put_run(project, "ci", run, StoragePolicy())
+          assert store.runs(project, StoragePolicy())[0] == run
+          assert store.export_audit(project)["integrity"] == "not_verified"
           PY
+
+  enterprise-readiness:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.12
+      - run: uv sync --extra dev --python 3.12
+      - name: Candidate contracts and offline example
+        run: |
+          uv run python scripts/generate_enterprise_schemas.py
+          git diff --exit-code -- schemas/enterprise
+          uv run python examples/enterprise_demo.py
+      - uses: azure/setup-helm@v4.3.1
+        with:
+          version: v3.17.3
+      - name: Validate restricted deployment recipe
+        run: |
+          helm lint deploy/helm/agenticlens --set image=example/lens@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --set configSecret=lens-config
+          helm template lens deploy/helm/agenticlens --set image=example/lens@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --set configSecret=lens-config > build-chart.yaml
+          if helm template rejected deploy/helm/agenticlens --set image=example/lens:mutable --set configSecret=lens-config; then
+            echo "Mutable image tags must be rejected"
+            exit 1
+          fi

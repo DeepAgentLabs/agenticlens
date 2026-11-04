@@ -330,3 +330,10 @@ run = convert_otlp_to_run(otlp_payload)
 ```
 
 Supports OpenTelemetry GenAI semantic conventions and AgenticLens-native attributes.
+
+## Production readiness candidate (0.13)
+
+See [the project artifact service, roles, policy, retention, audit and deployment guide](production-readiness.md),
+[public compatibility policy](compatibility-policy.md) and [ecosystem matrix](lens-0.13-compatibility.md).
+Run `uv run python examples/enterprise_demo.py` for an offline example.
+External security/deployment acceptance and the coordinated v1.0 freeze remain open.

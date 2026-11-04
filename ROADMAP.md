@@ -258,3 +258,18 @@ v1.0 acceptance remains open.
 
 Lens 0.12.1 retains sidecar.correlation/1 journal verification and projections; the new wrappers do not replace the native correlation reader.
 See [candidate contracts, migration and operator example](docs/sidecar-0.10.md).
+
+## Lens 0.13 production readiness candidate
+
+0.13.0 adds an opt-in project artifact service with organization/project-scoped
+bearer roles, transactional audit, immutable model/prompt metadata registries,
+mandatory pattern redaction, trace retention and reproducible Evals gate receipts.
+The existing OTLP developer receiver stays separate. See the
+[production guide](docs/production-readiness.md),
+[compatibility policy](docs/compatibility-policy.md),
+[ecosystem matrix](docs/lens-0.13-compatibility.md) and
+[offline example](examples/enterprise_demo.py).
+
+This delivers the local readiness implementation; external security/deployment
+acceptance and the coordinated v1.0 API freeze remain open. Kubernetes/Helm
+recipes are candidates requiring operator validation, not certified deployments.

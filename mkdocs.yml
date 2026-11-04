@@ -44,6 +44,9 @@ exclude_docs: |
 
 # A page missing from nav fails the strict build
 nav:
+  - Production readiness candidate: production-readiness.md
+  - Public compatibility policy: compatibility-policy.md
+  - Lens 0.13 ecosystem matrix: lens-0.13-compatibility.md
   - Sidecar 0.10 contracts: sidecar-0.10.md
   - Evals 0.12 compatibility: evals-0.12.md
   - MCP Phase 6 Containment: phase6-containment.md
