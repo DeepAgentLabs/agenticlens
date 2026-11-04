@@ -20,8 +20,8 @@ floor change, runtime patch or sibling package release. Publishing MCP does not
 deploy AWS. Coordinated ecosystem v1.0, independent AIOS review and operator
 security/deployment acceptance remain open gates.
 
-See [MCP support, acceptance commands, upgrades and rollback](https://github.com/DeepAgentLabs/mcp-server/blob/v0.7.0/docs/release-readiness.md)
-and [the executable diagnostic example](https://github.com/DeepAgentLabs/mcp-server/blob/v0.7.0/examples/compatibility_check.py):
+See [MCP support, acceptance commands, upgrades and rollback](https://github.com/DeepAgentLabs/mcp-server/blob/fcdf635d522acc8103173d2f7ef56539222d04b5/docs/release-readiness.md)
+and [the executable diagnostic example](https://github.com/DeepAgentLabs/mcp-server/blob/fcdf635d522acc8103173d2f7ef56539222d04b5/examples/compatibility_check.py):
 
 ```bash
 # Run from an MCP 0.7 checkout:
