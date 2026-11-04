@@ -1,0 +1,269 @@
+{
+  "$defs": {
+    "Credential": {
+      "additionalProperties": false,
+      "description": "Configure SHA-256 digests of random bearer tokens, never plaintext tokens.",
+      "properties": {
+        "subject": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "token_sha256": {
+          "format": "password",
+          "title": "Token Sha256",
+          "type": "string",
+          "writeOnly": true
+        },
+        "project": {
+          "$ref": "#/$defs/Project"
+        },
+        "role": {
+          "enum": [
+            "reader",
+            "writer",
+            "admin"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject",
+        "token_sha256",
+        "project",
+        "role"
+      ],
+      "title": "Credential",
+      "type": "object"
+    },
+    "GateConfig": {
+      "description": "Release thresholds. The default is strict: every case must pass.\n\n`min_average_score` and `max_failed_cases` are extra checks, skipped\nwhen left `None` -- so `min_pass_rate` alone decides how many failures\nare tolerated, and a graded score below 1.0 on a passing case does not\nfail the gate unless an average-score floor is set explicitly.\n\n`min_tag_pass_rate` and `min_metric_pass_rate` set a floor for one\nslice of the report, keyed by tag or by `Score.metric`. They apply on\ntop of `min_pass_rate`, so a single tag or metric can be held to a\nstricter bar than the suite as a whole. A tag or metric named here but\nabsent from the report fails the gate rather than passing unchecked.\n\nJudge and live-target checks read `summary.judge` and `summary.live`.\n`max_judge_unavailable_scores` defaults to 0: a judgment the judge could\nnot deliver fails the gate even when its score was optional, and the\nreason names the affected cases. Set it to `None` to tolerate them.\n`max_judge_cost_usd` fails when any judge score lacks a cost, and\n`min_judge_agreement` fails when any case judged with `samples=N` has\nlower agreement than the floor, or no case was sampled at all.\n`max_timed_out_cases` and `max_target_error_cases` bound live-target\nfailures separately from wrong answers; both are unchecked by default,\nthough such cases already count as failed for `min_pass_rate`.",
+      "properties": {
+        "min_pass_rate": {
+          "default": 1.0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Pass Rate",
+          "type": "number"
+        },
+        "min_average_score": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Average Score"
+        },
+        "max_failed_cases": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Failed Cases"
+        },
+        "min_tag_pass_rate": {
+          "additionalProperties": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "title": "Min Tag Pass Rate",
+          "type": "object"
+        },
+        "min_metric_pass_rate": {
+          "additionalProperties": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "title": "Min Metric Pass Rate",
+          "type": "object"
+        },
+        "max_average_latency_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Average Latency Ms"
+        },
+        "max_total_cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Total Cost Usd"
+        },
+        "max_judge_unavailable_scores": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0,
+          "title": "Max Judge Unavailable Scores"
+        },
+        "max_judge_cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Judge Cost Usd"
+        },
+        "min_judge_agreement": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Judge Agreement"
+        },
+        "max_timed_out_cases": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Timed Out Cases"
+        },
+        "max_target_error_cases": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Target Error Cases"
+        }
+      },
+      "title": "GateConfig",
+      "type": "object"
+    },
+    "Project": {
+      "additionalProperties": false,
+      "properties": {
+        "organization": {
+          "maxLength": 100,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "title": "Organization",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "organization",
+        "name"
+      ],
+      "title": "Project",
+      "type": "object"
+    },
+    "StoragePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "max_age_days": {
+          "default": 30,
+          "maximum": 3650,
+          "minimum": 1,
+          "title": "Max Age Days",
+          "type": "integer"
+        },
+        "max_traces": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Max Traces",
+          "type": "integer"
+        },
+        "redact": {
+          "const": true,
+          "default": true,
+          "title": "Redact",
+          "type": "boolean"
+        }
+      },
+      "title": "StoragePolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "credentials": {
+      "items": {
+        "$ref": "#/$defs/Credential"
+      },
+      "minItems": 1,
+      "title": "Credentials",
+      "type": "array"
+    },
+    "storage_policy": {
+      "$ref": "#/$defs/StoragePolicy"
+    },
+    "gate_policy": {
+      "$ref": "#/$defs/GateConfig"
+    }
+  },
+  "required": [
+    "credentials"
+  ],
+  "title": "ServiceConfig",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.io/agenticlens/enterprise/1-candidate/service-config.json"
+}

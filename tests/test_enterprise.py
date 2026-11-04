@@ -233,3 +233,49 @@ def test_redaction_preserves_native_usage_and_cleans_nested_payloads(service):
     assert clean.total_tokens == 107
     assert clean.spans[0].input_data["password"] == "[REDACTED]"
     assert "alice@example.com" not in clean.model_dump_json()
+
+
+def test_candidate_schema_snapshots_and_offline_example():
+    import subprocess
+    import sys
+
+    from agenticlens.enterprise.server import ServiceConfig
+
+    root = Path(__file__).parents[1]
+    for name, model in (
+        ("project", Project),
+        ("registry-entry", RegistryEntry),
+        ("storage-policy", StoragePolicy),
+        ("service-config", ServiceConfig),
+    ):
+        schema = json.loads((root / f"schemas/enterprise/{name}.json").read_text())
+        schema.pop("$schema")
+        schema.pop("$id")
+        assert schema == model.model_json_schema()
+    result = subprocess.run(
+        [sys.executable, "examples/enterprise_demo.py"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(result.stdout) == {
+        "project": "demo/support",
+        "traces": 1,
+        "registry": 1,
+        "certification": "not_assessed",
+    }
+
+
+def test_failed_gate_is_not_silently_approved(service):
+    from agenticlens.evaluation import EvaluationReport
+
+    _, client = service
+    report = EvaluationReport.model_validate_json(
+        (Path(__file__).parents[1] / "examples/suites/artifacts/evaluation.json").read_text()
+    )
+    report.summary.pass_rate = 0.0
+    result = client.post(BASE + "/gate", json=report.model_dump(mode="json"), headers=headers())
+    assert result.status_code == 200
+    assert result.json()["decision"]["passed"] is False
+    assert result.json()["decision"]["reasons"]

@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "organization": {
+      "maxLength": 100,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "title": "Organization",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "title": "Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "organization",
+    "name"
+  ],
+  "title": "Project",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.io/agenticlens/enterprise/1-candidate/project.json"
+}
