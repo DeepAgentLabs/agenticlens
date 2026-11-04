@@ -14,7 +14,7 @@ See the [migration and supported-version guide](https://github.com/DeepAgentLabs
 and [AIOS candidate mapping](https://github.com/DeepAgentLabs/ai-operations-spec/tree/main/drafts/sidecar-contracts-v1).
 
 Operator example: keep existing native readback/dispatch integration; wrap an
-existing Decision with `DecisionContract(decision=native)` only when a consumer
+existing Decision with `DecisionContract(schema_version="sidecar.decision/1", decision=native)` only when a consumer
 explicitly supports that family. Never unwrap an ALLOW as an execution receipt.
 Authorize private payload exports; redacted summaries cannot verify journals.
 No new sibling runtime dependency is introduced. AIOS draft maturity and the
