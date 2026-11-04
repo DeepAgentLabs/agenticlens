@@ -20,9 +20,9 @@ _MAX_BODY = 2 * 1024 * 1024
 async def _body(request: Request, model: type[BaseModel]) -> BaseModel:
     body = bytearray()
     async for chunk in request.stream():
-        body.extend(chunk)
-        if len(body) > _MAX_BODY:
+        if len(body) + len(chunk) > _MAX_BODY:
             raise HTTPException(413, "Artifact exceeds 2 MiB limit")
+        body.extend(chunk)
     try:
         return model.model_validate_json(body)
     except (ValidationError, ValueError) as exc:
@@ -50,7 +50,9 @@ def create_enterprise_app(
         raise ValueError("Token digests must be lowercase SHA-256 hex")
     retention = (storage_policy or StoragePolicy()).model_copy(deep=True)
     policy = (gate_policy or GateConfig()).model_copy(deep=True)
-    app = FastAPI(title="AgenticLens Project Artifacts", docs_url=None, redoc_url=None)
+    app = FastAPI(
+        title="AgenticLens Project Artifacts", docs_url=None, redoc_url=None, openapi_url=None
+    )
 
     def authorize(role: str) -> Callable[..., Credential]:
         def check(request: Request, organization: str, project: str) -> Credential:
@@ -138,9 +140,16 @@ def create_enterprise_app(
         return {"status": "registered"}
 
     @app.get(base + "/registry")
-    def registry(principal: Annotated[Credential, Depends(reader)]) -> list[dict[str, Any]]:
+    def registry(
+        principal: Annotated[Credential, Depends(reader)],
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
+        offset: Annotated[int, Query(ge=0)] = 0,
+    ) -> list[dict[str, Any]]:
         store.record(principal.project, principal.subject, "registry.read", "list")
-        return [entry.model_dump() for entry in store.registry(principal.project)]
+        return [
+            entry.model_dump()
+            for entry in store.registry(principal.project, limit=limit, offset=offset)
+        ]
 
     @app.post(base + "/gate")
     async def gate(
@@ -156,13 +165,21 @@ def create_enterprise_app(
         return {"removed": store.prune(principal.project, principal.subject, retention)}
 
     @app.get(base + "/audit")
-    def audit(principal: Annotated[Credential, Depends(admin)]) -> dict[str, Any]:
+    def audit(
+        principal: Annotated[Credential, Depends(admin)],
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
+        offset: Annotated[int, Query(ge=0)] = 0,
+    ) -> dict[str, Any]:
         store.record(principal.project, principal.subject, "audit.export", "metadata")
-        return store.export_audit(principal.project)
+        return store.export_audit(principal.project, limit=limit, offset=offset)
 
     @app.get(base + "/compliance")
-    def compliance(principal: Annotated[Credential, Depends(admin)]) -> dict[str, Any]:
+    def compliance(
+        principal: Annotated[Credential, Depends(admin)],
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
+        offset: Annotated[int, Query(ge=0)] = 0,
+    ) -> dict[str, Any]:
         store.record(principal.project, principal.subject, "compliance.export", "metadata")
-        return store.compliance_export(principal.project, retention)
+        return store.compliance_export(principal.project, retention, limit=limit, offset=offset)
 
     return app

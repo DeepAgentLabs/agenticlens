@@ -316,3 +316,29 @@ def test_bounded_summary_pages_and_scoped_detail(service):
         == 403
     )
     assert len(store.compliance_export(PROJECT, StoragePolicy())["trace_digests"]) == 25
+
+
+def test_metadata_exports_are_bounded(service):
+    store, client = service
+    for i in range(105):
+        store.register(
+            PROJECT,
+            "ci",
+            RegistryEntry(kind="model", name=f"model-{i:03}", version="1", content_sha256="a" * 64),
+        )
+    assert len(store.registry(PROJECT)) == 100
+    assert len(store.export_audit(PROJECT)["records"]) == 100
+    assert store.export_audit(PROJECT)["page"]["has_more"] is True
+    assert len(client.get(BASE + "/registry?limit=10&offset=100", headers=headers()).json()) == 5
+    for endpoint in ("registry", "audit", "compliance"):
+        assert client.get(BASE + f"/{endpoint}?limit=101", headers=headers()).status_code == 422
+    exported = client.get(BASE + "/compliance?limit=5", headers=headers()).json()
+    assert len(exported["registry"]) == 5
+    assert len(exported["audit"]["records"]) == 5
+    assert exported["page"]["consistent_snapshot"] is False
+
+
+def test_only_health_is_anonymous_and_schema_routes_are_disabled(service):
+    _, client = service
+    for endpoint in ("/openapi.json", "/docs", "/redoc"):
+        assert client.get(endpoint).status_code == 404

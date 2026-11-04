@@ -20,8 +20,7 @@ fleet control plane. Each configured credential binds one subject, role and
 project. Readers list project traces and registry metadata; writers additionally
 store traces, register versions and request release receipts; admins additionally
 prune traces and export audit/compliance metadata. Every data route checks both
-organization and project. Only `/healthz` is anonymous. Disable public exposure
-of `/openapi.json` at the proxy if route discovery is undesirable.
+organization and project. Only `/healthz` is anonymous. OpenAPI and interactive documentation routes are disabled.
 
 ## Configure and run
 
@@ -56,9 +55,16 @@ artifact request at 2 MiB, including chunked requests. It accepts native Run JSO
 not OTLP, at `POST /v1/organizations/demo/projects/support/traces`. Each POST
 replaces that project's trace ID; this endpoint does not merge OTLP batches.
 
-Lists return summaries in pages of at most 20 (`limit`/`offset`); use
+Trace lists return summaries in pages of at most 20 (`limit`/`offset`); use
 `GET trace?trace_id=<id>` for one complete native trace. Sensitive run/span/trace
 identities are rejected with 422 before storage, rather than redacted into colliding keys.
+
+Registry, audit and compliance reads also accept `limit` (default 20, maximum
+100) and `offset`. Audit pages report `has_more`; compliance export bounds each
+collection independently and marks `consistent_snapshot: false`. These are live
+pages, not a point-in-time database snapshot; concurrent writes can change page
+membership. Use an operator-managed stopped-service database backup for an exact
+full inventory. SDK metadata reads default to at most 100 records too.
 
 Other project routes: `GET traces`, `GET trace`, `GET/POST registry`, `POST gate`,
 `POST retention/prune`, `GET audit`, and `GET compliance`. Send

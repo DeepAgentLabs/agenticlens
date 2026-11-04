@@ -143,11 +143,20 @@ class EnterpriseStore:
             )
             self._audit(conn, project, subject, "registry.register", body)
 
-    def registry(self, project: Project) -> list[RegistryEntry]:
+    @staticmethod
+    def _page(limit: int, offset: int) -> None:
+        if not 1 <= limit <= 100 or offset < 0:
+            raise ValueError("Use a page size from 1 to 100 and a nonnegative offset")
+
+    def registry(
+        self, project: Project, *, limit: int = 100, offset: int = 0
+    ) -> list[RegistryEntry]:
+        self._page(limit, offset)
         with closing(self._connect()) as conn:
             rows = conn.execute(
-                "SELECT body FROM registry WHERE project=? ORDER BY kind,name,version",
-                (project.key,),
+                "SELECT body FROM registry WHERE project=? "
+                "ORDER BY kind,name,version LIMIT ? OFFSET ?",
+                (project.key, limit, offset),
             ).fetchall()
         return [RegistryEntry.model_validate_json(row[0]) for row in rows]
 
@@ -155,27 +164,34 @@ class EnterpriseStore:
         with closing(self._connect()) as conn, conn:
             self._audit(conn, project, subject, action, body)
 
-    def export_audit(self, project: Project) -> dict[str, Any]:
+    def export_audit(
+        self, project: Project, *, limit: int = 100, offset: int = 0
+    ) -> dict[str, Any]:
+        self._page(limit, offset)
         with closing(self._connect()) as conn:
             rows = conn.execute(
                 "SELECT sequence,at,subject,action,object_digest FROM audit "
-                "WHERE project=? ORDER BY sequence",
-                (project.key,),
+                "WHERE project=? ORDER BY sequence LIMIT ? OFFSET ?",
+                (project.key, limit + 1, offset),
             ).fetchall()
         return {
             "schema_version": "lens.enterprise.audit/1-candidate",
             "project": project.key,
             "integrity": "not_verified",
+            "page": {"limit": limit, "offset": offset, "has_more": len(rows) > limit},
             "records": [
                 dict(
                     zip(("sequence", "at", "subject", "action", "object_digest"), row, strict=True)
                 )
-                for row in rows
+                for row in rows[:limit]
             ],
         }
 
-    def compliance_export(self, project: Project, policy: StoragePolicy) -> dict[str, Any]:
+    def compliance_export(
+        self, project: Project, policy: StoragePolicy, *, limit: int = 100, offset: int = 0
+    ) -> dict[str, Any]:
         """Metadata-only inventory, not a compliance certification or native evidence export."""
+        self._page(limit, offset)
         cutoff = (datetime.now(timezone.utc) - timedelta(days=policy.max_age_days)).isoformat()
         with closing(self._connect()) as conn:
             # Stream bodies rather than materializing every captured payload together.
@@ -183,8 +199,8 @@ class EnterpriseStore:
                 digest(row[0])
                 for row in conn.execute(
                     "SELECT body FROM project_traces WHERE project=? AND received>=? "
-                    "ORDER BY received DESC, trace_id LIMIT ?",
-                    (project.key, cutoff, policy.max_traces),
+                    "ORDER BY received DESC, trace_id LIMIT ? OFFSET ?",
+                    (project.key, cutoff, min(limit, max(0, policy.max_traces - offset)), offset),
                 )
             ]
         return {
@@ -192,7 +208,10 @@ class EnterpriseStore:
             "project": project.key,
             "policy": policy.model_dump(),
             "trace_digests": trace_digests,
-            "registry": [entry.model_dump() for entry in self.registry(project)],
-            "audit": self.export_audit(project),
+            "registry": [
+                entry.model_dump() for entry in self.registry(project, limit=limit, offset=offset)
+            ],
+            "audit": self.export_audit(project, limit=limit, offset=offset),
+            "page": {"limit": limit, "offset": offset, "consistent_snapshot": False},
             "certification": "not_assessed",
         }
