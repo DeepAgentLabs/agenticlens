@@ -4,6 +4,7 @@ The database is a trusted local boundary, not a signed or externally checkpointe
 """
 
 import sqlite3
+from collections.abc import Iterator
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -58,6 +59,11 @@ class EnterpriseStore:
         return old + excess
 
     def put_run(self, project: Project, subject: str, run: Run, policy: StoragePolicy) -> None:
+        identities = [run.run_id, run.trace_id]
+        identities.extend(span.span_id for span in run.spans)
+        identities.extend(span.parent_span_id for span in run.spans if span.parent_span_id)
+        if any(redact_sensitive(value) != value for value in identities):
+            raise ValueError("Trace identities must not contain sensitive strings")
         # Validate after redaction as well: sanitization must not bypass native validation.
         data = run.model_dump(mode="json")
         data["metadata"] = redact_sensitive(data["metadata"])
@@ -83,16 +89,35 @@ class EnterpriseStore:
             if removed:
                 self._audit(conn, project, subject, "retention.prune", str(removed))
 
-    def runs(self, project: Project, policy: StoragePolicy) -> list[Run]:
+    def iter_runs(
+        self, project: Project, policy: StoragePolicy, *, limit: int = 20, offset: int = 0
+    ) -> Iterator[Run]:
+        if not 1 <= limit <= 20 or offset < 0:
+            raise ValueError("Use a page size from 1 to 20 and a nonnegative offset")
         # Expired records are invisible even if the scheduled purge has not run.
         cutoff = (datetime.now(timezone.utc) - timedelta(days=policy.max_age_days)).isoformat()
         with closing(self._connect()) as conn:
             rows = conn.execute(
                 "SELECT body FROM project_traces WHERE project=? AND received>=? "
-                "ORDER BY received DESC, trace_id LIMIT ?",
-                (project.key, cutoff, policy.max_traces),
-            ).fetchall()
-        return [Run.model_validate_json(row[0]) for row in rows]
+                "ORDER BY received DESC, trace_id LIMIT ? OFFSET ?",
+                (project.key, cutoff, min(limit, max(0, policy.max_traces - offset)), offset),
+            )
+            for row in rows:
+                yield Run.model_validate_json(row[0])
+
+    def runs(
+        self, project: Project, policy: StoragePolicy, *, limit: int = 20, offset: int = 0
+    ) -> list[Run]:
+        return list(self.iter_runs(project, policy, limit=limit, offset=offset))
+
+    def get_run(self, project: Project, trace_id: str, policy: StoragePolicy) -> Run | None:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=policy.max_age_days)).isoformat()
+        with closing(self._connect()) as conn:
+            row = conn.execute(
+                "SELECT body FROM project_traces WHERE project=? AND trace_id=? AND received>=?",
+                (project.key, trace_id, cutoff),
+            ).fetchone()
+        return Run.model_validate_json(row[0]) if row is not None else None
 
     def prune(self, project: Project, subject: str, policy: StoragePolicy) -> int:
         with closing(self._connect()) as conn, conn:
@@ -151,11 +176,22 @@ class EnterpriseStore:
 
     def compliance_export(self, project: Project, policy: StoragePolicy) -> dict[str, Any]:
         """Metadata-only inventory, not a compliance certification or native evidence export."""
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=policy.max_age_days)).isoformat()
+        with closing(self._connect()) as conn:
+            # Stream bodies rather than materializing every captured payload together.
+            trace_digests = [
+                digest(row[0])
+                for row in conn.execute(
+                    "SELECT body FROM project_traces WHERE project=? AND received>=? "
+                    "ORDER BY received DESC, trace_id LIMIT ?",
+                    (project.key, cutoff, policy.max_traces),
+                )
+            ]
         return {
             "schema_version": "lens.enterprise.compliance/1-candidate",
             "project": project.key,
             "policy": policy.model_dump(),
-            "trace_digests": [digest(run.model_dump_json()) for run in self.runs(project, policy)],
+            "trace_digests": trace_digests,
             "registry": [entry.model_dump() for entry in self.registry(project)],
             "audit": self.export_audit(project),
             "certification": "not_assessed",

@@ -56,7 +56,11 @@ artifact request at 2 MiB, including chunked requests. It accepts native Run JSO
 not OTLP, at `POST /v1/organizations/demo/projects/support/traces`. Each POST
 replaces that project's trace ID; this endpoint does not merge OTLP batches.
 
-Other project routes: `GET traces`, `GET/POST registry`, `POST gate`,
+Lists return summaries in pages of at most 20 (`limit`/`offset`); use
+`GET trace?trace_id=<id>` for one complete native trace. Sensitive run/span/trace
+identities are rejected with 422 before storage, rather than redacted into colliding keys.
+
+Other project routes: `GET traces`, `GET trace`, `GET/POST registry`, `POST gate`,
 `POST retention/prune`, `GET audit`, and `GET compliance`. Send
 `Authorization: Bearer <token>` on every request. Registries accept only kind
 (`model` or `prompt`), name, version and content SHA-256. Re-registering identical

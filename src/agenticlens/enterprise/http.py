@@ -6,7 +6,7 @@ from collections.abc import Callable, Sequence
 from typing import Annotated, Any
 
 from agentic_evals import EvaluationReport, GateConfig
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, ValidationError
 
 from agenticlens.enterprise.gates import release_receipt
@@ -90,13 +90,41 @@ def create_enterprise_app(
         request: Request, principal: Annotated[Credential, Depends(writer)]
     ) -> dict[str, str]:
         run = Run.model_validate(await _body(request, Run))
-        store.put_run(principal.project, principal.subject, run, retention)
+        try:
+            store.put_run(principal.project, principal.subject, run, retention)
+        except ValueError as exc:
+            raise HTTPException(422, "Invalid trace identity or redacted artifact") from exc
         return {"status": "stored"}
 
     @app.get(base + "/traces")
-    def traces(principal: Annotated[Credential, Depends(reader)]) -> list[dict[str, Any]]:
+    def traces(
+        principal: Annotated[Credential, Depends(reader)],
+        limit: Annotated[int, Query(ge=1, le=20)] = 20,
+        offset: Annotated[int, Query(ge=0)] = 0,
+    ) -> list[dict[str, Any]]:
         store.record(principal.project, principal.subject, "trace.read", "list")
-        return [run.model_dump(mode="json") for run in store.runs(principal.project, retention)]
+        return [
+            {
+                "trace_id": run.trace_id,
+                "run_id": run.run_id,
+                "application_name": run.application_name,
+                "status": run.status.value,
+                "span_count": len(run.spans),
+                "total_tokens": run.total_tokens,
+            }
+            for run in store.iter_runs(principal.project, retention, limit=limit, offset=offset)
+        ]
+
+    @app.get(base + "/trace")
+    def trace(
+        principal: Annotated[Credential, Depends(reader)],
+        trace_id: str,
+    ) -> dict[str, Any]:
+        run = store.get_run(principal.project, trace_id, retention)
+        if run is None:
+            raise HTTPException(404, "Trace not found")
+        store.record(principal.project, principal.subject, "trace.read", digest(trace_id))
+        return run.model_dump(mode="json")
 
     @app.post(base + "/registry")
     async def register(

@@ -60,8 +60,9 @@ def test_redaction_before_storage_and_export(service):
         BASE + "/traces", json=run.model_dump(mode="json"), headers=headers("writer")
     )
     assert response.status_code == 200
-    listed = client.get(BASE + "/traces", headers=headers("reader"))
-    assert listed.json()[0]["metadata"] == {"email": "[REDACTED_EMAIL]", "api_key": "[REDACTED]"}
+    assert client.get(
+        BASE + "/trace", params={"trace_id": run.trace_id}, headers=headers("reader")
+    ).json()["metadata"] == {"email": "[REDACTED_EMAIL]", "api_key": "[REDACTED]"}
     exported = client.get(BASE + "/compliance", headers=headers()).json()
     assert exported["audit"]["integrity"] == "not_verified"
     assert exported["certification"] == "not_assessed"
@@ -279,3 +280,39 @@ def test_failed_gate_is_not_silently_approved(service):
     assert result.status_code == 200
     assert result.json()["decision"]["passed"] is False
     assert result.json()["decision"]["reasons"]
+
+
+def test_sensitive_identity_is_rejected_without_overwriting(service):
+    store, client = service
+    for identifier in ("alice@example.com", "bob@example.com"):
+        run = Run(application_name="test", trace_id=identifier)
+        result = client.post(BASE + "/traces", json=run.model_dump(mode="json"), headers=headers())
+        assert result.status_code == 422
+        assert identifier not in result.text
+    assert store.runs(PROJECT, StoragePolicy()) == []
+
+
+def test_bounded_summary_pages_and_scoped_detail(service):
+    store, client = service
+    for i in range(25):
+        store.put_run(
+            PROJECT,
+            "ci",
+            Run(trace_id=str(i), application_name="test", metadata={"payload": "x" * 10000}),
+            StoragePolicy(),
+        )
+    first = client.get(BASE + "/traces", headers=headers()).json()
+    second = client.get(BASE + "/traces?offset=20", headers=headers()).json()
+    assert len(first) == 20 and len(second) == 5
+    assert "metadata" not in first[0]
+    assert not {r["trace_id"] for r in first} & {r["trace_id"] for r in second}
+    assert client.get(BASE + "/traces?limit=21", headers=headers()).status_code == 422
+    assert client.get(BASE + "/trace?trace_id=0", headers=headers()).status_code == 200
+    assert client.get(BASE + "/trace?trace_id=missing", headers=headers()).status_code == 404
+    assert (
+        client.get(
+            BASE.replace("support", "other") + "/trace?trace_id=0", headers=headers()
+        ).status_code
+        == 403
+    )
+    assert len(store.compliance_export(PROJECT, StoragePolicy())["trace_digests"]) == 25
