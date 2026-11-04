@@ -283,3 +283,12 @@ See [compatibility, operator example and dependency boundaries](docs/tower-0.10-
 Lens 0.13.0 continues reading native Chaos reports and caller-created span markers. Instrument target spans explicitly; recipe names do not establish ground truth for quality or containment. Chaos's existing optional Lens range admits Lens 0.13.0; Lens core has no
 Chaos dependency and no Lens release is needed.
 See [the compatibility guide and offline operator example](docs/chaos-0.11-chaoshub.md).
+
+
+## MCP 0.7 readiness alignment — 2026-11-04
+
+Documentation aligned with MCP 0.7.0's local readiness milestone and released
+sibling acceptance matrix. See [the integration note](docs/mcp-0.7-readiness.md).
+This does not close this project's independent production/stability gates or
+AIOS review gates. Native schemas and optional dependency ranges are unchanged;
+no package release is needed for this documentation-only alignment.
