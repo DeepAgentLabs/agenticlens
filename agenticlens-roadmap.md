@@ -1459,3 +1459,7 @@ AIOS v0.7.0 adds cumulative-layer migration guidance, a non-normative OTel
 companion profile and strict documentation publication. Lens exports, native
 traces and existing OTLP/HTTP behavior remain unchanged; no dependency bump
 or patch release is needed. See [compatibility and offline checks](docs/aios-0.7.0.md).
+
+## Evals 0.12 candidate compatibility
+
+See [compatibility and the unchanged report contract](docs/evals-0.12.md).

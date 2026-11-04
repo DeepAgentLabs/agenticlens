@@ -247,3 +247,9 @@ AIOS v0.7.0 publishes cumulative-layer migration guidance, a non-normative
 OpenTelemetry companion profile and a strict documentation site build.
 Existing draft markers, native evidence and runtime dependencies are unchanged;
 no package patch release is needed. See [compatibility and offline example](docs/aios-0.7.0.md).
+
+## Evals 0.12 readiness compatibility
+
+See [the candidate API, unchanged native schema and support matrix](docs/evals-0.12.md).
+Existing compatible dependency ranges remain sufficient; coordinated ecosystem
+v1.0 acceptance remains open.
