@@ -17,9 +17,11 @@ The `agentic-evals>=1.0,<2` matrix and coordinated ecosystem release-candidate
 acceptance gates remain open until that launch. No independent stable API or
 AIOS conformance is claimed.
 
-For an offline producer example, run in the Evals checkout:
+For an offline producer example, run in a clean Evals checkout at the released tag:
 
 ```bash
+git clone --branch v0.12.0 --depth 1 https://github.com/DeepAgentLabs/agentic-evals.git evals-0.12
+cd evals-0.12
 uv sync --extra dev
 uv run python examples/report-contract/generate.py
 uv run pytest tests/test_public_api.py tests/test_report_contract.py --no-cov
