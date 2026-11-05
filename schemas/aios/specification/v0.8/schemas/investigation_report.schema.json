@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/investigation_report.schema.json",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "artifact_type",
+    "id",
+    "created_at",
+    "producer",
+    "incident",
+    "summary",
+    "evidence",
+    "timeline_entries",
+    "findings",
+    "missing_evidence_items",
+    "recovery",
+    "source"
+  ],
+  "properties": {
+    "spec_version": {
+      "const": "0.8-draft"
+    },
+    "artifact_type": {
+      "const": "investigation_report"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/producer"
+    },
+    "incident": {
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "native_state",
+        "detected_at",
+        "affected_targets"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "open",
+            "investigating",
+            "resolved",
+            "escalated",
+            "unknown"
+          ]
+        },
+        "native_state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "affected_targets": {
+          "type": "array",
+          "items": {
+            "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "statement",
+        "certainty",
+        "evidence_ids"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "certainty": {
+          "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/certainty"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "timeline_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "occurred_at",
+          "evidence_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "certainty",
+          "evidence_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certainty": {
+            "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/certainty"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 0,
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "missing_evidence_items": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "recovery": {
+      "type": "object",
+      "required": [
+        "status",
+        "evidence_ids"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_attempted",
+            "pending",
+            "verified",
+            "failed",
+            "unknown"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "attributes": {
+      "type": "object"
+    },
+    "extensions": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/extensions"
+    },
+    "source": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+    }
+  },
+  "additionalProperties": false
+}
