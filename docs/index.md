@@ -112,6 +112,7 @@ local, inspectable, and exportable so teams can compare workflows across version
 - [AIOS v0.6 examples and extensions](aios-v0.6.md)
 - [AIOS v0.6.1 provenance and conformance suite](aios-0.6.1.md)
 - [AIOS v0.7.0 implementation guidance](aios-0.7.0.md)
+- [AIOS v0.8.0 operational artifacts](aios-0.8-operational-artifacts.md)
 - [AIOS validation and OTel export](aios-validation-and-otel.md)
 - [Export formats](export-formats.md)
 - [RAG chunk utility](rag-chunk-utility.md)

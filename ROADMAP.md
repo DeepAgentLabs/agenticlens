@@ -292,3 +292,10 @@ sibling acceptance matrix. See [the integration note](docs/mcp-0.7-readiness.md)
 This does not close this project's independent production/stability gates or
 AIOS review gates. Native schemas and optional dependency ranges are unchanged;
 no package release is needed for this documentation-only alignment.
+
+## AIOS 0.8.0 operational artifacts
+
+See [the compatibility and adoption guide](docs/aios-0.8-operational-artifacts.md)
+for the new exploratory verification, audit and investigation companions.
+Existing native contracts and supported AIOS markers are unchanged. This is
+optional adoption guidance; no runtime dependency or patch release is required.
