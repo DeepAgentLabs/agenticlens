@@ -1,0 +1,84 @@
+{
+  "spec_version": "0.4-draft",
+  "artifact_type": "run",
+  "id": "run-retry",
+  "started_at": "2026-10-19T12:00:00Z",
+  "status": "completed",
+  "requests": [],
+  "steps": [
+    {
+      "id": "step-tool",
+      "category": "tool"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "contains-tool",
+      "type": "contains",
+      "source": {
+        "id": "run-retry",
+        "type": "run"
+      },
+      "target": {
+        "id": "step-tool",
+        "type": "step"
+      }
+    },
+    {
+      "id": "observed-1",
+      "type": "observed-in",
+      "source": {
+        "id": "tool-1",
+        "type": "tool_invocation"
+      },
+      "target": {
+        "id": "step-tool",
+        "type": "step"
+      }
+    },
+    {
+      "id": "observed-2",
+      "type": "observed-in",
+      "source": {
+        "id": "tool-2",
+        "type": "tool_invocation"
+      },
+      "target": {
+        "id": "step-tool",
+        "type": "step"
+      }
+    },
+    {
+      "id": "retry-order",
+      "type": "follows",
+      "source": {
+        "id": "tool-1",
+        "type": "tool_invocation"
+      },
+      "target": {
+        "id": "tool-2",
+        "type": "tool_invocation"
+      }
+    }
+  ],
+  "occurrences": [
+    {
+      "id": "tool-1",
+      "type": "tool_invocation",
+      "status": "failed",
+      "attributes": {
+        "attempt": 1,
+        "logical_activity_id": "lookup"
+      }
+    },
+    {
+      "id": "tool-2",
+      "type": "tool_invocation",
+      "status": "completed",
+      "attributes": {
+        "attempt": 2,
+        "logical_activity_id": "lookup"
+      }
+    }
+  ]
+}

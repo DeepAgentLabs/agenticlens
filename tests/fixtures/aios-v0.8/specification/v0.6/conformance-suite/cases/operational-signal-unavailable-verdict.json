@@ -1,0 +1,46 @@
+{
+  "spec_version": "0.8-draft",
+  "artifact_type": "verification_signal",
+  "id": "verification-unavailable",
+  "created_at": "2026-11-04T18:05:00Z",
+  "producer": {
+    "name": "aios-example-projector",
+    "version": "0.8.0"
+  },
+  "subject": {
+    "id": "judged-output",
+    "producer": "agenticlens",
+    "artifact_id": "run-support",
+    "format": "0.4-draft",
+    "object_id": "model-output-1"
+  },
+  "method": {
+    "kind": "model",
+    "name": "grounding-review",
+    "version": "1"
+  },
+  "status": "unavailable",
+  "verdict": "supports",
+  "confidence": null,
+  "rationale": "The judge was unavailable; no result was produced.",
+  "evidence": [],
+  "grounding": {
+    "status": "not_checked",
+    "unsupported_claims": [],
+    "missed_evidence_items": []
+  },
+  "safety": {
+    "status": "not_checked",
+    "concerns": []
+  },
+  "native_outcome": {
+    "format": "agentic-evals.judge_status",
+    "value": "unavailable"
+  },
+  "source": {
+    "id": "native-judge-attempt",
+    "producer": "agentic-evals",
+    "artifact_id": "judge-attempt-example",
+    "format": "agentic-evals.judge_status"
+  }
+}

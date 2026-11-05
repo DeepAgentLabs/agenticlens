@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/ai-operations-spec/v0.4/run.schema.json",
+  "title": "AI Operations Run Artifact",
+  "type": "object",
+  "required": ["spec_version", "artifact_type", "id", "started_at", "status", "requests", "steps", "relationships"],
+  "properties": {
+    "spec_version": {"const": "0.4-draft"}, "artifact_type": {"const": "run"},
+    "id": {"$ref": "common.schema.json#/$defs/id"}, "workflow_id": {"$ref": "common.schema.json#/$defs/id"},
+    "started_at": {"$ref": "common.schema.json#/$defs/time"}, "ended_at": {"$ref": "common.schema.json#/$defs/time"},
+    "status": {"enum": ["created", "running", "completed", "failed", "cancelled"]},
+    "requests": {"type": "array", "items": {"$ref": "#/$defs/object"}},
+    "steps": {"type": "array", "items": {"$ref": "#/$defs/step"}},
+    "agents": {"type": "array", "items": {"$ref": "#/$defs/object"}},
+    "occurrences": {"type": "array", "items": {"$ref": "#/$defs/occurrence"}},
+    "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+    "incidents": {"type": "array", "items": {"$ref": "#/$defs/object"}},
+    "relationships": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/relationship"}},
+    "events": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/event"}},
+    "measurements": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/measurement"}},
+    "extensions": {"$ref": "common.schema.json#/$defs/extensions"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "object": {
+      "type": "object", "required": ["id"],
+      "properties": {"id": {"$ref": "common.schema.json#/$defs/id"}, "name": {"type": "string"}, "status": {"type": "string"}, "attributes": {"type": "object"}, "extensions": {"$ref": "common.schema.json#/$defs/extensions"}},
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object", "required": ["id", "category"],
+      "properties": {"id": {"$ref": "common.schema.json#/$defs/id"}, "category": {"type": "string", "minLength": 1}, "name": {"type": "string"}, "status": {"type": "string"}, "started_at": {"$ref": "common.schema.json#/$defs/time"}, "ended_at": {"$ref": "common.schema.json#/$defs/time"}, "attributes": {"type": "object"}, "extensions": {"$ref": "common.schema.json#/$defs/extensions"}},
+      "additionalProperties": false
+    },
+    "occurrence": {
+      "type": "object", "required": ["id", "type"],
+      "properties": {"id": {"$ref": "common.schema.json#/$defs/id"}, "type": {"enum": ["model_interaction", "prompt", "context", "tool_invocation", "rag_retrieval", "memory_operation"]}, "name": {"type": "string"}, "status": {"type": "string"}, "attributes": {"type": "object"}, "extensions": {"$ref": "common.schema.json#/$defs/extensions"}},
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object", "required": ["id", "type"],
+      "properties": {"id": {"$ref": "common.schema.json#/$defs/id"}, "type": {"enum": ["evaluation", "safety_signal", "reliability_event"]}, "name": {"type": "string"}, "status": {"type": "string"}, "attributes": {"type": "object"}, "extensions": {"$ref": "common.schema.json#/$defs/extensions"}},
+      "additionalProperties": false
+    }
+  }
+}

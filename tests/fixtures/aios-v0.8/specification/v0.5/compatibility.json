@@ -1,0 +1,84 @@
+{
+  "$comment": "Machine-readable mirror of specification/v0.5/versioning.md. The Markdown document is normative; this catalog gives consumers the version-marker grammar, the schema set behind each published marker (with the artifact types it validates and any marker whose shared definitions it reuses), and stable identifiers for each row of the consumer compatibility table. tests/test_conformance_catalogs.py keeps the two in sync.",
+  "source": "specification/v0.5/versioning.md",
+  "spec_version_pattern": "^(0\\.[1-9][0-9]*|[1-9][0-9]*\\.(0|[1-9][0-9]*))(-draft)?$",
+  "published_schema_sets": {
+    "0.4-draft": {
+      "schema_directory": "specification/v0.4/schemas",
+      "conformance_rules": "specification/v0.4/conformance-rules.json",
+      "frozen": false,
+      "artifact_types": [
+        "workflow",
+        "run"
+      ]
+    },
+    "0.6-draft": {
+      "schema_directory": "specification/v0.6/schemas",
+      "conformance_rules": "specification/v0.6/provenance-rules.json",
+      "frozen": false,
+      "artifact_types": [
+        "provenance"
+      ],
+      "depends_on": [
+        "0.4-draft"
+      ]
+    },
+    "0.8-draft": {
+      "schema_directory": "specification/v0.8/schemas",
+      "conformance_rules": "specification/v0.8/operational-rules.json",
+      "frozen": false,
+      "artifact_types": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "depends_on": [
+        "0.4-draft"
+      ]
+    }
+  },
+  "consumer_rules": [
+    {
+      "id": "AIOS-0.5-V01",
+      "producer": "Same exact frozen marker (e.g. both 1.0)",
+      "consumer": "supports that marker",
+      "decision": "accept",
+      "requirement": "MUST process normally and MAY claim conformance."
+    },
+    {
+      "id": "AIOS-0.5-V02",
+      "producer": "Same exact -draft marker",
+      "consumer": "supports that marker",
+      "decision": "accept_informal",
+      "requirement": "MAY process informally, MUST NOT claim stable conformance, SHOULD cite the observation date or snapshot tag of both sides."
+    },
+    {
+      "id": "AIOS-0.5-V03",
+      "producer": "Different -draft markers (same or different MAJOR.MINOR)",
+      "consumer": "either side",
+      "decision": "validate_against_declared_schema",
+      "requirement": "MUST NOT assume compatibility; MUST validate against the schema the artifact's own spec_version names; MUST reject if no matching schema is available rather than falling back to a different draft's schema."
+    },
+    {
+      "id": "AIOS-0.5-V04",
+      "producer": "Newer frozen MINOR, same MAJOR",
+      "consumer": "consumer supports an older MINOR in that MAJOR",
+      "decision": "accept_extension_only",
+      "requirement": "MAY accept the artifact only if it ignores content solely through the open extension points (attributes, extensions); MUST reject if schema validation against the artifact's own declared spec_version fails, and MUST NOT retry validation against its own older schema and call the result conformant."
+    },
+    {
+      "id": "AIOS-0.5-V05",
+      "producer": "Newer MAJOR",
+      "consumer": "any consumer",
+      "decision": "reject",
+      "requirement": "MUST reject unless it implements that MAJOR's schema explicitly; MUST NOT guess at partial compatibility."
+    },
+    {
+      "id": "AIOS-0.5-V06",
+      "producer": "Older frozen MINOR, same MAJOR",
+      "consumer": "consumer supports a newer MINOR and retains the older schema",
+      "decision": "accept_as_older",
+      "requirement": "MAY accept the older artifact, but MUST NOT describe it as conforming to the newer MINOR it also supports."
+    }
+  ]
+}
