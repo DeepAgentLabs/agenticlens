@@ -8,6 +8,9 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## 1.0.0 - 2026-11-05
 
+Release tag: `v1.0.0-ecosystem`. The historical July `v1.0.0` tag points to
+package 0.1.2 and is preserved; this is the coordinated PyPI 1.0.0 milestone.
+
 ### Changed
 
 - Mark the coordinated DeepAgentLabs 1.0.0 milestone; ongoing feature and
