@@ -6,6 +6,18 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 0.14.0 - 2026-11-04
+
+### Added
+
+- Validate the full pinned AIOS 0.4/0.6/0.8 draft suite, including provenance resolution, entirely offline from bundled schemas.
+- Export structured native judge scores as privacy-preserving 0.8-draft verification signals.
+- Route by the declared marker by default, retain explicit version assertions and prevent schema-only checks from claiming semantic alignment.
+- Correct Workflow external-reference, global identity, retry and rule-citation checks; add portable-suite and native-export negative controls.
+
+Independent review, live/deployment acceptance and the coordinated v1.0 freeze remain open.
+
+
 ## 0.13.0 - 2026-11-04
 
 ### Added
