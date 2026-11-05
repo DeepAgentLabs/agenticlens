@@ -1,0 +1,720 @@
+{
+  "$comment": "Portable AIOS conformance suite. See README.md for the expected validator behavior. Paths are relative to this file.",
+  "snapshot": "v0.8.0",
+  "outcomes": {
+    "valid": "Schema-valid and semantically valid for the schema set its spec_version names.",
+    "schema-invalid": "Fails JSON Schema validation against the schema set its spec_version names.",
+    "semantic-invalid": "Schema-valid but violates at least one semantic rule.",
+    "unsupported": "No published schema set validates this spec_version and artifact_type; reject without falling back to another marker."
+  },
+  "cases": [
+    {
+      "id": "run-valid-advanced",
+      "path": "cases/run-valid-advanced.json",
+      "description": "Advanced support Run with retrieval, model, evaluation, external Workflow and extension event",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "run-valid-retry",
+      "path": "cases/run-valid-retry.json",
+      "description": "Failed and successful attempts linked by an ordering edge",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "workflow-valid-minimal",
+      "path": "cases/workflow-valid-minimal.json",
+      "description": "Minimal Workflow definition",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "workflow-valid-external-reference",
+      "path": "cases/workflow-valid-external-reference.json",
+      "description": "Workflow reference marked external",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "run-p01-missing-status",
+      "path": "cases/run-p01-missing-status.json",
+      "description": "Required Run field absent",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.4-P01"
+      ]
+    },
+    {
+      "id": "run-u02-unknown-relationship-type",
+      "path": "cases/run-u02-unknown-relationship-type.json",
+      "description": "Relationship type outside the closed vocabulary (also AIOS-0.4-U01 and AIOS-0.4-U02)",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.4-P01"
+      ]
+    },
+    {
+      "id": "run-e01-reserved-extension",
+      "path": "cases/run-e01-reserved-extension.json",
+      "description": "Producer extension under the reserved aiops namespace (also AIOS-0.4-E01)",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.4-P01"
+      ]
+    },
+    {
+      "id": "run-p01-unknown-top-level-field",
+      "path": "cases/run-p01-unknown-top-level-field.json",
+      "description": "Provenance cannot be added to a 0.4-draft Run as a new field",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.4-P01"
+      ]
+    },
+    {
+      "id": "workflow-p01-missing-name",
+      "path": "cases/workflow-p01-missing-name.json",
+      "description": "Required Workflow field absent",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.4-P01"
+      ]
+    },
+    {
+      "id": "run-p02-duplicate-object-id",
+      "path": "cases/run-p02-duplicate-object-id.json",
+      "description": "Two objects share one identity",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P02"
+      ]
+    },
+    {
+      "id": "run-p03-duplicate-event-id",
+      "path": "cases/run-p03-duplicate-event-id.json",
+      "description": "Two events share one identity",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P03"
+      ]
+    },
+    {
+      "id": "run-p04-run-ends-before-start",
+      "path": "cases/run-p04-run-ends-before-start.json",
+      "description": "Run ended_at precedes started_at",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P04"
+      ]
+    },
+    {
+      "id": "run-p04-step-ends-before-start",
+      "path": "cases/run-p04-step-ends-before-start.json",
+      "description": "Step ended_at precedes started_at",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P04"
+      ]
+    },
+    {
+      "id": "run-p05-wrong-endpoint-type",
+      "path": "cases/run-p05-wrong-endpoint-type.json",
+      "description": "Relationship endpoint declares the wrong object type",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P05"
+      ]
+    },
+    {
+      "id": "run-p05-x01-missing-endpoint",
+      "path": "cases/run-p05-x01-missing-endpoint.json",
+      "description": "Endpoint is neither in the artifact nor marked external",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P05",
+        "AIOS-0.4-X01"
+      ]
+    },
+    {
+      "id": "run-p06-uncontained-step",
+      "path": "cases/run-p06-uncontained-step.json",
+      "description": "Step not contained by its Run",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P06"
+      ]
+    },
+    {
+      "id": "run-p07-unobserved-occurrence",
+      "path": "cases/run-p07-unobserved-occurrence.json",
+      "description": "Occurrence not observed in any Step",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P07"
+      ]
+    },
+    {
+      "id": "run-p08-untargeted-evaluation",
+      "path": "cases/run-p08-untargeted-evaluation.json",
+      "description": "Evaluation without an evaluates target",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P08"
+      ]
+    },
+    {
+      "id": "run-p09-unsupported-workflow-id",
+      "path": "cases/run-p09-unsupported-workflow-id.json",
+      "description": "workflow_id without a run-of relationship",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P09"
+      ]
+    },
+    {
+      "id": "run-p10-mistyped-event-target",
+      "path": "cases/run-p10-mistyped-event-target.json",
+      "description": "Event declares the wrong target type",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P10"
+      ]
+    },
+    {
+      "id": "run-p11-dependency-cycle",
+      "path": "cases/run-p11-dependency-cycle.json",
+      "description": "Causal/ordering graph contains a cycle",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P11"
+      ]
+    },
+    {
+      "id": "run-p12-unlinked-retry",
+      "path": "cases/run-p12-unlinked-retry.json",
+      "description": "Retry attempts without an explicit ordering edge",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-P12"
+      ]
+    },
+    {
+      "id": "workflow-x01-unmarked-reference",
+      "path": "cases/workflow-x01-unmarked-reference.json",
+      "description": "Workflow reference not marked external",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.4-X01"
+      ]
+    },
+    {
+      "id": "unsupported-unpublished-marker",
+      "path": "cases/unsupported-unpublished-marker.json",
+      "description": "No schema set is published for this marker",
+      "expected": "unsupported",
+      "rules": [
+        "AIOS-0.5-V03"
+      ]
+    },
+    {
+      "id": "unsupported-marker-artifact-mismatch",
+      "path": "cases/unsupported-marker-artifact-mismatch.json",
+      "description": "0.6-draft publishes no Run schema; no fallback to 0.4-draft",
+      "expected": "unsupported",
+      "rules": [
+        "AIOS-0.5-V03"
+      ]
+    },
+    {
+      "id": "provenance-valid-support-finding",
+      "path": "cases/provenance-valid-support-finding.json",
+      "description": "Canonical provenance record",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "provenance-valid-no-findings",
+      "path": "cases/provenance-valid-no-findings.json",
+      "description": "A record may describe sources before any finding exists",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "provenance-valid-supersedes",
+      "path": "cases/provenance-valid-supersedes.json",
+      "description": "A later finding contradicts and supersedes an earlier one",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "provenance-r01-unknown-source-kind",
+      "path": "cases/provenance-r01-unknown-source-kind.json",
+      "description": "Source kind outside the closed vocabulary",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.6-R01"
+      ]
+    },
+    {
+      "id": "provenance-r01-aios-object-without-object",
+      "path": "cases/provenance-r01-aios-object-without-object.json",
+      "description": "aios_object source without an object reference",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.6-R01"
+      ]
+    },
+    {
+      "id": "provenance-r01-external-object-reference",
+      "path": "cases/provenance-r01-external-object-reference.json",
+      "description": "aios_object reference marked external although it must be inside the subject",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.6-R01"
+      ]
+    },
+    {
+      "id": "provenance-r01-external-finding-target",
+      "path": "cases/provenance-r01-external-finding-target.json",
+      "description": "Finding target marked external although it must be inside the subject",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.6-R01"
+      ]
+    },
+    {
+      "id": "provenance-r01-short-digest",
+      "path": "cases/provenance-r01-short-digest.json",
+      "description": "sha-256 digest with the wrong length",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.6-R01"
+      ]
+    },
+    {
+      "id": "provenance-r02-duplicate-identity",
+      "path": "cases/provenance-r02-duplicate-identity.json",
+      "description": "Two lineage edges share one identity",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.6-R02"
+      ]
+    },
+    {
+      "id": "provenance-r03-undeclared-subject",
+      "path": "cases/provenance-r03-undeclared-subject.json",
+      "description": "Finding target names an undeclared subject",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.6-R03"
+      ]
+    },
+    {
+      "id": "provenance-r04-source-cannot-be-supported",
+      "path": "cases/provenance-r04-source-cannot-be-supported.json",
+      "description": "supports edge targets a source instead of a finding",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.6-R04"
+      ]
+    },
+    {
+      "id": "provenance-r05-finding-without-lineage",
+      "path": "cases/provenance-r05-finding-without-lineage.json",
+      "description": "Finding with no derived-from edge",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.6-R05"
+      ]
+    },
+    {
+      "id": "provenance-r06-derivation-cycle",
+      "path": "cases/provenance-r06-derivation-cycle.json",
+      "description": "Two findings derived from each other",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.6-R06"
+      ]
+    },
+    {
+      "id": "provenance-r07-captured-after-record",
+      "path": "cases/provenance-r07-captured-after-record.json",
+      "description": "Source captured after the record was created",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.6-R07"
+      ]
+    },
+    {
+      "id": "unsupported-provenance-under-0.4-draft",
+      "path": "cases/unsupported-provenance-under-0.4-draft.json",
+      "description": "0.4-draft publishes no provenance schema",
+      "expected": "unsupported",
+      "rules": [
+        "AIOS-0.5-V03"
+      ]
+    },
+    {
+      "id": "provenance-valid-unresolvable-references",
+      "path": "cases/provenance-valid-unresolvable-references.json",
+      "description": "Schema- and semantically valid record whose references do not resolve in the subject",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "operational-valid-signal",
+      "path": "cases/operational-valid-signal.json",
+      "description": "operational valid signal",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "operational-valid-unavailable",
+      "path": "cases/operational-valid-unavailable.json",
+      "description": "operational valid unavailable",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "operational-valid-audit",
+      "path": "cases/operational-valid-audit.json",
+      "description": "operational valid audit",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "operational-valid-investigation",
+      "path": "cases/operational-valid-investigation.json",
+      "description": "operational valid investigation",
+      "expected": "valid",
+      "rules": []
+    },
+    {
+      "id": "operational-signal-unavailable-verdict",
+      "path": "cases/operational-signal-unavailable-verdict.json",
+      "description": "operational signal unavailable verdict",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-signal-confidence-range",
+      "path": "cases/operational-signal-confidence-range.json",
+      "description": "operational signal confidence range",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-signal-unassessed-safety-concern",
+      "path": "cases/operational-signal-unassessed-safety-concern.json",
+      "description": "operational signal unassessed safety concern",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-signal-missing-native",
+      "path": "cases/operational-signal-missing-native.json",
+      "description": "operational signal missing native",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-audit-missing-actor-id",
+      "path": "cases/operational-audit-missing-actor-id.json",
+      "description": "operational audit missing actor id",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-audit-raw-arguments",
+      "path": "cases/operational-audit-raw-arguments.json",
+      "description": "operational audit raw arguments",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-audit-naive-time",
+      "path": "cases/operational-audit-naive-time.json",
+      "description": "operational audit naive time",
+      "expected": "schema-invalid",
+      "rules": [
+        "AIOS-0.8-R01"
+      ]
+    },
+    {
+      "id": "operational-signal-duplicate-evidence",
+      "path": "cases/operational-signal-duplicate-evidence.json",
+      "description": "operational signal duplicate evidence",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R02"
+      ]
+    },
+    {
+      "id": "operational-report-duplicate-entry",
+      "path": "cases/operational-report-duplicate-entry.json",
+      "description": "operational report duplicate entry",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R02"
+      ]
+    },
+    {
+      "id": "operational-report-undeclared-citation",
+      "path": "cases/operational-report-undeclared-citation.json",
+      "description": "operational report undeclared citation",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R03"
+      ]
+    },
+    {
+      "id": "operational-audit-future-occurrence",
+      "path": "cases/operational-audit-future-occurrence.json",
+      "description": "operational audit future occurrence",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R04"
+      ]
+    },
+    {
+      "id": "operational-report-future-detection",
+      "path": "cases/operational-report-future-detection.json",
+      "description": "operational report future detection",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R04"
+      ]
+    },
+    {
+      "id": "operational-report-future-timeline",
+      "path": "cases/operational-report-future-timeline.json",
+      "description": "operational report future timeline",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R04"
+      ]
+    },
+    {
+      "id": "operational-signal-grounding-without-evidence",
+      "path": "cases/operational-signal-grounding-without-evidence.json",
+      "description": "operational signal grounding without evidence",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R05"
+      ]
+    },
+    {
+      "id": "operational-report-observed-without-evidence",
+      "path": "cases/operational-report-observed-without-evidence.json",
+      "description": "operational report observed without evidence",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R06"
+      ]
+    },
+    {
+      "id": "operational-report-verified-without-evidence",
+      "path": "cases/operational-report-verified-without-evidence.json",
+      "description": "operational report verified without evidence",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R06"
+      ]
+    },
+    {
+      "id": "operational-audit-self-causation",
+      "path": "cases/operational-audit-self-causation.json",
+      "description": "operational audit self causation",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R07"
+      ]
+    },
+    {
+      "id": "operational-unsupported-old-marker",
+      "path": "cases/operational-unsupported-old-marker.json",
+      "description": "operational unsupported old marker",
+      "expected": "unsupported",
+      "rules": [
+        "AIOS-0.5-V03"
+      ]
+    },
+    {
+      "id": "operational-unsupported-run",
+      "path": "cases/operational-unsupported-run.json",
+      "description": "operational unsupported run",
+      "expected": "unsupported",
+      "rules": [
+        "AIOS-0.5-V03"
+      ]
+    },
+    {
+      "id": "operational-report-verified-undeclared-evidence",
+      "path": "cases/operational-report-verified-undeclared-evidence.json",
+      "description": "operational report verified undeclared evidence",
+      "expected": "semantic-invalid",
+      "rules": [
+        "AIOS-0.8-R03",
+        "AIOS-0.8-R06"
+      ]
+    },
+    {
+      "id": "operational-valid-lowercase-time",
+      "path": "cases/operational-valid-lowercase-time.json",
+      "description": "operational valid lowercase time",
+      "expected": "valid",
+      "rules": []
+    }
+  ],
+  "resolution_cases": [
+    {
+      "id": "resolve-all-verified",
+      "record": "cases/provenance-valid-support-finding.json",
+      "subjects": {
+        "subject-run": "subjects/advanced-support-run.json"
+      },
+      "description": "Subject available, valid, matching and byte-identical",
+      "rules": [
+        "AIOS-0.6-C02",
+        "AIOS-0.6-C03",
+        "AIOS-0.6-C05"
+      ],
+      "expected": {
+        "subjects": {
+          "subject-run": {
+            "available": true,
+            "valid": true,
+            "identity": "match",
+            "digest": "verified"
+          }
+        },
+        "references": {
+          "source-evaluation": "resolved",
+          "source-retrieval": "resolved",
+          "finding-grounded/targets/0": "resolved",
+          "finding-stale-source/targets/0": "resolved"
+        }
+      }
+    },
+    {
+      "id": "resolve-subject-unavailable",
+      "record": "cases/provenance-valid-support-finding.json",
+      "subjects": {},
+      "description": "No subject held: references stay unresolved and the digest unchecked",
+      "rules": [
+        "AIOS-0.6-C03",
+        "AIOS-0.6-C05"
+      ],
+      "expected": {
+        "subjects": {
+          "subject-run": {
+            "available": false,
+            "valid": null,
+            "identity": null,
+            "digest": "unchecked"
+          }
+        },
+        "references": {
+          "source-evaluation": "unresolved",
+          "source-retrieval": "unresolved",
+          "finding-grounded/targets/0": "unresolved",
+          "finding-stale-source/targets/0": "unresolved"
+        }
+      }
+    },
+    {
+      "id": "resolve-digest-mismatch",
+      "record": "cases/provenance-valid-support-finding.json",
+      "subjects": {
+        "subject-run": "subjects/advanced-support-run.reformatted.json"
+      },
+      "description": "Same JSON values, different bytes",
+      "rules": [
+        "AIOS-0.6-C05"
+      ],
+      "expected": {
+        "subjects": {
+          "subject-run": {
+            "available": true,
+            "valid": true,
+            "identity": "match",
+            "digest": "mismatch"
+          }
+        },
+        "references": {
+          "source-evaluation": "resolved",
+          "source-retrieval": "resolved",
+          "finding-grounded/targets/0": "resolved",
+          "finding-stale-source/targets/0": "resolved"
+        }
+      }
+    },
+    {
+      "id": "resolve-identity-mismatch",
+      "record": "cases/provenance-valid-support-finding.json",
+      "subjects": {
+        "subject-run": "subjects/other-run.json"
+      },
+      "description": "A different Run must not resolve the subject entry",
+      "rules": [
+        "AIOS-0.6-C04"
+      ],
+      "expected": {
+        "subjects": {
+          "subject-run": {
+            "available": true,
+            "valid": true,
+            "identity": "mismatch",
+            "digest": "mismatch"
+          }
+        },
+        "references": {
+          "source-evaluation": "unresolved",
+          "source-retrieval": "unresolved",
+          "finding-grounded/targets/0": "unresolved",
+          "finding-stale-source/targets/0": "unresolved"
+        }
+      }
+    },
+    {
+      "id": "resolve-missing-and-mistyped",
+      "record": "cases/provenance-valid-unresolvable-references.json",
+      "subjects": {
+        "subject-run": "subjects/advanced-support-run.json"
+      },
+      "description": "Object absent from the subject, and object present with another type",
+      "rules": [
+        "AIOS-0.6-C03"
+      ],
+      "expected": {
+        "subjects": {
+          "subject-run": {
+            "available": true,
+            "valid": true,
+            "identity": "match",
+            "digest": "verified"
+          }
+        },
+        "references": {
+          "source-evaluation": "missing",
+          "source-retrieval": "type_mismatch",
+          "finding-grounded/targets/0": "resolved",
+          "finding-stale-source/targets/0": "resolved"
+        }
+      }
+    }
+  ]
+}

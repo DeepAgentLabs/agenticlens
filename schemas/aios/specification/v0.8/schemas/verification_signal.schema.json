@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/verification_signal.schema.json",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "artifact_type",
+    "id",
+    "created_at",
+    "producer",
+    "subject",
+    "method",
+    "status",
+    "verdict",
+    "confidence",
+    "rationale",
+    "evidence",
+    "grounding",
+    "safety",
+    "native_outcome",
+    "source"
+  ],
+  "properties": {
+    "spec_version": {
+      "const": "0.8-draft"
+    },
+    "artifact_type": {
+      "const": "verification_signal"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/producer"
+    },
+    "subject": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+    },
+    "method": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/method"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "unavailable",
+        "error",
+        "skipped"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "supports",
+        "partially_supports",
+        "contradicts",
+        "inconclusive",
+        null
+      ]
+    },
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "grounding": {
+      "type": "object",
+      "required": [
+        "status",
+        "unsupported_claims",
+        "missed_evidence_items"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "grounded",
+            "partial",
+            "ungrounded",
+            "not_checked"
+          ]
+        },
+        "unsupported_claims": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        },
+        "missed_evidence_items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "status",
+        "concerns"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "concerns",
+            "no_concerns",
+            "not_checked"
+          ]
+        },
+        "concerns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "native_outcome": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/native_outcome"
+    },
+    "attributes": {
+      "type": "object"
+    },
+    "extensions": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/extensions"
+    },
+    "source": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "verdict": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "verdict": {
+            "type": "null"
+          },
+          "confidence": {
+            "type": "null"
+          },
+          "grounding": {
+            "properties": {
+              "status": {
+                "const": "not_checked"
+              },
+              "unsupported_claims": {
+                "maxItems": 0,
+                "type": "array"
+              },
+              "missed_evidence_items": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            }
+          },
+          "safety": {
+            "properties": {
+              "status": {
+                "const": "not_checked"
+              },
+              "concerns": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "safety": {
+            "properties": {
+              "status": {
+                "const": "concerns"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "safety": {
+            "properties": {
+              "concerns": {
+                "minItems": 1,
+                "type": "array"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "safety": {
+            "properties": {
+              "concerns": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "grounding": {
+            "properties": {
+              "status": {
+                "const": "grounded"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "grounding": {
+            "properties": {
+              "unsupported_claims": {
+                "maxItems": 0,
+                "type": "array"
+              },
+              "missed_evidence_items": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

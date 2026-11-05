@@ -1,6 +1,6 @@
 # Candidate public compatibility policy
 
-Applies to AgenticLens 0.13.x. This is a readiness policy, not a stable v1.0
+Applies to AgenticLens 0.14.x. This is a readiness policy, not a stable v1.0
 API freeze. Supported Python versions are 3.10–3.14; CI checks each version.
 
 Public surfaces are documented root exports, documented module exports, console

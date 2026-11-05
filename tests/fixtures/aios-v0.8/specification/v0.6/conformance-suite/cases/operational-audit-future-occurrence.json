@@ -1,0 +1,35 @@
+{
+  "spec_version": "0.8-draft",
+  "artifact_type": "audit_event",
+  "id": "audit-denial-1",
+  "created_at": "2026-11-04T18:05:00Z",
+  "producer": {
+    "name": "aios-example-projector",
+    "version": "0.8.0"
+  },
+  "occurred_at": "2026-11-04T18:06:00Z",
+  "actor": {
+    "kind": "service",
+    "id": "user-example"
+  },
+  "action": "mcp.denial",
+  "target": {
+    "id": "tool-target",
+    "producer": "deep-agentic-core-mcp",
+    "artifact_id": "chaos.run_experiment",
+    "format": "mcp.tool-name"
+  },
+  "outcome": "denied",
+  "native_outcome": {
+    "format": "mcp.access-decision.v1",
+    "value": "denial"
+  },
+  "correlation_id": "call-example",
+  "causal_event_ids": [],
+  "source": {
+    "id": "native-access-record",
+    "producer": "deep-agentic-core-mcp",
+    "artifact_id": "access-event-example",
+    "format": "mcp.access-decision.v1"
+  }
+}

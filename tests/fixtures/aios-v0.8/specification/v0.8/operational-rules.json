@@ -1,0 +1,183 @@
+{
+  "spec_version": "0.8-draft",
+  "source": "specification/v0.8/conformance.md",
+  "check_kinds": {
+    "schema": "JSON Schema 2020-12 with format checking.",
+    "semantic": "Decidable from one schema-valid artifact.",
+    "process": "Requires implementation behavior or source evidence; not decidable from one artifact."
+  },
+  "rules": [
+    {
+      "id": "AIOS-0.8-R01",
+      "role": "producer",
+      "check": "schema",
+      "level": "MUST",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "An operational artifact MUST validate against the schema selected by its declared marker and artifact type.",
+      "source_text": "An operational artifact MUST validate against the schema selected by its declared marker and artifact type."
+    },
+    {
+      "id": "AIOS-0.8-R02",
+      "role": "producer",
+      "check": "semantic",
+      "level": "MUST",
+      "applies_to": [
+        "verification_signal",
+        "investigation_report"
+      ],
+      "requirement": "Evidence, finding and timeline entry identities MUST be unique across those collections within an artifact.",
+      "source_text": "Evidence, finding and timeline entry identities MUST be unique across those collections within an artifact."
+    },
+    {
+      "id": "AIOS-0.8-R03",
+      "role": "producer",
+      "check": "semantic",
+      "level": "MUST",
+      "applies_to": [
+        "investigation_report"
+      ],
+      "requirement": "Every investigation summary, finding, timeline and recovery citation MUST name an evidence entry declared in that report.",
+      "source_text": "Every investigation summary, finding, timeline and recovery citation MUST name an evidence entry declared in that report."
+    },
+    {
+      "id": "AIOS-0.8-R04",
+      "role": "producer",
+      "check": "semantic",
+      "level": "MUST NOT",
+      "applies_to": [
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "An audit occurred_at, incident detected_at or timeline occurred_at MUST NOT be later than the enclosing artifact created_at.",
+      "source_text": "An audit occurred_at, incident detected_at or timeline occurred_at MUST NOT be later than the enclosing artifact created_at."
+    },
+    {
+      "id": "AIOS-0.8-R05",
+      "role": "producer",
+      "check": "semantic",
+      "level": "MUST",
+      "applies_to": [
+        "verification_signal"
+      ],
+      "requirement": "A verification signal with grounded or partial grounding MUST contain at least one evidence reference.",
+      "source_text": "A verification signal with grounded or partial grounding MUST contain at least one evidence reference."
+    },
+    {
+      "id": "AIOS-0.8-R06",
+      "role": "producer",
+      "check": "semantic",
+      "level": "MUST",
+      "applies_to": [
+        "investigation_report"
+      ],
+      "requirement": "Observed or contradictory investigation claims and verified recovery MUST cite at least one declared evidence entry.",
+      "source_text": "Observed or contradictory investigation claims and verified recovery MUST cite at least one declared evidence entry."
+    },
+    {
+      "id": "AIOS-0.8-R07",
+      "role": "producer",
+      "check": "semantic",
+      "level": "MUST NOT",
+      "applies_to": [
+        "audit_event"
+      ],
+      "requirement": "An audit event MUST NOT name its own identity in causal_event_ids.",
+      "source_text": "An audit event MUST NOT name its own identity in causal_event_ids."
+    },
+    {
+      "id": "AIOS-0.8-P01",
+      "role": "producer",
+      "check": "process",
+      "level": "MUST",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "A projection MUST preserve the source producer, native identity, native format and outcome meaning without inventing absent observations.",
+      "source_text": "A projection MUST preserve the source producer, native identity, native format and outcome meaning without inventing absent observations."
+    },
+    {
+      "id": "AIOS-0.8-S01",
+      "role": "producer",
+      "check": "process",
+      "level": "MUST NOT",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "Producers MUST NOT copy credentials, credential hashes, raw tool arguments or privileged context into operational artifacts, including free text, attributes and extensions.",
+      "source_text": "Producers MUST NOT copy credentials, credential hashes, raw tool arguments or privileged context into operational artifacts, including free text, attributes and extensions."
+    },
+    {
+      "id": "AIOS-0.8-C01",
+      "role": "consumer",
+      "check": "process",
+      "level": "MUST",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "A consumer MUST perform both schema and semantic validation before describing an operational artifact as draft-aligned.",
+      "source_text": "A consumer MUST perform both schema and semantic validation before describing an operational artifact as draft-aligned."
+    },
+    {
+      "id": "AIOS-0.8-C02",
+      "role": "consumer",
+      "check": "process",
+      "level": "MUST NOT",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "A consumer MUST NOT fetch a reference URI or execute its content merely because it appears in an artifact.",
+      "source_text": "A consumer MUST NOT fetch a reference URI or execute its content merely because it appears in an artifact."
+    },
+    {
+      "id": "AIOS-0.8-C03",
+      "role": "consumer",
+      "check": "process",
+      "level": "MUST",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "A consumer MUST preserve unknown attributes and namespaced extensions when forwarding an artifact.",
+      "source_text": "A consumer MUST preserve unknown attributes and namespaced extensions when forwarding an artifact."
+    },
+    {
+      "id": "AIOS-0.8-C04",
+      "role": "consumer",
+      "check": "process",
+      "level": "MUST NOT",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "A consumer MUST NOT treat citation presence, a native outcome, confidence or schema validity as proof of factual truth, authorization, safety, containment or successful recovery.",
+      "source_text": "A consumer MUST NOT treat citation presence, a native outcome, confidence or schema validity as proof of factual truth, authorization, safety, containment or successful recovery."
+    },
+    {
+      "id": "AIOS-0.8-D01",
+      "role": "implementation",
+      "check": "process",
+      "level": "MUST NOT",
+      "applies_to": [
+        "verification_signal",
+        "audit_event",
+        "investigation_report"
+      ],
+      "requirement": "An implementation MUST NOT describe this exploratory draft as stable AIOS conformance.",
+      "source_text": "An implementation MUST NOT describe this exploratory draft as stable AIOS conformance."
+    }
+  ]
+}

@@ -236,9 +236,11 @@ def inspect_run(
 
 @app.command()
 def validate(
-    artifact_file: Path = typer.Argument(..., help="AIOS workflow or run artifact JSON."),
-    version: str = typer.Option(
-        "0.4",
+    artifact_file: Path = typer.Argument(
+        ..., help="AIOS artifact JSON, routed by its declared marker."
+    ),
+    version: str | None = typer.Option(
+        None,
         "--version",
         help="AI Operations Specification version to validate against.",
     ),
@@ -272,10 +274,10 @@ def validate(
 @app.command()
 def conformance(
     artifact_file: Path | None = typer.Argument(None, help="AIOS workflow or run artifact JSON."),
-    version: str = typer.Option(
-        "0.4",
+    version: str | None = typer.Option(
+        None,
         "--version",
-        help="AI Operations Specification version (0.4 or 0.4-draft) to check against.",
+        help="Optional version assertion; otherwise use the artifact declared marker.",
     ),
     spec_root: Path | None = typer.Option(
         None,

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/ai-operations-spec/v0.4/workflow.schema.json",
+  "title": "AI Operations Workflow Definition",
+  "type": "object",
+  "required": ["spec_version", "artifact_type", "id", "name"],
+  "properties": {
+    "spec_version": {"const": "0.4-draft"},
+    "artifact_type": {"const": "workflow"},
+    "id": {"$ref": "common.schema.json#/$defs/id"},
+    "name": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "revision": {"type": "string", "minLength": 1},
+    "status": {"enum": ["draft", "active", "retired"]},
+    "declared_structure": {"type": "object"},
+    "references": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/reference"}},
+    "extensions": {"$ref": "common.schema.json#/$defs/extensions"}
+  },
+  "additionalProperties": false
+}

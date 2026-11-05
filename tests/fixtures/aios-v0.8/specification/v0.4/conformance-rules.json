@@ -1,0 +1,278 @@
+{
+  "$comment": "Machine-readable mirror of specification/v0.4/conformance.md. The Markdown document is normative; this catalog assigns a stable identifier to every MUST/MUST NOT/SHOULD obligation it states, so validators can report which requirement an issue violates. Each rule quotes its normative sentence in source_text (Markdown emphasis and code ticks removed); tests/test_conformance_catalogs.py keeps the two in sync.",
+  "spec_version": "0.4-draft",
+  "source": "specification/v0.4/conformance.md",
+  "claim_template": "Aligned with AI Operations Specification v0.4-draft as observed on {date}.",
+  "check_kinds": {
+    "schema": "Decidable by validating the artifact against the schema selected by artifact_type.",
+    "semantic": "Decidable from the artifact alone with the graph and identity checks this document lists.",
+    "process": "A behavioral obligation on the implementation; it cannot be decided by inspecting one artifact."
+  },
+  "rules": [
+    {
+      "id": "AIOS-0.4-P01",
+      "role": "producer",
+      "level": "MUST",
+      "check": "schema",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Emit an artifact that validates against the schema selected by artifact_type.",
+      "source_text": "Emit an artifact that validates against the schema selected by artifact_type."
+    },
+    {
+      "id": "AIOS-0.4-P02",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Preserve globally unique object identities within a Run artifact.",
+      "source_text": "Preserve globally unique object identities within a Run artifact."
+    },
+    {
+      "id": "AIOS-0.4-P03",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Preserve unique relationship and event identities.",
+      "source_text": "Preserve unique relationship and event identities."
+    },
+    {
+      "id": "AIOS-0.4-P04",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Ensure an end timestamp does not precede its start timestamp.",
+      "source_text": "Ensure an end timestamp does not precede its start timestamp."
+    },
+    {
+      "id": "AIOS-0.4-P05",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Resolve every non-external relationship endpoint to an object in the artifact with the declared type.",
+      "source_text": "Resolve every non-external relationship endpoint to an object in the artifact with the declared type."
+    },
+    {
+      "id": "AIOS-0.4-P06",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Contain every Step in its Run exactly once.",
+      "source_text": "Contain every Step in its Run exactly once."
+    },
+    {
+      "id": "AIOS-0.4-P07",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Connect every runtime occurrence to exactly one Step using observed-in.",
+      "source_text": "Connect every runtime occurrence to exactly one Step using observed-in."
+    },
+    {
+      "id": "AIOS-0.4-P08",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Give every Evaluation at least one evaluates target.",
+      "source_text": "Give every Evaluation at least one evaluates target."
+    },
+    {
+      "id": "AIOS-0.4-P09",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Support workflow_id with a matching run-of relationship.",
+      "source_text": "Support workflow_id with a matching run-of relationship."
+    },
+    {
+      "id": "AIOS-0.4-P10",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Ensure event targets resolve with the declared object type.",
+      "source_text": "Ensure event targets resolve with the declared object type."
+    },
+    {
+      "id": "AIOS-0.4-P11",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "Reject self-relationships and cycles in structural, causal, and ordering graphs.",
+      "source_text": "Reject self-relationships and cycles in structural, causal, and ordering graphs."
+    },
+    {
+      "id": "AIOS-0.4-P12",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "run"
+      ],
+      "requirement": "When representing retries, preserve distinct occurrence identities for each attempt and link each retry attempt to the prior attempt with an explicit recoverability edge such as follows or caused.",
+      "source_text": "When representing retries, preserve distinct occurrence identities for each attempt and link each retry attempt to the prior attempt with an explicit recoverability edge such as follows or caused."
+    },
+    {
+      "id": "AIOS-0.4-X01",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Mark every reference to an object outside the artifact with external: true.",
+      "source_text": "An external reference MUST set external: true."
+    },
+    {
+      "id": "AIOS-0.4-X02",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Do not report an external reference as verified unless it was resolved.",
+      "source_text": "External resolution is the consumer's responsibility and MUST NOT be reported as verified unless it was resolved."
+    },
+    {
+      "id": "AIOS-0.4-C01",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Perform schema and semantic validation before treating an artifact as aligned.",
+      "source_text": "A consumer claiming draft alignment MUST perform schema and semantic validation before treating an artifact as aligned."
+    },
+    {
+      "id": "AIOS-0.4-C02",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Preserve unknown namespaced extensions.",
+      "source_text": "It MUST preserve unknown namespaced extensions"
+    },
+    {
+      "id": "AIOS-0.4-C03",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Do not interpret structural validity as factual accuracy.",
+      "source_text": "MUST NOT interpret structural validity as factual accuracy."
+    },
+    {
+      "id": "AIOS-0.4-C04",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Preserve unrecognized attributes keys and namespaced extensions entries, and do not treat their presence as a validation failure.",
+      "source_text": "Consumers MUST preserve unrecognized attributes keys and namespaced extensions entries rather than discarding them, and MUST NOT treat their presence as a validation failure."
+    },
+    {
+      "id": "AIOS-0.4-U01",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "schema",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Reject an artifact that contains a value outside a closed vocabulary rather than guessing its meaning (decision D-004).",
+      "source_text": "consumers MUST reject an artifact that contains one rather than guessing its meaning."
+    },
+    {
+      "id": "AIOS-0.4-U02",
+      "role": "producer",
+      "level": "MUST NOT",
+      "check": "schema",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Do not invent new members of a closed vocabulary (decision D-004).",
+      "source_text": "producers MUST NOT invent new members of a closed enum"
+    },
+    {
+      "id": "AIOS-0.4-E01",
+      "role": "producer",
+      "level": "MUST",
+      "check": "schema",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Name namespaced extensions with a reverse-domain name outside the aiops namespace.",
+      "source_text": "Namespaced extensions objects, which MUST use a reverse-domain name outside the aiops namespace."
+    },
+    {
+      "id": "AIOS-0.4-D01",
+      "role": "implementation",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Describe the implementation as aligned with the v0.4 draft, not stably conformant.",
+      "source_text": "implementations MUST describe themselves as aligned with the v0.4 draft, not stably conformant."
+    },
+    {
+      "id": "AIOS-0.4-K01",
+      "role": "implementation",
+      "level": "SHOULD",
+      "check": "process",
+      "applies_to": [
+        "workflow",
+        "run"
+      ],
+      "requirement": "Include the draft marker and observation date in an alignment claim.",
+      "source_text": "A claim SHOULD include the draft marker and observation date"
+    }
+  ]
+}

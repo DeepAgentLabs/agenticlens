@@ -1,0 +1,144 @@
+{
+  "spec_version": "0.6-draft",
+  "artifact_type": "provenance",
+  "id": "provenance-support-001",
+  "created_at": "2026-07-21T06:05:00Z",
+  "producer": {
+    "name": "org.example.support-review",
+    "version": "1.0"
+  },
+  "subjects": [
+    {
+      "id": "subject-run",
+      "artifact_id": "run-001",
+      "artifact_type": "run",
+      "spec_version": "0.4-draft",
+      "uri": "https://artifacts.example.org/runs/run-001.json",
+      "digest": {
+        "algorithm": "sha-256",
+        "value": "c3806834fa3c00bb0ba4d138de5e77a7cbc78d91b1d05215d8a7cfb6a5d01780"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "source-evaluation",
+      "kind": "aios_object",
+      "subject": "subject-run",
+      "object": {
+        "id": "eval-001",
+        "type": "evaluation"
+      }
+    },
+    {
+      "id": "source-retrieval",
+      "kind": "aios_object",
+      "subject": "subject-run",
+      "object": {
+        "id": "retrieval-001",
+        "type": "rag_retrieval"
+      }
+    },
+    {
+      "id": "source-policy",
+      "kind": "document",
+      "uri": "https://kb.example.org/articles/refund-policy?revision=12",
+      "description": "Synthetic refund policy article, revision 12",
+      "captured_at": "2026-07-21T06:00:01Z"
+    },
+    {
+      "id": "source-review",
+      "kind": "human_input",
+      "description": "Synthetic reviewer note: refund policy revision 13 was published on 2026-07-20.",
+      "captured_at": "2026-07-21T06:04:00Z",
+      "attributes": {
+        "reviewer_role": "support_lead"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-grounded",
+      "statement": "The answer is grounded in the retrieved refund policy article.",
+      "category": "groundedness",
+      "status": "confirmed",
+      "confidence": 0.9,
+      "method": {
+        "kind": "rule",
+        "name": "org.example.groundedness-threshold",
+        "version": "1.0"
+      },
+      "targets": [
+        {
+          "subject": "subject-run",
+          "object": {
+            "id": "model-001",
+            "type": "model_interaction"
+          }
+        }
+      ]
+    },
+    {
+      "id": "finding-stale-source",
+      "statement": "The retrieved article revision may predate the current refund policy.",
+      "category": "source_freshness",
+      "status": "open",
+      "severity": "low",
+      "method": {
+        "kind": "human",
+        "name": "support lead review"
+      },
+      "targets": [
+        {
+          "subject": "subject-run",
+          "object": {
+            "id": "retrieval-001",
+            "type": "rag_retrieval"
+          }
+        }
+      ],
+      "extensions": {
+        "org.example.support": {
+          "version": "1.0",
+          "case_id": "case-synthetic-42",
+          "labels": [
+            "freshness",
+            null
+          ]
+        }
+      }
+    }
+  ],
+  "lineage": [
+    {
+      "id": "lineage-grounded-evaluation",
+      "type": "derived-from",
+      "source": "finding-grounded",
+      "target": "source-evaluation"
+    },
+    {
+      "id": "lineage-grounded-retrieval",
+      "type": "derived-from",
+      "source": "finding-grounded",
+      "target": "source-retrieval"
+    },
+    {
+      "id": "lineage-policy-supports",
+      "type": "supports",
+      "source": "source-policy",
+      "target": "source-review"
+    },
+    {
+      "id": "lineage-stale-review",
+      "type": "derived-from",
+      "source": "finding-stale-source",
+      "target": "source-review"
+    },
+    {
+      "id": "lineage-stale-policy",
+      "type": "derived-from",
+      "source": "finding-stale-source",
+      "target": "source-policy"
+    }
+  ]
+}

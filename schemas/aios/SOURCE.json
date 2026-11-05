@@ -1,0 +1,24 @@
+{
+  "repository": "https://github.com/DeepAgentLabs/ai-operations-spec",
+  "commit": "78f1fb682125afc30a3c12003e9beb3c577f793f",
+  "files": {
+    "specification/v0.8/schemas/verification_signal.schema.json": "287a00802a760e17137ab7115e985169468b59532f883abb5be6e65af038ea96",
+    "specification/v0.8/schemas/investigation_report.schema.json": "7eccf1cac2e5c084cd3c8321d0df80e73c7d530a92ba6f26b44cf03936321e5a",
+    "specification/v0.8/schemas/common.schema.json": "0a24fc3dde4f0406e37fa873ef4af3a63e059fcd64e7c6d8fcc2f4c4ceb83b92",
+    "specification/v0.8/schemas/audit_event.schema.json": "c8665c969b5a940029c6f58134d7f2fadf97dc21902c12f0ef470ef8bae006b7",
+    "specification/v0.4/schemas/run.schema.json": "a282ec1aefd882a24f9cebc3602e1a48c885e0ce4b5dc4c1a19c9432305d2518",
+    "specification/v0.4/schemas/common.schema.json": "d0236f74f78ab1545c4b332b0f8789f88a2638621d94a10d2a8e14f449f99ab0",
+    "specification/v0.4/schemas/workflow.schema.json": "9c69c1282710cab1f0e2f8febd084204fadbcb7cd2089f125e5933508286030b",
+    "specification/v0.6/schemas/provenance.schema.json": "6991d4b9ae4cab69628180f8a343c1ceabb3ee5bec5020c8760264f18675f4f1",
+    "specification/v0.4/conformance-rules.json": "bfdd6f011d15f185548c7ddb3deca7cb214b199fd97034f2ff7da31d949c9faf",
+    "specification/v0.4/conformance.md": "cbae5dd0f14fb31d2cc36917e74197d43720ec680e523da83c67ad947a693fac",
+    "specification/v0.5/compatibility.json": "58ea94808c18120b82d76ba2e850fd61d30ce500c76a7cb43f471b665a6fe209",
+    "specification/v0.6/provenance-rules.json": "3d6108cdccd3eb0a08d2e1eaa67e20e405625a0543d1f47620de642750a03a4c",
+    "specification/v0.6/provenance.md": "dcf5aa314880e62202b824971d3bfdbc291ae4ad2ff13171da92d3cf49cc56e5",
+    "specification/v0.8/operational-rules.json": "4910c67173f72511e2dd4e2415369feb38ce04fb71e6146130c3b36dabc9b2a6",
+    "specification/v0.8/conformance.md": "70c97d8169236858e18339b5ba9482c9616451086c654f9421a688b570ea4129",
+    "LICENSE": "30367d5037a55edd3aa53d97379e45cf55c78f84dbe30844857f218c1467c928"
+  },
+  "schema_snapshot": "v0.8.0",
+  "license": "MIT"
+}

@@ -1,0 +1,212 @@
+{
+  "$comment": "Machine-readable mirror of specification/v0.6/provenance.md. The Markdown document is normative; this catalog assigns a stable identifier to every MUST/MUST NOT/SHOULD obligation it states. Each rule quotes its normative sentence in source_text (Markdown emphasis and code ticks removed); tests/test_v06_provenance.py keeps the two in sync.",
+  "spec_version": "0.6-draft",
+  "source": "specification/v0.6/provenance.md",
+  "claim_template": "Aligned with AI Operations Specification 0.6-draft provenance records as observed on {date}.",
+  "check_kinds": {
+    "schema": "Decidable by validating the record against specification/v0.6/schemas/provenance.schema.json.",
+    "semantic": "Decidable from the record alone with the identity, resolution and graph checks this document lists.",
+    "cross_artifact": "Decidable only with the record and the subject artifacts or bytes it names.",
+    "process": "A behavioral obligation on the implementation; it cannot be decided by inspecting one record."
+  },
+  "rules": [
+    {
+      "id": "AIOS-0.6-R01",
+      "role": "producer",
+      "level": "MUST",
+      "check": "schema",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Emit a record that validates against the provenance record schema.",
+      "source_text": "Emit a record that validates against the provenance record schema."
+    },
+    {
+      "id": "AIOS-0.6-R02",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Preserve unique identities across subjects, sources, findings, and lineage edges within the record.",
+      "source_text": "Preserve unique identities across subjects, sources, findings, and lineage edges within the record."
+    },
+    {
+      "id": "AIOS-0.6-R03",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Resolve every source subject and every finding target subject to a subject declared in the record.",
+      "source_text": "Resolve every source subject and every finding target subject to a subject declared in the record."
+    },
+    {
+      "id": "AIOS-0.6-R04",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Resolve every lineage endpoint to a source or finding in the record with an endpoint kind the lineage type permits.",
+      "source_text": "Resolve every lineage endpoint to a source or finding in the record with an endpoint kind the lineage type permits."
+    },
+    {
+      "id": "AIOS-0.6-R05",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Give every finding at least one derived-from edge.",
+      "source_text": "Give every finding at least one derived-from edge."
+    },
+    {
+      "id": "AIOS-0.6-R06",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Keep every lineage edge free of self-reference, and derived-from and supersedes lineage free of cycles.",
+      "source_text": "Keep every lineage edge free of self-reference, and derived-from and supersedes lineage free of cycles."
+    },
+    {
+      "id": "AIOS-0.6-R07",
+      "role": "producer",
+      "level": "MUST",
+      "check": "semantic",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Not record a source captured_at later than the record created_at.",
+      "source_text": "Not record a source captured_at later than the record created_at."
+    },
+    {
+      "id": "AIOS-0.6-C01",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Perform schema and semantic validation of the record before treating it as aligned.",
+      "source_text": "A consumer claiming draft alignment for provenance records MUST perform schema and semantic validation of the record before treating it as aligned."
+    },
+    {
+      "id": "AIOS-0.6-C02",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Validate a subject artifact against the schema its own spec_version names before resolving references into it.",
+      "source_text": "When a consumer has the subject artifact, it MUST validate that artifact against the schema its own spec_version names before resolving references into it."
+    },
+    {
+      "id": "AIOS-0.6-C03",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "cross_artifact",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Do not report an aios_object source or finding target as resolved unless the subject contains an object with that id and declared type.",
+      "source_text": "It MUST NOT report an aios_object source or finding target as resolved unless the subject contains an object with that id and declared type"
+    },
+    {
+      "id": "AIOS-0.6-C04",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "cross_artifact",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Do not use a held artifact whose own id, artifact_type or spec_version differs from the subject entry's artifact_id, artifact_type or spec_version to resolve that entry.",
+      "source_text": "A held artifact whose own id, artifact_type or spec_version differs from the subject entry's artifact_id, artifact_type or spec_version MUST NOT be used to resolve that entry"
+    },
+    {
+      "id": "AIOS-0.6-C05",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "cross_artifact",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Do not report a digest as verified unless it was recomputed over the subject bytes actually held.",
+      "source_text": "A consumer MUST NOT report a digest as verified unless it recomputed the digest over the subject bytes it actually holds."
+    },
+    {
+      "id": "AIOS-0.6-C06",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Do not treat a finding's status, severity, confidence or lineage as evidence that the finding is true.",
+      "source_text": "A consumer MUST NOT treat a finding's status, severity, confidence or lineage as evidence that the finding is true."
+    },
+    {
+      "id": "AIOS-0.6-C07",
+      "role": "consumer",
+      "level": "MUST NOT",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Do not fetch a uri or execute content merely because a record contains it.",
+      "source_text": "It MUST NOT fetch a uri or execute content merely because a record contains it."
+    },
+    {
+      "id": "AIOS-0.6-C08",
+      "role": "consumer",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Preserve unknown attributes and namespaced extensions entries in the record.",
+      "source_text": "It MUST preserve unknown attributes and namespaced extensions entries in the record."
+    },
+    {
+      "id": "AIOS-0.6-D01",
+      "role": "implementation",
+      "level": "MUST",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Describe support for provenance records as aligned with the 0.6-draft, not stably conformant.",
+      "source_text": "An implementation MUST describe its support for provenance records as aligned with the 0.6-draft, not stably conformant."
+    },
+    {
+      "id": "AIOS-0.6-K01",
+      "role": "implementation",
+      "level": "SHOULD",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Include the draft marker and observation date in a provenance alignment claim.",
+      "source_text": "A claim SHOULD include the draft marker and observation date"
+    },
+    {
+      "id": "AIOS-0.6-S01",
+      "role": "producer",
+      "level": "SHOULD",
+      "check": "process",
+      "applies_to": [
+        "provenance"
+      ],
+      "requirement": "Reference personal data, credentials or proprietary content by uri or digest rather than copying it into description or statement, and document any redaction applied.",
+      "source_text": "Producers SHOULD reference such material by uri or digest rather than copying it into description or statement, and SHOULD document any redaction they apply."
+    }
+  ]
+}

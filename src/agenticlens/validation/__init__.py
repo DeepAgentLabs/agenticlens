@@ -7,6 +7,7 @@ from agenticlens.validation.aios import (
     ValidationIssue,
     available_spec_versions,
     normalize_spec_version,
+    resolve_provenance,
     validate_aios_artifact,
 )
 
@@ -19,5 +20,6 @@ __all__ = [
     "ValidationIssue",
     "available_spec_versions",
     "normalize_spec_version",
+    "resolve_provenance",
     "validate_aios_artifact",
 ]

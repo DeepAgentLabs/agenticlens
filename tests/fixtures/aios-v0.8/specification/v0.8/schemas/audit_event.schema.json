@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/audit_event.schema.json",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "artifact_type",
+    "id",
+    "created_at",
+    "producer",
+    "occurred_at",
+    "actor",
+    "action",
+    "target",
+    "outcome",
+    "native_outcome",
+    "source"
+  ],
+  "properties": {
+    "spec_version": {
+      "const": "0.8-draft"
+    },
+    "artifact_type": {
+      "const": "audit_event"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/producer"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/actor"
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+    },
+    "outcome": {
+      "enum": [
+        "requested",
+        "denied",
+        "started",
+        "succeeded",
+        "failed",
+        "partial",
+        "unknown"
+      ]
+    },
+    "native_outcome": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/native_outcome"
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "causal_event_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "attributes": {
+      "type": "object"
+    },
+    "extensions": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/extensions"
+    },
+    "source": {
+      "$ref": "https://deepagentlabs.github.io/ai-operations-spec/v0.8/common.schema.json#/$defs/reference"
+    }
+  },
+  "additionalProperties": false
+}
