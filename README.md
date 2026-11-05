@@ -2413,3 +2413,10 @@ The MCP 0.7 candidate baseline includes this project's released integration.
 Its read-only compatibility observations remain separate from runtime readiness
 and native producer verdicts. See [the matrix, example and boundaries](docs/mcp-0.7-readiness.md).
 No runtime dependency or native schema changes are required here.
+
+## AIOS 0.8.0 operational artifacts
+
+See [the compatibility and adoption guide](docs/aios-0.8-operational-artifacts.md)
+for the new exploratory verification, audit and investigation companions.
+Existing native contracts and supported AIOS markers are unchanged. This is
+optional adoption guidance; no runtime dependency or patch release is required.
