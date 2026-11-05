@@ -1486,4 +1486,6 @@ Chaos 0.11.0; no Lens runtime change is required. Chaos optionally depends on
 Lens, and Lens core does not require Chaos. See [the guide and offline operator
 example](docs/chaos-0.11-chaoshub.md). Shared v1.0 acceptance remains open.
 
+## AIOS 0.8.0 operational artifacts
+
 AIOS 0.8.0 adds optional operational companions; see [compatibility](docs/aios-0.8-operational-artifacts.md). Existing runtime contracts and validator support remain unchanged.
