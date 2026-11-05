@@ -1489,3 +1489,7 @@ example](docs/chaos-0.11-chaoshub.md). Shared v1.0 acceptance remains open.
 ## AIOS 0.8.0 operational artifacts
 
 AIOS 0.8.0 adds optional operational companions; see [compatibility](docs/aios-0.8-operational-artifacts.md). Existing runtime contracts and validator support remain unchanged.
+
+## Coordinated v1.0 engineering readiness
+
+0.14.0 adds full draft validation and verification exports; see [scope and migration](docs/coordinated-v1-readiness.md). Independent acceptance and stable freeze remain open.
