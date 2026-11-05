@@ -1,13 +1,14 @@
 # AgenticLens Roadmap
 
-## Release sequencing
+## Coordinated 1.0.0 milestone
 
-The final package-local roadmap phase uses **v0.13**, followed by further
-minor releases as needed. **v1.0 is reserved for one coordinated DeepAgentLabs
-ecosystem release**, after the shared readiness and compatibility gates pass.
-Completing this minor milestone does not independently declare stable APIs or
-AIOS conformance. Existing acceptance criteria remain required. See the
-[ecosystem release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+Version 1.0.0 marks the coordinated DeepAgentLabs milestone on 2026-11-05.
+Development and roadmap delivery continue after this release. Existing draft
+and candidate schema markers retain their maturity; package versions do not
+certify AIOS conformance or production deployment readiness. Independent review,
+independent implementations, security/deployment acceptance, live-provider
+validation and the stable contract freeze remain tracked follow-up work.
+See the [ecosystem release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
 
 See the [implementation audit](ROADMAP_AUDIT.md) for evidence-backed status and
 remaining acceptance gaps across every product milestone.
