@@ -12,10 +12,25 @@ from pydantic import BaseModel, Field
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
+from agenticlens.validation import companions
+
 DEFAULT_SPEC_VERSION = "0.4"
 #: AIOS versions this release can validate. Per AIOS-0.5-V03, an artifact that
 #: declares any other version is rejected rather than checked against 0.4.
-SUPPORTED_SPEC_VERSIONS = ("0.4",)
+SUPPORTED_SPEC_VERSIONS = ("0.4", "0.6", "0.8")
+_ARTIFACT_VERSIONS = {
+    "run": "0.4",
+    "workflow": "0.4",
+    "provenance": "0.6",
+    "verification_signal": "0.8",
+    "audit_event": "0.8",
+    "investigation_report": "0.8",
+}
+_CATALOGS = {
+    "0.4": "conformance-rules.json",
+    "0.6": "provenance-rules.json",
+    "0.8": "operational-rules.json",
+}
 _SPEC_VERSION_PATTERN = re.compile(r"^(0\.[1-9][0-9]*|[1-9][0-9]*\.(0|[1-9][0-9]*))(-draft)?$")
 _RULES_CATALOG = "conformance-rules.json"
 
@@ -36,21 +51,17 @@ ISSUE_RULES: dict[str, str] = {
     "semantic.structural-cycle": "AIOS-0.4-P11",
     "semantic.causal-cycle": "AIOS-0.4-P11",
     "semantic.ordering-cycle": "AIOS-0.4-P11",
+    "semantic.retry": "AIOS-0.4-P12",
+    "semantic.unmarked-external": "AIOS-0.4-X01",
 }
 _RUN_ARTIFACT = "run"
 _WORKFLOW_ARTIFACT = "workflow"
 _CYCLE_RELATIONSHIP_GROUPS: dict[str, set[str]] = {
     "structural": {"contains", "parent-of"},
-    "causal": {"caused", "depends-on"},
+    "causal": {"caused", "depends-on", "follows"},
     "ordering": {"follows"},
 }
 _FORMAT_CHECKER = FormatChecker()
-
-
-@_FORMAT_CHECKER.checks("date-time")  # type: ignore[untyped-decorator]
-def _is_datetime_string(value: object) -> bool:
-    parsed = _parse_timestamp(value)
-    return parsed is not None and parsed.tzinfo is not None
 
 
 class ValidationIssue(BaseModel):
@@ -101,6 +112,7 @@ class ConformanceReport(BaseModel):
     schema_valid: bool
     semantic_valid: bool
     aligned: bool
+    semantic_checked: bool = False
     issues: list[ValidationIssue] = Field(default_factory=list)
     declared_spec_version: str | None = Field(
         default=None, description="The artifact's own spec_version marker, if any."
@@ -127,19 +139,29 @@ class _ResolvedSpec:
 def validate_aios_artifact(
     artifact_path: Path,
     *,
-    spec_version: str = DEFAULT_SPEC_VERSION,
+    spec_version: str | None = None,
     mode: str = "conformance",
     spec_root: Path | None = None,
 ) -> ConformanceReport:
     payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("AIOS-0.5-V03: artifact must be a JSON object")
+    if mode not in {"validate", "conformance"}:
+        raise ValueError("mode must be validate or conformance")
     artifact_type = _artifact_type_for(payload)
-    spec_version = normalize_spec_version(spec_version)
+    declared = payload.get("spec_version")
+    spec_version = normalize_spec_version(
+        spec_version or (declared if isinstance(declared, str) else DEFAULT_SPEC_VERSION)
+    )
+    if spec_version not in SUPPORTED_SPEC_VERSIONS:
+        raise ValueError(f"Unsupported AIOS version {spec_version!r}; AIOS-0.5-V03")
+    if _ARTIFACT_VERSIONS[artifact_type] != spec_version:
+        raise ValueError("AIOS-0.5-V03: no schema for this artifact type under its declared marker")
     resolved_spec = _resolve_spec(
         artifact_type=artifact_type,
         spec_version=spec_version,
         explicit_root=spec_root,
     )
-    declared = payload.get("spec_version")
     if isinstance(declared, str) and normalize_spec_version(declared) != spec_version:
         raise ValueError(
             f"Artifact declares spec_version {declared!r} but validation was requested for "
@@ -155,7 +177,7 @@ def validate_aios_artifact(
     all_issues = [*issues, *semantic_issues]
     for issue in all_issues:
         issue.rule_id = issue.rule_id or ISSUE_RULES.get(issue.code)
-    catalog_path = resolved_spec.root / _RULES_CATALOG
+    catalog_path = resolved_spec.root / _CATALOGS[spec_version]
     rules = _rule_results(
         catalog_path,
         artifact_type=artifact_type,
@@ -198,7 +220,8 @@ def validate_aios_artifact(
         ),
         schema_valid=schema_valid,
         semantic_valid=semantic_valid,
-        aligned=schema_valid and semantic_valid,
+        aligned=schema_valid and semantic_valid and mode == "conformance",
+        semantic_checked=schema_valid and mode == "conformance",
         issues=all_issues,
         declared_spec_version=declared if isinstance(declared, str) else None,
         rules_catalog=str(catalog_path) if catalog_path.exists() else None,
@@ -221,7 +244,11 @@ def available_spec_versions(spec_root: Path | None = None) -> list[str]:
     for version in SUPPORTED_SPEC_VERSIONS:
         try:
             _resolve_spec(
-                artifact_type=_RUN_ARTIFACT, spec_version=version, explicit_root=spec_root
+                artifact_type=next(
+                    kind for kind, value in _ARTIFACT_VERSIONS.items() if value == version
+                ),
+                spec_version=version,
+                explicit_root=spec_root,
             )
         except ValueError:
             continue
@@ -253,7 +280,11 @@ def _rule_results(
         if rule_id in failures:
             result: Literal["pass", "fail", "not_checked"] = "fail"
         elif (check == "schema" and not any(i.code.startswith("schema.") for i in issues)) or (
-            check == "semantic" and semantic_checked and rule_id in ISSUE_RULES.values()
+            check == "semantic"
+            and semantic_checked
+            and (
+                rule_id in ISSUE_RULES.values() or rule_id.startswith(("AIOS-0.6-R", "AIOS-0.8-R"))
+            )
         ):
             result = "pass"
         else:
@@ -274,10 +305,8 @@ def _rule_results(
 
 def _artifact_type_for(payload: dict[str, Any]) -> str:
     artifact_type = payload.get("artifact_type")
-    if artifact_type not in {_RUN_ARTIFACT, _WORKFLOW_ARTIFACT}:
-        raise ValueError(
-            "artifact_type must be present in the JSON payload and be either 'run' or 'workflow'"
-        )
+    if not isinstance(artifact_type, str) or artifact_type not in _ARTIFACT_VERSIONS:
+        raise ValueError("AIOS-0.5-V03: artifact_type has no supported schema")
     if not isinstance(artifact_type, str):
         raise ValueError(
             "artifact_type must be present in the JSON payload and be either 'run' or 'workflow'"
@@ -302,18 +331,21 @@ def _resolve_spec(
     if explicit_root is not None:
         candidate_roots.append(explicit_root)
     current = Path(__file__).resolve()
-    candidate_roots.extend(
-        [
-            current.parents[1] / "schemas" / "aios",
-            current.parents[3] / "schemas" / "aios",
-            current.parents[4] / "ai-operations-spec",
-            current.parents[5] / "ai-operations-spec",
-        ]
-    )
+    if explicit_root is None:
+        candidate_roots.extend(
+            [
+                current.parents[1] / "schemas" / "aios",
+                current.parents[3] / "schemas" / "aios",
+                current.parents[4] / "ai-operations-spec",
+                current.parents[5] / "ai-operations-spec",
+            ]
+        )
     for root in candidate_roots:
         spec_root = root / "specification" / spec_dir_name
         schema_path = spec_root / "schemas" / f"{artifact_type}.schema.json"
-        conformance_path = spec_root / "conformance.md"
+        conformance_path = spec_root / (
+            "provenance.md" if spec_version == "0.6" else "conformance.md"
+        )
         if schema_path.exists() and conformance_path.exists():
             return _ResolvedSpec(
                 version=spec_version,
@@ -322,12 +354,26 @@ def _resolve_spec(
                 conformance_path=conformance_path,
             )
     raise SpecUnavailableError(
-        "Unable to locate ai-operations-spec v0.4 draft schemas. "
+        f"Unable to locate ai-operations-spec v{spec_version} draft schemas. "
         "Pass --spec-root with the sibling repo path if it is not checked out next to agenticlens."
     )
 
 
 def _schema_issues(payload: dict[str, Any], schema_path: Path) -> list[ValidationIssue]:
+    try:
+        json.dumps(payload, allow_nan=False)
+    except (TypeError, ValueError):
+        rule = {"0.6-draft": "AIOS-0.6-R01", "0.8-draft": "AIOS-0.8-R01"}.get(
+            payload.get("spec_version", ""), "AIOS-0.4-P01"
+        )
+        return [
+            ValidationIssue(
+                code="schema.invalid",
+                source="aios",
+                message="Artifact is not a finite JSON value",
+                rule_id=rule,
+            )
+        ]
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     registry = _schema_registry(schema_path.parent)
     validator = Draft202012Validator(
@@ -346,6 +392,12 @@ def _schema_issues(payload: dict[str, Any], schema_path: Path) -> list[Validatio
                 source="aios",
                 message=error.message,
                 location=location,
+                rule_id={"provenance": "AIOS-0.6-R01"}.get(
+                    payload["artifact_type"],
+                    "AIOS-0.8-R01"
+                    if payload.get("spec_version") == "0.8-draft"
+                    else "AIOS-0.4-P01",
+                ),
             )
         )
     return issues
@@ -353,7 +405,7 @@ def _schema_issues(payload: dict[str, Any], schema_path: Path) -> list[Validatio
 
 def _schema_registry(schema_dir: Path) -> Registry[Any]:
     registry: Registry[Any] = Registry()
-    for schema_file in schema_dir.glob("*.schema.json"):
+    for schema_file in schema_dir.parents[1].glob("v*/schemas/*.schema.json"):
         schema = json.loads(schema_file.read_text(encoding="utf-8"))
         resource = Resource.from_contents(schema, default_specification=DRAFT202012)
         registry = registry.with_resource(schema_file.as_uri(), resource)
@@ -364,6 +416,22 @@ def _schema_registry(schema_dir: Path) -> Registry[Any]:
 
 
 def _semantic_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
+    if payload.get("spec_version") in {"0.6-draft", "0.8-draft"}:
+        return [
+            ValidationIssue(code="semantic.companion", source="aios", message=text, rule_id=rule)
+            for rule, text in companions.issues(payload)
+        ]
+    if payload.get("artifact_type") == "workflow":
+        return [
+            ValidationIssue(
+                code="semantic.unmarked-external",
+                source="aios",
+                message="Workflow references must be external",
+                rule_id="AIOS-0.4-X01",
+            )
+            for reference in payload.get("references", [])
+            if not reference.get("external")
+        ]
     if payload.get("artifact_type") != _RUN_ARTIFACT:
         return []
     issues: list[ValidationIssue] = []
@@ -376,6 +444,10 @@ def _semantic_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
     issues.extend(_workflow_link_issues(payload))
     issues.extend(_event_target_issues(payload))
     issues.extend(_relationship_shape_issues(payload))
+    issues.extend(
+        ValidationIssue(code="semantic.retry", source="aios", message=message, rule_id=rule)
+        for rule, message in _retry_issues(payload, payload.get("relationships", []))
+    )
     return issues
 
 
@@ -389,12 +461,12 @@ def _unique_identity_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
         "evidence": None,
         "incidents": "incident",
     }
-    seen: set[tuple[str, str]] = set()
+    seen: set[str] = {str(payload["id"])}
     for key, fixed_type in object_sets.items():
         for index, item in enumerate(payload.get(key, [])):
             item_type = fixed_type or item.get("type")
             marker = (str(item.get("id")), str(item_type))
-            if marker in seen:
+            if marker[0] in seen:
                 issues.append(
                     ValidationIssue(
                         code="semantic.duplicate-object",
@@ -403,7 +475,7 @@ def _unique_identity_issues(payload: dict[str, Any]) -> list[ValidationIssue]:
                         location=f"$.{key}.{index}",
                     )
                 )
-            seen.add(marker)
+            seen.add(marker[0])
     for key in ("relationships", "events"):
         seen_ids: set[str] = set()
         id_field = "id" if key == "relationships" else "event_id"
@@ -467,7 +539,7 @@ def _time_range_issue(
 def _parse_timestamp(value: Any) -> datetime | None:
     if not isinstance(value, str):
         return None
-    normalized = value.replace("Z", "+00:00")
+    normalized = value.upper().replace("Z", "+00:00")
     try:
         return datetime.fromisoformat(normalized)
     except ValueError:
@@ -484,6 +556,15 @@ def _relationship_resolution_issues(payload: dict[str, Any]) -> list[ValidationI
                 continue
             key = (endpoint["id"], endpoint["type"])
             if key not in index:
+                if not any(object_id == endpoint["id"] for object_id, _kind in index):
+                    issues.append(
+                        ValidationIssue(
+                            code="semantic.unmarked-external",
+                            source="aios",
+                            message="Reference has no local object and is not marked external",
+                            rule_id="AIOS-0.4-X01",
+                        )
+                    )
                 issues.append(
                     ValidationIssue(
                         code="semantic.unresolved-reference",
@@ -691,20 +772,112 @@ def _object_index(payload: dict[str, Any]) -> dict[tuple[str, str], dict[str, An
 
 
 def _has_cycle(graph: dict[str, set[str]]) -> bool:
-    visiting: set[str] = set()
-    visited: set[str] = set()
+    return companions.cyclic(
+        [(source, target) for source, targets in graph.items() for target in targets]
+    )
 
-    def visit(node: str) -> bool:
-        if node in visiting:
-            return True
-        if node in visited:
+
+def resolve_provenance(
+    record: dict[str, Any], subjects: dict[str, bytes], *, spec_root: Path | None = None
+) -> dict[str, Any]:
+    """Validate a provenance record and resolve only caller-supplied subject bytes."""
+
+    def valid(document: dict[str, Any]) -> bool:
+        try:
+            kind = _artifact_type_for(document)
+            version = normalize_spec_version(str(document.get("spec_version", "")))
+            if _ARTIFACT_VERSIONS[kind] != version:
+                return False
+            schema = _resolve_spec(
+                artifact_type=kind, spec_version=version, explicit_root=spec_root
+            )
+            return not _schema_issues(document, schema.schema_path) and not _semantic_issues(
+                document
+            )
+        except (ValueError, KeyError, TypeError):
             return False
-        visiting.add(node)
-        for neighbor in graph.get(node, set()):
-            if visit(neighbor):
-                return True
-        visiting.remove(node)
-        visited.add(node)
-        return False
 
-    return any(visit(node) for node in graph)
+    if record.get("artifact_type") != "provenance" or not valid(record):
+        raise ValueError("A schema- and semantically valid provenance record is required")
+    return companions.resolve(record, subjects, valid)
+
+
+def _retry_issues(
+    artifact: dict[str, Any], relationships: list[dict[str, Any]]
+) -> list[tuple[str, str]]:
+    """Rule P12: distinct identities per retry attempt, each linked to the prior attempt."""
+    issues: list[tuple[str, str]] = []
+    occurrence_by_id = {item["id"]: item for item in artifact.get("occurrences", [])}
+    evidence_by_id = {item["id"]: item for item in artifact.get("evidence", [])}
+
+    attempt_signal_targets: dict[str, list[int]] = {}
+    for relationship in relationships:
+        if relationship["type"] != "signals-on":
+            continue
+        source = evidence_by_id.get(relationship["source"]["id"])
+        if not source or source.get("type") != "reliability_event":
+            continue
+        attempt = source.get("attributes", {}).get("attempt")
+        if not isinstance(attempt, int):
+            continue
+        target_id = relationship["target"]["id"]
+        attempt_signal_targets.setdefault(target_id, []).append(attempt)
+        occurrence = occurrence_by_id.get(target_id)
+        if occurrence:
+            occurrence_attempt = occurrence.get("attributes", {}).get("attempt")
+            if isinstance(occurrence_attempt, int) and occurrence_attempt != attempt:
+                issues.append(
+                    (
+                        "AIOS-0.4-P12",
+                        f"Retry evidence {source['id']} must target attempt {attempt}, "
+                        f"not occurrence attempt {occurrence_attempt}",
+                    )
+                )
+    for target_id, attempts in attempt_signal_targets.items():
+        if len(attempts) > 1:
+            ordered = ", ".join(str(attempt) for attempt in sorted(attempts))
+            issues.append(
+                (
+                    "AIOS-0.4-P12",
+                    f"Retry attempts {ordered} must not all signal the same occurrence {target_id}",
+                )
+            )
+
+    retry_groups: dict[str, dict[int, str]] = {}
+    for occurrence in artifact.get("occurrences", []):
+        attributes = occurrence.get("attributes", {})
+        activity = attributes.get("logical_activity_id")
+        attempt = attributes.get("attempt")
+        if not isinstance(activity, str) or not isinstance(attempt, int):
+            continue
+        group = retry_groups.setdefault(activity, {})
+        if attempt in group:
+            message = f"Retry activity {activity} duplicates attempt {attempt}"
+            issues.append(("AIOS-0.4-P12", message))
+            continue
+        group[attempt] = occurrence["id"]
+    for activity, attempt_ids in retry_groups.items():
+        ordered_attempts = sorted(attempt_ids.items())
+        for (_attempt, source_id), (next_attempt, target_id) in zip(
+            ordered_attempts, ordered_attempts[1:], strict=False
+        ):
+            linked = any(
+                edge["type"] == "follows"
+                and edge["source"]["id"] == source_id
+                and edge["target"]["id"] == target_id
+                for edge in relationships
+            ) or any(
+                edge["type"] == "caused"
+                and edge["source"]["id"] == source_id
+                and edge["target"]["id"] == target_id
+                for edge in relationships
+            )
+            if not linked:
+                issues.append(
+                    (
+                        "AIOS-0.4-P12",
+                        f"Retry activity {activity} must link attempt {_attempt} to attempt "
+                        f"{next_attempt}",
+                    )
+                )
+    return issues
