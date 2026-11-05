@@ -259,3 +259,8 @@ validation disclosed. Preserve draft/candidate schema labels and track remaining
 acceptance work on the roadmap. Follow the updated
 [shared release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
 Schema versions remain independent of package versions.
+
+For the coordinated 1.0.0 milestone only, use the annotated tag
+`v1.0.0-ecosystem`: the historical `v1.0.0` tag belongs to package 0.1.2 and
+must remain unchanged. The release parser accepts the milestone suffix while
+checking the package version. Later releases use the normal version tag.

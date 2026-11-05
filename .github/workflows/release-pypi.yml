@@ -57,7 +57,10 @@ jobs:
           import os
 
           tag = os.environ["RELEASE_TAG"]
-          version = tag.removeprefix("v")
+          version = tag.removeprefix("v").removesuffix("-ecosystem")
+          import tomllib
+          declared = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          assert version == declared, "Release tag must match package metadata"
           changelog = Path("CHANGELOG.md").read_text(encoding="utf-8").splitlines()
 
           start = None
