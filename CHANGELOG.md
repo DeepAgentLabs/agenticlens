@@ -6,6 +6,25 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 1.0.0 - 2026-11-05
+
+### Changed
+
+- Mark the coordinated DeepAgentLabs 1.0.0 milestone; ongoing feature and
+  validation work remains on the roadmap.
+- Preserve existing runtime behavior, native artifact versions and draft/candidate
+  schema maturity. This release does not claim independent certification or
+  production deployment acceptance.
+- Admit sibling 1.x packages where integrations declare bounded dependencies.
+
+### Remaining validation
+
+Independent AIOS review and implementations, security/deployment acceptance,
+live-provider validation and the stable contract freeze remain open. The
+maintainer authorized this milestone release with those gaps disclosed; none
+is recorded as passed. See the shared ecosystem release policy.
+
+
 ## 0.14.0 - 2026-11-04
 
 ### Added

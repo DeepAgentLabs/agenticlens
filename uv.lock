@@ -31,7 +31,7 @@ wheels = [
 
 [[package]]
 name = "agenticlens"
-version = "0.14.0"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "agentic-evals" },
@@ -72,7 +72,7 @@ multi-agent = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agentic-evals", specifier = ">=0.11.0,<1" },
+    { name = "agentic-evals", specifier = ">=0.11.0,<2" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.2" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.115,<1" },
     { name = "fastapi", marker = "extra == 'dev'", specifier = ">=0.115,<1" },

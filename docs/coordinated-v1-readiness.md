@@ -29,5 +29,15 @@ conformance. No native trace/report/storage contract changes. Rollback by
 pinning 0.13.0 and disabling optional companion exports; retain original native
 artifacts and do not relabel new companions as older artifacts.
 
-Independent acceptance, live/deployment evidence and the stable freeze remain
-separate gates. See the [shared release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+These acceptances remain open as follow-up work under the
+[1.0.0 milestone policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
+
+## Coordinated 1.0.0 milestone
+
+Version 1.0.0 marks the coordinated DeepAgentLabs milestone on 2026-11-05.
+Development and roadmap delivery continue after this release. Existing draft
+and candidate schema markers retain their maturity; package versions do not
+certify AIOS conformance or production deployment readiness. Independent review,
+independent implementations, security/deployment acceptance, live-provider
+validation and the stable contract freeze remain tracked follow-up work.
+See the [ecosystem release policy](https://github.com/DeepAgentLabs/.github/blob/main/profile/RELEASE_POLICY.md).
