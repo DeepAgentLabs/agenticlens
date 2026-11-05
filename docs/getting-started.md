@@ -4,7 +4,7 @@ AgenticLens is a local-first observability, evaluation, and operational
 intelligence toolkit for production agentic AI systems. No hosted backend,
 no mandatory account, no data egress required.
 
-**Version:** 0.5.0 · **Status:** Alpha
+**Version:** 0.14.0 · **Status:** Alpha
 
 ---
 
