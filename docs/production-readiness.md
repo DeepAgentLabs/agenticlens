@@ -24,7 +24,7 @@ organization and project. Only `/healthz` is anonymous. OpenAPI and interactive 
 
 ## Configure and run
 
-Install `pip install 'agenticlens[api]==0.13.0'`. Generate random bearer tokens
+Install `pip install 'agenticlens[api]==0.14.0'`. Generate random bearer tokens
 with `secrets.token_urlsafe(32)` and keep them in a secret manager. Store only
 SHA-256 hex digests in an operator-owned JSON file:
 
