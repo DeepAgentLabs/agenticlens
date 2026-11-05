@@ -147,7 +147,7 @@ uv run agenticlens analyze workflow.json
 
 ## Current Status
 
-**Version:** 0.7.0 · **PyPI:** [`agenticlens`](https://pypi.org/project/agenticlens/) · **Maturity:** Alpha
+**Version:** 0.14.0 · **PyPI:** [`agenticlens`](https://pypi.org/project/agenticlens/) · **Maturity:** Alpha
 
 AgenticLens is early-stage open-source software. Workflow profiling, live and
 offline pricing, optimization recommendations, structured tracing, deterministic
