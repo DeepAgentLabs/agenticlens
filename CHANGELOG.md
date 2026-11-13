@@ -8,6 +8,16 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 
 
+
+## 1.0.3 - 2026-11-13
+
+### Added
+
+- Add a comprehensive AI-readable reference separate from the human guide.
+- Include product-owned API and CLI references, source declarations, applicable schemas, and complete examples.
+- Record source selections and checksums for reproducible generation and downstream MCP ingestion.
+- Preserve runtime behavior and schema versions; MCP resource integration is a separate task.
+
 ## 1.0.2 - 2026-11-13
 
 ### Changed
