@@ -1,174 +1,83 @@
 # AgenticLens
 
-![AgenticLens logo](assets/agenticlens-logo.jpeg){ width="420" }
+## AgenticLens overview
 
-**Open-source observability, evaluation, and operational intelligence for
-production AI systems.**
+What did the agent do, and where did time, tokens, or cost go?
 
-[![CI](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml/badge.svg)](https://github.com/DeepAgentLabs/agenticlens/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/agenticlens.svg)](https://pypi.org/project/agenticlens/)
-[![GitHub stars](https://img.shields.io/github/stars/DeepAgentLabs/agenticlens?style=social)](https://github.com/DeepAgentLabs/agenticlens/stargazers)
-[![PyPI downloads](https://static.pepy.tech/badge/agenticlens/month)](https://pepy.tech/project/agenticlens)
+Instrumented workflows, structured traces, or supported imported trace data. Run artifacts, analysis, comparisons, and evidence-backed recommendations.
 
-AgenticLens helps teams profile LLM applications, capture structured agent
-traces, calculate cost, diagnose memory and retry overhead, and compare
-candidate configurations against reviewed baselines.
+**When to start here**
 
+Record a small local trace and inspect run.json.
 
-## Optimization intelligence — 0.11.0
+## Inputs and outputs
 
-Roadmap v0.9 is implemented: `agenticlens optimize` turns recorded traces into
-ranked, evidence-backed recommendations for prompt caching and compression,
-retrieval pruning and reranking, memory summarization, tool caching, retry
-policy, redundant steps, unnecessary handoffs, and quality-cost trade-offs
-between variants. Projected benefit, confidence, and quality risk are separate
-fields; decisions are tracked in a local ledger; and adopted changes are
-evaluated against traces recorded afterwards, with projected and observed
-outcomes reported side by side.
-
-```bash
-uv run python examples/optimization_demo.py
-agenticlens optimize analyze examples/optimization/traces/before \
-  --config examples/optimization/optimization.yaml --baseline-variant large
-```
-
-Recommendations are advisory and never change prompts, models, or tools. See
-the [optimization guide](optimization.md) for the signals each rule reads, ledger
-transitions, outcome statuses, and known limits.
-
-## Advisory runtime routing — 0.10.0
-
-Roadmap v0.8 is implemented: `agenticlens.routing.Router` turns saved ModelFit
-experiment evidence into explainable runtime decisions, with additional hard
-constraints, confidence thresholds, bounded fallback/provider failover, human
-escalation handoffs, shadow/canary modes and a local audit journal. Advisory is
-the default; execution requires explicit modes and caller-owned callbacks.
-
-```bash
-uv run python examples/routing_demo.py
-agenticlens routing decide examples/modelfit/artifacts/modelfit.json \
-  --category orders --request-id demo-1 \
-  --policy examples/routing/artifacts/policy.json
-```
-
-The offline demo explicitly permits low confidence; default policies require
-medium confidence. See the [routing guide](routing.md) for execution boundaries,
-measurement, audit limits and sibling compatibility. Next: roadmap v0.9
-Optimization Intelligence.
-
-## What It Measures
-
-| Dimension | What AgenticLens captures |
+| You provide | You receive |
 | --- | --- |
-| Step token use | Prompt tokens, completion tokens, total tokens by workflow step |
-| Cost | Provider pricing, dollar-per-run, monthly projections |
-| Latency | Step-level runtime and tokens per second |
-| Workflow shape | Planner, retriever, tool, memory, and final-response steps |
-| Waste patterns | Repeated prompts, excessive chunks, duplicate tool calls, long history |
-| Quality risk | Confidence and risk notes for optimization recommendations |
-| Resilience | Fault-injection outcomes through the `chaos_events` schema extension |
-| Tracing | Hierarchical runs and spans with status and error evidence |
-| Comparison | Success, tokens, latency, cost, variability, and regression deltas |
-| Diagnosis | Failure taxonomy, faulty step and agent, incident timeline, baseline anomalies |
-| Evaluation quality | Deterministic vs model-based scores, judge cost, evaluator disagreement |
-| Regression suites | Cases from CSV/JSON, traces, and feedback; PII masking, duplicates, splits, approved immutable versions |
-| Model selection | Per-task-category recommendations under hard constraints, with confidence, fallbacks, savings, and quality risks |
+| Instrumented workflows, structured traces, or supported imported trace data. | Run artifacts, analysis, comparisons, and evidence-backed recommendations. |
 
-## Token Optimization Focus
+## Execution boundary
 
-AgenticLens reports token savings at the step where the waste occurs:
+Recommendations are advisory. Its richer dataset and experiment workflows do not make every third-party trace schema automatically compatible.
 
-| Area | Optimization signal |
+[Start the AgenticLens quickstart →](guide/quickstart.md)
+
+## Capabilities
+
+Use these capabilities to address observe tasks in your application.
+
+| Capability | What it provides |
 | --- | --- |
-| Prompting | Repeated prompt prefixes that should be cached or deduplicated |
-| RAG | Excessive top-k retrieval and low-utility retrieved chunks |
-| Memory | Conversation history that should be summarized or truncated |
-| Tools | Duplicate tool calls that should be cached |
-| Multi-agent handoffs | Oversized context passed between agents |
-| Workflow | Estimated reducible tokens, cost per run, and monthly savings |
+| Workflow profiling | Capture planner, retrieval, tool, memory, and response steps with usage information. |
+| Structured tracing | Represent runs and hierarchical spans, including status and errors. |
+| Analysis and optimization | Inspect tokens, cost, latency, repeated work, and advisory improvement opportunities. |
+| Comparison and experiments | Compare baseline and candidate observations rather than relying on a single anecdotal run. |
+| Evaluation workflows | Manage datasets, experiments, calibration and evidence around scoring. |
+| OTLP and history | Import/export supported trace data and optionally receive and retain traces locally. |
 
-Multi-agent workflows can attach `agent_name`, `agent_role`, and handoff metadata
-to each step. AgenticLens then reports token usage by agent and flags oversized
-handoffs that should be summarized before passing context to the next agent.
+## Supported scope
 
-## Why It Matters
+Recommendations are advisory. Its richer dataset and experiment workflows do not make every third-party trace schema automatically compatible.
 
-Production agent systems fail in ways that ordinary request logs rarely explain.
-Token cost can drift across memory, retrieval, planning, and tool use. Reliability
-can degrade silently when an upstream tool fails. AgenticLens keeps these signals
-local, inspectable, and exportable so teams can compare workflows across versions.
+## Core concepts
 
-## Documentation
+| Concept | Meaning |
+| --- | --- |
+| Workflow vs run | A profiling workflow and a structured trace run are distinct artifact shapes. Use the matching analysis command. |
+| Spans and hierarchy | Instrument real boundaries and preserve parent/child relationships for attribution. |
+| Measured vs estimated | Usage supplied by a provider and costs calculated from pricing are different evidence sources. |
+| Baseline vs candidate | Use comparable tasks, cohorts, settings and measurement windows. |
+| Recommendations | Projected benefit, confidence, and quality risk are separate; adopted changes require new observations. |
 
-- [Getting started](getting-started.md)
-- [Architecture](architecture.md)
-- [Features](features.md)
-- [Configuration](configuration.md)
-- [API reference](api-reference.md)
-- [CLI reference](cli-reference.md)
-- [Integrations](integrations.md)
-- [Examples](examples.md)
-- [Workflow schema specification](workflow-schema-spec.md)
-- [AIOS v0.6 examples and extensions](aios-v0.6.md)
-- [AIOS v0.6.1 provenance and conformance suite](aios-0.6.1.md)
-- [AIOS v0.7.0 implementation guidance](aios-0.7.0.md)
-- [AIOS v0.8.0 operational artifacts](aios-0.8-operational-artifacts.md)
-- [AIOS validation and OTel export](aios-validation-and-otel.md)
-- [Export formats](export-formats.md)
-- [RAG chunk utility](rag-chunk-utility.md)
-- [Trace and comparison](trace-and-comparison.md)
-- [Evaluation and release gates](evaluation-and-release-gates.md)
-- [Test-suite and dataset management](suite-management.md)
-- [Diagnosis and failure attribution](diagnosis.md)
-- [Experiments and statistical comparison](experiments.md)
-- [ModelFit recommendations](modelfit.md)
-- [Multi-agent reference workflows](multi-agent-reference-workflows.md)
-- [Troubleshooting](troubleshooting.md)
-- [Limitations](limitations.md)
-- [Roadmap](roadmap.md)
-- [Product roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/agenticlens-roadmap.md)
-- [Research roadmap](https://github.com/DeepAgentLabs/agenticlens/blob/main/AgenticLens_Research_and_Development_Roadmap.md)
+## Recommended workflow
 
-## Quickstart
+## Capture real work
 
-```python
-from agenticlens import profile, step
+Instrument execution with `trace()` and spans. Record usage from the response that actually occurred, then save the run. The quickstart's counts are synthetic; replace them before using its output for cost decisions.
 
-with profile("Customer Support"):
-    with step("Planner", type="planner") as s:
-        response = planner_llm.invoke(prompt)
-        s.record(response)
+## Inspect and compare
+
+```
+agenticlens inspect run.json
+agenticlens compare baseline/ candidate/
 ```
 
-```bash
-uv run agenticlens profile examples/recommendations_demo.py --save workflow.json
-uv run agenticlens analyze workflow.json
+Populate both directories with actual repeated runs of comparable tasks. Inspect changes in success, duration, token use, and variability. Keep task mix and measurement conditions aligned.
+
+## Review improvements
+
+Use optimization recommendations as proposals. Review projected benefit alongside confidence and quality risk, record which change you adopt, and collect new runs to measure the outcome.
+
+## Use existing trace data
+
+```
+agenticlens import-otlp --help
 ```
 
-## Current Status
+Follow the supported OTLP contract and inspect the resulting spans. An arbitrary vendor export may require an adapter. Verify attributes before comparing costs or assigning failure ownership.
 
-**Version:** 0.14.0 · **PyPI:** [`agenticlens`](https://pypi.org/project/agenticlens/) · **Maturity:** Alpha
+## Next steps
 
-AgenticLens is early-stage open-source software. Workflow profiling, live and
-offline pricing, optimization recommendations, structured tracing, deterministic
-memory and retry findings, repeated-run comparison, evaluation suites with
-versioned evaluators and evidence audits, release gates with webhook alerts,
-judge calibration, multi-variant experiments with pass@k and significance
-tests, failure diagnosis with faulty-step attribution and incident timelines,
-trace-aware evaluators, judge cost and evaluator-disagreement reporting, AIOS
-draft validation/conformance with rule-cited summaries, OTLP trace export and ingestion, HTML
-dashboards, CLI commands, and export formats are implemented. The trace,
-comparison, evaluation, and experiment APIs remain experimental. Framework
-adapters remain roadmap work.
+Record a small local trace and inspect run.json.
 
-See [Limitations](limitations.md) for known constraints and [Roadmap](roadmap.md)
-for planned capabilities.
-
-## Production readiness candidate (0.13)
-
-See [the project artifact service, roles, policy, retention, audit and deployment guide](production-readiness.md),
-[public compatibility policy](compatibility-policy.md) and [ecosystem matrix](lens-0.13-compatibility.md).
-Run `uv run python examples/enterprise_demo.py` for an offline example.
-External security/deployment acceptance and the coordinated v1.0 freeze remain open.
-
-See [coordinated v1.0 engineering readiness](coordinated-v1-readiness.md) for candidate scope, migration and remaining acceptance gates.
+[Open the developer quickstart →](guide/quickstart.md)
