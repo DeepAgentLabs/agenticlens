@@ -1,0 +1,132 @@
+{
+  "product": "AgenticLens",
+  "repository": "agenticlens",
+  "distribution": "agenticlens",
+  "document": "llms-full.txt",
+  "content_type": "text/markdown; charset=utf-8",
+  "sha256": "3d1a929c421c140de10f782fba0b06e3e649ad8852d3a8a6c6c3a16d4a192bde",
+  "source_hash_normalization": "UTF-8 text with LF newlines",
+  "human_guide": "developer-guide.md",
+  "sources": [
+    {
+      "path": "pyproject.toml",
+      "kind": "package-metadata",
+      "sha256": "702693907fe41bfb370a343d2767565a22309d31188ffee57289551abfe8f218"
+    },
+    {
+      "path": "docs/ai-docs.json",
+      "kind": "source-selection",
+      "sha256": "117710b390d2004d334f94201616eca6712b686f2a51de1d2a8bd8dcb5dd4264"
+    },
+    {
+      "path": "docs/developer-guide.md",
+      "kind": "reference",
+      "sha256": "df90bf00b78f9277609afad84a1056f594b986b2f5005edeae53344ddb2aa4fc"
+    },
+    {
+      "path": "docs/api-reference.md",
+      "kind": "reference",
+      "sha256": "08b791703636745d254bd183895592363c5df368ffb9a4383199c4dbd75fdee8"
+    },
+    {
+      "path": "docs/cli-reference.md",
+      "kind": "reference",
+      "sha256": "eea6074acc2ded9329c6768ceb6c0a6b78e66333eb205911e5ba5ff092fa51b8"
+    },
+    {
+      "path": "docs/export-formats.md",
+      "kind": "reference",
+      "sha256": "ab324a4207b6d43e332c24d4d763729c024f7d236b347d186e1ea6612e5c46fb"
+    },
+    {
+      "path": "docs/workflow-schema-spec.md",
+      "kind": "reference",
+      "sha256": "099a77609a5ba6c8e3570d39d5e3d51abf2f87482e38236ffedfa4dd9b75291c"
+    },
+    {
+      "path": "docs/evidence-verification.md",
+      "kind": "reference",
+      "sha256": "5693e586442a1218ba0590ef04b6401b7f0a91078277686a454ef01e34a5103e"
+    },
+    {
+      "path": "docs/suite-management.md",
+      "kind": "reference",
+      "sha256": "8acd5e4825d364969985bb98b7d5a7638167a7514645cb3538f482f856246b6f"
+    },
+    {
+      "path": "docs/experiments.md",
+      "kind": "reference",
+      "sha256": "f08bb0b9fe8cf8198dd93e959af46016512be1cdd9ea54f40456bb91020c9090"
+    },
+    {
+      "path": "docs/limitations.md",
+      "kind": "reference",
+      "sha256": "b71d78a78602d708546c714213cd33eb04b76e86048dfcb3e1784ac935db4f3b"
+    },
+    {
+      "path": "src/agenticlens/__init__.py",
+      "kind": "source-contract",
+      "sha256": "92195640da0d3ad4b70b980a8a511d4196d1006aca19de2fb55d9177256e8adc"
+    },
+    {
+      "path": "src/agenticlens/models/__init__.py",
+      "kind": "source-contract",
+      "sha256": "72796c7889fbbf7275d78ed0a196194aaf8b382a261d6bc50a4d9715a5f96828"
+    },
+    {
+      "path": "src/agenticlens/models/enums.py",
+      "kind": "source-contract",
+      "sha256": "eeb035d3ba85de370351ddef4f7c59ba34ce42626fff0e4764b087cf1588d2e5"
+    },
+    {
+      "path": "src/agenticlens/models/metrics.py",
+      "kind": "source-contract",
+      "sha256": "1e797bf789c111d4b93d0c19f2430caa95f0722a5b60d98e4135d5874910e295"
+    },
+    {
+      "path": "src/agenticlens/models/recommendation.py",
+      "kind": "source-contract",
+      "sha256": "647cc77ea4ae7510921f198f328d7fc8a3f248c75252cefac4c4b8d3757c645a"
+    },
+    {
+      "path": "src/agenticlens/models/step.py",
+      "kind": "source-contract",
+      "sha256": "4b8112aa4c2c5d9f80a41afb9e317774e74220aa3fe5e578119b0ff75a3eb82f"
+    },
+    {
+      "path": "src/agenticlens/models/trace.py",
+      "kind": "source-contract",
+      "sha256": "491e9d45b5b40ac253ccc14f2ca2848ecbf31408de3863cea7bac5445e1260ce"
+    },
+    {
+      "path": "src/agenticlens/models/workflow.py",
+      "kind": "source-contract",
+      "sha256": "fdda6ef86a75f8381eb63b187938a045fae7e92c749fb6ace2a66fc2b2b1251c"
+    },
+    {
+      "path": "src/agenticlens/profiler/context.py",
+      "kind": "source-contract",
+      "sha256": "7503a9abe9f3f73e2251a5808a31b19324a9caa51f2935a75a2602583e8d818b"
+    },
+    {
+      "path": "src/agenticlens/instrumentation/__init__.py",
+      "kind": "source-contract",
+      "sha256": "da369e2225cfc15d7d6496a074b2b9af034eff53f0012d63101be0aee5fe8166"
+    },
+    {
+      "path": "src/agenticlens/instrumentation/redaction.py",
+      "kind": "source-contract",
+      "sha256": "f9a2f520ce42b8648724d32f279e9ac76fee0a175da1be7b20427d815da325f5"
+    },
+    {
+      "path": "src/agenticlens/instrumentation/trace.py",
+      "kind": "source-contract",
+      "sha256": "c2c1cb0fd5a507208fe3562a663b54c0767c9a9e8a215804b61291648a6e2e4f"
+    },
+    {
+      "path": "docs/guide/examples/lens_quickstart.py",
+      "kind": "example",
+      "sha256": "3ff8c9076afa7f2b49dfc0e785ef03f4e1779378d0382cba3382a3592f591baf"
+    }
+  ]
+}

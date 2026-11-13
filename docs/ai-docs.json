@@ -1,0 +1,49 @@
+{
+  "name": "AgenticLens",
+  "scope": "Observe and analyze recorded agent execution. Recommendations and comparisons are evidence-based analysis; they do not themselves authorize execution or release.",
+  "references": [
+    {
+      "title": "Setup and task workflows",
+      "path": "docs/developer-guide.md"
+    },
+    {
+      "title": "Api Reference",
+      "path": "docs/api-reference.md"
+    },
+    {
+      "title": "Cli Reference",
+      "path": "docs/cli-reference.md"
+    },
+    {
+      "title": "Export Formats",
+      "path": "docs/export-formats.md"
+    },
+    {
+      "title": "Workflow Schema Spec",
+      "path": "docs/workflow-schema-spec.md"
+    },
+    {
+      "title": "Evidence Verification",
+      "path": "docs/evidence-verification.md"
+    },
+    {
+      "title": "Suite Management",
+      "path": "docs/suite-management.md"
+    },
+    {
+      "title": "Experiments",
+      "path": "docs/experiments.md"
+    },
+    {
+      "title": "Limitations",
+      "path": "docs/limitations.md"
+    }
+  ],
+  "contracts": [
+    "src/agenticlens/__init__.py",
+    "src/agenticlens/models/*.py",
+    "src/agenticlens/profiler/context.py",
+    "src/agenticlens/instrumentation/*.py"
+  ],
+  "schemas": []
+}
