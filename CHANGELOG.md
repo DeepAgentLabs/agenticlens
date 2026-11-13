@@ -6,6 +6,15 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+
+## 1.0.1 - 2026-11-12
+
+### Changed
+
+- Add product-focused overviews, developer guides, task-based quickstarts, and downloadable examples.
+- Add repository-owned navigation for the shared documentation website.
+- Keep runtime behavior and native schema versions unchanged.
+
 ## 1.0.0 - 2026-11-05
 
 Release tag: `v1.0.0-ecosystem`. The historical July `v1.0.0` tag points to
