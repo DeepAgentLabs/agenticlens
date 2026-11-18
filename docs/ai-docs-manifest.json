@@ -2,7 +2,7 @@
   "product": "AgenticLens",
   "repository": "agenticlens",
   "distribution": "agenticlens",
-  "document": "llms-full.txt",
+  "document": "llms-full.md",
   "content_type": "text/markdown; charset=utf-8",
   "sha256": "3d1a929c421c140de10f782fba0b06e3e649ad8852d3a8a6c6c3a16d4a192bde",
   "source_hash_normalization": "UTF-8 text with LF newlines",
