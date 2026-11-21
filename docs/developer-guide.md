@@ -1,24 +1,46 @@
 # AgenticLens developer guide
 
-Use this guide to set up AgenticLens, run a local example, and apply it to your application. Optional provider and integration fragments identify the objects or services you must supply.
+Use this simple guide to choose a capability, run a local example, and connect it to your application. The [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) includes the detailed topic guides, declared Python/CLI interfaces and bundled JSON schemas. Package versions and draft/candidate artifact versions are independent.
 
-[Quickstart](#quickstart) · [Usage](#usage) · [Configuration](#settings) · [Troubleshooting](#troubleshooting) · [Reference](#reference)
+[Capability index](#capability-index) · [Quickstart](#quickstart) · [Configuration](#settings) · [Troubleshooting](#troubleshooting) · [Reference](#reference)
+
+## Capability index
+
+Every row links to a short workflow below. Each workflow links to its detailed reference.
+
+| Capability | What you can do |
+| --- | --- |
+| [Workflow profiling](#workflow-profiling) | Profile steps, extract provider usage, and analyze cost and token consumption. |
+| [Structured tracing and privacy](#tracing) | Record hierarchical runs, spans, agents, errors, tokens and redacted I/O. |
+| [Run comparison](#run-comparison) | Compare repeated baseline/candidate runs and detect descriptive regressions. |
+| [Diagnosis and attribution](#diagnosis) | Find failure categories, faulty steps and agents, timelines, anomalies and investigation narratives. |
+| [Analysis guardrails and attribution accuracy](#analysis-guardrails) | Bound analysis work and measure attribution on controlled failures. |
+| [Evaluation and live targets](#evaluation) | Score recorded outputs or trusted Python/HTTP targets using Evals and Lens evaluators. |
+| [Advanced evaluation and judge reliability](#advanced-evaluation) | Use structured verdicts, trace-aware checks, score disagreement, judge cost and threshold calibration. |
+| [Release gates and evidence audits](#release-gates) | Check quality thresholds, evaluator provenance, cost coverage and optional gate alerts. |
+| [Datasets and suite management](#suites) | Import, convert, edit, mask, deduplicate, vary, split, review, approve and verify cases. |
+| [Experiments and statistics](#experiments) | Run repeated model/prompt/retrieval/memory/retry variants with uncertainty and factor summaries. |
+| [ModelFit](#modelfit) | Rank models per task with hard constraints, weighted scoring, Pareto analysis, fallbacks and model matrices. |
+| [Runtime routing](#routing) | Select eligible models; use SDK callbacks for failover, shadow or canary execution and outcome journals. |
+| [Optimization and adoption outcomes](#optimization) | Find prompt, retrieval, memory, tool, retry, handoff and model trade-offs; track decisions and realized savings. |
+| [RAG chunk utility](#rag) | Identify low-utility chunks using citations, reranker/similarity scores or lexical fallback. |
+| [Dashboards, OTLP and history](#otlp-history) | Render HTML reports, import/export OTLP and receive or retain traces locally. |
+| [Exports and AIOS contracts](#exports-aios) | Export JSON/CSV/Markdown/Jira, validate draft artifacts and resolve provenance from held bytes. |
+| [Execution evidence verification and replay](#evidence) | Authenticate explicitly scoped snapshots and replay verified execution records offline. |
+| [Enterprise artifact operations](#enterprise) | Isolate project artifacts with credentials/roles, storage policy, registries, gate receipts, retention and audit. |
+| [Provider and multi-agent integrations](#integrations) | Extract OpenAI/Anthropic usage and instrument framework-neutral or LangGraph multi-agent workflows. |
+| [Sidecar, Chaos, Tower and MCP interoperability](#ecosystem) | Consume correlated native evidence while preserving producer identity, authority and health semantics. |
+| [Configuration and limitations](#settings) | Configure pricing, thresholds, capture and deployment; preserve unknowns and draft/candidate boundaries. |
 
 ## Quickstart
 
-Requires Python 3.10 or newer. Run commands in an activated virtual environment. Download referenced files into the same working directory before running them.
+Requires Python 3.10 or newer in an activated virtual environment:
 
-### Install
-
-```
+```bash
 python -m pip install agenticlens
 ```
 
-### Create a local trace
-
-Save this file. Token counts are deliberately synthetic; replace them with actual provider usage in your application.
-
-lens_quickstart.py · complete file
+Save this complete file as `lens_quickstart.py`. Its token counts are synthetic, not provider measurements:
 
 ```python
 from agenticlens import SpanType, trace
@@ -35,331 +57,289 @@ print("Saved run.json; counts are illustrative, not provider measurements.")
 
 [Download lens_quickstart.py](guide/examples/lens_quickstart.py)
 
-### Run and inspect
-
-```
+```bash
 python lens_quickstart.py
 agenticlens inspect run.json
 ```
 
-**Expected:** a saved run with planning and memory spans. This proves the instrumentation path, not measured production cost or quality.
-
-### Connect your application
-
-Wrap actual execution boundaries with spans, attach real usage, and preserve run identifiers. For existing OTLP data, follow the supported import contract rather than relabeling arbitrary JSON as a Lens run.
-
-[Tracing and comparison ↗](trace-and-comparison.md) · [CLI reference ↗](cli-reference.md)
+Expect a saved run with planning and memory spans. Wrap real execution boundaries and record actual usage when connecting your application.
 
 ## Usage
 
+The commands below use files you supply unless they refer to `run.json` from the quickstart. Examples under `examples/` require a repository checkout; run those commands from its root. Saved profiling workflows (`steps`) and structured runs (`spans`) are different artifact types.
+
+### Workflow profiling
+
+Use `profile()` and `step()` to collect workflow steps and token usage. This complete local example saves a profiling workflow:
+
+```python
+from agenticlens import profile, step
+from agenticlens.models.metrics import Metrics
+from agenticlens.exporters import JSONExporter
+
+with profile("support-workflow") as workflow:
+    with step("answer", type="llm_call") as call:
+        call.step.metrics = Metrics(prompt_tokens=120, completion_tokens=30, total_tokens=150)
+JSONExporter().export(workflow, "workflow.json")
+```
+
+Use `call.record(response)` to extract usage from supported OpenAI/Anthropic response objects. Other providers can supply explicit token counts. Profiled steps support agent attribution and retrieval, memory, retry and handoff metadata.
+
+```bash
+agenticlens report workflow.json
+agenticlens analyze workflow.json --html workflow.html
+```
+
+Analysis combines token/cost metrics, provider/model pricing and rule-based recommendations for repeated system prompts, excessive retrieval, low-utility chunks, long history, duplicate tools, handoff bloat, injected faults and model swaps. Latency, tokens per second and explicitly measured time to first token support performance analysis. Unknown prices remain unavailable. See [profiling API](api-reference.md#profiling-api), [features](features.md) and [provider integrations](integrations.md).
+
 <span id="tracing"></span>
 
-### Capture and compare traces
+### Structured tracing and privacy
 
-#### Capture a trace
+Use the quickstart's `trace()` and `recording.span()` for nested model, planning, retrieval, tool, memory, validation, delegation and retry spans. Record tokens, costs, status, agent names and attributes at the actual execution boundary. Input/output capture is opt-in through `record_io()`; default redaction covers common secrets, bearer tokens and emails. Supply `redactor=` for application-specific requirements.
 
-```
-from agenticlens import SpanType, trace
-
-with trace("support-agent", environment="test") as recording:
-    with recording.span("planner", SpanType.PLANNING) as planner:
-        planner.record_tokens(input_tokens=120, output_tokens=30)
-
-    with recording.span("memory", SpanType.MEMORY_READ) as memory:
-        memory.record_tokens(input_tokens=80)
-
-recording.save("run.json")
-```
-
-Input and output values are not captured by default. Explicit values recorded with
-
-`record_io()` pass through the default secret, bearer-token, and email redactor. Supply a
-
-custom `redactor=` function to meet application-specific privacy requirements.
-
-If you also want the trace emitted to an OTLP/HTTP collector, pass
-
-`otlp_endpoint=...` to `trace()` or configure the OTLP environment variables
-
-documented in [AIOS validation and OTel export](aios-validation-and-otel.md).
-
-#### Inspect a run
-
-```
-agenticlens inspect run.json
-```
-
-The report includes a span tree, raw token and latency distributions, retry and tool-call
-
-counts, deterministic findings, and next-best-analysis guidance when findings suggest
-
-an obvious follow-up. Findings cite the exact spans and measurements that triggered
-
-them.
-
-Save a Markdown trace report:
-
-```
+```bash
 agenticlens inspect run.json --save trace-report.md
+agenticlens trace show run.json
 ```
 
-#### Compare repeated runs
+Use `trace show run.json --span SPAN_ID` for a recorded span ID. See [tracing and comparison](trace-and-comparison.md) and [tracing API](api-reference.md#tracing-api).
 
-Place baseline and candidate JSON traces in separate directories:
+### Run comparison
 
-```
+Put baseline and candidate structured runs in separate directories:
+
+```bash
 agenticlens compare results/baseline results/candidate \
-  --regression-threshold 0.05 \
-  --save comparison.json
+  --format md --save comparison.md --min-samples 5 --fail-on-regression
 ```
 
-Use `--format csv` for tabular export and `--fail-on-regression` in CI. Comparisons report
+Compare success, mean/median/P95 latency, variability, tokens, cost per success and relative regressions. This comparison is descriptive; use repeated experiments for statistical comparisons. See [trace comparison](trace-and-comparison.md).
 
-success rate, mean/median/P95 values, standard deviation, coefficient of variation,
+<span id="diagnosis"></span>
 
-cost per successful task, and relative regressions.
+### Diagnosis and attribution
 
-Use `--format md` for a review-friendly Markdown summary and `--min-samples` when a
-
-comparison should fail under CI if either cohort is too small:
-
-```
-agenticlens compare results/baseline results/candidate \
-  --format md \
-  --save comparison.md \
-  --min-samples 5
+```bash
+agenticlens diagnose run.json --save diagnosis.json --markdown investigation.md
+agenticlens explain diagnosis.json --save explanation.md
+agenticlens trace timeline run.json --save timeline.json
 ```
 
-The comparison is descriptive. It does not claim statistical significance or causal
+Diagnosis cites recorded spans for failure categories, origin versus propagated failures, recovery, faulty-step/agent attribution and incident timelines. Add `--baseline healthy-runs/` for anomaly detection. Budgets, tool/handoff loops, empty retrieval and injected faults have explicit rules. See [diagnosis and failure attribution](diagnosis.md).
 
-attribution, particularly for small or uncontrolled samples.
+<span id="analysis-guardrails"></span>
+
+### Analysis guardrails and attribution accuracy
+
+```bash
+agenticlens diagnose run.json --max-spans 10000 --max-depth 64 --fail-on-unrecovered
+```
+
+Analysis budgets cap work and report incomplete analysis. `--fail-on-unrecovered` exits 4 when unrecovered failures are diagnosed. Python `AnalysisBudget` also supports time limits. Measure attribution against controlled-failure ground truth from the checkout:
+
+```bash
+agenticlens attribution-accuracy examples/diagnosis/controlled_failures \
+  --save attribution-accuracy.json --min-step-accuracy 0.8
+```
+
+See [guardrails](diagnosis.md#guardrails-for-automated-analysis) and [attribution accuracy](diagnosis.md#attribution-accuracy-on-controlled-failures). Controlled fixtures do not establish accuracy on arbitrary production traffic.
+
+<span id="evaluation"></span>
+
+### Evaluation and live targets
+
+Prepare a YAML/JSON suite plus recorded samples with matching case IDs:
+
+```bash
+agenticlens evaluate suite.yaml samples.json --save evaluation.json --html evaluation.html
+```
+
+Evals owns scoring and release-gate computation. Lens adds evidence adaptation, trace-aware evaluators and reporting. `evaluate-live` supports trusted Python callables and HTTP endpoints; the host supplies provider clients and credentials. See [evaluation and release gates](evaluation-and-release-gates.md) for suite contracts and live-target setup.
+
+<span id="advanced-evaluation"></span>
+
+### Advanced evaluation and judge reliability
+
+Use `structured_judge()` with your own judge callback to record verdicts, confidence, unsupported claims, missed evidence, prompt identity, latency and usage. Self-judging is skipped by default. Trace-aware checks cover tool trajectories, agent goals, handoffs, loops, groundedness, relevance, completeness, citations and safety.
+
+```bash
+agenticlens evaluate suite.yaml samples.json --save evaluation.json \
+  --score-analysis scores.json --html evaluation.html
+agenticlens calibrate evaluation.json labels.json --evaluator answer_quality --save calibration.json
+```
+
+Score analysis separates deterministic/model-based scores, disagreement and judge cost. Calibration compares human references; the Python API and `calibrate --tune-threshold tuning.json` also tune thresholds. Lexical checks have semantic limits. See [structured judges, score analysis and trace-aware evaluators](evaluation-and-release-gates.md#structured-judge-verdicts) and the [judge reliability contract](evals-0.9-judge-reliability.md).
+
+<span id="release-gates"></span>
+
+### Release gates and evidence audits
+
+```bash
+agenticlens evaluate suite.yaml samples.json --save evaluation.json \
+  --audit audit.json --strict-evidence
+agenticlens gate evaluation.json --min-pass-rate 0.95
+```
+
+Audits inspect evaluator versions, trace evidence and cost coverage; strict blocking issues exit 3. Gates check configured quality, latency and cost thresholds. Optional webhook notifications support generic, Slack and Teams payloads when configured; they require an operator-supplied destination. See [gate thresholds and alerts](evaluation-and-release-gates.md#apply-a-release-gate) and [native Evals report boundaries](evals-report-contract.md).
+
+<span id="suites"></span>
+
+### Datasets and suite management
+
+Datasets retain saved samples and labels; `dataset summary`, `dataset split` and `dataset export-samples` inspect and partition them. Suites contain test definitions and review metadata:
+
+```bash
+agenticlens suite import cases.csv --name support-regression --version 1.0.0 --save suite.yaml
+agenticlens suite summary suite.yaml
+```
+
+Continue with trace/feedback conversion, case editing/tagging, PII masking, duplicate checks, synthetic variations, split assignment, filtering and review. Approve reviewed suites into an immutable store, then verify/export the approved version for CI. Editing commands modify their input unless `--save` names another file. See the [full suite lifecycle and commands](suite-management.md) and [dataset API](api-reference.md#dataset-api).
+
+<span id="experiments"></span>
+
+### Experiments and statistics
+
+Run the checkout's offline recorded-output example:
+
+```bash
+agenticlens experiment run examples/experiments/support-experiment.yaml \
+  examples/experiments/support-suite.yaml --save experiment.json \
+  --html experiment.html --csv variants.csv --cases-csv cases.csv
+```
+
+Manifests define at least three variants, repeated trials and factors such as model, prompt, retrieval, memory or retry policy. Reports include pass@k/pass^k, confidence intervals, comparisons, consistency and factor summaries. `experiment report` renders saved results without rerunning targets. See [experiments and statistics](experiments.md).
+
+### ModelFit
+
+Use saved experiment evidence to select models by task category:
+
+```bash
+agenticlens modelfit taxonomy experiment.json --config modelfit.yaml
+agenticlens modelfit recommend experiment.json --config modelfit.yaml \
+  --save modelfit.json --markdown modelfit.md --csv matrix.csv
+agenticlens modelfit matrix modelfit.json
+```
+
+Your config defines categories, hard quality/cost/latency/safety/provider/deployment constraints and scoring weights. Missing evidence fails constraints closed. Reports include Pareto status, cost per success, confidence, fallbacks, projected savings and separate quality risks. ModelFit does not invoke models. See [ModelFit configuration and evidence](modelfit.md).
+
+<span id="routing"></span>
+
+### Runtime routing
+
+Given the saved ModelFit report and a category present in it:
+
+```bash
+agenticlens routing decide modelfit.json --category orders --request-id opaque-123 \
+  --save decision.json
+```
+
+The CLI explains selection without invoking providers in every mode. Python `Router.run()` accepts host-owned callbacks for enforce, shadow and canary execution, bounded failover and local audit journals. `routing summary` consumes saved SDK results, not decision files. Hosts own payloads, credentials, deadlines and quality checks. See [routing modes, constraints and outcomes](routing.md).
 
 <span id="optimization"></span>
 
-### Review optimization evidence
+### Optimization and adoption outcomes
 
-#### What each rule reads
+```bash
+agenticlens optimize analyze traces/before --save optimization.json --markdown optimization.md
+```
 
-Rules only use what the trace records. A span without the signal a rule
+Review opportunities for caching/compression, retrieval pruning/reranking, memory summarization, tools, retries, redundant steps, handoffs and model quality/cost trade-offs. Each keeps evidence, benefit, confidence and risk separate; missing costs remain unknown.
 
-needs is skipped, not estimated.
+Use `optimize decide` to record acceptance and adoption against the exact report hash, `optimize status` to inspect decisions, and `optimize outcome` to compare before/after traces with the original projection. `--fail-on-regression` on outcome exits 9 if quality regressed. See [optimization rules, decision transitions and outcomes](optimization.md).
 
-| Rule (`rule_id`) | Opportunity `kind` | Reads | Fires when |
-| --- | --- | --- | --- |
-| `prompt_caching` | `prompt_caching` | model-call `prompt.prefix_sha256`, `prompt.prefix_tokens`, optional `prompt.cached_tokens` | the same prefix of at least `prompt_cache_min_prefix_tokens` repeats `prompt_cache_min_repeats` times without a cache hit |
-| `prompt_compression` | `prompt_compression` | model-call input and output tokens | input ≥ `prompt_compression_min_input_tokens` and input/output ≥ `prompt_compression_min_ratio` |
-| `retrieval` | `retrieval_pruning` | retrieval `retrieval.chunks` (or `chunks`): `tokens`, `used` (or `cited`), optional `rank` | at least `retrieval_min_chunks` chunks, utility ≤ `retrieval_max_utility`, and chunks ranked below the deepest used chunk |
-| `retrieval` | `retrieval_reranking` | same | a used chunk ranked at or below `retrieval_rerank_min_rank` while higher-ranked chunks went unused |
-| `memory` | `memory_summarization` | `memory_read` span tokens | memory share of run tokens > `memory_max_share` and memory > `memory_token_budget` |
-| `tool_caching` | `tool_result_caching` | successful tool calls, `tool_args` (or input fingerprint), `idempotent`, `side_effects` | identical arguments repeat `tool_cache_min_repeats` times in one run |
-| `retry_policy` | `retry_policy` | retry spans, their triggering failure's `error_type`, retry outcome | ≥ `retry_min_unrecovered` retries of an error type and none recovered |
-| `redundant_step` | `redundant_step` | model, retrieval, planning, validation, and memory-read input and output fingerprints | the same input produced the same output again in one run |
-| `unnecessary_handoff` | `unnecessary_handoff` | delegation spans, `from_agent`/`to_agent`, the delegated subtree | the receiver made no model, tool, retrieval, or planning call, or returned its input unchanged |
-| `quality_cost_tradeoff` | `quality_cost_tradeoff` | `variant_id`, `task_success`, run cost | a variant costs at least `tradeoff_min_cost_reduction` less with success within `tradeoff_max_success_rate_drop` of the baseline |
+<span id="rag"></span>
 
-A tool with any call that declares `idempotent: false` or
+### RAG chunk utility
 
-`side_effects: true` is never recommended for caching. An error type is called non-retryable only when no
+Record `retrieved_chunks` on a profiled retriever step. Citation flags take priority over reranker scores, embedding similarity and generic utility scores; word overlap is the fallback. `agenticlens analyze workflow.json` flags low-utility chunks when configured thresholds are met. This workflow signal differs from the structured-trace retrieval optimization rules. See [supported chunk signals and configuration](rag-chunk-utility.md).
 
-observed retry of it recovered. Top-k is never lowered below the deepest chunk
+<span id="otlp-history"></span>
 
-any observed answer used.
+### Dashboards, OTLP and history
 
-#### Benefit, confidence, and risk
+Install the optional HTTP dependencies for the local receiver:
 
-Each `Opportunity` has three separate parts.
+```bash
+python -m pip install 'agenticlens[api]'
+agenticlens import-otlp otlp.json --save imported-run.json
+agenticlens serve-otlp --host 127.0.0.1 --port 4318 --db traces.db
+```
 
-- **`benefit`** (`ProjectedBenefit`): tokens, cost, and latency per run,
+Run `agenticlens history --db traces.db` in another terminal. The receiver has no authentication; keep it local or on a trusted network. Use `dashboard` for saved HTML and `trace(..., otlp_endpoint=...)` or OTLP environment variables for export to a collector. See [CLI commands](cli-reference.md), [OTLP mapping](aios-validation-and-otel.md) and [receiver limits](limitations.md).
 
-averaged over every observed run (including unaffected ones), plus a monthly
+<span id="exports-aios"></span>
 
-cost when `monthly_runs` is configured. `basis` states how it was derived.
+### Exports and AIOS contracts
 
-Cost is `null` with `cost_available: false` whenever any affected span lacks
+Workflow exporters support JSON, CSV, Markdown and Jira payloads. Comparison, experiment, evaluation, ModelFit and optimization reports have their own output contracts. Native structured runs are not automatically AIOS artifacts.
 
-a recorded cost; it is never filled in from list prices.
+```bash
+agenticlens conformance --list-versions
+agenticlens validate aios-artifact.json --save validation.json
+agenticlens conformance aios-artifact.json --save conformance.json
+```
 
-- **`confidence`** (`high`/`medium`/`low`) with `confidence_reasons`. High
+Validation routes by declared marker: Run/Workflow `0.4-draft`, provenance `0.6-draft`, and supported operational companions `0.8-draft`. Explicit `--version` asserts a version. Schema validation alone does not establish semantic alignment. Python APIs export findings, provenance and structured-judge verification signals; provenance resolution uses caller-held bytes. See [export formats](export-formats.md), [current validation and companion APIs](coordinated-v1-readiness.md), and [operational artifacts](aios-0.8-operational-artifacts.md).
 
-needs at least `high_confidence_min_runs` affected runs making up at least
+<span id="evidence"></span>
 
-`high_confidence_min_share` of observed runs. One affected run is low.
+### Execution evidence verification and replay
 
-Unpriced savings, assumed reductions (compression, reranking), and trade-offs
+Prepare explicit execution observations and an operator-owned trusted key file:
 
-with fewer than 30 runs per variant are capped at medium.
+```bash
+agenticlens evidence export run.json observations.json bundle.json \
+  --key-id capture-key --key-file trusted-keys.json --complete
+agenticlens evidence replay bundle.json --run-id EXPECTED_RUN_ID --key-file trusted-keys.json
+```
 
-- **`risks`** (`QualityRisk`): kind, severity, and description. Risks are never
+The run ID must match your trusted caller context. `evidence verify` checks standalone records/manifests with an expected stream ID. Verification distinguishes failed, unknown and incomplete evidence; replay refuses untrusted or incomplete bundles and preserves capture order. It does not execute tools or providers. Declare completeness only for an actually complete capture. See [trust setup, coverage and evidence schemas](evidence-verification.md).
 
-netted against the benefit.
+<span id="enterprise"></span>
 
-Opportunities are ranked by projected cost per run, then tokens per run;
+### Enterprise artifact operations
 
-unpriced opportunities rank last. Opportunity IDs are a stable hash of the kind
+The optional single-node artifact service adds organization/project isolation, hashed bearer credentials with reader/writer/admin roles, SQLite storage, redaction/retention, immutable model/prompt registry metadata, policy-bound gate receipts, audit and compliance metadata. Install `[api]`, prepare the documented credential/storage/gate configuration, then run:
 
-and subject, so the same finding keeps its ID across reports.
+```bash
+LENS_CONFIG=/secure/config.json LENS_DATABASE=/data/lens.db \
+  uvicorn agenticlens.enterprise.server:create_app --factory \
+  --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
+```
 
-#### Tracking decisions
+This is a separate service from the developer OTLP receiver. Use its [configuration, HTTP routes, roles, deployment, backup and rollback guide](production-readiness.md) before operating it. Candidate markers and remaining acceptance work are described in [coordinated readiness](coordinated-v1-readiness.md).
 
-`RecommendationLedger` is an append-only JSONL file. Each
+<span id="integrations"></span>
 
-`RecommendationDecision` records the opportunity, the SHA-256 of the report
+### Provider and multi-agent integrations
 
-that proposed it, the status, who decided, when, why, and an optional change
+Use explicit instrumentation around provider/framework execution. OpenAI/Anthropic usage extraction is supported; other providers supply usage manually. Agent names and delegation spans support per-agent analysis. The optional `agenticlens[langgraph]` or `[multi-agent]` extra supports the checked-in LangGraph supervisor reference workflow. See [providers and frameworks](integrations.md) and [offline supervisor/handoff workflows](multi-agent-reference-workflows.md).
 
-reference (PR, commit, config version). Transitions are enforced:
+<span id="ecosystem"></span>
 
-| To | Allowed from |
-| --- | --- |
-| `accepted` | `proposed`, `rejected` |
-| `rejected` | `proposed`, `accepted` |
-| `adopted` | `accepted` |
-| `reverted` | `adopted` |
+### Sidecar, Chaos, Tower and MCP interoperability
 
-A decision whose `report_sha256` does not match the report is refused, and
+`attach_decisions(run, records)` attaches Sidecar decisions only when run, trace and span IDs match, preserving supervision events in diagnosis timelines. Chaos evidence supports analysis of injected faults; Lens does not inject them. Tower consumes attributed native evidence, and the separate MCP package exposes Lens workflows. Producer outcomes, execution proof, authority and deployment health remain distinct.
 
-statuses and transitions only count decisions made on the same report, so an
-
-acceptance recorded against an earlier report never authorizes adoption, or
-
-shows as the status, on a regenerated one. The ledger is a
-
-single-writer local file, not a governance system.
-
-#### Evaluating outcomes after adoption
-
-`evaluate_outcome(report, opportunity_id, before, after)` measures per-run
-
-tokens, cost, latency, and success rate before and after the change, and
-
-re-runs the originating rule on the after traces (`still_detected`). The
-
-projection is copied from the report unchanged, so projected and observed
-
-values sit side by side and are never blended.
-
-`realized_ratio` compares the observed saving with the projected one, on cost
-
-for prompt caching and trade-offs (their saving does not change token counts)
-
-and on tokens otherwise.
-
-| Status | Meaning |
-| --- | --- |
-| `insufficient_evidence` | fewer than `--min-runs` (default 3) runs on either side, or the rule stopped firing but the saving could not be measured |
-| `quality_regressed` | success rate fell by more than `tradeoff_max_success_rate_drop`; this takes precedence over savings |
-| `realized` | at least 80% of the projected saving appeared and the rule no longer fires |
-| `partially_realized` | some saving appeared, or the rule still fires |
-| `not_realized` | no saving appeared |
-
-`agenticlens optimize outcome --fail-on-regression` exits **9** on
-
-`quality_regressed`, so CI can block a regression introduced by an adopted
-
-optimization.
-
-#### Known limits
-
-- Projections assume future traffic resembles the analysed traces.
-- Prompt-caching cost is pro-rated by token share within a span, an upper bound
-
-when output tokens cost more than input tokens. Provider cache lifetimes are
-
-not modelled.
-
-- Compression and reranking benefits are configured or best-case assumptions,
-
-which is why their confidence is capped.
-
-- Memory and retrieval savings are priced at a blended or downstream per-token
-
-cost.
-
-- Outcome evaluation compares two windows of traffic; it does not control for
-
-other changes shipped in the same window.
-
-- Fingerprints depend on recorded `input_data`/`output_data` or references;
-
-redacted payloads limit redundant-step and handoff detection.
+See [Sidecar correlation](sidecar-integration.md), [Sidecar authority/privacy](sidecar-0.9.md), [ChaosHub](chaos-0.11-chaoshub.md), [Tower contract readiness](tower-0.10-compatibility.md), [MCP readiness](mcp-0.7-readiness.md) and the [historical compatibility matrix](lens-0.13-compatibility.md). Release-specific notes describe their stated versions, not a guarantee for every current installation.
 
 <span id="settings"></span>
 
-## Configuration
+## Configuration and limitations
 
-### Configure capture and export
+For workflow analysis, load `AgenticLensConfig` from an explicit YAML path or set `AGENTICLENS_CONFIG`. Use `pricing_overrides` (USD per 1,000 tokens), `live_pricing` and `recommender` settings. Set `AGENTICLENS_DISABLE_LIVE_PRICING=1` for offline pricing.
 
-#### Environment variables
+Structured tracing takes `otlp_endpoint`, `otlp_headers`, `otlp_timeout_seconds` and `redactor` arguments; OTLP environment variables supply defaults. Explicit arguments take precedence. ModelFit, routing, optimization and enterprise services use their own documented configurations. See [complete configuration](configuration.md).
 
-All OTLP settings can also be set via environment variables:
-
-| Variable | Description | Default |
-| --- | --- | --- |
-| `AGENTICLENS_OTLP_TRACES_ENDPOINT` | OTLP/HTTP endpoint URL | — |
-| `AGENTICLENS_OTLP_HEADERS` | Comma-separated `Key=Value` pairs | — |
-| `AGENTICLENS_OTLP_TIMEOUT_SECONDS` | Request timeout | `10` |
-
-Environment variables take precedence over `agenticlens.yaml` settings.
-
-Example:
-
-```
-export AGENTICLENS_OTLP_TRACES_ENDPOINT=http://localhost:4318/v1/traces
-export AGENTICLENS_OTLP_HEADERS='Authorization=Bearer my-token'
-```
-
-#### Redaction
-
-The `trace()` API redacts secrets, bearer tokens, and email addresses from
-
-captured I/O by default. To supply a custom redactor:
-
-```
-def my_redactor(value: str) -> str:
-    # Return the sanitized string
-    return value.replace("SECRET", "[REDACTED]")
-
-with trace("agent", redactor=my_redactor) as recording:
-    ...
-```
-
-#### `serve-otlp` configuration
-
-The live OTLP receiver accepts configuration as CLI flags:
-
-```
-agenticlens serve-otlp \
-  --host 127.0.0.1 \
-  --port 4318 \
-  --db traces.db \
-  --max-traces 200
-```
-
-| Flag | Default | Description |
-| --- | --- | --- |
-| `--host` | `127.0.0.1` | Bind address |
-| `--port` | `4318` | Port |
-| `--db` | in-memory | SQLite path for persistent storage |
-| `--max-traces` | `200` | In-memory trace cap (FIFO eviction) |
-
-**Security note:** The receiver ships with no authentication. Run it only on
-
-localhost or in a trusted network.
+Instrument actual boundaries and usage; automatic arbitrary-framework interception and streaming token capture are not provided. Recommendations are heuristic, savings are projections, and comparison windows do not prove causality. Missing prices, traces or evaluator evidence must not be treated as zeros or successful checks. See [limitations](limitations.md) and [compatibility policy](compatibility-policy.md).
 
 ## Troubleshooting
 
-Check the failing boundary before changing application behavior.
-
-- Missing file: run the Python script first, in the same working folder.
-- Unknown cost: supply actual usage and appropriate pricing information; do not infer zero cost.
-- Wrong artifact type: distinguish a profiling workflow artifact from a structured run.
-
-### Verify your environment
-
-Run commands from the environment where you installed the package. Confirm the input file exists and matches the expected artifact contract. Keep the original evidence when diagnosing a failure.
+Use the environment where the package was installed. Confirm files exist, case IDs match, and the input is the right artifact type. Start with `agenticlens COMMAND --help` for exact flags. Keep original evidence when diagnosing an issue. See [troubleshooting](troubleshooting.md).
 
 ## Reference
 
-Use the current product reference for exact method signatures, command options, and supported artifacts. The code fragments in configuration and how-to articles build on the quickstart; they are not all standalone scripts.
-
-- [Open API / CLI reference ↗](cli-reference.md)
+- [API reference](api-reference.md) and [CLI reference](cli-reference.md).
+- [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) and [capability/source index](ai-reference-index.md).
+- [Source manifest and checksums](ai-docs-manifest.json).
