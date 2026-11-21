@@ -20,4 +20,6 @@ Record a small local trace and inspect run.json.
 
 Recommendations are advisory. Its richer dataset and experiment workflows do not make every third-party trace schema automatically compatible.
 
-[Read the detailed developer guide](developer-guide.md).
+[Developer Guide (simple)](developer-guide.md#capability-index) · [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md)
+
+Both include a capability index. The developer guide gives short workflows; the AI reference includes detailed guides, source declarations and bundled schemas.

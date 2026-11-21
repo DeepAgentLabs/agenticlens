@@ -52,8 +52,13 @@ with profile("Anthropic Workflow"):
 For providers not natively supported, manually set token counts:
 
 ```python
-with step("LLM", type="llm_call") as s:
-    s.record_tokens(input_tokens=120, output_tokens=30)
+from agenticlens import profile, step
+from agenticlens.models.metrics import Metrics
+
+with profile("Custom provider"):
+    with step("LLM", type="llm_call") as s:
+        # Replace these illustrative counts with actual provider usage.
+        s.step.metrics = Metrics(prompt_tokens=120, completion_tokens=30, total_tokens=150)
 ```
 
 ---

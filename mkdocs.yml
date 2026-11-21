@@ -56,6 +56,8 @@ nav:
   - MCP Phase 6 Containment: phase6-containment.md
   - Evals 0.11 Containment Scoring: evals-0.11-containment.md
   - Home: index.md
+  - Developer Guide (simple): developer-guide.md
+  - AI Reference capability index: ai-reference-index.md
   - Getting started: getting-started.md
   - Architecture: architecture.md
   - Features: features.md
