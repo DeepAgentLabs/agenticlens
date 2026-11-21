@@ -3,47 +3,231 @@
   "scope": "Observe and analyze recorded agent execution. Recommendations and comparisons are evidence-based analysis; they do not themselves authorize execution or release.",
   "references": [
     {
+      "title": "AI Reference capability index",
+      "path": "docs/ai-reference-index.md"
+    },
+    {
       "title": "Setup and task workflows",
       "path": "docs/developer-guide.md"
     },
     {
-      "title": "Api Reference",
+      "title": "Features",
+      "path": "docs/features.md"
+    },
+    {
+      "title": "Architecture",
+      "path": "docs/architecture.md"
+    },
+    {
+      "title": "API reference",
       "path": "docs/api-reference.md"
     },
     {
-      "title": "Cli Reference",
+      "title": "CLI reference",
       "path": "docs/cli-reference.md"
     },
     {
-      "title": "Export Formats",
-      "path": "docs/export-formats.md"
+      "title": "Configuration",
+      "path": "docs/configuration.md"
     },
     {
-      "title": "Workflow Schema Spec",
-      "path": "docs/workflow-schema-spec.md"
+      "title": "Tracing and comparison",
+      "path": "docs/trace-and-comparison.md"
     },
     {
-      "title": "Evidence Verification",
-      "path": "docs/evidence-verification.md"
+      "title": "Failure diagnosis and attribution",
+      "path": "docs/diagnosis.md"
     },
     {
-      "title": "Suite Management",
+      "title": "Evaluation and release gates",
+      "path": "docs/evaluation-and-release-gates.md"
+    },
+    {
+      "title": "Suite management",
       "path": "docs/suite-management.md"
     },
     {
-      "title": "Experiments",
+      "title": "Experiments and statistics",
       "path": "docs/experiments.md"
+    },
+    {
+      "title": "ModelFit recommendations",
+      "path": "docs/modelfit.md"
+    },
+    {
+      "title": "Advisory runtime routing",
+      "path": "docs/routing.md"
+    },
+    {
+      "title": "Optimization intelligence",
+      "path": "docs/optimization.md"
+    },
+    {
+      "title": "RAG chunk utility",
+      "path": "docs/rag-chunk-utility.md"
+    },
+    {
+      "title": "Export formats",
+      "path": "docs/export-formats.md"
+    },
+    {
+      "title": "Workflow schema specification",
+      "path": "docs/workflow-schema-spec.md"
+    },
+    {
+      "title": "Execution evidence verification",
+      "path": "docs/evidence-verification.md"
+    },
+    {
+      "title": "Enterprise artifact operations",
+      "path": "docs/production-readiness.md"
+    },
+    {
+      "title": "Provider and framework integrations",
+      "path": "docs/integrations.md"
+    },
+    {
+      "title": "Multi-agent reference workflows",
+      "path": "docs/multi-agent-reference-workflows.md"
+    },
+    {
+      "title": "Sidecar correlation",
+      "path": "docs/sidecar-integration.md"
+    },
+    {
+      "title": "AIOS validation and OTLP export",
+      "path": "docs/aios-validation-and-otel.md"
+    },
+    {
+      "title": "Coordinated readiness",
+      "path": "docs/coordinated-v1-readiness.md"
+    },
+    {
+      "title": "Compatibility policy",
+      "path": "docs/compatibility-policy.md"
+    },
+    {
+      "title": "Examples",
+      "path": "docs/examples.md"
+    },
+    {
+      "title": "Troubleshooting",
+      "path": "docs/troubleshooting.md"
     },
     {
       "title": "Limitations",
       "path": "docs/limitations.md"
+    },
+    {
+      "title": "Historical integration note: AIOS v0.6.1 compatibility",
+      "path": "docs/aios-0.6.1.md"
+    },
+    {
+      "title": "Historical integration note: AIOS repository v0.7.0 compatibility",
+      "path": "docs/aios-0.7.0.md"
+    },
+    {
+      "title": "Historical integration note: AIOS operational-artifact compatibility",
+      "path": "docs/aios-0.8-operational-artifacts.md"
+    },
+    {
+      "title": "Historical integration note: AIOS v0.6 compatibility",
+      "path": "docs/aios-v0.6.md"
+    },
+    {
+      "title": "Historical integration note: Chaos 0.11 ChaosHub compatibility",
+      "path": "docs/chaos-0.11-chaoshub.md"
+    },
+    {
+      "title": "Historical integration note: Chaos 0.7 compatibility",
+      "path": "docs/chaos-0.7.md"
+    },
+    {
+      "title": "Historical integration note: Chaos 0.8 compatibility",
+      "path": "docs/chaos-0.8.md"
+    },
+    {
+      "title": "Historical integration note: Chaos 0.9 compatibility",
+      "path": "docs/chaos-0.9.md"
+    },
+    {
+      "title": "Historical integration note: Control Tower 0.6.0 compatibility",
+      "path": "docs/control-tower-0.6.md"
+    },
+    {
+      "title": "Historical integration note: Evals 0.10.0 evaluation evidence compatibility",
+      "path": "docs/evals-0.10-aios-evidence.md"
+    },
+    {
+      "title": "Historical integration note: Evals 0.11 containment compatibility",
+      "path": "docs/evals-0.11-containment.md"
+    },
+    {
+      "title": "Historical integration note: Evals 0.12 API and report readiness",
+      "path": "docs/evals-0.12.md"
+    },
+    {
+      "title": "Historical integration note: Evals 0.8.0 CLI interoperability",
+      "path": "docs/evals-0.8-cli.md"
+    },
+    {
+      "title": "Historical integration note: Evals 0.9.0 judge reliability compatibility",
+      "path": "docs/evals-0.9-judge-reliability.md"
+    },
+    {
+      "title": "Historical integration note: Evals native contract compatibility",
+      "path": "docs/evals-report-contract.md"
+    },
+    {
+      "title": "Historical integration note: Lens 0.13 ecosystem compatibility",
+      "path": "docs/lens-0.13-compatibility.md"
+    },
+    {
+      "title": "Historical integration note: MCP 0.4.0 unified workflows",
+      "path": "docs/mcp-0.4-unified-workflows.md"
+    },
+    {
+      "title": "Historical integration note: MCP 0.5.0 hosted access control",
+      "path": "docs/mcp-0.5-access-control.md"
+    },
+    {
+      "title": "Historical integration note: MCP 0.7 integration readiness \u2014 Lens 0.13.0",
+      "path": "docs/mcp-0.7-readiness.md"
+    },
+    {
+      "title": "Historical integration note: MCP Phase 6 coordinated containment release",
+      "path": "docs/phase6-containment.md"
+    },
+    {
+      "title": "Historical integration note: Sidecar 0.10 contract readiness",
+      "path": "docs/sidecar-0.10.md"
+    },
+    {
+      "title": "Historical integration note: Sidecar 0.9.0 compatibility",
+      "path": "docs/sidecar-0.9.md"
+    },
+    {
+      "title": "Historical integration note: Tower 0.10 capability contract compatibility",
+      "path": "docs/tower-0.10-compatibility.md"
+    },
+    {
+      "title": "Historical integration note: Tower 0.7.0 integration compatibility",
+      "path": "docs/tower-0.7-fleet-operations.md"
+    },
+    {
+      "title": "Historical integration note: Control Tower 0.8.0 live operations compatibility",
+      "path": "docs/tower-0.8-live-operations.md"
+    },
+    {
+      "title": "Historical integration note: Control Tower 0.9.0 runbooks compatibility",
+      "path": "docs/tower-0.9-runbooks.md"
     }
   ],
   "contracts": [
-    "src/agenticlens/__init__.py",
-    "src/agenticlens/models/*.py",
-    "src/agenticlens/profiler/context.py",
-    "src/agenticlens/instrumentation/*.py"
+    "src/agenticlens/**/*.py"
   ],
-  "schemas": []
+  "schemas": [
+    "schemas/**/*.schema.json",
+    "schemas/enterprise/*.json"
+  ]
 }
