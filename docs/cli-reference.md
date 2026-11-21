@@ -9,6 +9,70 @@ agenticlens --help
 
 ---
 
+## Command inventory
+
+Every registered command is listed below, including nested groups. Run `agenticlens COMMAND --help` (for example, `agenticlens suite approve --help`) for its complete options. The robust AI reference also includes source declarations for all CLI functions, with the exact argument and option definitions.
+
+| Command (after `agenticlens`) | Purpose |
+| --- | --- |
+| `analyze` | Run the recommendation engine against a saved workflow. |
+| `attribution-accuracy` | Measure faulty-step attribution accuracy on controlled failures. |
+| `calibrate` | Compare saved judge verdicts with human reference labels. |
+| `compare` | Compare repeated baseline and candidate traces. |
+| `conformance` | Run schema and semantic AIOS draft checks and report rule-cited draft alignment. |
+| `dashboard` | Combine a workflow, run, evaluation report, and/or comparison into one HTML dashboard. |
+| `dataset export-samples` | Export evaluation samples from a versioned dataset artifact. |
+| `dataset split` | Assign deterministic train, validation, and test splits to a dataset. |
+| `dataset summary` | Summarize dataset size, split assignment, and available human labels. |
+| `diagnose` | Diagnose failures, attribute the faulty step and agent, and rebuild the timeline. |
+| `evaluate` | Score agent outputs, tool use, latency, and cost against a test suite. |
+| `evaluate-live` | Run one trusted live Python or HTTP target against an evaluation suite. |
+| `evidence export` | Export native Run + explicit records to an authenticated AIOS execution bundle. |
+| `evidence replay` | Verify/import saved AIOS evidence, then print capture-order records offline. |
+| `evidence verify` | Read a JSON array and manifest. Exit 0 only for verified coverage. |
+| `experiment report` | Re-render a saved experiment report without re-running any variant. |
+| `experiment run` | Run repeated trials for three or more variants against one suite. |
+| `explain` | Explain a run's failures, or a workflow's recommendations, as an investigation. |
+| `gate` | Apply release thresholds and return exit code 2 when the gate fails. |
+| `history` | Render a cross-trace history view from a --db file or a run-JSON directory. |
+| `import-otlp` | Convert OTLP/HTTP JSON trace exports into AgenticLens run files. |
+| `inspect` | Inspect a validated run trace, span tree, and raw metric distributions. |
+| `modelfit matrix` | Show the task-level model matrix of a saved ModelFit report. |
+| `modelfit recommend` | Recommend a model for every task category under hard constraints. |
+| `modelfit taxonomy` | Show which cases each task category covers, before recommending. |
+| `optimize analyze` | Rank opportunities by projected cost saving, with evidence, confidence, and risks. |
+| `optimize decide` | Record a decision. Adopting requires a prior accept; reverting requires adoption. |
+| `optimize outcome` | Compare projected and observed savings; the projection is never adjusted. |
+| `optimize status` | Show the latest decision status of every opportunity in a report. |
+| `profile` | Run a script that uses `agenticlens.profile()` / `agenticlens.step()` and report it. |
+| `report` | Display a saved workflow report. |
+| `routing decide` | Select and explain without invoking models, in every policy mode. |
+| `routing summary` | Summarize measured serving/shadow outcomes; unknown costs stay unknown. |
+| `serve-otlp` | Run a live OTLP/HTTP receiver with a real-time dashboard. Requires `agenticlens[api]`. |
+| `suite add-case` | Add an authored case (at least one expectation is required). |
+| `suite approve` | Check and store a suite as an immutable approved version (exit 6 when refused). |
+| `suite dedupe` | Find exact, near, and conflicting duplicate cases. |
+| `suite diff` | Show cases added, removed, and changed between two suites. |
+| `suite export` | Export a verified approved version (optionally filtered) for evaluation in CI. |
+| `suite filter` | Write the subset of cases matching tags, domains, and splits. |
+| `suite from-feedback` | Convert user feedback (ratings and corrections) into draft cases for review. |
+| `suite from-traces` | Convert successful production traces into draft cases for review. |
+| `suite import` | Import test cases from CSV or JSON into a new or existing suite. |
+| `suite mask` | Mask emails, phones, cards, SSNs, IPs, secrets, and sensitive fields. |
+| `suite remove-case` | Remove cases by ID. |
+| `suite review` | Record a review decision on cases. |
+| `suite split` | Assign stable train/validation/test splits (variants follow their original). |
+| `suite summary` | Count cases by split, domain, tag, source, and review status. |
+| `suite tag` | Add or remove tags and set domain categories. |
+| `suite vary` | Add deterministic synthetic input variations (marked needs_review). |
+| `suite verify` | Re-hash stored versions; exit 6 when any is missing or was changed. |
+| `suite versions` | List approved suite versions. |
+| `trace show` | Show a trace's span tree and metrics, or one span in full. |
+| `trace timeline` | Reconstruct the incident timeline, marking the attributed root cause. |
+| `validate` | Validate an AIOS artifact against the draft JSON Schema. |
+
+---
+
 ## `profile`
 
 Run and profile a Python workflow script.
@@ -421,6 +485,7 @@ agenticlens calibrate <evaluation.json> <labels.json> [OPTIONS]
 |------|------|-------------|
 | `--evaluator` | `STR` | Evaluator name to calibrate |
 | `--save` | `PATH` | Save calibration report as JSON |
+| `--tune-threshold` | `PATH` | Sweep pass thresholds and save the threshold-tuning report |
 
 **Example:**
 
@@ -429,3 +494,75 @@ agenticlens calibrate evaluation.json labels.json \
   --evaluator answer_quality \
   --save calibration.json
 ```
+
+---
+
+## `report`
+
+Display a saved profiling workflow (not a structured Run):
+
+```bash
+agenticlens report workflow.json
+```
+
+## `diagnose`, `explain`, `trace`, and `attribution-accuracy`
+
+```bash
+agenticlens diagnose run.json [--baseline PATH] [--save FILE] [--markdown FILE] \
+  [--max-cost-usd USD] [--max-tokens N] [--max-latency-ms MS] \
+  [--loop-threshold N] [--max-spans N] [--max-depth N] [--fail-on-unrecovered]
+agenticlens explain artifact.json [--save FILE]
+agenticlens trace show run.json [--span SPAN_ID]
+agenticlens trace timeline run.json [--save FILE]
+agenticlens attribution-accuracy controlled-failures/ [--save FILE] [--min-step-accuracy RATE]
+```
+
+`--baseline` is repeatable. `explain` accepts a Run, Workflow or DiagnosisReport.
+`diagnose --fail-on-unrecovered` exits 4 on unrecovered failures; attribution accuracy exits 5 when the configured minimum is not met. Invalid inputs exit 1. See [diagnosis rules, budgets, timelines and attribution](diagnosis.md).
+
+## `experiment`
+
+```bash
+agenticlens experiment run manifest.yaml suite.yaml --save experiment.json
+agenticlens experiment report experiment.json --html experiment.html --csv variants.csv
+```
+
+Repeated trials support recorded, trusted Python and HTTP targets. Output flags include `--html`, `--csv` and `--cases-csv`; `run` also supports confidence/regression/sample controls. See [manifest, statistics and full workflow](experiments.md).
+
+## `suite`
+
+The inventory above lists every suite operation. Start with `suite import` or trace/feedback conversion, then edit, mask, deduplicate, vary, split, filter and review. Approval stores an immutable version for later verification/export; `versions` lists stored history and `diff` compares two suites. Commands have different positional arguments: use each subcommand's help rather than assuming every one accepts a suite path. See [suite commands, inputs and approval checks](suite-management.md).
+
+## `modelfit`
+
+```bash
+agenticlens modelfit taxonomy experiment.json [--config FILE] [--json]
+agenticlens modelfit recommend experiment.json [--config FILE] [--manifest FILE] \
+  [--save FILE] [--markdown FILE] [--csv FILE] [--json] \
+  [--fail-on-unfit] [--fail-on-low-confidence]
+agenticlens modelfit matrix modelfit.json [--csv FILE] [--markdown FILE]
+```
+
+`recommend` and `taxonomy` accept multiple experiment files; `--manifest` is repeatable. CI checks exit 8 for an unfit category or low confidence when the corresponding flag is set. See [ModelFit constraints, scoring, taxonomy and confidence](modelfit.md).
+
+## `routing`
+
+```bash
+agenticlens routing decide modelfit.json --category CATEGORY --request-id OPAQUE_ID \
+  [--policy FILE] [--save FILE] [--audit FILE]
+agenticlens routing summary result.json [MORE_RESULTS...] [--save FILE]
+```
+
+`decide` never invokes providers; exit 5 means blocked/escalated and exit 1 means invalid input. `summary` reads SDK `RoutingResult` files. See [runtime policies, callbacks and audit](routing.md).
+
+## `evidence`
+
+```bash
+agenticlens evidence verify records.json manifest.json --stream-id EXPECTED_STREAM \
+  --key-file trusted-keys.json
+agenticlens evidence export run.json observations.json bundle.json --key-id KEY_ID \
+  --key-file trusted-keys.json [--complete]
+agenticlens evidence replay bundle.json --run-id EXPECTED_RUN --key-file trusted-keys.json
+```
+
+Trust keys come from an operator-owned JSON map of key IDs to hex keys. Verification exits 0 only for verified coverage; replay refuses untrusted or incomplete bundles. Capture completeness must be explicitly justified by the producer. See [evidence authentication, execution mapping and replay](evidence-verification.md).
