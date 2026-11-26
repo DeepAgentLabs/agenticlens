@@ -1,6 +1,6 @@
 # API Reference (Detailed)
 
-**Version:** 1.0.3
+**Version:** 1.1.0
 
 Public symbols exported from `agenticlens`:
 
