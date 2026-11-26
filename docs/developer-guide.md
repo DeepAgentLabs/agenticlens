@@ -10,8 +10,9 @@ Every row links to a short workflow below. Each workflow links to its detailed r
 
 | Capability | What you can do |
 | --- | --- |
-| [Workflow profiling](#workflow-profiling) | Profile steps, extract provider usage, and analyze cost and token consumption. |
+| [Workflow profiling](#workflow-profiling) | Profile steps, extract provider usage, analyze cost and token consumption, and get rule-based waste recommendations. |
 | [Structured tracing and privacy](#tracing) | Record hierarchical runs, spans, agents, errors, tokens and redacted I/O. |
+| [Metrics and trace analysis](#metrics) | Measure tokens, cost, latency, retries and tool calls per run and span type, and get deterministic trace findings from the CLI or Python. |
 | [Run comparison](#run-comparison) | Compare repeated baseline/candidate runs and detect descriptive regressions. |
 | [Diagnosis and attribution](#diagnosis) | Find failure categories, faulty steps and agents, timelines, anomalies and investigation narratives. |
 | [Analysis guardrails and attribution accuracy](#analysis-guardrails) | Bound analysis work and measure attribution on controlled failures. |
@@ -104,6 +105,26 @@ agenticlens trace show run.json
 ```
 
 Use `trace show run.json --span SPAN_ID` for a recorded span ID. See [tracing and comparison](trace-and-comparison.md) and [tracing API](api-reference.md#tracing-api).
+
+<span id="metrics"></span>
+### Metrics and trace analysis
+
+`agenticlens inspect run.json` reports run totals, token and latency distributions by span type, retry and tool-call counts, deterministic findings and next-best-analysis suggestions. Use the same measurements from Python:
+
+```python
+from pathlib import Path
+
+from agenticlens.analysis import analyze_trace
+from agenticlens.metrics.trace import retry_count, tokens_by_span_type
+from agenticlens.models.trace import Run
+
+run = Run.model_validate_json(Path("run.json").read_text(encoding="utf-8"))
+print(run.total_tokens, tokens_by_span_type(run), retry_count(run))
+for finding in analyze_trace(run):
+    print(finding.category, finding.title, finding.span_ids)
+```
+
+Findings cover high memory token share, retry overhead and duplicated context, each citing the spans behind it. Span cost is the value recorded with `record_cost()`; profiled steps are priced from the pricing table, overrides or live pricing. Unknown costs remain unavailable. See the [metrics and trace analysis API](api-reference.md#metrics-and-trace-analysis-api) and [inspect a run](trace-and-comparison.md#inspect-a-run).
 
 ### Run comparison
 

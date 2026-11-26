@@ -6,8 +6,9 @@ This index opens the generated [AI Reference (robust)](https://deepagentlabs.io/
 
 | Capability | Included scope | Detailed reference |
 | --- | --- | --- |
-| Workflow profiling | Profile steps, extract provider usage, and analyze cost and token consumption. | <a href="#api-reference">Full reference</a> · [Source](api-reference.md) |
+| Workflow profiling | Profile steps, extract provider usage, analyze cost and token consumption, and get rule-based waste recommendations. | <a href="#api-reference">Full reference</a> · [Source](api-reference.md) |
 | Structured tracing and privacy | Record hierarchical runs, spans, agents, errors, tokens and redacted I/O. | <a href="#tracing-and-comparison">Full reference</a> · [Source](trace-and-comparison.md) |
+| Metrics and trace analysis | Measure tokens, cost, latency, retries and tool calls per run and span type, and get deterministic trace findings from the CLI or Python. | <a href="#metrics-and-trace-analysis-api">Full reference</a> · [Source](api-reference.md#metrics-and-trace-analysis-api) |
 | Run comparison | Compare repeated baseline/candidate runs and detect descriptive regressions. | <a href="#tracing-and-comparison">Full reference</a> · [Source](trace-and-comparison.md) |
 | Diagnosis and attribution | Find failure categories, faulty steps and agents, timelines, anomalies and investigation narratives. | <a href="#failure-diagnosis-and-attribution">Full reference</a> · [Source](diagnosis.md) |
 | Analysis guardrails and attribution accuracy | Bound analysis work and measure attribution on controlled failures. | <a href="#failure-diagnosis-and-attribution">Full reference</a> · [Source](diagnosis.md) |
