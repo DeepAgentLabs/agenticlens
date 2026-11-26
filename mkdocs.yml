@@ -57,12 +57,12 @@ nav:
   - Evals 0.11 Containment Scoring: evals-0.11-containment.md
   - Home: index.md
   - Developer Guide (simple): developer-guide.md
-  - AI Reference capability index: ai-reference-index.md
+  - API Reference (Detailed): api-reference.md
+  - AI Readable Documentation: ai-reference-index.md
   - Getting started: getting-started.md
   - Architecture: architecture.md
   - Features: features.md
   - Configuration: configuration.md
-  - API Reference (Detailed): api-reference.md
   - CLI reference: cli-reference.md
   - Integrations: integrations.md
   - Examples: examples.md
