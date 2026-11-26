@@ -4,7 +4,7 @@
   "distribution": "agenticlens",
   "document": "llms-full.md",
   "content_type": "text/markdown; charset=utf-8",
-  "sha256": "a307b4fc71921efdab8f9e25bb146ac8ae104fde10fa457333f8fc16ad6830f3",
+  "sha256": "75518756a662744f9a3e98a31e519420ce37e891a3a57f834a875bcc9cc995cd",
   "source_hash_normalization": "UTF-8 text with LF newlines",
   "human_guide": "developer-guide.md",
   "sources": [
@@ -31,7 +31,7 @@
     {
       "path": "docs/index.md",
       "kind": "reference",
-      "sha256": "16756c584ed453ae2253f8c91e2be53e5b309dff1bd1399356a0bcb9e33bf6b7"
+      "sha256": "5e8d7b7b38b7cf9d43990b5b13a8c7dcc55e24f4ae093e9bbe9e6576138e70d6"
     },
     {
       "path": "docs/features.md",
