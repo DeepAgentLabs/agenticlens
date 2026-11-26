@@ -4,7 +4,7 @@
   "distribution": "agenticlens",
   "document": "llms-full.md",
   "content_type": "text/markdown; charset=utf-8",
-  "sha256": "389632b894bd756036b60b4296c0359bcba6e64e21f432a5321bdc5981ba6bac",
+  "sha256": "a307b4fc71921efdab8f9e25bb146ac8ae104fde10fa457333f8fc16ad6830f3",
   "source_hash_normalization": "UTF-8 text with LF newlines",
   "human_guide": "developer-guide.md",
   "sources": [
@@ -166,7 +166,7 @@
     {
       "path": "docs/limitations.md",
       "kind": "reference",
-      "sha256": "b71d78a78602d708546c714213cd33eb04b76e86048dfcb3e1784ac935db4f3b"
+      "sha256": "74f87a9e967f0814d037bd255aca846af36e24bae5a59557fda17b61354c07cb"
     },
     {
       "path": "docs/aios-0.6.1.md",

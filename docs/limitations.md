@@ -1,7 +1,9 @@
 # Limitations
 
-This page documents known limitations of AgenticLens 0.5.0. Planned
-improvements appear in [Roadmap](roadmap.md).
+This page lists what the current AgenticLens release does not do, so you can
+plan around it. The package is early-stage (PyPI classifier: Alpha). Planned
+improvements appear in [Roadmap](roadmap.md). Topic guides list further limits
+for their own features.
 
 ---
 
@@ -11,7 +13,9 @@ improvements appear in [Roadmap](roadmap.md).
 
 AgenticLens does not automatically intercept framework events. You must wrap
 agent calls with `profile()` / `step()` or `trace()` / `recording.span()`
-explicitly. Automatic framework adapters (LangGraph, LangChain, etc.) are
+explicitly. The `[langgraph]` and `[multi-agent]` extras ship an offline
+LangGraph reference workflow, but LangGraph nodes are still instrumented by
+hand. Automatic framework event capture (LangGraph, LangChain, etc.) is
 roadmap work.
 
 ### Token extraction is provider-specific
@@ -37,9 +41,11 @@ your specific agent's performance. Always evaluate changes with a test suite.
 
 ### Cost estimates are approximate
 
-Live pricing is fetched from provider APIs and cached. Pricing may lag
-behind actual rate changes. Cost estimates are for budgeting and trend
-analysis, not billing.
+Prices resolve from your overrides, then the optional live pricing feed
+(LiteLLM's public price list, cached), then the bundled pricing table. Any of
+these can lag behind actual rate changes. Unknown prices stay unknown rather
+than counting as zero. Cost estimates are for budgeting and trend analysis,
+not billing.
 
 ### Optimization projections assume similar traffic
 
@@ -52,7 +58,31 @@ windows without controlling for other changes shipped in between.
 
 `agenticlens compare` reports descriptive statistics (mean, median, P95,
 standard deviation). It does not claim statistical significance or causal
-attribution, especially for small or uncontrolled samples.
+attribution, especially for small or uncontrolled samples. For significance
+tests and confidence intervals, use `agenticlens experiment run`.
+
+### Experiments
+
+- One suite per experiment; every variant must answer the same cases.
+- No multiple-comparison correction across variants.
+- Live variants run trials sequentially; `--max-workers` parallelises cases
+  within a trial only.
+
+See [Experiments](experiments.md#limitations).
+
+### Diagnosis sees only the recorded trace
+
+Rules and attribution follow what the trace recorded. A root cause outside the
+trace (for example an upstream data change) is reported as the first recorded
+symptom. Anomaly detection assumes baseline runs of the same workflow and does
+not correct for multiple comparisons. See [Diagnosis](diagnosis.md#limitations).
+
+### ModelFit and routing use only your evidence
+
+ModelFit does not call models or use public benchmarks; it ranks only the
+variants in experiment reports you recorded. Routing runs
+through host-owned callbacks, and Lens does not authenticate approvers. See
+[ModelFit](modelfit.md) and [Routing](routing.md).
 
 ---
 
@@ -64,10 +94,11 @@ AgenticLens does not ship LLM clients for evaluation. You supply the
 callable that calls your model. The `LLMJudgeEvaluator` wraps your function
 and normalizes the score; it does not make model API calls itself.
 
-### Synchronous evaluators only
+### Synchronous evaluator APIs
 
-`evaluate_suite` is synchronous. Batched or asynchronous evaluation is a
-roadmap capability.
+Evaluator APIs such as `evaluate_suite` are synchronous. `evaluate-live
+--max-workers N` calls a live target for several cases at once, but async
+evaluator APIs are roadmap work.
 
 ### `max_turns` requires explicit metadata
 
@@ -93,6 +124,16 @@ or Server-Sent Events.
 
 The default in-memory trace store evicts the oldest traces (FIFO) when the
 cap (default 200) is reached. Use `--db PATH` for persistent storage.
+
+---
+
+## Enterprise artifact service
+
+The optional artifact service (`agenticlens[api]`) uses SQLite as a trusted
+single-node boundary: run one worker on local block storage. Horizontal
+scaling, OIDC/SSO and high availability are outside this release. Deleting data
+does not erase SQLite free pages or backups, and registry and audit records are
+not removed by trace retention. See [Production readiness](production-readiness.md).
 
 ---
 
@@ -131,5 +172,5 @@ and accompanied by a version bump.
 
 ### Python 3.10+ required
 
-AgenticLens requires Python 3.10 or later. Older Python versions are not
+AgenticLens supports Python 3.10 to 3.14. Older Python versions are not
 supported.
