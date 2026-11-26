@@ -271,14 +271,19 @@ Instrumented workflows, structured traces, or supported imported trace data.
 
 ## Start here
 
-Record a small local trace and inspect run.json.
+Record a small local trace and inspect `run.json`: [follow the quickstart](developer-guide.md#quickstart).
 
-[Follow the quickstart](developer-guide.md#quickstart).
+## Limits
 
-## Scope
+- Recommendations are heuristic and advisory; savings are projections.
+- Instrument real execution boundaries; arbitrary frameworks are not intercepted automatically.
+- Streaming token capture is not provided.
+- Dataset and experiment workflows don't make every third-party trace schema compatible automatically.
 
-Recommendations are advisory. Its richer dataset and experiment workflows do not make every third-party trace schema automatically compatible.
+See [Limitations](limitations.md).
 
-[Developer Guide (simple)](developer-guide.md#capability-index) · [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md)
+## Documentation
 
-Both include a capability index. The developer guide gives short workflows; the AI reference includes detailed guides, source declarations and bundled schemas.
+- [Developer Guide (simple)](developer-guide.md): short task workflows and a capability index
+- [API Reference (Detailed)](api-reference.md): exact Python functions, parameters and return values
+- [AI Readable Documentation](ai-reference-index.md): the full reference as one file for AI tools, with source declarations and schemas
