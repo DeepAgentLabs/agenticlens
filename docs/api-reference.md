@@ -162,12 +162,14 @@ Enum of recognized span types:
 | `SpanType.PLANNING` | Planning or reasoning step |
 | `SpanType.RETRIEVAL` | Document or context retrieval |
 | `SpanType.TOOL_CALL` | External tool invocation |
-| `SpanType.LLM_CALL` | Generic LLM call |
+| `SpanType.MODEL_CALL` | LLM / model call |
 | `SpanType.MEMORY_READ` | Memory lookup |
 | `SpanType.MEMORY_WRITE` | Memory update |
 | `SpanType.DELEGATION` | Agent handoff / delegation |
 | `SpanType.FINAL_RESPONSE` | Final answer generation |
 | `SpanType.VALIDATION` | Output validation step |
+| `SpanType.RETRY` | Retry of a failed step |
+| `SpanType.CUSTOM` | Application-defined span |
 
 ---
 
