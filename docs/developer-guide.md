@@ -2,16 +2,17 @@
 
 Use this simple guide to choose a capability, run a local example, and connect it to your application. The [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) includes the detailed topic guides, declared Python/CLI interfaces and bundled JSON schemas. Package versions and draft/candidate artifact versions are independent.
 
-[Capability index](#capability-index) · [Quickstart](#quickstart) · [Configuration](#settings) · [Troubleshooting](#troubleshooting) · [Reference](#reference)
+[Capability index](#capability-index) · [Capabilities map](index.md#what-it-does) · [Quickstart](#quickstart) · [Configuration](#settings) · [Troubleshooting](#troubleshooting) · [Reference](#reference)
 
 ## Capability index
 
-Every row links to a short workflow below. Each workflow links to its detailed reference.
+Every row links to a short workflow below. Each workflow links to its detailed reference. For a grouped list of every capability and sub-capability, see the [capabilities map](index.md#what-it-does).
 
 | Capability | What you can do |
 | --- | --- |
-| [Workflow profiling](#workflow-profiling) | Profile steps, extract provider usage, and analyze cost and token consumption. |
+| [Workflow profiling](#workflow-profiling) | Profile steps, extract provider usage, analyze cost and token consumption, and get rule-based waste recommendations. |
 | [Structured tracing and privacy](#tracing) | Record hierarchical runs, spans, agents, errors, tokens and redacted I/O. |
+| [Metrics and trace analysis](#metrics) | Measure tokens, cost, latency, retries and tool calls per run and span type, and get deterministic trace findings from the CLI or Python. |
 | [Run comparison](#run-comparison) | Compare repeated baseline/candidate runs and detect descriptive regressions. |
 | [Diagnosis and attribution](#diagnosis) | Find failure categories, faulty steps and agents, timelines, anomalies and investigation narratives. |
 | [Analysis guardrails and attribution accuracy](#analysis-guardrails) | Bound analysis work and measure attribution on controlled failures. |
@@ -104,6 +105,26 @@ agenticlens trace show run.json
 ```
 
 Use `trace show run.json --span SPAN_ID` for a recorded span ID. See [tracing and comparison](trace-and-comparison.md) and [tracing API](api-reference.md#tracing-api).
+
+<span id="metrics"></span>
+### Metrics and trace analysis
+
+`agenticlens inspect run.json` reports run totals, token and latency distributions by span type, retry and tool-call counts, deterministic findings and next-best-analysis suggestions. Use the same measurements from Python:
+
+```python
+from pathlib import Path
+
+from agenticlens.analysis import analyze_trace
+from agenticlens.metrics.trace import retry_count, tokens_by_span_type
+from agenticlens.models.trace import Run
+
+run = Run.model_validate_json(Path("run.json").read_text(encoding="utf-8"))
+print(run.total_tokens, tokens_by_span_type(run), retry_count(run))
+for finding in analyze_trace(run):
+    print(finding.category, finding.title, finding.span_ids)
+```
+
+Findings cover high memory token share, retry overhead and duplicated context, each citing the spans behind it. Span cost is the value recorded with `record_cost()`; profiled steps are priced from the pricing table, overrides or live pricing. Unknown costs remain unavailable. See the [metrics and trace analysis API](api-reference.md#metrics-and-trace-analysis-api) and [inspect a run](trace-and-comparison.md#inspect-a-run).
 
 ### Run comparison
 
@@ -340,6 +361,6 @@ Use the environment where the package was installed. Confirm files exist, case I
 
 ## Reference
 
-- [API reference](api-reference.md) and [CLI reference](cli-reference.md).
+- [API Reference (Detailed)](api-reference.md) and [CLI reference](cli-reference.md).
 - [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) and [capability/source index](ai-reference-index.md).
 - [Source manifest and checksums](ai-docs-manifest.json).

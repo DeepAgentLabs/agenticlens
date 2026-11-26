@@ -6,6 +6,23 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 1.1.0 - 2026-11-25
+
+### Added
+
+- Put a grouped capabilities map, covering all 15 capability areas and their sub-capabilities, on the documentation overview page.
+- Document the metrics and trace analysis API: run token totals, tokens and latency by span type, retry and tool-call counts, memory and retry helpers, `analyze_trace`, `next_best_analyses` and `count_round_trips`.
+- Add a metrics and trace analysis row and workflow to both capability indexes.
+- List API Reference (Detailed) and AI Readable Documentation in the documentation sidebar.
+
+### Changed
+
+- Title the API reference as API Reference (Detailed), and replace the overview's Scope section with Limits and a Documentation section listing all three documents.
+
+### Fixed
+
+- Correct the `SpanType` table in the API reference: `MODEL_CALL` replaces the nonexistent `LLM_CALL`, and `RETRY` and `CUSTOM` are listed.
+
 ## 1.0.4 - 2026-11-20
 
 ### Changed
