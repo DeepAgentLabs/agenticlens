@@ -62,7 +62,7 @@ nav:
   - Architecture: architecture.md
   - Features: features.md
   - Configuration: configuration.md
-  - API reference: api-reference.md
+  - API Reference (Detailed): api-reference.md
   - CLI reference: cli-reference.md
   - Integrations: integrations.md
   - Examples: examples.md
