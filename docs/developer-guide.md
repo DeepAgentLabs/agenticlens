@@ -2,11 +2,11 @@
 
 Use this simple guide to choose a capability, run a local example, and connect it to your application. The [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) includes the detailed topic guides, declared Python/CLI interfaces and bundled JSON schemas. Package versions and draft/candidate artifact versions are independent.
 
-[Capability index](#capability-index) · [Quickstart](#quickstart) · [Configuration](#settings) · [Troubleshooting](#troubleshooting) · [Reference](#reference)
+[Capability index](#capability-index) · [Capabilities map](index.md#what-it-does) · [Quickstart](#quickstart) · [Configuration](#settings) · [Troubleshooting](#troubleshooting) · [Reference](#reference)
 
 ## Capability index
 
-Every row links to a short workflow below. Each workflow links to its detailed reference.
+Every row links to a short workflow below. Each workflow links to its detailed reference. For a grouped list of every capability and sub-capability, see the [capabilities map](index.md#what-it-does).
 
 | Capability | What you can do |
 | --- | --- |
