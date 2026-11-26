@@ -173,6 +173,112 @@ Enum of recognized span types:
 
 ---
 
+## Metrics and trace analysis API
+
+Pure functions over a saved structured run (`Run`). They read recorded spans
+only; they never call providers. `agenticlens inspect` uses them to build its
+report.
+
+```python
+from pathlib import Path
+
+from agenticlens.analysis import analyze_trace, next_best_analyses
+from agenticlens.analysis.trace import memory_share, retry_token_share
+from agenticlens.metrics.trace import (
+    latency_by_span_type,
+    retry_count,
+    tokens_by_span_type,
+    tool_call_count,
+)
+from agenticlens.models.trace import Run
+
+run = Run.model_validate_json(Path("run.json").read_text(encoding="utf-8"))
+
+print(run.total_tokens)                 # input + output tokens across all spans
+print(tokens_by_span_type(run))         # {SpanType.PLANNING: 150, SpanType.MEMORY_READ: 80}
+print(latency_by_span_type(run))        # milliseconds per span type
+print(retry_count(run), tool_call_count(run))
+print(memory_share(run), retry_token_share(run))
+
+findings = analyze_trace(run)
+for finding in findings:
+    print(finding.category, finding.title, finding.span_ids)
+print(next_best_analyses(findings))
+```
+
+Use the `run.json` saved by the [developer guide quickstart](developer-guide.md#quickstart),
+or any run saved with `recording.save()`.
+
+### Run totals
+
+Properties on `Run` (and the matching per-span properties on `Span`):
+
+| Property | Returns |
+|----------|---------|
+| `run.total_input_tokens` | Sum of span input tokens |
+| `run.total_output_tokens` | Sum of span output tokens |
+| `run.total_tokens` | Input + output tokens (`span.total_tokens` per span) |
+
+### `agenticlens.metrics.trace`
+
+| Function | Returns |
+|----------|---------|
+| `tokens_by_span_type(run)` | `dict[SpanType, int]`: total tokens per span type |
+| `latency_by_span_type(run)` | `dict[SpanType, float]`: summed latency (ms) per span type |
+| `retry_count(run)` | `int`: number of `RETRY` spans |
+| `tool_call_count(run)` | `int`: number of `TOOL_CALL` spans |
+
+Span types with no spans are absent from the dictionaries.
+
+### `agenticlens.analysis.trace`
+
+| Function | Returns |
+|----------|---------|
+| `memory_tokens(run)` | `int`: tokens in `MEMORY_READ` and `MEMORY_WRITE` spans |
+| `memory_share(run)` | `float`: memory tokens / total tokens (`0.0` when there are no tokens) |
+| `retry_tokens(run)` | `int`: tokens in `RETRY` spans |
+| `retry_latency_ms(run)` | `float`: latency of `RETRY` spans |
+| `retry_cost_usd(run)` | `float`: estimated cost of `RETRY` spans; spans without a cost count as `0.0` |
+| `retry_token_share(run)` | `float`: retry tokens / total tokens |
+| `retry_latency_share(run)` | `float`: retry latency / total run latency |
+| `retry_attribution(run)` | `dict[str, dict]`: per retry span ID, the `triggering_failure_span_id` and `triggering_failure_type` (parent span if it failed, otherwise the nearest earlier failed span; `None` when none is found) |
+| `classify_retry_outcomes(run)` | `dict[str, int]`: counts of `recovered`, `failed` and `unknown` retries, judged from each retry's child spans |
+| `duplicated_context_groups(run)` | `list[list[str]]`: groups of span IDs that share the same `input_reference` or identical `input_data` |
+
+`retry_cost_usd` treats missing cost as zero, so it is a lower bound when some
+retry spans have no price.
+
+### `analyze_trace(run, *, memory_share_threshold=0.5, retry_share_threshold=0.2, duplicated_context_threshold=2)`
+
+Returns deterministic `Finding` objects. Each finding has `category`, `title`,
+`description`, `severity`, `confidence`, `span_ids` and `evidence` pointing at
+the spans and measurements that triggered it.
+
+| Category | Raised when |
+|----------|-------------|
+| `memory` | `memory_share(run)` is above `memory_share_threshold` |
+| `retry` | `retry_token_share(run)` is above `retry_share_threshold`; evidence includes retry tokens, latency, cost, outcomes and attribution |
+| `context` | A duplicated-context group has at least `duplicated_context_threshold` spans |
+
+### `next_best_analyses(findings)`
+
+Returns follow-up suggestions (`list[str]`) for the categories present in
+`findings`, or an empty list when there are none.
+
+### `count_round_trips(transitions)`
+
+From `agenticlens.analysis.handoffs`. Counts non-overlapping agent handoff
+round trips (`A→B` immediately followed by `B→A`) in a chronological list of
+`(source, target)` pairs:
+
+```python
+from agenticlens.analysis.handoffs import count_round_trips
+
+count_round_trips([("planner", "coder"), ("coder", "planner")])  # 1
+```
+
+---
+
 ## Evaluation API
 
 ```python
