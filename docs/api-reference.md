@@ -1,4 +1,4 @@
-# API Reference (Detailed)
+# API Reference (detailed)
 
 **Version:** 1.1.0
 

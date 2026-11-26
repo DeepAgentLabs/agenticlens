@@ -285,5 +285,5 @@ See [Limitations](limitations.md).
 ## Documentation
 
 - [Developer Guide (simple)](developer-guide.md): short task workflows and a capability index
-- [API Reference (Detailed)](api-reference.md): exact Python functions, parameters and return values
+- [API Reference (detailed)](api-reference.md): exact Python functions, parameters and return values
 - [AI Readable Documentation](ai-reference-index.md): the full reference as one file for AI tools, with source declarations and schemas

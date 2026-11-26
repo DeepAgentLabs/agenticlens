@@ -126,5 +126,5 @@ agenticlens inspect run.json
 - [Features](features.md) — every implemented capability with status labels
 - [Configuration](configuration.md) — pricing, thresholds, and settings
 - [CLI reference](cli-reference.md) — full flag reference for every command
-- [API Reference (Detailed)](api-reference.md) — Python API documentation
+- [API Reference (detailed)](api-reference.md) — Python API documentation
 - [Examples](examples.md) — runnable end-to-end examples

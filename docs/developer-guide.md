@@ -361,6 +361,6 @@ Use the environment where the package was installed. Confirm files exist, case I
 
 ## Reference
 
-- [API Reference (Detailed)](api-reference.md) and [CLI reference](cli-reference.md).
+- [API Reference (detailed)](api-reference.md) and [CLI reference](cli-reference.md).
 - [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) and [capability/source index](ai-reference-index.md).
 - [Source manifest and checksums](ai-docs-manifest.json).

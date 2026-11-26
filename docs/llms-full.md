@@ -471,7 +471,7 @@ Use the environment where the package was installed. Confirm files exist, case I
 
 ## Reference
 
-- [API Reference (Detailed)](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/api-reference.md) and [CLI reference](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/cli-reference.md).
+- [API Reference (detailed)](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/api-reference.md) and [CLI reference](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/cli-reference.md).
 - [AI Reference (robust)](https://deepagentlabs.io/agenticlens/docs/llms-full.md) and [capability/source index](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/ai-reference-index.md).
 - [Source manifest and checksums](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/ai-docs-manifest.json).
 
@@ -766,7 +766,7 @@ See [Limitations](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/li
 ## Documentation
 
 - [Developer Guide (simple)](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/developer-guide.md): short task workflows and a capability index
-- [API Reference (Detailed)](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/api-reference.md): exact Python functions, parameters and return values
+- [API Reference (detailed)](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/api-reference.md): exact Python functions, parameters and return values
 - [AI Readable Documentation](https://github.com/DeepAgentLabs/agenticlens/blob/main/docs/ai-reference-index.md): the full reference as one file for AI tools, with source declarations and schemas
 
 ---
@@ -7514,7 +7514,7 @@ def suite_mask(suite_file: Path=typer.Argument(..., help='Suite to mask.'), stra
 @suite_app.command('dedupe')
 def suite_dedupe(suite_file: Path=typer.Argument(..., help='Suite to check.'), threshold: float=typer.Option(0.85, '--threshold', min=0.01, max=1.0, help='Near-duplicate Jaccard threshold.'), include_variants: bool=typer.Option(False, '--include-variants', help='Also compare variants of the same original.'), drop: bool=typer.Option(False, '--drop', help='Remove duplicates, keeping the first.'), report: Path | None=typer.Option(None, '--report', help='Save the duplicate report JSON.'), save: Path | None=typer.Option(None, '--save')) -> None: ...
 @suite_app.command('vary')
-def suite_vary(suite_file: Path=typer.Argument(..., help='Suite to extend.'), per_case: int=typer.Option(2, '--per-case', min=1, help='Variants per original case.'), kinds: list[str]=typer.Option([], '--kind', help=f"Repeatable; default all: {', '.join(VARIATIONS)}."), seed: int=typer.Option(0, '--seed'), save: Path | None=typer.Option(None, '--save')) -> None: ...
+def suite_vary(suite_file: Path=typer.Argument(..., help='Suite to extend.'), per_case: int=typer.Option(2, '--per-case', min=1, help='Variants per original case.'), kinds: list[str]=typer.Option([], '--kind', help=f'Repeatable; default all: {', '.join(VARIATIONS)}.'), seed: int=typer.Option(0, '--seed'), save: Path | None=typer.Option(None, '--save')) -> None: ...
 @suite_app.command('split')
 def suite_split(suite_file: Path=typer.Argument(..., help='Suite to split.'), train_ratio: float=typer.Option(0.7, '--train', min=0.0, max=1.0), validation_ratio: float=typer.Option(0.15, '--validation', min=0.0, max=1.0), test_ratio: float=typer.Option(0.15, '--test', min=0.0, max=1.0), seed: int=typer.Option(0, '--seed'), overwrite: bool=typer.Option(False, '--overwrite', help='Reassign existing splits too.'), save: Path | None=typer.Option(None, '--save')) -> None: ...
 @suite_app.command('filter')
